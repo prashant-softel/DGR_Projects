@@ -1,0 +1,586 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="../Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="../Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <link href="../Content/theme/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
+    <!-- Theme style -->
+    <link rel="stylesheet" href="../Content/theme/dist/css/adminlte.min.css">
+</head>
+<body class="hold-transition sidebar-mini">
+
+    <div class="wrapper">
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light">
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+                <li class="nav-item d-none d-sm-inline-block">
+                    <a href="@Url.Action("Index", "Home")" class="nav-link">Home</a>
+                </li>
+               
+            </ul>
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+               
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <div class="user-panel">
+                            <div class="image">
+                                <img src="../Content/theme/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image">
+                            </div>
+
+                        </div>
+                    </a>
+
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <span class="dropdown-item dropdown-header">User Details</span>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas  mr-2"></i>@HttpContext.Current.Session["UserName"].ToString()
+                            <span class="float-right text-muted text-sm"> </span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class=" mr-2"></i>@HttpContext.Current.Session["UserRole"].ToString()
+                            <span class="float-right text-muted text-sm"></span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="../Home/Logout" class="dropdown-item">
+                            <i class="mr-2"></i> Sign Out
+                            <span class="float-right text-muted text-sm"></span>
+                        </a>
+
+                    </div>
+                </li>
+                <!-- Messages Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="far fa-comments"></i>
+                        <span class="badge badge-danger navbar-badge">3</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <a href="#" class="dropdown-item">
+                           
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                         
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                           
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+                    </div>
+                </li>
+                <!-- Notifications Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="far fa-bell"></i>
+                        <span class="badge badge-warning navbar-badge">15</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <span class="dropdown-item dropdown-header">15 Notifications</span>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-envelope mr-2"></i> 4 new messages
+                            <span class="float-right text-muted text-sm">3 mins</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-users mr-2"></i> 8 friend requests
+                            <span class="float-right text-muted text-sm">12 hours</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-file mr-2"></i> 3 new reports
+                            <span class="float-right text-muted text-sm">2 days</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+                    </div>
+                </li>
+                <!--<li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>-->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </li>
+
+            </ul>
+        </nav>
+        <!-- /.navbar -->
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4">
+            <!-- Brand Logo -->
+            <a href="../Content/theme/index3.html" class="brand-link">
+
+                <img src="../Content/img/logo1.jpg" alt="Hero Future Energies" class="brand-image  elevation-3" style="opacity: .8; max-height: 40px; margin-top: 7px; ">
+                <span class="brand-text font-weight-light" style="line-height: 1.0 !important ;">HERO FUTURE <br><small style="padding-left: 0%;">ENERGIES</small></span>
+            </a>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar user (optional) -->
+                <!--<div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="../theme/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image">
+                    </div>
+                    <div class="info">
+                        <a href="#" class="d-block">Sujit Kumar</a>
+                    </div>
+                </div>-->
+                <!-- SidebarSearch Form -->
+                <!--<div class="form-inline">
+                    <div class="input-group" data-widget="sidebar-search">
+                        <input class="form-control form-control-sidebar" type="search" placeholder="Search" aria-label="Search">
+                        <div class="input-group-append">
+                            <button class="btn btn-sidebar">
+                                <i class="fas fa-search fa-fw"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>-->
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Add icons to the links using the .nav-icon class with font-awesome or any other icon font library -->
+                        <li class="nav-item">
+                            <a href="../Home/Dashbord" class="nav-link">
+
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>
+                                    Dashboard
+
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="../FileUpload/Upload" class="nav-link">
+                                <i class="nav-icon fas fa-upload"></i>
+                                <p>
+                                    File Upload
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-copy"></i>
+                                <p>
+                                    Wind Views
+                                    <i class="fas fa-angle-left right"></i>
+
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="../Home/WindGenView" class="nav-link">
+                                        <i class="far  nav-icon"></i>
+                                        <p>Gen Summary</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../Home/WindDailyTargetKPIView" class="nav-link">
+                                        <i class="far nav-icon"></i>
+                                        <p>Daily Target KPI</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a hhref="../Home/WindMonthlyTargetKPIView" class="nav-link">
+                                        <i class="far  nav-icon"></i>
+                                        <p>Monthly Target KPI</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../Home/WindMonthlyLinelossView" class="nav-link">
+                                        <i class="far  nav-icon"></i>
+                                        <p>Monthly LineLoss</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../Home/WindJMRView" class="nav-link">
+                                        <i class="far  nav-icon"></i>
+                                        <p>JMR</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../Home/WindDailyLoadSheddingView" class="nav-link">
+                                        <i class="far nav-icon"></i>
+                                        <p>Daily Load Shedding</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        @*<li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-copy"></i>
+                <p>
+                    Solar Views
+                    <i class="fas fa-angle-left right"></i>
+
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarGenView", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Gen Summary</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarDailyTargetKPI", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Daily Target KPI</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarMonthlyTargetKPI", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Monthly Target KPI</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarMonthlyLineLoss", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Monthly LineLoss</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarJMR", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>JMR</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Solar_AC_DC_Capacity", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>AC DC Capacity</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarDailyLoadShedding", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Daily Load Shedding</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-book"></i>
+                <p>
+                    Wind Reports
+                    <i class="fas fa-angle-left right"></i>
+
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="@Url.Action("WindReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindBDReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Breakdown Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindPRReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Performance Reports</p>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-book"></i>
+                <p>
+                    Solar Reports
+                    <i class="fas fa-angle-left right"></i>
+
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarBDReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Breakdown Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarPRReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Performance Reports</p>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-server"></i>
+                <p>
+                    Administration
+                    <i class="right fas fa-angle-left"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="@Url.Action("WindSiteMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Site Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindLocationMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Location Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarSiteMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Solar Site Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarLocationMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Solar Location Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindFileUpload", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind File Upload</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarFileUpload", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Solar File Upload</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindSiteUserMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Site User Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarSiteUserMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Solar Site User Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindDataApproval", "Admin")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Data Approval Form</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarDataApproval", "Home")" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Solar Data Apprival Form</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindWeeklyPFReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Weekly PF Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarWeeklyPFReport", "Home")" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Solar Weekly PF Reports</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="@Url.Action("Settings", "Home")" class="nav-link">
+                <i class="nav-icon fas fa-cog"></i>
+                <p>
+                    Settings
+
+                </p>
+            </a>
+        </li>*@
+                        <!--<li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chart-pie"></i>
+            <p>
+                Charts
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="@Url.Action("ChartJS", "Home")" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>ChartJS</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("FlotCharts", "Home")" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Flot</p>
+                </a>
+            </li>
+
+        </ul>
+    </li>-->
+                        <!--<li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+                Tables
+                <i class="fas fa-angle-left right"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+
+            <li class="nav-item">
+                <a href="@Url.Action("DataTable", "Home")" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>DataTables</p>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-book"></i>
+            <p>
+                Pages
+                <i class="fas fa-angle-left right"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+
+            <li class="nav-item">
+                <a href="@Url.Action("Profile", "Home")" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Profile</p>
+                </a>
+            </li>
+
+        </ul>
+    </li>-->
+                    </ul>
+
+                </nav>
+                <!-- /.sidebar-menu -->
+            </div>
+
+            <!-- /.sidebar -->
+        </aside>
+
+        @RenderBody()
+        <button type="button" id="submitNotification" style="display:none" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">Open Modal</button>
+
+        <div class="modal fade" id="myModal" role="dialog">
+            <div class="modal-dialog">
+
+                <!-- Modal content-->
+                <div class="modal-content">
+                    <div class="modal-header">
+
+                        <h4 class="modal-title">Notification</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p><div id="divnotification"></div></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <footer class="main-footer">
+            <div class="float-right d-none d-sm-block">
+                <!--<b>Version</b> 3.2.0-->
+            </div>
+            <strong>Copyright &copy; 2022 <a href="https://softeltech.in/">Softel Technologies</a>.</strong>
+        </footer>
+
+        <!-- Control Sidebar -->
+        <aside class="control-sidebar control-sidebar-dark">
+            <!-- Control sidebar content goes here -->
+        </aside>
+    </div>
+
+    <!-- jQuery -->
+    <script src="../Content/theme/plugins/jquery/jquery.min.js"></script>
+
+    <!-- Bootstrap 4 -->
+    <script src="../Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="../Content/theme/dist/js/adminlte.min.js"></script>
+    <!-- AdminLTE for demo purposes -->
+    <script src="../Content/theme/dist/js/demo.js"></script>
+    <!-- for dashbord-->
+    <script src="../Content/theme/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <script src="../Content/theme/plugins/chart.js/Chart.min.js"></script>
+
+    <script src="../Content/theme/plugins/sparklines/sparkline.js"></script>
+
+    <script src="../Content/theme/plugins/jqvmap/jquery.vmap.min.js"></script>
+    <script src="../Content/theme/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+
+    <script src="../Content/theme/plugins/jquery-knob/jquery.knob.min.js"></script>
+
+    <script src="../Content/theme/plugins/moment/moment.min.js"></script>
+    <script src="../Content/theme/plugins/daterangepicker/daterangepicker.js"></script>
+
+    <script src="../Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+    <script src="../Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+
+    <script src="../Content/theme/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <script>$.widget.bridge('uibutton', $.ui.button)</script>
+    <script src="../Content/theme/dist/js/pages/dashboard.js"></script>
+    <script>
+
+        var notification = '@TempData["notification"]'
+        console.log(notification)
+        if (notification != "") {
+            $("#divnotification").text(notification);
+                $("#submitNotification").click();
+            }
+
+    </script>
+    @RenderSection("scripts", required: false)
+</body>
+</html>

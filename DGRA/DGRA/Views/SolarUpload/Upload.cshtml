@@ -1,0 +1,13 @@
+﻿
+@{
+    ViewBag.Title = "Upload";
+}
+
+<form action="@Url.Action("Upload","SolarUpload")" method="post" enctype="multipart/form-data">
+
+
+    <input type="file" name="Path">
+    <input  type="submit" value="Upload"/>
+
+    <label style="color:green">@ViewBag.status</label>
+</form>
