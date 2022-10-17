@@ -6,6 +6,7 @@
 */*.csproj.vspscc
 */*bin
 /packages
-*/*bin
+/packages
 /bin
 /obj
+/DGRA/obj
