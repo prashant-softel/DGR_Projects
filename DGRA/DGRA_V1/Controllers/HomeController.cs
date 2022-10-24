@@ -1,6 +1,9 @@
 ﻿using DGRA_V1.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Graph;
+using Microsoft.Identity.Web;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,13 +15,22 @@ using System.Threading.Tasks;
 
 namespace DGRA_V1.Controllers
 {
+
+    [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
 
-        public HomeController(ILogger<HomeController> logger)
+   
+
+        private readonly GraphServiceClient _graphServiceClient;
+
+
+        public HomeController(ILogger<HomeController> logger,
+                         GraphServiceClient graphServiceClient)
         {
             _logger = logger;
+            _graphServiceClient = graphServiceClient;
         }
 
         //public IActionResult Index()
@@ -37,11 +49,26 @@ namespace DGRA_V1.Controllers
         //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         //}
 
-        public IActionResult Index()
+        [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+        public async Task<IActionResult> Index()
         {
+            var user = await _graphServiceClient.Me.Request().GetAsync();
+            ViewData["ApiResult"] = user.DisplayName;
+            if(!string.IsNullOrEmpty( user.DisplayName))
+            {
+                return RedirectToAction("Dashbord");
+            }
             return View();
-            //return RedirectToAction("Upload", "FileUpload");
         }
+
+
+        [AllowAnonymous]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
         public IActionResult Index1()
         {
             return View();
@@ -61,7 +88,7 @@ namespace DGRA_V1.Controllers
             System.Collections.Generic.Dictionary<string, object>[] map = new System.Collections.Generic.Dictionary<string, object>[1];
             try
             {
-                var url = "http://localhost:23835/api/Login/UserLogin?username=" + username + "&password=" + pass + "";
+                var url = "http://localhost:5000/api/Login/UserLogin?username=" + username + "&password=" + pass + "";
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
