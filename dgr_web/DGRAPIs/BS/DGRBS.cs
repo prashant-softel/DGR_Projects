@@ -97,7 +97,7 @@ namespace DGRAPIs.BS
         Task<bool> InsertSolarUploadingFilegeneration(List<SolarUploadingFilegeneration> solarUploadingFilegeneration);
         Task<bool> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> solarUploadingFileBreakDown);
        
-        //Task<List<UserLogin>> GetUserLogin(string username, string password);
+        Task<List<approvalObject>> Get_Batches(string importFromDate, string importToDate, int siteId, string status);
 
     }
     public class DGRBS : IDGRBS
@@ -1335,21 +1335,23 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-       /* public async Task<List<UserLogin>> GetUserLogin(string username, string password)
+
+        public async Task<List<approvalObject>> Get_Batches(string importFromDate, string importToDate, int siteId, string status)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.GetLogin(username, password);
-
+                    return await repos.Get_Batches(importFromDate, importToDate, siteId, status);
                 }
             }
             catch (Exception ex)
             {
                 throw;
             }
-        }*/
+
+        }
+
         public async Task<int> eQry(string qry)
         {
             try

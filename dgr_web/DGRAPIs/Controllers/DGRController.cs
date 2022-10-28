@@ -1382,6 +1382,24 @@ namespace DGRAPIs.Controllers
         }
 
 
+        [Route("Get_Batches")]
+        [HttpGet]
+        public async Task<IActionResult> Get_Batches(string importFromDate, string importToDate, int siteId, string status)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.Get_Batches(importFromDate, importToDate, siteId, status);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
         [Route("eQry/{qry}")]
         [HttpGet]
         public async Task<IActionResult> eQry(string qry)

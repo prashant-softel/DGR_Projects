@@ -3568,6 +3568,47 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
         }
 
+        public async Task<List<approvalObject>> Get_Batches (string importFromDate, string importToDate, int siteId, string status)
+        {
+            //Get_Batches is a part of the approval module which takes the foll fields from the UI: Date range, Site-Id and Status-type
+            
+            //Following establishes a database connection:
+           // string connString = "SERVER = localhost ; DATABASE = hfe ; UID = root ; PASSWORD = ;";
+         
+            string query = "select * from import_batches where import_date>=" + importFromDate + " and import_date>=" + importToDate + " and site_id ="+siteId+" and status ="+status+";";
+            List<approvalObject> _approvalObject = new List<approvalObject>();
+            _approvalObject = await Context.GetData<approvalObject>(query).ConfigureAwait(false);
+            return _approvalObject;
+
+            //            MySqlConnection conn = new MySqlConnection(connString);
+            //            conn.Open();
+            //            MySqlCommand cmd = new MySqlCommand(query, conn);
+
+            //            //Here the resulting table data retrieved from the inserted query gets read and fed into a newly created list object using the following while loop                          
+            //            List<approvalObject> tableSet = new List<approvalObject>();
+            //            using (var reader = cmd.ExecuteReader())
+            //            {
+            //                approvalObject tableRows = new approvalObject();
+            //                while (reader.Read())
+            //                {
+            //                    tableRows.column1= (int)reader["import_log_id"];
+            //                    tableRows.column2 = (string)(reader["file_name"]);
+            //                    tableRows.column3 = (string)(reader["import_type"]);
+            //                    tableRows.column4= (int)(reader["site_id"]);
+            //                    tableRows.column5 = (DateTime)(reader["import_date"]);
+            //                    tableRows.column6 = (int)(reader["imported_by"]);
+            //                    tableRows.column7 = (DateTime)(reader["approval_date"]);
+            //                    tableRows.column8 = (int)(reader["approved_by"]);
+            //                    tableRows.column9 = (string)(reader["is_approved"]);
+            //                    tableRows.column10 = (string)(reader["log_filename"]);
+            //                    tableSet.Add(tableRows);
+            //                }
+            //            }
+
+            //            //Here the list object holding the table data gets converted to a JSON string to be returned to the calling function for Get_atches
+            //            string json = JsonConvert.SerializeObject(tableSet);
+            ////            return public async Task<List< approvalObject >> ;
+        }
 
     }
 
