@@ -1,6 +1,7 @@
 ﻿using DGRA_V1.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,6 +9,8 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DGRA_V1.Controllers
@@ -15,6 +18,9 @@ namespace DGRA_V1.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+
+        public object GetWindDailyGenSummary { get; private set; }
+        public JsonSerializerOptions _options { get; private set; }
 
         public HomeController(ILogger<HomeController> logger)
         {
@@ -39,7 +45,8 @@ namespace DGRA_V1.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            //return View();
+            return RedirectToAction("Dashbord", "Home");
             //return RedirectToAction("Upload", "FileUpload");
         }
         public IActionResult Index1()
@@ -56,6 +63,8 @@ namespace DGRA_V1.Controllers
         public async Task<IActionResult> Login(string username, string pass)
         {
             string status = "";
+            username = "sujitkumar@gmail.com";
+            pass = "sujit123";
             bool login_status = false;
             LoginModel model = new LoginModel();
             System.Collections.Generic.Dictionary<string, object>[] map = new System.Collections.Generic.Dictionary<string, object>[1];
@@ -119,11 +128,51 @@ namespace DGRA_V1.Controllers
         }
 
         // Wind Views
-        public ActionResult WindGenView()
+        public async  Task<IActionResult> WindGenView( string fromDate ,string ToDate)
         {
-            // return RedirectToAction("WindGenView", "Home");
+            string status = "";
+            DailyGenSummary dailyGen = new DailyGenSummary();
+            fromDate = "2022-08-10";
+            ToDate = "2022-08-30";
+            try
+            {
+                var url= "http://localhost:23835/api/DGR/GetWindDailyGenSummary?fromDate=" + fromDate + "&ToDate=" + ToDate+"";
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
 
-            return View();
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        string line = readStream.ReadToEnd().Trim();
+                       
+
+                            dailyGen.list = JsonConvert.DeserializeObject<List< DailyGenSummary>>(line);
+
+                        
+                        return View(dailyGen);
+
+                        
+
+                      
+
+                    }
+                   
+
+                }
+              
+
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "invalid  !";
+
+            }
+
+            // return RedirectToAction("WindGenView", "Home");
+            return View(dailyGen);
+
+
         }
         public IActionResult WindDailyTargetKPIView()
         {

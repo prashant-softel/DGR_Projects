@@ -1,4 +1,5 @@
-﻿@{
+﻿@model DGRA_V1.Models.DailyGenSummary
+@{
     ViewData["Title"] = "Wind Gen Summery";
 }
 
@@ -66,6 +67,58 @@
                     <div class="col-md-2"><button type="button" class="btn btn-block btn-primary">Search</button></div>
                 </div>
             </div>
+            <table class="table table-bordered table-responsive table-hover">
+                <tr>
+                    <th>Date</th>
+                    <th>State</th>
+                    <th>Site</th>
+                    <th>WTG</th>
+                    <th>Wind Speed</th>
+                    <th>KWH</th>
+                    <th>MA Contractual</th>
+                    <th>MA Actual</th>
+                    <th>IGA</th>
+                    <th>EGA</th>
+                    <th>PLF</th>
+                    <th>Grid hrs</th>
+                    <th>Lull hrs</th>
+                    <th>Production hrs</th>
+                    <th>Unschedule hrs</th>
+                    <th>Schedule hrs</th>
+                    <th>Others</th>
+                    <th>IGBDH</th>
+                    <th>EGBDH</th>
+                    <th>Load Shedding</th>
+                    
+                </tr>
+                @foreach(var item in Model.list)
+            {
+                <tr>
+                    <td>@item.date</td>
+                    <td>@item.state</td>
+                    <td>@item.site</td>
+                    <td>@item.wtg</td>
+                    <td>@item.wind_speed</td>
+                    <td>@item.kwh</td>
+                    <td>@item.ma_contractual</td>
+                    <td>@item.ma_actual</td>
+                    <td>@item.iga</td>
+                    <td>@item.ega</td>
+                    <td>@item.plf</td>
+                    <td>@item.grid_hrs</td>
+                    <td>@item.lull_hrs</td>
+                    <td>@item.production_hrs</td>
+                    <td>@item.unschedule_hrs</td>
+                    <td>@item.schedule_hrs</td>
+                    <td>@item.others</td>
+                    <td>@item.igbdh</td>
+                    <td>@item.egbdh</td>
+                    <td>@item.load_shedding</td>
+                </tr>
+            }
+
+            </table>
+
             <div class="card-footer">
                 Footer
             </div>
