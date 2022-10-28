@@ -18,8 +18,7 @@ namespace DGRAPIs.Controllers
         {
             _dgrBs = dgr;
         }
-
-        [Route("GetWindDailyGenSummary/{fromDate}/{ToDate}")]
+        [Route("GetWindDailyGenSummary")]
         [HttpGet]
         public async Task<IActionResult> GetWindDailyGenSummary(string fromDate, string ToDate)
         {
