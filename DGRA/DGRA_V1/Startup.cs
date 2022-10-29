@@ -24,6 +24,9 @@ namespace DGRA_V1
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllersWithViews();
+            services.AddMvc(options => options.EnableEndpointRouting = false);
+            services.AddControllersWithViews();
+            services.AddRazorPages();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -46,8 +49,21 @@ namespace DGRA_V1
 
             app.UseAuthorization();
 
+
+      
+
+
             app.UseEndpoints(endpoints =>
             {
+
+                endpoints.MapAreaControllerRoute(
+        name: "Admin",
+        areaName: "Admin",
+
+        pattern: "Admin/{controller=FileUpload}/{action=Upload}/{id?}");
+
+
+
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
