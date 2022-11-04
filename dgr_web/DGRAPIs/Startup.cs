@@ -54,7 +54,7 @@ namespace DGRAPIs
               
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+          //  app.UseHttpsRedirection();
             //app.UseMvc();
             app.UseRouting();
 

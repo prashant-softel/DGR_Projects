@@ -364,8 +364,6 @@ C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.AssemblyIn
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.csproj.CoreCompileInputs.cache
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.MvcApplicationPartsAssemblyInfo.cache
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\staticwebassets\DGRAPIs.StaticWebAssets.Manifest.cache
-C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\staticwebassets\DGRAPIs.StaticWebAssets.xml
-C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\scopedcss\bundle\DGRAPIs.styles.css
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.RazorTargetAssemblyInfo.cache
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.csproj.CopyComplete
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.dll

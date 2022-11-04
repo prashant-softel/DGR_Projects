@@ -968,7 +968,7 @@ namespace DGRAPIs.Controllers
                 }
             }
         }
-        [Route("GetWindDailyTargetKPI/{fromDate}/{todate}")]
+        [Route("GetWindDailyTargetKPI")]
         [HttpGet]
         public async Task<IActionResult> GetWindDailyTargetKPI(string fromDate, string todate)
         {

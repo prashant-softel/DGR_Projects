@@ -1,4 +1,5 @@
 ﻿using DGRA_V1.Models;
+using DGRA_V1.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -10,7 +11,6 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace DGRA_V1.Controllers
@@ -19,12 +19,17 @@ namespace DGRA_V1.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
+        private IDapperRepository _idapperRepo;
+      
+
+
         public object GetWindDailyGenSummary { get; private set; }
         public JsonSerializerOptions _options { get; private set; }
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, IDapperRepository idapperRepo)
         {
             _logger = logger;
+            _idapperRepo = idapperRepo;
         }
 
         //public IActionResult Index()

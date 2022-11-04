@@ -1,13 +1,18 @@
+using DGRA_V1.Repository;
+using DGRA_V1.Repository.Interface;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using DGRA_V1.Common;
 
 namespace DGRA_V1
 {
@@ -23,10 +28,14 @@ namespace DGRA_V1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            ConfigSetting.ApplicationConfig(services, Configuration);
             services.AddControllersWithViews();
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddControllersWithViews();
             services.AddRazorPages();
+            //  services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            
+         //   services.AddScoped<IDapperRepository, DapperRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
