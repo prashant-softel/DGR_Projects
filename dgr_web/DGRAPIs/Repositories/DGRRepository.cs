@@ -3568,7 +3568,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
         }
 
-        public async Task<List<approvalObject>> Get_Batches (string importFromDate, string importToDate, int siteId, string status)
+        public async Task<List<approvalObject>> GetBatches (string importFromDate, string importToDate, int siteId, string status)
         {
             //Get_Batches is a part of the approval module which takes the foll fields from the UI: Date range, Site-Id and Status-type
             
@@ -3608,6 +3608,25 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             //            //Here the list object holding the table data gets converted to a JSON string to be returned to the calling function for Get_atches
             //            string json = JsonConvert.SerializeObject(tableSet);
             ////            return public async Task<List< approvalObject >> ;
+        }
+        public async Task<List<WindSiteMaster>> GetSiteData(string state, string spv)
+        {
+            string filter = "";
+            if (!string.IsNullOrEmpty(state) && string.IsNullOrEmpty(spv))
+            {
+                filter += " where state='" + state + "'";
+            }
+            if (!string.IsNullOrEmpty(spv) && !string.IsNullOrEmpty(state))
+            {
+                filter += " where state='" + state + "' and spv='" + spv + "'";
+            }
+
+
+            string query = "SELECT * FROM `site_master`" + filter;
+            List<WindSiteMaster> _sitelist = new List<WindSiteMaster>();
+            _sitelist = await Context.GetData<WindSiteMaster>(query).ConfigureAwait(false);
+            return _sitelist;
+
         }
 
     }

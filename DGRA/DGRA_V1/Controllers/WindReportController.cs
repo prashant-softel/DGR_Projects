@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace DGRA_V1.Controllers
 {
-    public class ReportController : Controller
+    public class WindReportController : Controller
     {
 
         private IDapperRepository _idapperRepo ;
-        public ReportController(IDapperRepository idapperRepo)
+        public WindReportController(IDapperRepository idapperRepo)
         {
             _idapperRepo = idapperRepo;
         }
@@ -52,6 +52,52 @@ namespace DGRA_V1.Controllers
             // return RedirectToAction("WindGenView", "Home");
             return View(dailyGen);
 
+
+        }
+        public async Task<IActionResult> GetSiteList(string state, string spv)
+        {
+            string line = "";
+            string spvdata = "";
+            string statedata = "";
+            if (state == "undefined" || state == null)
+            {
+                statedata = "";
+            }
+            else
+            {
+                statedata = state;
+            }
+            if (spv == "undefined" || spv == null)
+            {
+                spvdata = "";
+            }
+            else
+            {
+                spvdata = spv;
+            }
+
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSiteList?state=" + statedata + "&spvdata=" + spvdata+ "";
+               // var url = "http://localhost:23835/api/DGR/GetSiteList?state=" + statedata + "&spvdata=" + spvdata;
+                WebRequest request = WebRequest.Create(url);
+
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
 
         }
     }

@@ -179,6 +179,14 @@
                             </a>
                         </li>
                         <li class="nav-item">
+                            <a href="~/Home/WindApproval" class="nav-link">
+                                <i class="nav-icon fas fa-upload"></i>
+                                <p>
+                                    Data Approval
+                                </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-copy"></i>
                                 <p>
@@ -227,281 +235,281 @@
                             </ul>
                         </li>
                         @*<li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon fas fa-copy"></i>
-                                    <p>
-                                        Solar Views
-                                        <i class="fas fa-angle-left right"></i>
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-copy"></i>
+                <p>
+                    Solar Views
+                    <i class="fas fa-angle-left right"></i>
 
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarGenView", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Gen Summary</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarDailyTargetKPI", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Daily Target KPI</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarMonthlyTargetKPI", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Monthly Target KPI</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarMonthlyLineLoss", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Monthly LineLoss</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarJMR", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>JMR</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("Solar_AC_DC_Capacity", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>AC DC Capacity</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarDailyLoadShedding", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Daily Load Shedding</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>*@
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon fas fa-book"></i>
-                                    <p>
-                                        Wind Reports
-                                        <i class="fas fa-angle-left right"></i>
-
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindReport", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Reports</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindBDReport", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Breakdown Reports</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindPRReport", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Performance Reports</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("View-Wind-Daily-Report", "Report")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>View Wind Daily Report</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            @*<li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon fas fa-book"></i>
-                                    <p>
-                                        Solar Reports
-                                        <i class="fas fa-angle-left right"></i>
-
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarReport", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Reports</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarBDReport", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Breakdown Reports</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarPRReport", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Performance Reports</p>
-                                        </a>
-                                    </li>
-
-                                </ul>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon fas fa-server"></i>
-                                    <p>
-                                        Administration
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindSiteMaster", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Wind Site Master</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindLocationMaster", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Wind Location Master</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarSiteMaster", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Solar Site Master</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarLocationMaster", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Solar Location Master</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindFileUpload", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Wind File Upload</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarFileUpload", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Solar File Upload</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindSiteUserMaster", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Wind Site User Master</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarSiteUserMaster", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Solar Site User Master</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindDataApproval", "Admin")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Wind Data Approval Form</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarDataApproval", "Home")" class="nav-link">
-                                            <i class="far nav-icon"></i>
-                                            <p>Solar Data Apprival Form</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindWeeklyPFReport", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Wind Weekly PF Reports</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SolarWeeklyPFReport", "Home")" class="nav-link">
-                                            <i class="far nav-icon"></i>
-                                            <p>Solar Weekly PF Reports</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="nav-item">
-                                <a href="@Url.Action("Settings", "Home")" class="nav-link">
-                                    <i class="nav-icon fas fa-cog"></i>
-                                    <p>
-                                        Settings
-
-                                    </p>
-                                </a>
-                            </li>*@
-                        <!--<li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-chart-pie"></i>
-                                <p>
-                                    Charts
-                                    <i class="right fas fa-angle-left"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="@Url.Action("ChartJS", "Home")" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>ChartJS</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="@Url.Action("FlotCharts", "Home")" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Flot</p>
-                                    </a>
-                                </li>
-
-                            </ul>
-                        </li>-->
-                        <!--<li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-table"></i>
-                                <p>
-                                    Tables
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
-                            </a>
-                            <ul class="nav nav-treeview">
-
-                                <li class="nav-item">
-                                    <a href="@Url.Action("DataTable", "Home")" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>DataTables</p>
-                                    </a>
-                                </li>
-
-                            </ul>
-                        </li>
-
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarGenView", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Gen Summary</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarDailyTargetKPI", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Daily Target KPI</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarMonthlyTargetKPI", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Monthly Target KPI</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarMonthlyLineLoss", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Monthly LineLoss</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarJMR", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>JMR</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("Solar_AC_DC_Capacity", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>AC DC Capacity</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarDailyLoadShedding", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Daily Load Shedding</p>
+                    </a>
+                </li>
+            </ul>
+        </li>*@
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-book"></i>
                                 <p>
-                                    Pages
+                                    Wind Reports
                                     <i class="fas fa-angle-left right"></i>
+
                                 </p>
                             </a>
                             <ul class="nav nav-treeview">
-
                                 <li class="nav-item">
-                                    <a href="@Url.Action("Profile", "Home")" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p>Profile</p>
+                                    <a href="@Url.Action("WindReport", "Home")" class="nav-link">
+                                        <i class="far  nav-icon"></i>
+                                        <p>Reports</p>
                                     </a>
                                 </li>
-
+                                <li class="nav-item">
+                                    <a href="@Url.Action("WindBDReport", "Home")" class="nav-link">
+                                        <i class="far  nav-icon"></i>
+                                        <p>Breakdown Reports</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("WindPRReport", "Home")" class="nav-link">
+                                        <i class="far  nav-icon"></i>
+                                        <p>Performance Reports</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="@Url.Action("View-Wind-Daily-Report", "WindReport")" class="nav-link">
+                                        <i class="far  nav-icon"></i>
+                                        <p>View Wind Daily Report</p>
+                                    </a>
+                                </li>
                             </ul>
-                        </li>-->
+                        </li>
+                        @*<li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-book"></i>
+                <p>
+                    Solar Reports
+                    <i class="fas fa-angle-left right"></i>
+
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarBDReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Breakdown Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarPRReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Performance Reports</p>
+                    </a>
+                </li>
+
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-server"></i>
+                <p>
+                    Administration
+                    <i class="right fas fa-angle-left"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="@Url.Action("WindSiteMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Site Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindLocationMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Location Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarSiteMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Solar Site Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarLocationMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Solar Location Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindFileUpload", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind File Upload</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarFileUpload", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Solar File Upload</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindSiteUserMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Site User Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarSiteUserMaster", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Solar Site User Master</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindDataApproval", "Admin")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Data Approval Form</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarDataApproval", "Home")" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Solar Data Apprival Form</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindWeeklyPFReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Wind Weekly PF Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("SolarWeeklyPFReport", "Home")" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Solar Weekly PF Reports</p>
+                    </a>
+                </li>
+            </ul>
+        </li>
+        <li class="nav-item">
+            <a href="@Url.Action("Settings", "Home")" class="nav-link">
+                <i class="nav-icon fas fa-cog"></i>
+                <p>
+                    Settings
+
+                </p>
+            </a>
+        </li>*@
+                        <!--<li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-chart-pie"></i>
+            <p>
+                Charts
+                <i class="right fas fa-angle-left"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+            <li class="nav-item">
+                <a href="@Url.Action("ChartJS", "Home")" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>ChartJS</p>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("FlotCharts", "Home")" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Flot</p>
+                </a>
+            </li>
+
+        </ul>
+    </li>-->
+                        <!--<li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-table"></i>
+            <p>
+                Tables
+                <i class="fas fa-angle-left right"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+
+            <li class="nav-item">
+                <a href="@Url.Action("DataTable", "Home")" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>DataTables</p>
+                </a>
+            </li>
+
+        </ul>
+    </li>
+
+    <li class="nav-item">
+        <a href="#" class="nav-link">
+            <i class="nav-icon fas fa-book"></i>
+            <p>
+                Pages
+                <i class="fas fa-angle-left right"></i>
+            </p>
+        </a>
+        <ul class="nav nav-treeview">
+
+            <li class="nav-item">
+                <a href="@Url.Action("Profile", "Home")" class="nav-link">
+                    <i class="far fa-circle nav-icon"></i>
+                    <p>Profile</p>
+                </a>
+            </li>
+
+        </ul>
+    </li>-->
                     </ul>
 
                 </nav>

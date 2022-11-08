@@ -97,7 +97,8 @@ namespace DGRAPIs.BS
         Task<bool> InsertSolarUploadingFilegeneration(List<SolarUploadingFilegeneration> solarUploadingFilegeneration);
         Task<bool> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> solarUploadingFileBreakDown);
        
-        Task<List<approvalObject>> Get_Batches(string importFromDate, string importToDate, int siteId, string status);
+        Task<List<approvalObject>> GetBatches(string importFromDate, string importToDate, int siteId, string status);
+        Task<List<WindSiteMaster>> GetSiteList(string state, string spvdata);
 
     }
     public class DGRBS : IDGRBS
@@ -1336,13 +1337,13 @@ namespace DGRAPIs.BS
             }
         }
 
-        public async Task<List<approvalObject>> Get_Batches(string importFromDate, string importToDate, int siteId, string status)
+        public async Task<List<approvalObject>> GetBatches(string importFromDate, string importToDate, int siteId, string status)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.Get_Batches(importFromDate, importToDate, siteId, status);
+                    return await repos.GetBatches(importFromDate, importToDate, siteId, status);
                 }
             }
             catch (Exception ex)
@@ -1351,7 +1352,21 @@ namespace DGRAPIs.BS
             }
 
         }
+        public async Task<List<WindSiteMaster>> GetSiteList(string state, string spvdata)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetSiteData(state, spvdata);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
 
+        }
         public async Task<int> eQry(string qry)
         {
             try

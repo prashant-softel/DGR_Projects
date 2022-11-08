@@ -204,6 +204,11 @@ namespace DGRA_V1.Controllers
             // return RedirectToAction("WindDailyLoadSheddingView", "ReportViews");
             return View();
         }
+        public IActionResult WindApproval()
+        {
+            // return RedirectToAction("WindDailyLoadSheddingView", "ReportViews");
+            return View();
+        }
         public async Task<ActionResult> Logout(string username, string pass)
         {
 

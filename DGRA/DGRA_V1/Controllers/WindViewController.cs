@@ -188,7 +188,32 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
 
+        public async Task<IActionResult> GetBatches(string fromDate, string toDate,string site,string status)
+        {
 
+            string line = "";
+            try
+            {
+                var url = "http://localhost:5000/api/DGR/GetBatches?fromDate=" + fromDate + "&toDate=" + toDate + "&site="+ site + "&status="+ status;
+                WebRequest request = WebRequest.Create(url);
+
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                        //  breakdown.list = JsonConvert.DeserializeObject<List<WindBreakdownReports>>(line);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
+        }
 
 
     }

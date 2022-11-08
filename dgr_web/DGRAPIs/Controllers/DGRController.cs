@@ -1382,14 +1382,32 @@ namespace DGRAPIs.Controllers
         }
 
 
-        [Route("Get_Batches")]
+        [Route("GetBatches")]
         [HttpGet]
-        public async Task<IActionResult> Get_Batches(string importFromDate, string importToDate, int siteId, string status)
+        public async Task<IActionResult> GetBatches(string importFromDate, string importToDate, int siteId, string status)
         {
             {
                 try
                 {
-                    var data = await _dgrBs.Get_Batches(importFromDate, importToDate, siteId, status);
+                    var data = await _dgrBs.GetBatches(importFromDate, importToDate, siteId, status);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetSiteList")]
+        [HttpGet]
+        public async Task<IActionResult> GetSiteList(string state, string spvdata)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetSiteList(state, spvdata);
                     return Ok(data);
 
                 }
