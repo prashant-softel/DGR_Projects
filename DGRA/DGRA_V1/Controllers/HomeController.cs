@@ -25,7 +25,7 @@ namespace DGRA_V1.Controllers
 
         public object GetWindDailyGenSummary { get; private set; }
         public JsonSerializerOptions _options { get; private set; }
-  // TEST A 
+  // TEST A 123456789
         public HomeController(ILogger<HomeController> logger, IDapperRepository idapperRepo)
         {
             _logger = logger;
