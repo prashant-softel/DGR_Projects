@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 namespace DGRA_V1.Controllers
 {
 
-    [Authorize]
+   // [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -49,17 +49,35 @@ namespace DGRA_V1.Controllers
         //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         //}
 
-        [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+        // [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+        [AllowAnonymous]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public async Task<IActionResult> Index()
+        {
+            //var user = await _graphServiceClient.Me.Request().GetAsync();
+            //ViewData["ApiResult"] = user.DisplayName;
+            //if(!string.IsNullOrEmpty( user.DisplayName))
+            //{
+            //    return RedirectToAction("Dashbord");
+            //}
+            return View();
+        }
+
+
+        [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+      
+        public async Task<IActionResult> SSOLogin ()
         {
             var user = await _graphServiceClient.Me.Request().GetAsync();
             ViewData["ApiResult"] = user.DisplayName;
-            if(!string.IsNullOrEmpty( user.DisplayName))
+            if (!string.IsNullOrEmpty(user.DisplayName))
             {
                 return RedirectToAction("Dashbord");
             }
-            return View();
+            return RedirectToAction("Index");
         }
+
+
 
 
         [AllowAnonymous]
