@@ -17,7 +17,7 @@
 <div class="content-wrapper">
 
     <section class="content-header">
-        <div class="container-fluid">
+        <!--<div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
 
@@ -29,7 +29,7 @@
                     </ol>
                 </div>
             </div>
-        </div>
+        </div>-->
     </section>
 
 
@@ -38,16 +38,16 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Daily Target KPI</h3>
+                <h3 class="card-title text-center">Daily Target KPI</h3>
 
-                <div class="card-tools">
+                <!--<div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                         <i class="fas fa-minus"></i>
                     </button>
                     <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
                         <i class="fas fa-times"></i>
                     </button>
-                </div>
+                </div>-->
             </div>
             <div class="card-body">
                 <div class="row">
@@ -70,12 +70,10 @@
                 </div>
                 <br>
                 <hr>
-                <div id="DailyTargetKPIView" style="overflow-x: auto;" class="DailyTargetKPIView" ></div>
+                <div id="DailyTargetKPIView" style="overflow-x: auto;" class="DailyTargetKPIView"></div>
             </div>
 
-            <div class="card-footer">
-                Footer
-            </div>
+           
 
         </div>
 
@@ -86,33 +84,31 @@
 <!-- /.content-wrapper -->
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<!--<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/Content/theme/plugins/select2/js/select2.full.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>-->
 <!--Date Range -->
 <script src="~/Content/theme/plugins/moment/moment.min.js"></script>
 <script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
 <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-
-
-<script src="https://adminlte.io/themes/v3/plugins/jquery/jquery.min.js"></script>
-
-<script src="https://adminlte.io/themes/v3/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-
-<script src="https://adminlte.io/themes/v3/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/jszip/jszip.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-
 
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
 <script type="text/javascript">
     $(document).ready(function () {
         $('#daterange').daterangepicker(
@@ -142,9 +138,9 @@
             success: function (result, status, xhr) {
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
-                tbl += '<thead><tr>';
+                tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<td>FY</td>';
-                tbl += '<td>Date</td>';
+                tbl += '<td style="width:80px;">Date</td>';
                 tbl += '<td>Site</td>';
                 tbl += '<td>Wind Speed</td>';
                 tbl += '<td>KWH</th>';
@@ -181,7 +177,7 @@
                 }
                 tbl += '</table>';
                 $("#DailyTargetKPIView").html(tbl);
-                 $.noConflict();
+                $.noConflict();
                 $('#example1').DataTable({
                     "responsive": true, "lengthChange": false, "autoWidth": false,
                     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],

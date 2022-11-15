@@ -18,6 +18,23 @@ namespace DGRAPIs.Controllers
         {
             _dgrBs = dgr;
         }
+
+        [Route("GetFinancialYear")]
+        [HttpGet]
+        public async Task<IActionResult> GetFinancialYear()
+        {
+            try
+            {
+                var data = await _dgrBs.GetFinancialYear();
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
         [Route("GetWindDailyGenSummary")]
         [HttpGet]
         public async Task<IActionResult> GetWindDailyGenSummary(string fromDate, string ToDate)
@@ -34,6 +51,8 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        #region get Masters
 
         [Route("GetWindSiteMaster")]
         [HttpGet]
@@ -119,6 +138,7 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        #endregion //Masters
 
         // [Route("GetWindDashboardData")]
         [Route("GetWindDashboardData/{startDate}/{endDate}/{FY}/{sites}")]
@@ -276,13 +296,14 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("GetWindDailyGenerationReport/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}")]
+        //[Route("GetWindDailyGenerationReport/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}")]
+        [Route("GetWindDailyGenerationReport")]
         [HttpGet]
-        public async Task<IActionResult> GetWindDailyGenerationReport(string fromDate, string toDate, string country, string state, string spv, string site, string wtg)
+        public async Task<IActionResult> GetWindDailyGenerationReport(string fromDate, string toDate, string country, string state, string spv, string site, string wtg,string reportType)
         {
             try
             {
-                var data = await _dgrBs.GetWindDailyGenerationReport(fromDate, toDate, country, state, spv, site, wtg);
+                var data = await _dgrBs.GetWindDailyGenerationReport(fromDate, toDate, country, state, spv, site, wtg, reportType);
                 return Ok(data);
 
             }
@@ -293,7 +314,8 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("GetWindDailyBreakdownReport/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}")]
+        //[Route("GetWindDailyBreakdownReport/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}")]
+        [Route("GetWindDailyBreakdownReport")]
         [HttpGet]
         public async Task<IActionResult> GetWindDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site, string wtg)
         {
@@ -326,6 +348,8 @@ namespace DGRAPIs.Controllers
             }
         }
 
+        #region get wind reports
+
         [Route("GetWindDailyGenSummaryReport1/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
         [HttpGet]
         public async Task<IActionResult> GetWindDailyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
@@ -343,7 +367,8 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("GetWindDailyGenSummaryReport2/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
+        //[Route("GetWindDailyGenSummaryReport2/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")
+        [Route("GetWindDailyGenSummaryReport2")]
         [HttpGet]
         public async Task<IActionResult> GetWindDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
         {
@@ -361,13 +386,15 @@ namespace DGRAPIs.Controllers
         }
 
 
-        [Route("GetWindMonthlyYearlyGenSummaryReport1/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
+       // [Route("GetWindMonthlyGenerationReport/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
+        [Route("GetWindMonthlyGenerationReport")]
         [HttpGet]
-        public async Task<IActionResult> GetWindMonthlyYearlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
+        //public async Task<IActionResult> GetWindMonthlyGenerationReport(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
+        public async Task<IActionResult> GetWindMonthlyGenerationReport(string fromDate, string month, string country, string state, string spv, string site, string wtg, string reportType)
         {
             try
             {
-                var data = await _dgrBs.GetWindMonthlyYearlyGenSummaryReport1(fromDate, toDate, country, state, spv, site, wtg, month);
+                var data = await _dgrBs.GetWindMonthlyGenerationReport(fromDate, month, country, state, spv, site, wtg, reportType);
                 return Ok(data);
 
             }
@@ -378,13 +405,15 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("GetWindMonthlyYearlyGenSummaryReport2/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
+        //[Route("GetWindMonthlyYearlyGenSummaryReport2/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
+        [Route("GetWindMonthlyYearlyGenSummaryReport2")]
         [HttpGet]
-        public async Task<IActionResult> GetWindMonthlyYearlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
+        //public async Task<IActionResult> GetWindMonthlyYearlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
+        public async Task<IActionResult> GetWindMonthlyYearlyGenSummaryReport2(string fromDate, string month, string country, string state, string spv, string site, string wtg)
         {
             try
             {
-                var data = await _dgrBs.GetWindMonthlyYearlyGenSummaryReport2(fromDate, toDate, country, state, spv, site, wtg, month);
+                var data = await _dgrBs.GetWindMonthlyYearlyGenSummaryReport2(fromDate, month, country, state, spv, site, wtg);
                 return Ok(data);
 
             }
@@ -396,7 +425,8 @@ namespace DGRAPIs.Controllers
         }
 
 
-        [Route("GetWindYearlyGenSummaryReport1/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
+        //[Route("GetWindYearlyGenSummaryReport1/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
+        [Route("GetWindYearlyGenSummaryReport1")]
         [HttpGet]
         public async Task<IActionResult> GetWindYearlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
         {
@@ -413,7 +443,8 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("GetWindYearlyGenSummaryReport2/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
+        //[Route("GetWindYearlyGenSummaryReport2/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}/{month}")]
+        [Route("GetWindYearlyGenSummaryReport2")]
         [HttpGet]
         public async Task<IActionResult> GetWindYearlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
         {
@@ -447,7 +478,8 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Route("GetWindPerformanceReportSiteWise/{fy}/{fromDate}/{toDate}")]
+        //[Route("GetWindPerformanceReportSiteWise/{fy}/{fromDate}/{toDate}")]
+        [Route("GetWindPerformanceReportSiteWise")]
         [HttpGet]
         public async Task<IActionResult> GetWindPerformanceReportSiteWise(string fy, string fromDate, string todate)
         {
@@ -464,7 +496,8 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("GetWindPerformanceReportBySPVWise/{fy}/{fromDate}/{toDate}")]
+       // [Route("GetWindPerformanceReportBySPVWise/{fy}/{fromDate}/{toDate}")
+        [Route("GetWindPerformanceReportBySPVWise")]
         [HttpGet]
         public async Task<IActionResult> GetWindPerformanceReportBySPVWise(string fy, string fromDate, string todate)
         {
@@ -498,6 +531,9 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        #endregion //Wind reports
+
+        #region inserts
 
         [Route("InsertDailyTargetKPI")]
         [HttpPost]
@@ -518,11 +554,11 @@ namespace DGRAPIs.Controllers
 
         [Route("InsertMonthlyTargetKPI")]
         [HttpPost]
-        public async Task<IActionResult> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> windMonthlyTargetKPI)
+        public async Task<IActionResult> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> set)
         {
             try
             {
-                var data = await _dgrBs.InsertMonthlyTargetKPI(windMonthlyTargetKPI);
+                var data = await _dgrBs.InsertMonthlyTargetKPI(set);
                 return Ok(data);
 
             }
@@ -535,20 +571,19 @@ namespace DGRAPIs.Controllers
 
         [Route("InsertMonthlyUploadingLineLosses")]
         [HttpPost]
-        public async Task<IActionResult> InsertMonthlyUploadingLineLosses(List<WindMonthlyUploadingLineLosses> windMonthlyUploadingLineLosses)
+        public async Task<IActionResult> InsertMonthlyUploadingLineLosses(List<WindMonthlyUploadingLineLosses> set)
         {
             try
             {
-                var data = await _dgrBs.InsertMonthlyUploadingLineLosses(windMonthlyUploadingLineLosses);
+                var data = await _dgrBs.InsertMonthlyUploadingLineLosses(set);
                 return Ok(data);
-
             }
             catch (Exception ex)
             {
-
                 return BadRequest(ex.Message);
             }
         }
+
 
 
         [Route("InsertWindJMR")]
@@ -571,11 +606,11 @@ namespace DGRAPIs.Controllers
 
         [Route("InsertWindDailyLoadShedding")]
         [HttpPost]
-        public async Task<IActionResult> InsertWindDailyLoadShedding(List<WindDailyLoadShedding> windDailyLoadShedding)
+        public async Task<IActionResult> InsertWindDailyLoadShedding(List<WindDailyLoadShedding> set)
         {
             try
             {
-                var data = await _dgrBs.InsertWindDailyLoadShedding(windDailyLoadShedding);
+                var data = await _dgrBs.InsertWindDailyLoadShedding(set);
                 return Ok(data);
 
             }
@@ -788,7 +823,23 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        
+
+        [Route("importMetaData")]
+        [HttpPost]
+        public async Task<IActionResult> importMetaData(ImportLog meta)
+        {
+            try
+            {
+                var data = await _dgrBs.importMetaData(meta);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("GetSolarInverterFromdailyGenSummary/{state}/{site}")]
         [HttpGet]
         public async Task<IActionResult> GetSolarInverterFromdailyGenSummary(string state, string site)
@@ -947,8 +998,36 @@ namespace DGRAPIs.Controllers
             }
         }
 
+        [Route("InsertWindUploadingFilegeneration")]
+        [HttpPost]
+        public async Task<IActionResult> InsertWindUploadingFilegeneration(List<WindUploadingFilegeneration> addWindUploadingFilegenerations)
+        {
+            try
+            {
+                var data = await _dgrBs.InsertWindUploadingFilegeneration(addWindUploadingFilegenerations);
+                return Ok(data);
+                //Console.WriteLine("Entering wind file generation while debugging");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
-        #region get views
+        [Route("InsertWindUploadingFileBreakDown")]
+        [HttpPost]
+        public async Task<IActionResult> InsertWindUploadingFileBreakDown(List<WindUploadingFileBreakDown> addWindUploadingFileBreakDowns)
+        {
+            try
+            {
+                var data = await _dgrBs.InsertWindUploadingFileBreakDown(addWindUploadingFileBreakDowns);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
 
         [Route("GetSolarDailyGenSummaryData/{fromDate}/{ToDate}")]
         [HttpGet]
@@ -968,6 +1047,7 @@ namespace DGRAPIs.Controllers
                 }
             }
         }
+        //[Route("GetWindDailyTargetKPI/{fromDate}/{todate}")]
         [Route("GetWindDailyTargetKPI")]
         [HttpGet]
         public async Task<IActionResult> GetWindDailyTargetKPI(string fromDate, string todate)
@@ -1002,7 +1082,8 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Route("GetWindMonthlyTargetKPI/{fy}/{month}")]
+        //[Route("GetWindMonthlyTargetKPI/{fy}/{month}")
+        [Route("GetWindMonthlyTargetKPI")]
         [HttpGet]
         public async Task<IActionResult> GetWindMonthlyTargetKPI(string fy, string month)
         {
@@ -1034,7 +1115,8 @@ namespace DGRAPIs.Controllers
                     return BadRequest(ex.Message);
             }
         }
-        [Route("GetWindMonthlyLineLoss/{fy}/{month}")]
+        //[Route("GetWindMonthlyLineLoss/{fy}/{month}")]
+        [Route("GetWindMonthlyLineLoss")]
         [HttpGet]
         public async Task<IActionResult> GetWindMonthlyLineLoss(string fy, string month)
         {
@@ -1066,7 +1148,8 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Route("GetWindMonthlyJMR/{fy}/{month}")]
+        //[Route("GetWindMonthlyJMR/{fy}/{month}")]
+        [Route("GetWindMonthlyJMR")]
         [HttpGet]
         public async Task<IActionResult> GetWindMonthlyJMR(string fy, string month)
         {
@@ -1130,26 +1213,25 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Route("GetSolarBDType")]
+        [Route("GetBDType")]
         [HttpGet]
-        public async Task<IActionResult> GetSolarBDType()
+        public async Task<IActionResult> GetBDType()
         {
             try
             {
-                var data = await _dgrBs.GetSolarBDType();
+                var data = await _dgrBs.GetBDType();
                 return Ok(data);
-
             }
             catch (Exception ex)
             {
-
                 return BadRequest(ex.Message);
             }
         }
 
-        [Route("GetWindDailyloadShedding/{site}/{fromDate}/{toDate}")]
+        //[Route("GetWindDailyloadShedding/{site}/{fromDate}/{toDate}")]
+        [Route("GetWindDailyloadShedding")]
         [HttpGet]
-        public async Task<IActionResult> GetWindDailyloadShedding(string site, string fromDate, string toDate)
+        public async Task<IActionResult>GetWindDailyloadShedding(int site, string fromDate, string toDate)
         {
             try
             {
@@ -1382,14 +1464,86 @@ namespace DGRAPIs.Controllers
         }
 
 
-        [Route("GetBatches")]
+        [Route("GetImportBatches")]
         [HttpGet]
-        public async Task<IActionResult> GetBatches(string importFromDate, string importToDate, int siteId, string status)
+        public async Task<IActionResult> GetImportBatches(string importFromDate, string importToDate, int siteId, int importType, int status)
         {
             {
                 try
                 {
-                    var data = await _dgrBs.GetBatches(importFromDate, importToDate, siteId, status);
+                    var data = await _dgrBs.GetImportBatches(importFromDate, importToDate, siteId, importType, status);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("SetApprovalFlagForImportBatches")]
+        [HttpGet]
+        public async Task<IActionResult> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName,int status)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.SetApprovalFlagForImportBatches(dataId, approvedBy, approvedByName, status);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetCountryList")]
+        [HttpGet]
+        public async Task<IActionResult> GetCountryList()
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetCountryList();
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+       [Route("GetStateList")]
+        [HttpGet]
+        public async Task<IActionResult> GetStateList(string country)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetStateList(country);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetSPVList")]
+        [HttpGet]
+        public async Task<IActionResult> GetSPVList(string state)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetSPVList(state);
                     return Ok(data);
 
                 }
@@ -1418,6 +1572,25 @@ namespace DGRAPIs.Controllers
                 }
             }
         }
+        [Route("GetWTGList")]
+        [HttpGet]
+        public async Task<IActionResult> GetWTGList(int siteid)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetWTGList(siteid);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+
         [Route("eQry/{qry}")]
         [HttpGet]
         public async Task<IActionResult> eQry(string qry)

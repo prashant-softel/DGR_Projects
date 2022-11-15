@@ -8,7 +8,7 @@ namespace DGRAPIs.Models
     public class WindDailyGenReports
     {
         public long year { get; set; }
-        public long month { get; set; }
+        public string month { get; set; }
         public DateTime date { get; set; }
         public string country { get; set; }
         public string state { get; set; }
@@ -35,7 +35,7 @@ namespace DGRAPIs.Models
     public class WindDailyGenReports1
     {
         public long year { get; set; }
-        public long month { get; set; }
+        public string month { get; set; }
         public DateTime date { get; set; }
         public string country { get; set; }
         public string state { get; set; }
@@ -63,7 +63,7 @@ namespace DGRAPIs.Models
     public class WindDailyGenReports2
     {
         public long year { get; set; }
-        public long month { get; set; }
+        public string month { get; set; }
         public DateTime date { get; set; }
         public string country { get; set; }
         public string state { get; set; }

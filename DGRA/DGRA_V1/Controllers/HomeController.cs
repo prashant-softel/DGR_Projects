@@ -20,7 +20,7 @@ namespace DGRA_V1.Controllers
         private readonly ILogger<HomeController> _logger;
 
         private IDapperRepository _idapperRepo;
-      
+
 
 
         public object GetWindDailyGenSummary { get; private set; }
@@ -94,7 +94,7 @@ namespace DGRA_V1.Controllers
                         else
                         {
                             login_status = true;
-                           // model = JsonConvert.DeserializeObject<LoginModel>(line);
+                            // model = JsonConvert.DeserializeObject<LoginModel>(line);
 
                         }
 
@@ -116,7 +116,7 @@ namespace DGRA_V1.Controllers
                 map[0].Add("UserRole", model.user_role);
                 map[0].Add("LoginID", model.login_id);
                 map[0].Add("status", "1");
-               
+
 
             }
             else
@@ -127,92 +127,66 @@ namespace DGRA_V1.Controllers
                 map[0].Add("LoginID", "");
                 map[0].Add("status", "0");
             }
-         
-             return Ok(model);
+
+            return Ok(model);
             //return RedirectToAction("Dashbord", "Home");
         }
 
-        // Wind Views
-        public async  Task<IActionResult> WindGenView( string fromDate ,string ToDate)
-        {
-            string status = "";
-            DailyGenSummary dailyGen = new DailyGenSummary();
-            fromDate = "2022-08-10";
-            ToDate = "2022-08-30";
-            try
-            {
-                var url= "http://localhost:23835/api/DGR/GetWindDailyGenSummary?fromDate=" + fromDate + "&ToDate=" + ToDate+"";
-                WebRequest request = WebRequest.Create(url);
-                using (WebResponse response = (HttpWebResponse)request.GetResponse())
-                {
-
-                    Stream receiveStream = response.GetResponseStream();
-                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
-                    {
-                        string line = readStream.ReadToEnd().Trim();
-                       
-
-                            dailyGen.list = JsonConvert.DeserializeObject<List< DailyGenSummary>>(line);
-
-                        
-                        return View(dailyGen);
-
-                        
-
-                      
-
-                    }
-                   
-
-                }
-              
-
-            }
-            catch (Exception ex)
-            {
-                TempData["notification"] = "invalid  !";
-
-            }
-
-            // return RedirectToAction("WindGenView", "Home");
-            return View(dailyGen);
-
-
-        }
         public IActionResult WindDailyTargetKPIView()
         {
-            //return RedirectToAction("WindDailyTargetKPIView", "ReportViews");
+            return View();
+        }
+        public IActionResult WindGenView()
+        {
             return View();
         }
         public IActionResult WindMonthlyTargetKPIView()
         {
-            //return RedirectToAction("WindMonthlyTargetKPIView", "ReportViews");
             return View();
         }
         public IActionResult WindMonthlyLinelossView()
         {
-            //return RedirectToAction("WindMonthlyLinelossView", "ReportViews");
             return View();
         }
-        public IActionResult WindJMRView()
+        public IActionResult WindMonthlyJMRView()
         {
-            // return RedirectToAction("WindJMRView", "ReportViews");
             return View();
         }
         public IActionResult WindDailyLoadSheddingView()
         {
-            // return RedirectToAction("WindDailyLoadSheddingView", "ReportViews");
             return View();
         }
-        public IActionResult WindApproval()
+
+        // Report Routs
+        public IActionResult WindSiteMaster()
         {
-            // return RedirectToAction("WindDailyLoadSheddingView", "ReportViews");
+            return View();
+        }
+        public IActionResult WIndLocationMaster()
+        {
+            return View();
+        }
+        public IActionResult WindGenReport()
+        {
+            return View();
+        }
+        public IActionResult WindBDReport()
+        {
+            return View();
+        }
+        public IActionResult WindPRReport()
+        {
+            return View();
+        }
+
+        public IActionResult ImportApproval()
+        {
             return View();
         }
         public async Task<ActionResult> Logout(string username, string pass)
         {
 
-          
+
             //Response.Redirect("somepage.aspx");
             return RedirectToAction("Index", "Home");
             // return View();
