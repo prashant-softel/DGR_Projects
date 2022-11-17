@@ -1132,19 +1132,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\sujit\\.nuget\\packages\\": {}
+    "C:\\Users\\bemladmin\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
+      "projectUniqueName": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
       "projectName": "DGRAPIs",
-      "projectPath": "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
-      "packagesPath": "C:\\Users\\sujit\\.nuget\\packages\\",
-      "outputPath": "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\obj\\",
+      "projectPath": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
+      "packagesPath": "C:\\Users\\bemladmin\\.nuget\\packages\\",
+      "outputPath": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      ],
       "configFilePaths": [
-        "C:\\Users\\sujit\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\bemladmin\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
@@ -1201,7 +1205,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.412\\RuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.413\\RuntimeIdentifierGraph.json"
       }
     }
   }
