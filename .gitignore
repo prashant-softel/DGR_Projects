@@ -8,4 +8,7 @@
 /packages
 /packages
 /DGRA/bin
-/obj
+/dgr_web/obj
+/dgr_web/bin
+/dgr_web/.vscode
+/dgr_web/.vs

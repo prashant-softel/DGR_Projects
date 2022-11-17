@@ -3,6 +3,14 @@ using DGRA_V1.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Graph;
+using Microsoft.Identity.Web;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -15,6 +23,8 @@ using System.Threading.Tasks;
 
 namespace DGRA_V1.Controllers
 {
+
+   // [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -30,6 +40,16 @@ namespace DGRA_V1.Controllers
         {
             _logger = logger;
             _idapperRepo = idapperRepo;
+   
+
+        private readonly GraphServiceClient _graphServiceClient;
+
+
+        public HomeController(ILogger<HomeController> logger,
+                         GraphServiceClient graphServiceClient)
+        {
+            _logger = logger;
+            _graphServiceClient = graphServiceClient;
         }
 
         //public IActionResult Index()
@@ -48,19 +68,59 @@ namespace DGRA_V1.Controllers
         //    return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         //}
 
-        public IActionResult Index()
+        // [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+        [AllowAnonymous]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public async Task<IActionResult> Index()
         {
-            //return View();
-            return RedirectToAction("Dashbord", "Home");
-            //return RedirectToAction("Upload", "FileUpload");
+            //var user = await _graphServiceClient.Me.Request().GetAsync();
+            //ViewData["ApiResult"] = user.DisplayName;
+            //if(!string.IsNullOrEmpty( user.DisplayName))
+            //{
+            //    return RedirectToAction("Dashbord");
+            //}
+          //  HttpContext.Session.SetString("product", "laptop");
+
+            return View();
         }
+
+
+        [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
+      
+        public async Task<IActionResult> SSOLogin ()
+        {
+            var user = await _graphServiceClient.Me.Request().GetAsync();
+
+
+            HttpContext.Session.SetString("DisplayName", user.DisplayName);
+
+            ViewData["ApiResult"] = user.DisplayName;
+            if (!string.IsNullOrEmpty(user.DisplayName))
+            {
+                return RedirectToAction("Dashbord");
+            }
+            return RedirectToAction("Index");
+        }
+
+
+
+
+        [AllowAnonymous]
+        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+        public IActionResult Error()
+        {
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
         public IActionResult Index1()
         {
             return View();
             //return RedirectToAction("Upload", "FileUpload");
         }
+        [Authorize]
         public IActionResult Dashbord()
         {
+           
             //return RedirectToAction("Dashbord", "Home");
             return View();
             //return RedirectToAction("Upload", "FileUpload");
@@ -75,7 +135,7 @@ namespace DGRA_V1.Controllers
             System.Collections.Generic.Dictionary<string, object>[] map = new System.Collections.Generic.Dictionary<string, object>[1];
             try
             {
-                var url = "http://localhost:23835/api/Login/UserLogin?username=" + username + "&password=" + pass + "";
+                var url = "http://localhost:5000/api/Login/UserLogin?username=" + username + "&password=" + pass + "";
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
@@ -191,7 +251,11 @@ namespace DGRA_V1.Controllers
             return RedirectToAction("Index", "Home");
             // return View();
         }
-
+        [HttpGet("SignOut")]
+        public IActionResult SignOut([FromRoute] string scheme)
+        {
+            return RedirectToAction("Index", "Home");
+        }
 
     }
 }
