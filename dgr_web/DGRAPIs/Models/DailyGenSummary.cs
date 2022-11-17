@@ -44,7 +44,7 @@ namespace DGRAPIs.Models
      
         public float egbdh { get; set; }
        
-        public string load_shedding { get; set; }
+        public float load_shedding { get; set; }
          
     }
 }

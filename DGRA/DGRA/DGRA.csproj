@@ -128,9 +128,19 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\ErrorLog.cs" />
+    <Compile Include="Models\ErrorViewModel.cs" />
+    <Compile Include="Models\ImportLog.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\SolarUploadingFileBreakDown.cs" />
     <Compile Include="Models\SolarUploadingFileGeneration.cs" />
+    <Compile Include="Models\SolarUploadingPyranoMeter15Min.cs" />
+    <Compile Include="Models\SolarUploadingPyranoMeter1Min.cs" />
+    <Compile Include="Models\WindDailyLoadShedding.cs" />
+    <Compile Include="Models\WindMonthlyJMR.cs" />
+    <Compile Include="Models\WindUploadingFileBreakDown.cs" />
+    <Compile Include="Models\WindUploadingFileGeneration.cs" />
+    <Compile Include="Models\WindUploadingFileValidation.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

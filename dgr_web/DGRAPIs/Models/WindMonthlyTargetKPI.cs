@@ -7,16 +7,16 @@ namespace DGRAPIs.Models
 {
     public class WindMonthlyTargetKPI
     {
- 
 
-        public string FY { get; set; }
-        public string Month { get; set; }
-        public string Site { get; set; }
-        public dynamic WindSpeed { get; set; }
-        public dynamic kWh { get; set; }
-        public dynamic MA { get; set; }
-        public dynamic IGA { get; set; }
-        public dynamic EGA { get; set; }
-        public dynamic PLF { get; set; }
+
+        public string fy { get; set; }
+        public string month { get; set; }
+        public string site { get; set; }
+        public dynamic windSpeed { get; set; }
+        public dynamic kwh { get; set; }
+        public dynamic ma { get; set; }
+        public dynamic iga { get; set; }
+        public dynamic ega { get; set; }
+        public dynamic plf { get; set; }
     }
 }
