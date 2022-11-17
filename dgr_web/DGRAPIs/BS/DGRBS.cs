@@ -10,7 +10,8 @@ namespace DGRAPIs.BS
 {
     public interface IDGRBS
     {
-        Task<int> eQry(string qry);
+        Task<int> eQry(string qry); 
+        Task<List<FinancialYear>> GetFinancialYear();
         Task<List<DailyGenSummary>> GetWindDailyGenSummary(string fromDate, string ToDate);
         Task<List<WindDashboardData>> GetWindDashboardData(string startDate, string endDate, string FY, string sites);
         Task<List<WindDashboardData>> GetWindDashboardDataByLastDay(string startDate, string endDate, string FY, string sites, string date);
@@ -29,24 +30,27 @@ namespace DGRAPIs.BS
         Task<List<SolarSiteMaster>> GetSolarSiteMaster();
         Task<List<SolarLocationMaster>> GetSolarLocationMaster();
         Task<List<SolarLocationMaster>> GetSolarLocationMasterBySite(string site);
-        Task<List<WindDailyGenReports>> GetWindDailyGenerationReport(string fromDate, string toDate, string country, string state, string spv, string site, string wtg);
+        Task<List<WindDailyGenReports>> GetWindDailyGenerationReport(string fromDate, string toDate, string country, string state, string spv, string site, string wtg,string reportType);
         Task<List<WindDailyBreakdownReport>> GetWindDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site, string wtg);
         Task<List<SolarDailyGenSummary>> GetSolarDailyGenSummary();
         Task<List<WindDailyGenReports1>> GetWindDailyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month);
         Task<List<WindDailyGenReports2>> GetWindDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month);
-        Task<List<WindDailyGenReports1>> GetWindMonthlyYearlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month);
-        Task<List<WindDailyGenReports2>> GetWindMonthlyYearlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month);
+        Task<List<WindDailyGenReports1>> GetWindMonthlyGenerationReport(string fromDate, string month, string country, string state, string spv, string site, string wtg, string reportType);
+        Task<List<WindDailyGenReports2>> GetWindMonthlyYearlyGenSummaryReport2(string fromDate, string month, string country, string state, string spv, string site, string wtg);
         Task<List<WindDailyGenReports1>> GetWindYearlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month);
         Task<List<WindDailyGenReports2>> GetWindYearlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month);
         Task<List<WindDailyGenReports>> GetWindWtgFromdailyGenSummary(string state, string site);
         Task<List<WindPerformanceReports>> GetWindPerformanceReportSiteWise(string fy, string fromDate, string todate);
         Task<List<WindPerformanceReports>> GetWindPerformanceReportBySPVWise(string fy, string fromDate, string todate);
         Task<List<SolarDailyBreakdownReport>> GetSolarDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site);
+       
         Task<int> InsertDailyTargetKPI(List<WindDailyTargetKPI> windDailyTargetKPI);
-        Task<int> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> windMonthlyTargetKPI);
-        Task<int> InsertMonthlyUploadingLineLosses(List<WindMonthlyUploadingLineLosses> windMonthlyUploadingLineLosses);
-        Task<int> InsertWindDailyLoadShedding(List<WindDailyLoadShedding> windDailyLoadShedding);
-        Task<int> InsertWindJMR(List<WindMonthlyJMR> windMonthlyJMR);
+        Task<int> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> set);
+        Task<int> InsertMonthlyUploadingLineLosses(List<WindMonthlyUploadingLineLosses> set);
+        Task<bool> InsertWindDailyLoadShedding(List<WindDailyLoadShedding> set);
+        Task<bool> InsertWindJMR(List<WindMonthlyJMR> set);
+        Task<bool> InsertWindUploadingFilegeneration(List<WindUploadingFilegeneration> set);
+        Task<bool> InsertWindUploadingFileBreakDown(List<WindUploadingFileBreakDown> set);
         Task<int> InsertDailyJMR(List<WindDailyJMR> windDailyJMR);
         Task<int> InsertSolarDailyTargetKPI(List<SolarDailyTargetKPI> solarDailyTargetKPI);
         Task<int> InsertSolarMonthlyTargetKPI(List<SolarMonthlyTargetKPI> solarMonthlyTargetKPI);
@@ -74,12 +78,12 @@ namespace DGRAPIs.BS
         Task<List<SolarMonthlyTargetKPI>> GetSolarMonthlyTargetKPI(string fy, string month);
         Task<List<WindMonthlyUploadingLineLosses>> GetWindMonthlyLineLoss(string fy, string month);
         Task<List<SolarMonthlyUploadingLineLosses>> GetSolarMonthlyLineLoss(string fy, string month);
-        Task<List<WindMonthlyJMR>> GetWindMonthlyJMR(string fy, string month);
+        Task<List<WindViewMonthlyJMR>> GetWindMonthlyJMR(string fy, string month);
         Task<List<SolarMonthlyJMR>> GetSolarMonthlyJMR(string fy, string month);
         Task<List<SolarInvAcDcCapacity>> GetSolarACDCCapacity(string site);
         Task<List<UserManagement>> GetUserManagement(string userMail, string date);
-        Task<List<SolarBDType>> GetSolarBDType();
-        Task<List<WindDailyLoadShedding>> GetWindDailyloadShedding(string site, string fromDate, string toDate);
+        //Task<List<SolarBDType>> GetSolarBDType();
+        Task<List<WindViewDailyLoadShedding>> GetWindDailyloadShedding(int site, string fromDate, string toDate);
         Task<List<SolarDailyLoadShedding>> GetSolarDailyloadShedding(string site, string fromDate, string toDate);
         Task<List<DailyGenSummary>> GetWindDailyGenSummaryPending(string date, string site);
         Task<List<SolarDailyGenSummary>> GetSolarDailyGenSummaryPending(string date, string site);
@@ -97,9 +101,16 @@ namespace DGRAPIs.BS
         Task<bool> InsertSolarUploadingFilegeneration(List<SolarUploadingFilegeneration> solarUploadingFilegeneration);
         Task<bool> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> solarUploadingFileBreakDown);
        
-        Task<List<approvalObject>> GetBatches(string importFromDate, string importToDate, int siteId, string status);
+        Task<List<approvalObject>> GetImportBatches(string importFromDate, string importToDate, int siteId,int importType, int status);
+        Task<int> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status);
+        //Task<List<approvalObject>> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status);
+        Task<List<CountryList>> GetCountryList();
+        Task<List<StateList>> GetStateList(string country);
+        Task<List<SPVList>> GetSPVList(string state);
         Task<List<WindSiteMaster>> GetSiteList(string state, string spvdata);
-
+        Task<List<WindLocationMaster>> GetWTGList(int siteid);
+		Task<List<BDType>> GetBDType();
+        Task<int> importMetaData(ImportLog meta);
     }
     public class DGRBS : IDGRBS
     {
@@ -108,6 +119,22 @@ namespace DGRAPIs.BS
         public DGRBS(DatabaseProvider dbProvider)
         {
             databaseProvider = dbProvider;
+        }
+        public async Task<List<FinancialYear>> GetFinancialYear()
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetFinancialYear();
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
         }
         public async Task<List<DailyGenSummary>> GetWindDailyGenSummary(string fromDate, string ToDate)
         {
@@ -327,13 +354,13 @@ namespace DGRAPIs.BS
             }
         }
 
-        public async Task<List<WindDailyGenReports>> GetWindDailyGenerationReport(string fromDate, string toDate, string country, string state, string spv, string site, string wtg)
+        public async Task<List<WindDailyGenReports>> GetWindDailyGenerationReport(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string reportType)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.GetWindDailyGenerationReport(fromDate, toDate, country, state, spv, site, wtg);
+                    return await repos.GetWindDailyGenerationReport(fromDate, toDate, country, state, spv, site, wtg, reportType);
 
                 }
             }
@@ -405,13 +432,13 @@ namespace DGRAPIs.BS
             }
         }
 
-        public async Task<List<WindDailyGenReports1>> GetWindMonthlyYearlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
+        public async Task<List<WindDailyGenReports1>> GetWindMonthlyGenerationReport(string fromDate, string month, string country, string state, string spv, string site, string wtg, string reportType)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.GetWindMonthlyYearlyGenSummaryReport1(fromDate, toDate, country, state, spv, site, wtg, month);
+                    return await repos.GetWindMonthlyGenerationReport(fromDate, month, country, state, spv, site, wtg, reportType);
 
                 }
             }
@@ -420,13 +447,13 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<List<WindDailyGenReports2>> GetWindMonthlyYearlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
+        public async Task<List<WindDailyGenReports2>> GetWindMonthlyYearlyGenSummaryReport2(string fromDate, string month, string country, string state, string spv, string site, string wtg)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.GetWindMonthlyYearlyGenSummaryReport2(fromDate, toDate, country, state, spv, site, wtg, month);
+                    return await repos.GetWindMonthlyYearlyGenSummaryReport2(fromDate, month, country, state, spv, site, wtg);
 
                 }
             }
@@ -541,13 +568,13 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<int> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> windMonthlyTargetKPI)
+        public async Task<int> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> set)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.InsertMonthlyTargetKPI(windMonthlyTargetKPI);
+                    return await repos.InsertMonthlyTargetKPI(set);
 
                 }
             }
@@ -558,13 +585,13 @@ namespace DGRAPIs.BS
 
         }
 
-        public async Task<int> InsertMonthlyUploadingLineLosses(List<WindMonthlyUploadingLineLosses> windMonthlyUploadingLineLosses)
+        public async Task<int> InsertMonthlyUploadingLineLosses(List<WindMonthlyUploadingLineLosses> set)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.InsertMonthlyUploadingLineLosses(windMonthlyUploadingLineLosses);
+                    return await repos.InsertMonthlyUploadingLineLosses(set);
 
                 }
             }
@@ -574,13 +601,13 @@ namespace DGRAPIs.BS
             }
         }
 
-        public async Task<int> InsertWindJMR(List<WindMonthlyJMR> windMonthlyJMR)
+        public async Task<bool> InsertWindJMR(List<WindMonthlyJMR> set)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.InsertWindJMR(windMonthlyJMR);
+                    return await repos.InsertWindJMR(set);
 
                 }
             }
@@ -589,14 +616,13 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<int> InsertWindDailyLoadShedding(List<WindDailyLoadShedding> windDailyLoadShedding)
+        public async Task<bool> InsertWindDailyLoadShedding(List<WindDailyLoadShedding> set)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.InsertWindDailyLoadShedding(windDailyLoadShedding);
-
+                    return await repos.InsertWindDailyLoadShedding(set);
                 }
             }
             catch (Exception ex)
@@ -759,7 +785,21 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
+        public async Task<int> importMetaData(ImportLog meta)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.importMetaData(meta);
 
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
         public async Task<bool> InsertSolarUploadingFilegeneration(List<SolarUploadingFilegeneration> solarUploadingFilegeneration)
         {
             try
@@ -784,6 +824,36 @@ namespace DGRAPIs.BS
                 {
                     return await repos.InsertSolarUploadingFileBreakDown(solarUploadingFileBreakDown);
 
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<bool> InsertWindUploadingFilegeneration(List<WindUploadingFilegeneration> windUploadingFilegeneration)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.InsertWindUploadingFilegeneration(windUploadingFilegeneration);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<bool> InsertWindUploadingFileBreakDown(List<WindUploadingFileBreakDown> addWindUploadingFileBreakDowns)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.InsertWindUploadingFileBreakDown(addWindUploadingFileBreakDowns);
                 }
             }
             catch (Exception ex)
@@ -1043,7 +1113,7 @@ namespace DGRAPIs.BS
             }
 
         }
-        public async Task<List<WindMonthlyJMR>> GetWindMonthlyJMR(string fy, string month)
+        public async Task<List<WindViewMonthlyJMR>> GetWindMonthlyJMR(string fy, string month)
         {
             try
             {
@@ -1107,14 +1177,13 @@ namespace DGRAPIs.BS
             }
 
         }
-        public async Task<List<SolarBDType>> GetSolarBDType()
+        public async Task<List<BDType>> GetBDType()
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.GetSolarBDType();
-
+                    return await repos.GetBDType();
                 }
             }
             catch (Exception ex)
@@ -1124,7 +1193,7 @@ namespace DGRAPIs.BS
 
         }
 
-        public async Task<List<WindDailyLoadShedding>> GetWindDailyloadShedding(string site, string fromDate, string toDate)
+        public async Task<List<WindViewDailyLoadShedding>> GetWindDailyloadShedding(int site, string fromDate, string toDate)
         {
             try
             {
@@ -1337,13 +1406,74 @@ namespace DGRAPIs.BS
             }
         }
 
-        public async Task<List<approvalObject>> GetBatches(string importFromDate, string importToDate, int siteId, string status)
+        public async Task<List<approvalObject>> GetImportBatches(string importFromDate, string importToDate, int siteId,int importType, int status)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.GetBatches(importFromDate, importToDate, siteId, status);
+                    return await repos.GetImportBatches(importFromDate, importToDate, siteId, importType, status);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+       // public async Task<List<approvalObject>> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
+         public async Task<int> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.SetApprovalFlagForImportBatches(dataId, approvedBy, approvedByName, status);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+        public async Task<List<CountryList>> GetCountryList()
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetCountryData();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+       public async Task<List<StateList>> GetStateList(string country)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetStateData(country);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+        public async Task<List<SPVList>> GetSPVList( string state)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetSPVData(state);
                 }
             }
             catch (Exception ex)
@@ -1358,7 +1488,7 @@ namespace DGRAPIs.BS
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.GetSiteData(state, spvdata);
+                    return await repos.GetSiteData(state,spvdata);
                 }
             }
             catch (Exception ex)
@@ -1367,6 +1497,22 @@ namespace DGRAPIs.BS
             }
 
         }
+        public async Task<List<WindLocationMaster>> GetWTGList(int siteid)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetWTGData(siteid);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+
         public async Task<int> eQry(string qry)
         {
             try

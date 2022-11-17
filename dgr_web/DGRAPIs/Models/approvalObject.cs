@@ -8,15 +8,18 @@ namespace DGRAPIs.Models
 {
     public class approvalObject
     {
-        public int column1 { get; set; }
-        public string column2 { get; set; }
-        public string column3 { get; set; }
-        public int column4 { get; set; }
-        public DateTime column5 { get; set; }
-        public int column6 { get; set; }
-        public DateTime column7 { get; set; }
-        public int column8 { get; set; }
-        public string column9 { get; set; }
-        public string column10 { get; set; }
+        public int import_log_id { get; set; }
+        public string file_name { get; set; }
+        public int import_type { get; set; }
+        public int site_id { get; set; }
+        public string site_name { get; set; }
+        public DateTime import_date { get; set; }
+        public int imported_by { get; set; }
+        public string import_by_name { get; set; }
+        public DateTime approval_date { get; set; }
+        public int approved_by { get; set; }
+        public string approved_by_name { get; set; }
+        public int is_approved { get; set; }
+        public string log_filename { get; set; }
     }
 }

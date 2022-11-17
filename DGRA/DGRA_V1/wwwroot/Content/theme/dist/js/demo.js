@@ -140,6 +140,9 @@
       $(window).trigger('resize')
     }
   })
+    $sidebar_collapsed_checkbox.prop('checked', true)
+    $('body').addClass('sidebar-collapse')
+    $(window).trigger('resize')
   var $sidebar_collapsed_container = $('<div />', { class: 'mb-1' }).append($sidebar_collapsed_checkbox).append('<span>Collapsed</span>')
   $container.append($sidebar_collapsed_container)
 

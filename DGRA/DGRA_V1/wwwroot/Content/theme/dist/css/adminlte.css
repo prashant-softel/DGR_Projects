@@ -2770,10 +2770,10 @@ fieldset:disabled a.btn {
 }
 
 .btn-danger {
-  color: #fff;
-  background-color: #dc3545;
-  border-color: #dc3545;
-  box-shadow: none;
+    color: #fff;
+    background-color: #EE403D;
+    border-color: #EE403D;
+    box-shadow: none;
 }
 
 .btn-danger:hover {
@@ -11863,7 +11863,7 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
 }
 
 .content-header {
-  padding: 15px 0.5rem;
+  padding: 5px 0.5rem;
 }
 
 .text-sm .content-header {
@@ -21393,7 +21393,7 @@ body.text-sm .control-sidebar {
 }
 
 label:not(.form-check-label):not(.custom-file-label) {
-  font-weight: 700;
+  font-weight: 400;
 }
 
 .warning-feedback {
@@ -28782,10 +28782,10 @@ html.maximized-card {
 }
 
 .card-title {
-  float: left;
-  font-size: 1.1rem;
-  font-weight: 400;
-  margin: 0;
+    float: unset !important;
+    font-size: 1.1rem;
+    font-weight: 400;
+    margin: 0;
 }
 
 .card-text {
@@ -45638,7 +45638,7 @@ blockquote.quote-gray-dark h6 {
 }
 
 .text-olive {
-  color: #3d9970 !important;
+    color: 3d9970 !important;
 }
 
 .text-lime {
@@ -46010,7 +46010,7 @@ blockquote.quote-gray-dark h6 {
 }
 
 .bg-olive {
-  background-color: #3d9970 !important;
+    background-color: #86C466 !important;
 }
 
 .bg-olive,
@@ -46018,16 +46018,16 @@ blockquote.quote-gray-dark h6 {
   color: #fff !important;
 }
 
-.bg-olive.btn:hover {
-  border-color: #2e7555;
-  color: #ececec;
-}
+    .bg-olive.btn:hover {
+        border-color: #31576D;
+        color: #ececec;
+    }
 
-.bg-olive.btn:not(:disabled):not(.disabled):active, .bg-olive.btn:not(:disabled):not(.disabled).active, .bg-olive.btn:active, .bg-olive.btn.active {
-  background-color: #2e7555 !important;
-  border-color: #2b6b4f;
-  color: #fff;
-}
+    .bg-olive.btn:not(:disabled):not(.disabled):active, .bg-olive.btn:not(:disabled):not(.disabled).active, .bg-olive.btn:active, .bg-olive.btn.active {
+        background-color: #31576D !important;
+        border-color: #31576D;
+        color: #fff;
+    }
 
 .bg-lime {
   background-color: #01ff70 !important;
@@ -46600,20 +46600,20 @@ blockquote.quote-gray-dark h6 {
   .table th.bg-olive > a {
     color: #fff !important;
   }
-  .table td.bg-olive.btn:hover,
-  .table th.bg-olive.btn:hover {
-    border-color: #2e7555;
-    color: #ececec;
-  }
-  .table td.bg-olive.btn:not(:disabled):not(.disabled):active, .table td.bg-olive.btn:not(:disabled):not(.disabled).active, .table td.bg-olive.btn:active, .table td.bg-olive.btn.active,
-  .table th.bg-olive.btn:not(:disabled):not(.disabled):active,
-  .table th.bg-olive.btn:not(:disabled):not(.disabled).active,
-  .table th.bg-olive.btn:active,
-  .table th.bg-olive.btn.active {
-    background-color: #2e7555 !important;
-    border-color: #2b6b4f;
-    color: #fff;
-  }
+    .table td.bg-olive.btn:hover,
+    .table th.bg-olive.btn:hover {
+        border-color: #31576D;
+        color: #ececec;
+    }
+    .table td.bg-olive.btn:not(:disabled):not(.disabled):active, .table td.bg-olive.btn:not(:disabled):not(.disabled).active, .table td.bg-olive.btn:active, .table td.bg-olive.btn.active,
+    .table th.bg-olive.btn:not(:disabled):not(.disabled):active,
+    .table th.bg-olive.btn:not(:disabled):not(.disabled).active,
+    .table th.bg-olive.btn:active,
+    .table th.bg-olive.btn.active {
+        background-color: #31576D !important;
+        border-color: #2b6b4f;
+        color: #fff;
+    }
   .table td.bg-lime,
   .table th.bg-lime {
     background-color: #01ff70 !important;
@@ -47310,17 +47310,17 @@ blockquote.quote-gray-dark h6 {
   background-image: none !important;
 }
 
-.bg-gradient-olive.btn:hover {
-  background: #3d9970 linear-gradient(180deg, #519174, #327e5c) repeat-x !important;
-  border-color: #2e7555;
-  color: #ececec;
-}
+    .bg-gradient-olive.btn:hover {
+        background: #3d9970 linear-gradient(180deg, #519174, #327e5c) repeat-x !important;
+        border-color: #31576D;
+        color: #ececec;
+    }
 
-.bg-gradient-olive.btn:not(:disabled):not(.disabled):active, .bg-gradient-olive.btn:not(:disabled):not(.disabled).active, .bg-gradient-olive.btn:active, .bg-gradient-olive.btn.active {
-  background: #3d9970 linear-gradient(180deg, #4e896f, #2e7555) repeat-x !important;
-  border-color: #2b6b4f;
-  color: #fff;
-}
+    .bg-gradient-olive.btn:not(:disabled):not(.disabled):active, .bg-gradient-olive.btn:not(:disabled):not(.disabled).active, .bg-gradient-olive.btn:active, .bg-gradient-olive.btn.active {
+        background: #3d9970 linear-gradient(180deg, #4e896f, #31576D) repeat-x !important;
+        border-color: #2b6b4f;
+        color: #fff;
+    }
 
 .bg-gradient-olive.btn:disabled, .bg-gradient-olive.btn.disabled {
   background-image: none !important;
@@ -53010,18 +53010,29 @@ a.text-muted:hover {
   border-color: #4b545c !important;
 }
 .dark-blue {
-    color: rgb(49, 87, 109);
+    color: #31576D;
 }
 .green-color {
-    color: rgb(134, 196, 102);
+    color: #86C466;
 }
 .yellow-color {
-    color: rgb(255, 202, 90);
+    color: #FFCA5A;
 }
 .red-color {
-    color: rgb(238, 64, 61);
+    color: #EE403D;
 }
 .light-blue {
-    color: rgb(119, 202, 231);
+    color: #77CAE7;
 }
+.bg-darkblue {
+    background-color: #31576D;;
+}
+.card-header {
+    background-color: #77CAE7 ;
+}
+.tbl-head {
+    background-color: #31576D;
+    color: white;
+}
+
 /*# sourceMappingURL=adminlte.css.map */

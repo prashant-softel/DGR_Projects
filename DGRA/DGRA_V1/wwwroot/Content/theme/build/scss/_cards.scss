@@ -91,7 +91,7 @@
 
   &.card-tabs {
     &:not(.card-outline) {
-      > .card-header {
+      > .card-header { 
         border-bottom: 0;
 
         .nav-item {
@@ -211,34 +211,34 @@ html.maximized-card {
 
 // Box header
 .card-header {
-  background-color: transparent;
-  border-bottom: 1px solid $card-border-color;
-  padding: (($card-spacer-y * .5) * 2) $card-spacer-x;
-  position: relative;
+    background-color: #77CAE7; //transparent;
+    border-bottom: 1px solid $card-border-color;
+    padding: (($card-spacer-y * .5) * 2) $card-spacer-x;
+    position: relative;
 
-  @if $enable-rounded {
-    @include border-top-radius($border-radius);
-  }
-
-  .collapsed-card & {
-    border-bottom: 0;
-  }
-
-  > .card-tools {
-    float: right;
-    margin-right: -$card-spacer-x * .5;
-
-    .input-group,
-    .nav,
-    .pagination {
-      margin-bottom: -$card-spacer-y * .4;
-      margin-top: -$card-spacer-y * .4;
+    @if $enable-rounded {
+        @include border-top-radius($border-radius);
     }
 
-    [data-toggle="tooltip"] {
-      position: relative;
+    .collapsed-card & {
+        border-bottom: 0;
     }
-  }
+
+    > .card-tools {
+        float: right;
+        margin-right: -$card-spacer-x * .5;
+
+        .input-group,
+        .nav,
+        .pagination {
+            margin-bottom: -$card-spacer-y * .4;
+            margin-top: -$card-spacer-y * .4;
+        }
+
+        [data-toggle="tooltip"] {
+            position: relative;
+        }
+    }
 }
 
 .card-title {
