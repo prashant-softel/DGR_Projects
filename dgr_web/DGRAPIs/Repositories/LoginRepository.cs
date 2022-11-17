@@ -19,8 +19,9 @@ namespace DGRAPIs.Repositories
         {
             string qry = "";
             qry = "SELECT * FROM `login` where `username`='" + username + "' and `password` ='" + password + "' ;";
+           // qry = "SELECT * FROM `login` where `username`='sujitkumar@gmail.com' and `password` ='sujit123' ;";
             // Console.WriteLine(qry);
-           var _UserLogin = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+            var _UserLogin = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
             return _UserLogin.FirstOrDefault();
            // return _UserLogin;
           //  return await Context.GetData(qry).ConfigureAwait(false);

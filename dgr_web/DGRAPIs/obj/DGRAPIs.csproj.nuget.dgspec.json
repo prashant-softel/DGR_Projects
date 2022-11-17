@@ -1,20 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {}
+    "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {}
   },
   "projects": {
-    "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {
+    "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
+        "projectUniqueName": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
         "projectName": "DGRAPIs",
-        "projectPath": "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
-        "packagesPath": "C:\\Users\\sujit\\.nuget\\packages\\",
-        "outputPath": "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\obj\\",
+        "projectPath": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
+        "packagesPath": "C:\\Users\\bemladmin\\.nuget\\packages\\",
+        "outputPath": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
-          "C:\\Users\\sujit\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\bemladmin\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -59,10 +62,17 @@
             "net47",
             "net471",
             "net472",
-            "net48"
+            "net48",
+            "net481"
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[3.1.29, 3.1.29]"
+            }
+          ],
           "frameworkReferences": {
             "Microsoft.AspNetCore.App": {
               "privateAssets": "none"
@@ -71,7 +81,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.412\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }

@@ -6,5 +6,10 @@
 */*.csproj.vspscc
 */*bin
 /packages
-/bin
-/obj
+/packages
+/DGRA/bin
+/dgr_web/obj
+/dgr_web/bin
+/dgr_web/.vscode
+/dgr_web/.vs
+/DGRA/.vs
