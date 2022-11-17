@@ -35,23 +35,18 @@ namespace DGRA_V1.Controllers
 
         public object GetWindDailyGenSummary { get; private set; }
         public JsonSerializerOptions _options { get; private set; }
-  // TEST A 123456789
-        public HomeController(ILogger<HomeController> logger, IDapperRepository idapperRepo)
+        private readonly GraphServiceClient _graphServiceClient;
+        // TEST A 123456789
+        public HomeController(ILogger<HomeController> logger, IDapperRepository idapperRepo, GraphServiceClient graphServiceClient)
         {
             _logger = logger;
             _idapperRepo = idapperRepo;
-   
 
-        private readonly GraphServiceClient _graphServiceClient;
-
-
-        public HomeController(ILogger<HomeController> logger,
-                         GraphServiceClient graphServiceClient)
-        {
-            _logger = logger;
-            _graphServiceClient = graphServiceClient;
         }
+      
 
+
+      
         //public IActionResult Index()
         //{
         //    return View();
