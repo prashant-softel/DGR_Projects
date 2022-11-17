@@ -229,7 +229,7 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
         
-        public async Task<IActionResult> DataApproved(string data, int approvedBy, string approvedByName, int status)
+        public async Task<IActionResult> DataApproved(string data, int approvedBy, string approvedByName, int status,int actionType)
         {
             //var json = JsonConvert.SerializeObject(data);
 
@@ -257,6 +257,82 @@ namespace DGRA_V1.Controllers
             }
             return Content(line, "application/json");
         }
+        public async Task<IActionResult> DataReject(string data, int rejectedBy, string rejectByName, int status, int actionType)
+        {
+            //var json = JsonConvert.SerializeObject(data);
 
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/SetRejectFlagForImportBatches?dataId=" + data + "&rejectedBy=" + rejectedBy + "&rejectByName=" + rejectByName + "&status=" + status + "";
+                //var url = "http://localhost:23835/api/DGR/SetRejectFlagForImportBatches?dataId=" + data + "&approvedBy=" + approvedBy + "&approvedByName=" + approvedByName + "&status=" + status + "";
+                WebRequest request = WebRequest.Create(url);
+
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                        //  breakdown.list = JsonConvert.DeserializeObject<List<WindBreakdownReports>>(line);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
+        }
+        public async Task<IActionResult> GetGenerationImportData(int importId)
+        {
+           
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetImportGenData?importId=" + importId +"";
+               
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
+        }
+        public async Task<IActionResult> GetBrekdownImportData(int importId)
+        {
+
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetBrekdownImportData?importId=" + importId + "";
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
+        }
     }
 }

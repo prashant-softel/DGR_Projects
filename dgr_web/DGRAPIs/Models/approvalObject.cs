@@ -19,6 +19,9 @@ namespace DGRAPIs.Models
         public DateTime approval_date { get; set; }
         public int approved_by { get; set; }
         public string approved_by_name { get; set; }
+        public DateTime rejected_date { get; set; }
+        public int rejected_by { get; set; }
+        public string rejected_by_name { get; set; }
         public int is_approved { get; set; }
         public string log_filename { get; set; }
     }

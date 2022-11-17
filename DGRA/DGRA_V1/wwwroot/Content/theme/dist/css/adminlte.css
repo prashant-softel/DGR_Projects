@@ -2694,10 +2694,10 @@ fieldset:disabled a.btn {
 }
 
 .btn-info {
-  color: #fff;
-  background-color: #17a2b8;
-  border-color: #17a2b8;
-  box-shadow: none;
+    color: #fff;
+    background-color: #77CAE7;
+    border-color: #77CAE7;
+    box-shadow: none;
 }
 
 .btn-info:hover {

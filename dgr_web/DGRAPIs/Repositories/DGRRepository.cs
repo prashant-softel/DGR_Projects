@@ -3720,19 +3720,68 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             return _approvalObject;
 
         }
-       // public async Task<List<approvalObject>> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
+       
          internal async Task<int> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
         {
-           // string status = "";
-            string query = "UPDATE `import_batches` SET `approval_date` = NOW(),`approved_by`= "+ approvedBy + ",`is_approved`="+ status + ",`approved_by_name`='"+ approvedByName +"' WHERE `import_log_id` IN(" + dataId+")";
-            return await Context.ExecuteNonQry<int>(query).ConfigureAwait(false);
+            
+            string qry = "select t1.*,t2.site,t2.country,t2.state,t3.feeder from uploading_file_generation as t1 left join site_master as t2 on t2.site_master_id=t1.site_id left join location_master as t3 on t3.site_master_id=t1.site_id where import_batch_id IN(" + dataId+")";
 
-            //List<approvalObject> _approvalObject = new List<approvalObject>();
-           // _approvalObject = await Context.GetData<approvalObject>(query).ConfigureAwait(false);
-           // return _approvalObject;
+            List<WindUploadingFilegeneration2> _importedData = new List<WindUploadingFilegeneration2>();
+            _importedData = await Context.GetData<WindUploadingFilegeneration2>(qry).ConfigureAwait(false);
+
+            string qry1 = " insert into daily_gen_summary(state, site,site_id, date, wtg, wind_speed, kwh, feeder, ma_contractual, ma_actual, iga, ega, plf, grid_hrs, lull_hrs, production_hrs, unschedule_hrs, schedule_hrs, others, igbdh, egbdh, load_shedding, approve_status) values";
+            string values = "";
+            
+            foreach (var unit in _importedData)
+            {
+               
+                values += "('"+unit.state+"','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.wtg + "','" + unit.wind_speed + "','" + unit.kwh + "','"+unit.feeder+"','" + unit.ma_contractual + "','" + unit.ma_actual + "','" + unit.iga + "','" + unit.ega + "','" + unit.plf + "','" + unit.grid_hrs + "','"+unit.operating_hrs+"','" + unit.production_rs + "','" + unit.unschedule_hrs + "','" + unit.schedule_hrs + "','" + unit.others + "','" + unit.igbdh + "','" + unit.egbdh + "','" + unit.load_shedding + "','1'),";
+            }
+
+            qry1 += values;
+            int res= await Context.ExecuteNonQry<int>(qry1.Substring(0, (qry1.Length - 1)) + ";").ConfigureAwait(false);
+            if(res > 0)
+            {
+                string query = "UPDATE `import_batches` SET `approval_date` = NOW(),`approved_by`= " + approvedBy + ",`is_approved`=" + status + ",`approved_by_name`='" + approvedByName + "' WHERE `import_log_id` IN(" + dataId + ")";
+                return await Context.ExecuteNonQry<int>(query).ConfigureAwait(false);
+            }
+            else
+            {
+                return 0;
+            }
 
         }
 
+        internal async Task<int> SetRejectFlagForImportBatches(string dataId, int rejectedBy, string rejectByName, int status)
+        {
+
+           /* string qry = "select t1.*,t2.site,t2.country,t2.state,t3.feeder from uploading_file_generation as t1 left join site_master as t2 on t2.site_master_id=t1.site_id left join location_master as t3 on t3.site_master_id=t1.site_id where import_batch_id IN(" + dataId + ")";
+
+            List<WindUploadingFilegeneration2> _importedData = new List<WindUploadingFilegeneration2>();
+            _importedData = await Context.GetData<WindUploadingFilegeneration2>(qry).ConfigureAwait(false);
+
+            string qry1 = " insert into daily_gen_summary(state, site,site_id, date, wtg, wind_speed, kwh, feeder, ma_contractual, ma_actual, iga, ega, plf, grid_hrs, lull_hrs, production_hrs, unschedule_hrs, schedule_hrs, others, igbdh, egbdh, load_shedding, approve_status) values";
+            string values = "";
+
+            foreach (var unit in _importedData)
+            {
+
+                values += "('" + unit.state + "','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.wtg + "','" + unit.wind_speed + "','" + unit.kwh + "','" + unit.feeder + "','" + unit.ma_contractual + "','" + unit.ma_actual + "','" + unit.iga + "','" + unit.ega + "','" + unit.plf + "','" + unit.grid_hrs + "','" + unit.operating_hrs + "','" + unit.production_rs + "','" + unit.unschedule_hrs + "','" + unit.schedule_hrs + "','" + unit.others + "','" + unit.igbdh + "','" + unit.egbdh + "','" + unit.load_shedding + "','1'),";
+            }
+
+            qry1 += values;
+            int res = await Context.ExecuteNonQry<int>(qry1.Substring(0, (qry1.Length - 1)) + ";").ConfigureAwait(false);
+            if (res > 0)
+            {*/
+                string query = "UPDATE `import_batches` SET `rejected_date` = NOW(),`rejected_by`= " + rejectedBy + ",`is_approved`=" + status + ",`rejected_by_name`='" + rejectByName + "' WHERE `import_log_id` IN(" + dataId + ")";
+                return await Context.ExecuteNonQry<int>(query).ConfigureAwait(false);
+            /*}
+            else
+            {
+                return 0;
+            }*/
+
+        }
         public async Task<List<CountryList>> GetCountryData()
         { 
 
@@ -3786,6 +3835,26 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             List<WindLocationMaster> _locattionmasterDate = new List<WindLocationMaster>();
             _locattionmasterDate = await Context.GetData<WindLocationMaster>(query).ConfigureAwait(false);
             return _locattionmasterDate;
+
+        }
+        
+         public async Task<List<WindUploadingFilegeneration1>> GetImportGenData(int importId)
+        {
+            // string query = "SELECT t1.*,t2.site as site_name FROM `uploading_file_generation` as t1 join site_master as t2 on t2.site_master_id=t1.site_id  where import_batch_id =" + importId + "";
+            string query = "SELECT t1.uploading_file_generation_id,t1.site_id,t1.date,t1.wtg,t1.wtg_id,t1.wind_speed,t1.grid_hrs,t1.operating_hrs,t1.production_rs,t1.kwh,t2.site as site_name FROM `uploading_file_generation` as t1 join site_master as t2 on t2.site_master_id=t1.site_id where import_batch_id =" + importId + "";
+            List<WindUploadingFilegeneration1> _importGenData = new List<WindUploadingFilegeneration1>();
+            _importGenData = await Context.GetData<WindUploadingFilegeneration1>(query).ConfigureAwait(false);
+            return _importGenData;
+           
+        }
+        public async Task<List<WindUploadingFileBreakDown1>> GetBrekdownImportData(int importId)
+        {
+            // string query = "SELECT t1.*,t2.site as site_name FROM `uploading_file_generation` as t1 join site_master as t2 on t2.site_master_id=t1.site_id  where import_batch_id =" + importId + "";
+            //string query = "SELECT * FROM `uploading_file_breakdown` where import_batch_id =" + importId + "";
+            string query = " SELECT t1.site_id,t1.date,t1.wtg,t1.stop_from,t1.stop_to,t1.total_stop,t1.error_description,t2.site,t3.bd_type_name FROM `uploading_file_breakdown` as t1 left join site_master as t2 on t2.site_master_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id = " + importId + "";
+            List<WindUploadingFileBreakDown1> _importBreakdownData = new List<WindUploadingFileBreakDown1>();
+            _importBreakdownData = await Context.GetData<WindUploadingFileBreakDown1>(query).ConfigureAwait(false);
+            return _importBreakdownData;
 
         }
     }

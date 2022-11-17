@@ -103,6 +103,7 @@ namespace DGRAPIs.BS
        
         Task<List<approvalObject>> GetImportBatches(string importFromDate, string importToDate, int siteId,int importType, int status);
         Task<int> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status);
+        Task<int> SetRejectFlagForImportBatches(string dataId, int rejectedBy, string rejectByName, int status);
         //Task<List<approvalObject>> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status);
         Task<List<CountryList>> GetCountryList();
         Task<List<StateList>> GetStateList(string country);
@@ -110,6 +111,8 @@ namespace DGRAPIs.BS
         Task<List<WindSiteMaster>> GetSiteList(string state, string spvdata);
         Task<List<WindLocationMaster>> GetWTGList(int siteid);
 		Task<List<BDType>> GetBDType();
+        Task<List<WindUploadingFilegeneration1>> GetImportGenData(int importId);
+        Task<List<WindUploadingFileBreakDown1>> GetBrekdownImportData(int importId);
         Task<int> importMetaData(ImportLog meta);
     }
     public class DGRBS : IDGRBS
@@ -1422,13 +1425,28 @@ namespace DGRAPIs.BS
 
         }
        // public async Task<List<approvalObject>> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
-         public async Task<int> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
+        public async Task<int> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
                     return await repos.SetApprovalFlagForImportBatches(dataId, approvedBy, approvedByName, status);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+        public async Task<int> SetRejectFlagForImportBatches(string dataId, int rejectedBy, string rejectByName, int status)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.SetRejectFlagForImportBatches(dataId, rejectedBy, rejectByName, status);
                 }
             }
             catch (Exception ex)
@@ -1512,7 +1530,36 @@ namespace DGRAPIs.BS
             }
 
         }
+        public async Task<List<WindUploadingFilegeneration1>> GetImportGenData(int importId)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetImportGenData(importId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
 
+        }
+        public async Task<List<WindUploadingFileBreakDown1>> GetBrekdownImportData(int importId)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetBrekdownImportData(importId);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
         public async Task<int> eQry(string qry)
         {
             try

@@ -1500,6 +1500,24 @@ namespace DGRAPIs.Controllers
                 }
             }
         }
+        [Route("SetRejectFlagForImportBatches")]
+        [HttpGet]
+        public async Task<IActionResult> SetRejectFlagForImportBatches(string dataId, int rejectedBy, string rejectByName, int status)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.SetRejectFlagForImportBatches(dataId, rejectedBy, rejectByName, status);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
         [Route("GetCountryList")]
         [HttpGet]
         public async Task<IActionResult> GetCountryList()
@@ -1590,7 +1608,43 @@ namespace DGRAPIs.Controllers
                 }
             }
         }
+        // Get Generation imported Data
+        [Route("GetImportGenData")]
+        [HttpGet]
+        public async Task<IActionResult> GetImportGenData(int importId)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetImportGenData(importId);
+                    return Ok(data);
 
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetBrekdownImportData")]
+        [HttpGet]
+        public async Task<IActionResult> GetBrekdownImportData(int importId)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetBrekdownImportData(importId);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
         [Route("eQry/{qry}")]
         [HttpGet]
         public async Task<IActionResult> eQry(string qry)
