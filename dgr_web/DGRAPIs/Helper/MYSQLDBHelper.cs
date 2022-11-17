@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MySql.Data;
 using MySql.Data.MySqlClient;
-
+using DGRAPIs.Models;
 namespace DGRAPIs.Helper
 {
     public class MYSQLDBHelper
@@ -166,6 +166,43 @@ namespace DGRAPIs.Helper
             }
             catch (MySqlException sqlex)
             {
+                throw new Exception("ExecuteNonQuery SPname=" + qry + Environment.NewLine + sqlex.Message, sqlex);
+            }
+            finally
+            {
+
+                // retpara = null;
+
+            }
+        }
+
+        internal async Task<APIResponse> ExecuteAPIQry<T>(string qry)
+        {
+            // MySqlParameter retpara = null;
+            APIResponse aPIResponse = new APIResponse();
+            try
+            {
+                using (MySqlConnection conn = TheConnection)
+                {
+                    using (MySqlCommand cmd = getQryCommand(qry, conn))
+                    {
+                        cmd.CommandTimeout = 99999;
+                        cmd.CommandType = CommandType.Text;
+                        await conn.OpenAsync();
+
+
+                        int i = await cmd.ExecuteNonQueryAsync();
+                        aPIResponse.Success = true;
+                        return aPIResponse;
+
+                    }
+                }
+            }
+            catch (MySqlException sqlex)
+            {
+                aPIResponse.Success = false;
+                aPIResponse.ErrorMessage = sqlex.Message;
+
                 throw new Exception("ExecuteNonQuery SPname=" + qry + Environment.NewLine + sqlex.Message, sqlex);
             }
             finally

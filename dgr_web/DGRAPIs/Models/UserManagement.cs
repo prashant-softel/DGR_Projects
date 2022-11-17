@@ -11,5 +11,7 @@ namespace DGRAPIs.Models
         public DateTime date { get; set; }
         public string dgr { get; set; }
         public int status { get; set; }
+        public string Title { get; set; }
+        public string Name { get; set; }
     }
 }
