@@ -1,7 +1,10 @@
 ﻿using DGRA_V1.Models;
+
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Web;
 using System;
@@ -60,6 +63,8 @@ namespace DGRA_V1.Controllers
             //{
             //    return RedirectToAction("Dashbord");
             //}
+          //  HttpContext.Session.SetString("product", "laptop");
+
             return View();
         }
 
@@ -69,6 +74,10 @@ namespace DGRA_V1.Controllers
         public async Task<IActionResult> SSOLogin ()
         {
             var user = await _graphServiceClient.Me.Request().GetAsync();
+
+
+            HttpContext.Session.SetString("DisplayName", user.DisplayName);
+
             ViewData["ApiResult"] = user.DisplayName;
             if (!string.IsNullOrEmpty(user.DisplayName))
             {
@@ -92,8 +101,10 @@ namespace DGRA_V1.Controllers
             return View();
             //return RedirectToAction("Upload", "FileUpload");
         }
+        [Authorize]
         public IActionResult Dashbord()
         {
+           
             //return RedirectToAction("Dashbord", "Home");
             return View();
             //return RedirectToAction("Upload", "FileUpload");
@@ -203,7 +214,11 @@ namespace DGRA_V1.Controllers
             return RedirectToAction("Index", "Home");
             // return View();
         }
-
+        [HttpGet("SignOut")]
+        public IActionResult SignOut([FromRoute] string scheme)
+        {
+            return RedirectToAction("Index", "Home");
+        }
 
     }
 }

@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Identity.Web;
 using Microsoft.Identity.Web.UI;
+using System;
 
 namespace DGRA_V1
 {
@@ -55,6 +56,9 @@ namespace DGRA_V1
             });
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
+            services.AddSession(options => {
+                options.IdleTimeout = TimeSpan.FromMinutes(60);
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -80,7 +84,7 @@ namespace DGRA_V1
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-          
+            app.UseSession();
 
             app.UseRouting();
 

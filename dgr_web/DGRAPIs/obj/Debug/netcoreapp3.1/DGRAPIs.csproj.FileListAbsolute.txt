@@ -369,3 +369,4 @@ C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.csproj.Cop
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.dll
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.pdb
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.genruntimeconfig.cache
+C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\DGRAPIs.StaticWebAssets.xml
