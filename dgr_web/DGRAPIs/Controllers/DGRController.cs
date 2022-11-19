@@ -533,6 +533,28 @@ namespace DGRAPIs.Controllers
         }
         #endregion //Wind reports
 
+
+        #region KPI Calculations
+
+
+        [Route("CalculateDailyWindKPI")]
+        [HttpGet]
+        public async Task<IActionResult> CalculateDailyWindKPI(string fromDate, string toDate, string site)
+        {
+            try
+            {
+                var data = await _dgrBs.CalculateDailyWindKPI(fromDate, toDate, site);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+        #endregion
+
         #region inserts
 
         [Route("InsertDailyTargetKPI")]
@@ -1610,5 +1632,6 @@ namespace DGRAPIs.Controllers
 
 
         #endregion
+
     }
 }

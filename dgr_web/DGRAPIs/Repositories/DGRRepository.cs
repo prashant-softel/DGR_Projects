@@ -11,6 +11,11 @@ namespace DGRAPIs.Repositories
 {
     public class DGRRepository : GenericRepository
     {
+
+        public const string MA_Actual = "MA_Actual";
+        public const string MA_Contractual = "MA_Contractual";
+        public const string Internal_Grid = "Internal_Grid";
+        public const string External_Grid = "External_Grid";
         private int approve_status = 0;
         public DGRRepository(MYSQLDBHelper sqlDBHelper) : base(sqlDBHelper)
         {
@@ -1547,10 +1552,8 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
         }
         internal async Task<List<SolarDailyGenSummary>> GetSolarDailyGenSummary()
         {
-            string qry = @"SELECT *,
-(SELECT dc_capacity FROM solar_ac_dc_capacity where inverter=t1.location_name)as dc_capacity,
-(SELECT ac_capacity FROM solar_ac_dc_capacity where inverter=t1.location_name) as ac_capacity
- FROM daily_gen_summary_solar t1 ";
+            string qry = @"SELECT *, (SELECT dc_capacity FROM solar_ac_dc_capacity where inverter=t1.location_name)as dc_capacity, 
+                        (SELECT ac_capacity FROM solar_ac_dc_capacity where inverter=t1.location_name) as ac_capacity FROM daily_gen_summary_solar t1 ";
 
             //FROM daily_gen_summary_solar t1 where t1.approve_status=" + approve_status + "";
 
@@ -3788,6 +3791,255 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             return _locattionmasterDate;
 
         }
+
+
+        #region KPI Calculations
+        /// <summary>
+        /// This function calculates the KPI of the site on a given date
+        /// </summary>
+        /// <param name="fromDate"></param>
+        /// <param name="toDate"></param>
+        /// <param name="site"></param>
+        /// <returns></returns>
+        internal async Task<bool> CalculateDailyWindKPI(string fromDate, string toDate, string site)
+        {
+            bool response = false;
+            double Final_USMH = 0;
+            double Final_SMH = 0;
+            double Final_IGBD = 0;
+            double Final_EGBD = 0;
+            double Final_LoadShedding = 0;
+            double Final_LULL = 0;
+            double Final_OthersHour = 0;
+            string MA_Actual_FormulaID = "";
+            string MA_Contractual_FormulaID = "";
+            string IGA_FormulaID = "";
+            string EGA_FormulaID = "";
+            string sCurrentWTG = "";
+            string sLastWTG = "";
+
+            if (string.IsNullOrEmpty(site) || site == "All")
+            {
+                //throw SystemException("Invalid site " + site);
+                return response;
+            }
+
+            int site_id = int.Parse(site);
+
+            if(site_id <= 0)
+            {
+                //throw SystemException("Invalid site " + site);
+                return response;
+            }
+
+            string qrySiteFormulas = "SELECT * FROM `wind_site_formulas` where site_id = '" + site_id + "'";            
+            List<SiteFormulas> _SiteFormulas = await Context.GetData<SiteFormulas>(qrySiteFormulas).ConfigureAwait(false);
+            foreach (SiteFormulas SiteFormula in _SiteFormulas)
+            {
+                MA_Actual_FormulaID         = SiteFormula.MA_Actual; //(string)reader["MA_Actual"];
+                MA_Contractual_FormulaID    = SiteFormula.MA_Contractual; // (string)reader["MA_Contractual"];
+                IGA_FormulaID               = SiteFormula.IGA; // (string)reader["IGA"];
+                EGA_FormulaID               = SiteFormula.EGA; // (string)reader["EGA"];
+                //break;
+            }
+
+            //string qryFileBreakdown = "SELECT fd.site_id,fd.bd_type,fd.wtg,bd.bd_type_name, SEC_TO_TIME(SUM(TIME_TO_SEC( fd.`total_stop` ) ) ) AS totalTime FROM `uploading_file_breakdown` as fd join bd_type as bd on bd.bd_type_id=fd.bd_type where site_id = " + site_id + " AND`date` = '" + fromDate + "' group by fd.wtg, fd.bd_type";
+            string qry = @"SELECT date,t1.wtg,bd_type,stop_from,stop_to,total_stop,error_description,action_taken,t3.country,t3.state,t3.spv, t2.site,t4.bd_type_name FROM uploading_file_breakdown t1 left join location_master t2 on t2.wtg=t1.wtg left join site_master t3 on t3.site_master_id=t2.site_master_id left join bd_type as t4 on t4.bd_type_id=t1.bd_type ";
+            int iBreakdownCount = 0;
+            string filter = "";
+            int chkfilter = 0;
+            if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
+            {
+                //filter += "(date >= '" + fromDate + "'  and date<= '" + toDate + "')";
+                filter += "(date = '" + fromDate + "')";
+                chkfilter = 1;
+            }
+
+            if (!string.IsNullOrEmpty(filter))
+            {
+                qry += " where  " + filter;
+            }
+            qry += " group by t1.wtg, t1.bd_type";
+            List<WindDailyBreakdownReport> _WindFileBreakdown = await Context.GetData<WindDailyBreakdownReport>(qry).ConfigureAwait(false);
+            foreach (WindDailyBreakdownReport sBreakdown in _WindFileBreakdown)
+            {
+                iBreakdownCount++;
+                DateTime result;
+                TimeSpan Get_Time;
+                string site2         = sBreakdown.site;
+                int site_id2         = sBreakdown.site_id;
+                //site_id = reader["site_id"].ToInt();
+                sCurrentWTG         = sBreakdown.wtg; // (string)reader["wtg"];
+                int bd_type         = int.Parse(sBreakdown.bd_type);// reader["bd_type"];
+                string bd_type_name = sBreakdown.bd_type_name; // reader["bd_type_name"];
+                var totalTime       = sBreakdown.total_stop;// reader["totalTime"];
+
+                if (iBreakdownCount == 1)
+                {
+                    sLastWTG = sCurrentWTG;
+                }
+                if (sCurrentWTG != sLastWTG)
+                {
+                    //Update WTG KPIs
+                    CalculateAndUpdateKPIs(site_id, fromDate, sLastWTG, Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Actual_FormulaID, MA_Contractual_FormulaID, IGA_FormulaID, EGA_FormulaID);
+                    sLastWTG = sCurrentWTG;
+                    Final_USMH = 0;
+                    Final_SMH = 0;
+                    Final_IGBD = 0;
+                    Final_EGBD = 0;
+                    Final_LoadShedding = 0;
+                    Final_LULL = 0;
+                    Final_OthersHour = 0;
+                }
+
+                switch (bd_type)
+                {
+                    case 1:                 //if (bd_type_name.Equals("USMH"))            //Pending : optimise it use bd_type id
+                        result = Convert.ToDateTime(totalTime.ToString());
+                        Get_Time = result.TimeOfDay;
+                        Get_Time = Get_Time * 24;
+                        Final_USMH = Get_Time.TotalDays;
+                        break;
+
+                    case 2:                 //else if (bd_type_name.Equals("SMH"))              
+                        result = Convert.ToDateTime(totalTime.ToString());
+                        Get_Time = result.TimeOfDay;
+                        Get_Time = Get_Time * 24;
+                        Final_SMH = Get_Time.TotalDays;
+                        break;
+
+                    case 3:                 //else if (bd_type_name.Equals("IGBD"))                
+                        result = Convert.ToDateTime(totalTime.ToString());
+                        Get_Time = result.TimeOfDay;
+                        Get_Time = Get_Time * 24;
+                        Final_IGBD = Get_Time.TotalDays;
+                        break;
+
+                    case 4:                 //else if (bd_type_name.Equals("EGBD"))                
+                        result = Convert.ToDateTime(totalTime.ToString());
+                        Get_Time = result.TimeOfDay;
+                        Get_Time = Get_Time * 24;
+                        Final_EGBD = Get_Time.TotalDays;
+                        break;
+
+                    case 5:                 //if (bd_type_name.Equals("LoadShedding"))                
+                        result = Convert.ToDateTime(totalTime.ToString());
+                        Get_Time = result.TimeOfDay;
+                        Get_Time = Get_Time * 24;
+                        Final_LoadShedding = Get_Time.TotalDays;
+                        break;
+
+                    case 6:                 //if (bd_type_name.Equals("OthersHour"))                
+                        result = Convert.ToDateTime(totalTime.ToString());
+                        Get_Time = result.TimeOfDay;
+                        Get_Time = Get_Time * 24;
+                        Final_OthersHour = Get_Time.TotalDays;
+                        break;
+
+                    default:
+                        //Pending : error reporting
+                        //throw;
+                        break;
+
+                }
+            }
+            //Pending : validation of Total time to be 24
+            CalculateAndUpdateKPIs(site_id, fromDate, sCurrentWTG, Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Actual_FormulaID, MA_Contractual_FormulaID, IGA_FormulaID, EGA_FormulaID);
+           
+            return response;
+        }
+
+        /// <summary>
+        /// This function calculates the KPI of the given WTG and update the KPI to uploading_file_generation table. 
+        /// Approval function then copy this data to daily_generaition_summary table
+        /// </summary>
+        /// <param name="site_id"></param>
+        /// <param name="fromDate"></param>
+        /// <param name="sWTG_Name"></param>
+        /// <param name="Final_USMH"></param>
+        /// <param name="Final_SMH"></param>
+        /// <param name="Final_IGBD"></param>
+        /// <param name="Final_EGBD"></param>
+        /// <param name="Final_OthersHour"></param>
+        /// <param name="Final_LoadShedding"></param>
+        /// <param name="MA_Actual_FormulaID"></param>
+        /// <param name="MA_Contractual_FormulaID"></param>
+        /// <param name="IGA_FormulaID"></param>
+        /// <param name="EGA_FormulaID"></param>
+        /// <returns></returns>
+        private async Task<bool> CalculateAndUpdateKPIs(int site_id, string fromDate, string sWTG_Name, double Final_USMH, double Final_SMH, double Final_IGBD, double Final_EGBD, double Final_OthersHour, double Final_LoadShedding, string MA_Actual_FormulaID, string MA_Contractual_FormulaID, string IGA_FormulaID, string EGA_FormulaID)
+        {
+            bool response = false;
+            try
+            {
+                string sLog = "Updating WTG <" + sWTG_Name + "> KPI paramters.";
+                //Pending : Log the result
+
+                double dMA_ACT = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Actual_FormulaID),6);
+                double dMA_CON = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Contractual_FormulaID), 6);
+                double dIGA = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, IGA_FormulaID), 6);
+                double dEGA = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, EGA_FormulaID), 6);
+
+                string qryUpdate    = "UPDATE `uploading_file_generation` set ma_actual = " + dMA_ACT + ", ma_contractual = " + dMA_CON + ", iga = " + dIGA + ", ega = " + dEGA;
+                qryUpdate           += ", unschedule_hrs = " + Final_USMH + ", schedule_hrs = " + Final_SMH + ", igbdh = " + Final_IGBD + ", egbdh = " + Final_EGBD + ", others = " + Final_OthersHour + ", load_shedding = " + Final_LoadShedding;
+                qryUpdate           += " where wtg = '" + sWTG_Name + "' and date = '" + fromDate + "'";
+
+                int result = await Context.ExecuteNonQry<int>(qryUpdate).ConfigureAwait(false);
+                if(result > 0)
+                    response = true;
+
+            }
+            catch(Exception ex)
+            {
+                string strEx = ex.ToString();
+                throw;
+
+            }
+            finally
+            {
+                int i = 0;
+            }
+            return response;
+        }
+
+        /// <summary>
+        /// This function caluldates the value as per the formula type 
+        /// </summary>
+        /// <param name="U"></param>
+        /// <param name="S"></param>
+        /// <param name="IG"></param>
+        /// <param name="EG"></param>
+        /// <param name="OthersHour"></param>
+        /// <param name="LoadShedding"></param>
+        /// <param name="Formula"></param>
+        /// <returns></returns>
+        private double GetCalculatedValue(double U, double S, double IG, double EG, double OthersHour, double LoadShedding, string Formula)
+        {
+            double returnValue = 0;
+            //Pending : Iteration 2 => to add a formula parser to evaludate formuals as defined by user
+            switch (Formula)
+            {
+                case "24-(USMH+SMH))/24": /*MA_Actual_FormulaID*/ //Machine Availability Actual
+                    returnValue = (24 - (U + S)) / 24;
+                    break;
+                case "(24-(USMH+SMH+IG))/24": /*MA_Contractual_FormulaID*/ //Machine Availability Contractual
+                    returnValue = (24 - (U + S + IG)) / 24;
+                    break;
+                case "(24-(IG))/24"://Internal Grid Availability 
+                    returnValue = (24 - (IG)) / 24;
+                    break;
+                case "(24-(EG))/24": /*External_Grid_FormulaID*///External Grid Availablity
+                    returnValue = (24 - (EG)) / 24;
+                    break;
+                default:
+                    //Pending : error reporting
+                    //throw;
+                    break;
+            }
+            return returnValue * 100;
+        }
+
+        #endregion //KPI Calculations
     }
 
     internal class ViewerStatsFormat
