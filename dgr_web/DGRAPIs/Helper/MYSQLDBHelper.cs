@@ -247,5 +247,10 @@ namespace DGRAPIs.Helper
         {
             return 600;
         }
+
+        internal void getQryCommand(string qry)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -9,7 +9,8 @@ namespace DGRAPIs.Models
     {
         public string FY { get; set; }
         public string Sites { get; set; }
+        public int Site_Id { get; set; }
         public string Month { get; set; }
-        public string LineLoss { get; set; }
+        public dynamic LineLoss { get; set; }
     }
 }

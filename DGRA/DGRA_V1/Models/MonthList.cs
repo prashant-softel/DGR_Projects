@@ -9,8 +9,7 @@ namespace DGRA_V1.Models
     {
         internal string name;
         internal string value;
-       // public string name { get; set; }
-        //public string value { get; set; }
+       
         private List<MonthList> _list = new List<MonthList>()
         {
             new MonthList{ name="1",value="1"},
@@ -23,5 +22,23 @@ namespace DGRA_V1.Models
 
 
     }
-   
+
+
+
+    public static class Permission1
+    {
+
+        private static List<MonthList> _list = new List<MonthList>()
+        {
+            new MonthList{ name="1",value="1"},
+            new MonthList{ name="2",value="1"},
+            new MonthList{ name="13",value="1"},
+        };
+
+
+        public static List<MonthList> PermissionList { get { return _list; } }
+
+
+    }
+
 }

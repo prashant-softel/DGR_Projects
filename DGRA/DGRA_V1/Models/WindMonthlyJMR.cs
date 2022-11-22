@@ -10,6 +10,7 @@ namespace DGRA_V1.Models
     {
         public string fy { get; set; }
         public string site { get; set; }
+        public int siteId { get; set; }
         public string plantSection { get; set; }
         public string jmrDate { get; set; }
         public string jmrMonth { get; set; }

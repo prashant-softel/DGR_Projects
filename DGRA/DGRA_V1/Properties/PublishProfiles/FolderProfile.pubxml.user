@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+https://go.microsoft.com/fwlink/?LinkID=208121. 
+-->
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_PublishTargetUrl>G:\solarproject\Finalcode\DGR_Projects\DGRA\DGRA_V1\bin\Release\net5.0\publish\</_PublishTargetUrl>
+    <History>True|2022-11-18T10:25:47.9126333Z;True|2022-11-17T18:00:17.3394421+05:30;</History>
+  </PropertyGroup>
+</Project>

@@ -25,10 +25,8 @@ namespace DGRAPIs.Models
   
             public double capacity { get; set; }
         public string module_make { get; set; }
- 
-              public string module_model_no { get; set; }
-  
-              public string module_type { get; set; }
-  
+        public string module_model_no { get; set; }
+        public string module_type { get; set; }
+        public string string_inv_central_inv { get; set; }
     }
 }

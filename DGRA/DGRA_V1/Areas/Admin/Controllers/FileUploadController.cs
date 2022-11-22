@@ -28,31 +28,45 @@ namespace DGRA_V1.Areas.admin.Controllers
         public FileUploadController(IDapperRepository idapperRepo)
         {
             _idapperRepo = idapperRepo;
+            m_ErrorLog = new ErrorLog(meta);
         }
         static string[] importData = new string[2];
         //WindUploadingFileValidation m_ValidationObject;
         ErrorLog m_ErrorLog;
         ImportLog meta = new ImportLog();
+       // static string[] importData = new string[2];
 
         Hashtable equipmentId = new Hashtable();
-        Hashtable siteName = new Hashtable();
-        Hashtable siteNameId = new Hashtable();
-        Hashtable breakdownType = new Hashtable();
-        public FileUploadController()
-        {
-            m_ErrorLog = new ErrorLog(meta);
-        }
-
-        ~FileUploadController()
+        Hashtable breakdownType = new Hashtable();//(B)Gets bdTypeID from bdTypeName: BDType table
+        Hashtable siteNameId = new Hashtable(); //(C)Gets siteId from siteName
+        Hashtable siteName = new Hashtable(); //(D)Gets siteName from siteId
+       
+        Hashtable eqSiteId = new Hashtable();//(E)Gets siteId from (wtg)equipmentName
+        /*~FileUploadController()
         {
             //Destructor
             //delete m_ValidationObject;
             //delete m_ErrorLog;
-        }
+        }*/
 
         [HttpGet]
         public ActionResult Upload()
         {
+            String Name = HttpContext.Session.GetString("DisplayName");
+            if (Name == "Sujit")
+            {
+                TempData["name"] = "Sujit Kumar";
+                TempData["role"] = "User";
+                TempData["userid"] = "1";
+
+            }
+            if (Name == "prashant")
+            {
+
+                TempData["name"] = "Prashant Shetye";
+                TempData["role"] = "Admin";
+                TempData["userid"] = "2";
+            }
             return View();
         }
         [HttpPost]
@@ -61,17 +75,18 @@ namespace DGRA_V1.Areas.admin.Controllers
             try
             {
                 //  string response = await ExceldatareaderAndUpload(Request.Files["Path"]);
-                string response = await ExceldatareaderAndUpload(HttpContext.Request.Form.Files[0], fileUpload);
+                string response = await ExcelDataReaderAndUpload(HttpContext.Request.Form.Files[0], fileUpload);
                 TempData["notification"] = response;
             }
             catch (Exception ex)
             {
                 TempData["notification"] = "Failed to upload";
+                string message = ex.Message;
             }
             return View();
         }
 
-        public async Task<string> ExceldatareaderAndUpload(IFormFile file, string fileUpload)
+        public async Task<string> ExcelDataReaderAndUpload(IFormFile file, string fileUpload)
         {
             OleDbConnection oconn = null;
             importData[0] = fileUpload;
@@ -123,57 +138,30 @@ namespace DGRA_V1.Areas.admin.Controllers
                             oconn.Open();
                             DataTable dt = null;
                             dt = oconn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
+                            oconn.Close();
+
+                            m_ErrorLog.SetInformation("Status,Message");
+                            m_ErrorLog.SetInformation(",File Import Initiated:");
+
                             foreach (DataRow row in dt.Rows)
                             {
                                 fileSheets.Add(row["TABLE_NAME"].ToString());
                             }
                             if (fileSheets.Contains("Uploading_File_Generation$") || fileSheets.Contains("Uploading_File_Breakdown$"))
                             {
+                                    masterHashtable_SiteName_To_SiteId();
                                 if (fileUpload == "Wind")
                                 {
-                                    DataTable dTable = new DataTable();
-                                   // var url = "http://localhost:23835/api/DGR/GetWindLocationMaster";
-                                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindLocationMaster";
-                                    var result = string.Empty;
-                                    WebRequest request = WebRequest.Create(url);
-
-                                    using (var response = (HttpWebResponse)request.GetResponse())
-                                    {
-                                        Stream receiveStream = response.GetResponseStream();
-                                        using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
-                                        {
-                                            result = readStream.ReadToEnd();
-                                        }
-                                        dTable = JsonConvert.DeserializeObject<DataTable>(result);
-                                    }
-
-                                    foreach (DataRow dr in dTable.Rows)
-                                    {
-                                        equipmentId.Add((string)dr["wtg"], Convert.ToString(dr["location_master_id"]));
-                                        siteName.Add((string)dr["wtg"], (string)dr["site"]);
-                                        siteNameId.Add((string)dr["wtg"], Convert.ToString(dr["site_master_id"]));
-                                    }
-
-                                   // url = "http://localhost:23835/api/DGR/GetBDType";
-                                    url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetBDType";
-                                    result = string.Empty;
-                                    request = WebRequest.Create(url);
-
-                                    using (var response = (HttpWebResponse)request.GetResponse())
-                                    {
-                                        Stream receiveStream = response.GetResponseStream();
-                                        using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
-                                        {
-                                            result = readStream.ReadToEnd();
-                                        }
-                                        dTable = JsonConvert.DeserializeObject<DataTable>(result);
-                                    }
-
-                                    foreach (DataRow dr in dTable.Rows)
-                                    {
-                                        breakdownType.Add((string)dr["bd_type_name"], Convert.ToInt64(dr["bd_type_id"]));
-                                    }
+                                    masterHashtable_WtgToWtgId();
+                                    masterHashtable_SiteIdToSiteName();
+                                    masterHashtable_BDNameToBDId();
+                                    masterHashtable_WtgToSiteId();
                                 }
+                            }
+
+                            if (fileSheets.Contains("Location_Master$") || fileSheets.Contains("Site_Master$") || fileSheets.Contains("Monthly_JMR_Input_and_Output$") || fileSheets.Contains("Monthly_LineLoss$") || fileSheets.Contains("Monthly_Target_KPI$") || fileSheets.Contains("Daily_Target_KPI$"))
+                            {
+                                masterHashtable_SiteName_To_SiteId();
                             }
 
                             foreach (var excelSheet in fileSheets)
@@ -189,32 +177,33 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     oconn.Close();
                                     if (ds.Tables.Count > 0)
                                     {
-                                        //status = await InsertFileGeneration(status, ds);
                                         if (fileUpload == "Solar")
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Solar_Uploading_File_Generation :");
+                                            m_ErrorLog.SetInformation(",Reviewing Solar_Uploading_File_Generation WorkSheet:");
                                             status = await InsertSolarFileGeneration(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors,Solar Generation Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar Generation Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar Generation Import:");
+                                            }
                                         }
                                         else if (fileUpload == "Wind")
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Wind_Uploading_File_Generation Worksheet :");
+                                            m_ErrorLog.SetInformation(",Reviewing Wind_Uploading_File_Generation WorkSheet :");
                                             status = await InsertWindFileGeneration(status, ds);
                                             if (status == "Successfully uploaded")
                                             {
                                                 m_ErrorLog.SetInformation("No Errors,Wind Generation Import Successful:");
-                                                m_ErrorLog.SaveToCSV(importData[1]);
-                                                m_ErrorLog.Clear();
                                             }
                                             else
                                             {
                                                 m_ErrorLog.SetError(",Wind Generation Import Failed:");
                                                 m_ErrorLog.SetInformation(",End of Wind Generation Import:");
-                                                m_ErrorLog.SaveToCSV(importData[1]);
-                                                m_ErrorLog.Clear();
                                             }
-                                        }
-                                        else //add new import types here
-                                        {
                                         }
                                     }
                                 }
@@ -228,31 +217,33 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                                     if (ds.Tables.Count > 0)
                                     {
-                                        //status = await InsertFileBreakDown(status, ds);
                                         if (fileUpload == "Solar")
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Solar_Uploading_File_Breakdown :");
-
+                                            m_ErrorLog.SetInformation(",Reviewing Solar Uploading_File_Breakdown WorkSheet:");
                                             status = await InsertSolarFileBreakDown(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors,Solar Breakdown Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar Breakdown Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar Breakdown Import:");
+                                            }
                                         }
                                         else
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Wind_Uploading_File_Breakdown :");
+                                            m_ErrorLog.SetInformation(",Reviewing Wind Uploading_File_Breakdown WorkSheet:");
                                             status = await InsertWindFileBreakDown(status, ds);
                                             if (status == "Successfully uploaded")
                                             {
                                                 m_ErrorLog.SetInformation("No Errors,Wind BreakDown Import Successful:");
-                                                m_ErrorLog.SaveToCSV(importData[1]);
-                                                m_ErrorLog.Clear();
                                             }
                                             else
                                             {
                                                 m_ErrorLog.SetError(",Wind BreakDown Import Failed:");
                                                 m_ErrorLog.SetInformation(",End of Wind BreakDown Import:");
-                                                m_ErrorLog.SaveToCSV(importData[1]);
-                                                m_ErrorLog.Clear();
                                             }
-
                                         }
                                     }
                                 }
@@ -270,6 +261,15 @@ namespace DGRA_V1.Areas.admin.Controllers
                                         {
                                             m_ErrorLog.SetInformation(",Reviewing Solar_Uploading_PyranoMeter1Min: ");
                                             status = await InsertSolarPyranoMeter1Min(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors,Solar PyranoMeter1Min Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar PyranoMeter1Min Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar PyranoMeter1Min Import:");
+                                            }
                                         }
                                         else
                                         {
@@ -290,7 +290,16 @@ namespace DGRA_V1.Areas.admin.Controllers
                                         if (fileUpload == "Solar")
                                         {
                                             m_ErrorLog.SetInformation(",Reviewing Solar_Uploading_PyranoMeter15Min :");
-                                            status = await InsertSolarPyranoMeter15Min(status, ds);
+                                            //status = await InsertSolarPyranoMeter15Min(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors,Solar PyranoMeter15Min Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar PyranoMeter15Min Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar PyranoMeter1Min Import:");
+                                            }
                                         }
                                         else
                                         {
@@ -310,18 +319,37 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     {
                                         if (fileUpload == "Wind")
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Wind: Monthly_JMR_Input_and_Output :");
-                                            status = await InsertWindMonthly_JMR_Input_and_Output(status, ds);
+                                            m_ErrorLog.SetInformation(",Reviewing Wind Monthly_JMR_Input_and_Output WorkSheet:");
+                                            status = await InsertWindMonthlyJMR(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Wind Monthly JMR Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Wind Monthly JMR Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Wind Monthly JMR Import:");
+                                            }
                                         }
                                         else
                                         {
-                                            status = "Wrong file upload type selected";
+                                            m_ErrorLog.SetInformation(",Reviewing Solar Monthly_JMR_Input_and_Output WorkSheet:");
+                                            status = await InsertSolarMonthlyJMR(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors,Solar Monthly JMR Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar Monthly JMR Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar Monthly JMR Import:");
+                                            }
                                         }
                                     }
                                 }
-                                else if (excelSheet == FileSheetType.Wind_Monthly_LineLoss)
+                                else if (excelSheet == FileSheetType.Monthly_LineLoss)
                                 {
-                                    sql = "SELECT * FROM [" + FileSheetType.Wind_Monthly_LineLoss + "]";
+                                    sql = "SELECT * FROM [" + FileSheetType.Monthly_LineLoss + "]";
                                     OleDbCommand cmd = new OleDbCommand(sql, oconn);
                                     OleDbDataAdapter da = new OleDbDataAdapter(cmd);
                                     da.Fill(ds);
@@ -331,18 +359,37 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     {
                                         if (fileUpload == "Wind")
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Wind: Wind_Monthly_LineLoss :");
-                                            status = await WindMonthlyLineLoss(status, ds);
+                                            m_ErrorLog.SetInformation(",Reviewing Wind Monthly_LineLoss WorkSheet:");
+                                            status = await InsertWindMonthlyLineLoss(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Wind Monthly LineLoss Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Wind Monthly LineLoss Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Wind Wind Monthly LineLoss Import:");
+                                            }
                                         }
                                         else
                                         {
-                                            status = "Wrong file upload type selected";
+                                            m_ErrorLog.SetInformation(",Reviewing Solar Monthly_LineLoss WorkSheet:");
+                                            status = await InsertSolarMonthlyLineLoss(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Solar Monthly_LineLoss Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar Monthly_LineLoss Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar Monthly_LineLoss Import:");
+                                            }
                                         }
                                     }
                                 }
-                                else if (excelSheet == FileSheetType.Wind_Monthly_Target_KPI)
+                                else if (excelSheet == FileSheetType.Monthly_Target_KPI)
                                 {
-                                    sql = "SELECT * FROM [" + FileSheetType.Wind_Monthly_Target_KPI + "]";
+                                    sql = "SELECT * FROM [" + FileSheetType.Monthly_Target_KPI + "]";
                                     OleDbCommand cmd = new OleDbCommand(sql, oconn);
                                     OleDbDataAdapter da = new OleDbDataAdapter(cmd);
                                     da.Fill(ds);
@@ -352,12 +399,31 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     {
                                         if (fileUpload == "Wind")
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Wind: Wind_Monthly_Target_KPI :");
-                                            status = await WindMonthlyTargetKPI(status, ds);
+                                            m_ErrorLog.SetInformation(",Reviewing Wind Monthly_Target_KPI WorkSheet:");
+                                            status = await InsertWindMonthlyTargetKPI(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Wind Monthly_Target_KPI Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Wind Monthly_Target_KPI Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Wind Monthly_Target_KPI Import:");
+                                            }
                                         }
                                         else
                                         {
-                                            status = "Wrong file upload type selected";
+                                            m_ErrorLog.SetInformation(",Reviewing Solar Monthly_Target_KPI WorkSheet:");
+                                            status = await InsertSolarMonthlyTargetKPI(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Solar Monthly_Target_KPI Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar Monthly_Target_KPI Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar Monthly_Target_KPI Import:");
+                                            }
                                         }
                                     }
                                 }
@@ -373,12 +439,31 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     {
                                         if (fileUpload == "Wind")
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Wind : Daily_Load_Shedding :");
-                                            status = await InsertWindDaily_Load_Shedding(status, ds);
+                                            m_ErrorLog.SetInformation(",Reviewing Wind Daily_Load_Shedding WorkSheet:");
+                                            status = await InsertWindDailyLoadShedding(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Wind Daily_Load_Shedding Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Wind Daily_Load_Shedding Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Wind Daily_Load_Shedding Import:");
+                                            }
                                         }
                                         else
                                         {
-                                            status = "Wrong file upload type selected";
+                                            m_ErrorLog.SetInformation(",Reviewing Solar Daily_Load_Shedding WorkSheet:");
+                                            status = await InsertSolarDailyLoadShedding(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Solar Daily_Load_Shedding Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar Daily_Load_Shedding Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar Daily_Load_Shedding Import:");
+                                            }
                                         }
                                     }
                                 }
@@ -394,36 +479,207 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     {
                                         if (fileUpload == "Wind")
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Wind : Daily_JMR_Input_and_Output :");
+                                            m_ErrorLog.SetInformation(",Reviewing Wind Daily_JMR_Input_and_Output WorkSheet:");
                                             status = await InsertWindDailyJMR(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Wind Daily_JMR_Input_and_Output Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Wind Daily_JMR_Input_and_Output Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Wind Daily_JMR_Input_and_Output Import:");
+                                            }
                                         }
                                         else
                                         {
-                                            status = "Wrong file upload type selected";
+
+                                            //status = await InsertSolarDailyJMR(status, ds);
+                                            //if (status == "Successfully uploaded")
+                                            //{
+                                            //    m_ErrorLog.SetInformation("No Errors, Solar Daily_JMR_Input_and_Output Import Successful:");
+                                            //}
+                                            //else
+                                            //{
+                                            //    m_ErrorLog.SetError(",Solar Daily_JMR_Input_and_Output Import Failed:");
+                                            //    m_ErrorLog.SetInformation(",End of Solar Daily_JMR_Input_and_Output Import:");
+                                            //}
                                         }
                                     }
                                 }
+                                else if (excelSheet == FileSheetType.Daily_Target_KPI)
+                                {
+                                    sql = "SELECT * FROM [" + FileSheetType.Daily_Target_KPI + "]";
+                                    OleDbCommand cmd = new OleDbCommand(sql, oconn);
+                                    OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+                                    da.Fill(ds);
+                                    oconn.Close();
 
+                                    if (ds.Tables.Count > 0)
+                                    {
+                                        if (fileUpload == "Wind")
+                                        {
+                                            m_ErrorLog.SetInformation(",Reviewing Wind Daily_Target_KPI WorkSheet:");
+                                            status = await InsertWindDailyTargetKPI(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Wind Daily_Target_KPI Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Wind Daily_Target_KPI Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Wind Daily_Target_KPI Import:");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            m_ErrorLog.SetInformation(",Reviewing Solar Daily_Target_KPI WorkSheet:");
+                                            status = await InsertSolarDailyTargetKPI(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Solar Daily_Target_KPI Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar Daily_Target_KPI Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar Daily_Target_KPI Import:");
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (excelSheet == FileSheetType.Site_Master)
+                                {
+                                    sql = "SELECT * FROM [" + FileSheetType.Site_Master + "]";
+                                    OleDbCommand cmd = new OleDbCommand(sql, oconn);
+                                    OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+                                    da.Fill(ds);
+                                    oconn.Close();
+
+                                    if (ds.Tables.Count > 0)
+                                    {
+                                        if (fileUpload == "Wind")
+                                        {
+                                            m_ErrorLog.SetInformation(",Reviewing Wind Site_Master WorkSheet:");
+                                            status = await InsertWindSiteMaster(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Wind Site_Master Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Wind Site_Master Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Wind Site_Master Import:");
+                                            }
+                                        }
+                                        else if (fileUpload == "Solar")
+                                        {
+                                            m_ErrorLog.SetInformation(",Reviewing Solar Site_Master WorkSheet:");
+                                            status = await InsertSolarSiteMaster(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Solar Site_Master Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar Site_Master Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar Site_Master Import:");
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (excelSheet == FileSheetType.Location_Master)
+                                {
+                                    sql = "SELECT * FROM [" + FileSheetType.Location_Master + "]";
+                                    OleDbCommand cmd = new OleDbCommand(sql, oconn);
+                                    OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+                                    da.Fill(ds);
+                                    oconn.Close();
+
+                                    if (ds.Tables.Count > 0)
+                                    {
+                                        if (fileUpload == "Wind")
+                                        {
+                                            m_ErrorLog.SetInformation(",Reviewing Wind Location_Master WorkSheet:");
+                                            status = await InsertWindLocationMaster(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Wind Location_Master Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Wind Location_Master Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Wind Location_Master Import:");
+                                            }
+                                        }
+                                        else if (fileUpload == "Solar")
+                                        {
+                                            m_ErrorLog.SetInformation(",Reviewing Solar Location_Master WorkSheet:");
+                                            status = await InsertSolarLocationMaster(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Solar Location_Master Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar Location_Master Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar Location_Master Import:");
+                                            }
+                                        }
+                                    }
+                                }
+                                else if (excelSheet == FileSheetType.Solar_AC_DC_Capacity)
+                                {
+                                    sql = "SELECT * FROM [" + FileSheetType.Solar_AC_DC_Capacity + "]";
+                                    OleDbCommand cmd = new OleDbCommand(sql, oconn);
+                                    OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+                                    da.Fill(ds);
+                                    oconn.Close();
+
+                                    if (ds.Tables.Count > 0)
+                                    {
+                                        if (fileUpload == "Wind")
+                                        {
+                                            status = "Wrong file upload type selected";
+                                        }
+                                        else if (fileUpload == "Solar")
+                                        {
+                                            m_ErrorLog.SetInformation(",Reviewing Solar AC_DC_Capacity WorkSheet:");
+                                            status = await InsertSolarAcDcCapacity(status, ds);
+                                            if (status == "Successfully uploaded")
+                                            {
+                                                m_ErrorLog.SetInformation("No Errors, Solar AC_DC_Capacity Import Successful:");
+                                            }
+                                            else
+                                            {
+                                                m_ErrorLog.SetError(",Solar AC_DC_Capacity  Import Failed:");
+                                                m_ErrorLog.SetInformation(",End of Solar AC_DC_Capacity Import:");
+                                            }
+                                        }
+                                    }
+                                }
                             }
                             if (status == "Successfully uploaded")
                             {
                                 m_ErrorLog.SetInformation(",Import Operation Complete :");
+                                m_ErrorLog.SaveToCSV(importData[1]);
                                 await importMetaData(importData[0], importData[1]);
                             }
-
+                            else
+                            {
+                                m_ErrorLog.SetInformation(",Import Operation Failed:");
+                                m_ErrorLog.SaveToCSV(importData[1]);
+                            }
                         }
                         catch (Exception ex)
                         {
-                            m_ErrorLog.SetError(",Import Operation Failed :");
                             status = "Something went wrong" + ex.ToString();
-
+                            m_ErrorLog.SetError(",Import Operation Failed :");
                         }
                     }
                 }
                 catch (Exception ex)
                 {
-                    status = "Something went wrong" + ex.ToString();
-
+                    status = "Something went wrong " + ex.ToString();
                 }
             }
             else
@@ -432,84 +688,44 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return status;
         }
-
-        private static async Task<string> InsertSolarFileGeneration(string status, DataSet ds)
-        {
-            if (ds.Tables.Count > 0)
-            {
-                List<SolarUploadingFilegeneration> addSolarUploadingFilegenerations = new List<SolarUploadingFilegeneration>();
-                foreach (DataRow dr in ds.Tables[0].Rows)
-                {
-                    SolarUploadingFilegeneration addSolarUploadingFilegeneration = new SolarUploadingFilegeneration();
-                    addSolarUploadingFilegeneration.date = Convert.ToString(dr["DATE"]);
-                    addSolarUploadingFilegeneration.site = Convert.ToString(dr["Site"]);
-                    addSolarUploadingFilegeneration.inverter = Convert.ToString(dr["INVERTER"]);
-                    addSolarUploadingFilegeneration.inv_act = Convert.ToDecimal(dr["INV_Act(KWh)"]);
-                    addSolarUploadingFilegeneration.plant_act = Convert.ToDecimal(dr["Plant_Act(kWh)"]);
-                    addSolarUploadingFilegeneration.pi = Convert.ToString(dr["PI(%)"]);
-                    addSolarUploadingFilegenerations.Add(addSolarUploadingFilegeneration);
-                }
-
-                var json = JsonConvert.SerializeObject(addSolarUploadingFilegenerations);
-                var data = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var url = "http://localhost:23835/api/DGR/InsertSolarUploadingFilegeneration";
-                //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarUploadingFilegeneration";
-                using (var client = new HttpClient())
-                {
-                    var response = await client.PostAsync(url, data);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        status = "Successfully uploaded";
-                    }
-                    else
-                    {
-                        status = "Failed to upload";
-                    }
-                }
-            }
-
-            return status;
-        }
-        private async Task<string> InsertWindFileGeneration(string status, DataSet ds)
-        {
-            long rowNumber = 0;
+        //Remove static
+        private async Task<string> InsertSolarFileGeneration(string status, DataSet ds)
+        {//siteID recorded
             bool errorFlag = false;
+            int rowNumber = 0;
             int errorCount = 0;
-            WindUploadingFileValidation ValidationObject = new WindUploadingFileValidation(m_ErrorLog);
-
             if (ds.Tables.Count > 0)
             {
-                List<WindUploadingFilegeneration> addWindUploadingFilegenerations = new List<WindUploadingFilegeneration>();
+                SolarUploadingFileValidation validationObject = new SolarUploadingFileValidation(m_ErrorLog);
+                List<SolarUploadingFileGeneration> addSet = new List<SolarUploadingFileGeneration>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
                     rowNumber++;
-                    WindUploadingFilegeneration addWindUploadingFilegeneration = new WindUploadingFilegeneration();
-                    addWindUploadingFilegeneration.wtg = Convert.ToString(dr["WTG"]);
-                    addWindUploadingFilegeneration.site_name = (string)(siteName[addWindUploadingFilegeneration.wtg]);
-                    addWindUploadingFilegeneration.site_id = Convert.ToInt32(siteNameId[addWindUploadingFilegeneration.wtg]);
-                    addWindUploadingFilegeneration.date = Convert.ToDateTime(dr["Date"]).ToString("dd-MM-yyyy");
-                    addWindUploadingFilegeneration.wtg_id = Convert.ToInt32(equipmentId[addWindUploadingFilegeneration.wtg]);
-                    addWindUploadingFilegeneration.wind_speed = Convert.ToDecimal(dr["Wind_Speed"]);
-                    addWindUploadingFilegeneration.kwh = Convert.ToDecimal(dr["kWh"]);
-                    addWindUploadingFilegeneration.operating_hrs = Convert.ToDecimal(dr["Gen_Hrs"]);
-                    addWindUploadingFilegeneration.production_rs = Convert.ToDecimal(dr["Lull_Hrs"]);
-                    addWindUploadingFilegeneration.grid_hrs = Convert.ToDecimal(dr["Grid_Hrs"]);
-
-                    errorFlag = ValidationObject.validateGenData(rowNumber, addWindUploadingFilegeneration.date, addWindUploadingFilegeneration.wtg, addWindUploadingFilegeneration.wind_speed, addWindUploadingFilegeneration.kwh, addWindUploadingFilegeneration.operating_hrs, addWindUploadingFilegeneration.production_rs, addWindUploadingFilegeneration.grid_hrs);
+                    SolarUploadingFileGeneration addUnit = new SolarUploadingFileGeneration();
+                    addUnit.date = Convert.ToDateTime(dr["DATE"]).ToString("yyyy-MM-dd");
+                    addUnit.site = Convert.ToString(dr["Site"]);
+                    addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);
+                    meta.importSiteId = addUnit.site_id;//C
+                    addUnit.inverter = Convert.ToString(dr["INVERTER"]);
+                    addUnit.inv_act = Convert.ToDecimal(dr["INV_Act(KWh)"]);
+                    addUnit.plant_act = Convert.ToDecimal(dr["Plant_Act(kWh)"]);
+                    addUnit.pi = Convert.ToDecimal(dr["PI(%)"]);
+                    decimal percentage = addUnit.pi * 100;
+                    if (!(percentage > 100)) { addUnit.pi = percentage; }
+                    errorFlag = validationObject.validateGenerationData(rowNumber, addUnit.date, addUnit.inverter, addUnit.inv_act, addUnit.plant_act);
                     if (errorFlag)
                     {
                         errorCount++;
                         continue;
                     }
-                    addWindUploadingFilegenerations.Add(addWindUploadingFilegeneration);
+                    addSet.Add(addUnit);
                 }
                 if (!(errorCount > 0))
                 {
-                    var json = JsonConvert.SerializeObject(addWindUploadingFilegenerations);
+                    var json = JsonConvert.SerializeObject(addSet);
                     var data = new StringContent(json, Encoding.UTF8, "application/json");
-                    var url = "http://localhost:23835/api/DGR/InsertWindUploadingFilegeneration";
-
+                   // var url = "http://localhost:23835/api/DGR/InsertSolarUploadingFileGeneration";
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarUploadingFileGeneration";
                     using (var client = new HttpClient())
                     {
                         var response = await client.PostAsync(url, data);
@@ -528,41 +744,117 @@ namespace DGRA_V1.Areas.admin.Controllers
                     status = "Failed to upload";
                 }
 
-                equipmentId.Clear();
-                siteName.Clear();
-                siteNameId.Clear();
+            }
+            return status;
+        }
+
+        private async Task<string> InsertWindFileGeneration(string status, DataSet ds)
+        {//siteID recorded
+            long rowNumber = 0;
+            bool errorFlag = false;
+            int errorCount = 0;
+            WindUploadingFileValidation validationObject = new WindUploadingFileValidation(m_ErrorLog);
+
+            if (ds.Tables.Count > 0)
+            {
+                List<WindUploadingFileGeneration> addSet = new List<WindUploadingFileGeneration>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    rowNumber++;
+                    WindUploadingFileGeneration addUnit = new WindUploadingFileGeneration();
+                    addUnit.wtg = Convert.ToString(dr["WTG"]);
+                    addUnit.wtg_id = Convert.ToInt32(equipmentId[addUnit.wtg]);//A
+                    addUnit.site_id = Convert.ToInt32(eqSiteId[addUnit.wtg]);//E
+                    addUnit.site_name = (string)(siteName[addUnit.site_id]);//D
+                    meta.importSiteId = addUnit.site_id;
+
+                    addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                    addUnit.wind_speed = Convert.ToDecimal(dr["Wind_Speed"]);
+                    addUnit.kwh = Convert.ToDecimal(dr["kWh"]);
+                    addUnit.operating_hrs = Convert.ToDecimal(dr["Gen_Hrs"]);
+                    addUnit.production_rs = Convert.ToDecimal(dr["Lull_Hrs"]);
+                    addUnit.grid_hrs = Convert.ToDecimal(dr["Grid_Hrs"]);
+
+                    errorFlag = validationObject.validateGenData(rowNumber, addUnit.date, addUnit.wtg, addUnit.wind_speed, addUnit.kwh, addUnit.operating_hrs, addUnit.production_rs, addUnit.grid_hrs);
+                    if (errorFlag)
+                    {
+                        errorCount++;
+                        continue;
+                    }
+                    addSet.Add(addUnit);
+                }
+                if (!(errorCount > 0))
+                {
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                   // var url = "http://localhost:23835/api/DGR/InsertWindUploadingFilegeneration";
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindUploadingFilegeneration";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            status = "Successfully uploaded";
+                        }
+                        else
+                        {
+                            status = "Failed to upload";
+                        }
+                    }
+                }
+                else
+                {
+                    status = "Failed to upload";
+                }
+
             }
 
             return status;
         }
 
-        private static async Task<string> InsertSolarFileBreakDown(string status, DataSet ds)
-        {
+        private async Task<string> InsertSolarFileBreakDown(string status, DataSet ds)
+        {//siteID recorded
+            long rowNumber = 0;
+            bool errorFlag = false;
+            int errorCount = 0;
             if (ds.Tables.Count > 0)
             {
-                List<SolarUploadingFileBreakDown> addSolarUploadingFileBreakDowns = new List<SolarUploadingFileBreakDown>();
+                SolarUploadingFileValidation validationObject = new SolarUploadingFileValidation();
+                List<SolarUploadingFileBreakDown> addSet = new List<SolarUploadingFileBreakDown>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    SolarUploadingFileBreakDown addSolarUploadingFilegeneration = new SolarUploadingFileBreakDown();
-                    addSolarUploadingFilegeneration.date = Convert.ToString(dr["Date"]);
-                    addSolarUploadingFilegeneration.site = Convert.ToString(dr["Site"]);
-                    addSolarUploadingFilegeneration.ext_int_bd = Convert.ToString(dr["IGBD"]);
-                    addSolarUploadingFilegeneration.icr = Convert.ToString(dr["ICR"]);
-                    addSolarUploadingFilegeneration.inv = Convert.ToString(dr["INV"]);
-                    addSolarUploadingFilegeneration.smb = Convert.ToString(dr["SMB"]);
-                    addSolarUploadingFilegeneration.strings = Convert.ToString(dr["Strings"]);
-                    addSolarUploadingFilegeneration.from_bd = Convert.ToString(dr["From"]);
-                    addSolarUploadingFilegeneration.to_bd = Convert.ToString(dr["To"]);
-                    addSolarUploadingFilegeneration.bd_remarks = Convert.ToString(dr["BDRemarks"]);
-                    addSolarUploadingFilegeneration.bd_type = Convert.ToString(dr["BDType"]);
-                    addSolarUploadingFilegeneration.action_taken = Convert.ToString(dr["ActionTaken"]);
-                    addSolarUploadingFileBreakDowns.Add(addSolarUploadingFilegeneration);
+                    SolarUploadingFileBreakDown addUnit = new SolarUploadingFileBreakDown();
+                    rowNumber++;
+                    addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                    addUnit.site = Convert.ToString(dr["Site"]);
+                    addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);
+                    meta.importSiteId = addUnit.site_id;//C
+                    addUnit.ext_int_bd = Convert.ToString(dr["Ext_BD"]);
+                    addUnit.igbd = Convert.ToString(dr["IGBD"]);
+                    addUnit.icr = Convert.ToString(dr["ICR"]);
+                    addUnit.inv = Convert.ToString(dr["INV"]);
+                    addUnit.smb = Convert.ToString(dr["SMB"]);
+                    addUnit.strings = Convert.ToString(dr["Strings"]);
+                    addUnit.from_bd = Convert.ToString(dr["From"]);
+                    addUnit.to_bd = Convert.ToString(dr["To"]);
+                    addUnit.total_bd = validationObject.breakDownCalc(addUnit.from_bd, addUnit.to_bd);
+                    errorFlag = validationObject.validateBreakDownData(rowNumber, addUnit.from_bd, addUnit.to_bd, addUnit.igbd);
+                    if (errorFlag)
+                    {
+                        errorCount++;
+                        continue;
+                    }
+                    addUnit.from_bd = Convert.ToDateTime(dr["From"]).ToString("hh:mm:ss");
+                    addUnit.to_bd = Convert.ToDateTime(dr["To"]).ToString("hh:mm:ss");
+                    addUnit.bd_remarks = Convert.ToString(dr["BDRemarks"]);
+                    addUnit.bd_type = Convert.ToString(dr["BDType"]);
+                    addUnit.action_taken = Convert.ToString(dr["ActionTaken"]);
+                    addSet.Add(addUnit);
                 }
-
-                var json = JsonConvert.SerializeObject(addSolarUploadingFileBreakDowns);
+                var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-
-                var url = "http://localhost:23835/api/DGR/InsertSolarUploadingFileBreakDown";
+               // var url = "http://localhost:23835/api/DGR/InsertSolarUploadingFileBreakDown";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarUploadingFileBreakDown";
                 using (var client = new HttpClient())
                 {
                     var response = await client.PostAsync(url, data);
@@ -580,49 +872,47 @@ namespace DGRA_V1.Areas.admin.Controllers
             return status;
         }
         private async Task<string> InsertWindFileBreakDown(string status, DataSet ds)
-        {
+        {//siteID recorded
             WindUploadingFileValidation ValidationObject = new WindUploadingFileValidation(m_ErrorLog);
             long rowNumber = 0;
             bool errorFlag = false;
             int errorCount = 0;
             if (ds.Tables.Count > 0)
             {
-                List<WindUploadingFileBreakDown> addWindUploadingFileBreakDowns = new List<WindUploadingFileBreakDown>();
+                List<WindUploadingFileBreakDown> addSet = new List<WindUploadingFileBreakDown>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    WindUploadingFileBreakDown addWindUploadingFileBreakDown = new WindUploadingFileBreakDown();
-                    addWindUploadingFileBreakDown.date = Convert.ToDateTime(dr["Date"]).ToString("dd-MM-yyyy");
+                    WindUploadingFileBreakDown addUnit = new WindUploadingFileBreakDown();
+                    addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                    addUnit.wtg = Convert.ToString(dr["WTG"]);
+                    addUnit.wtg_id = Convert.ToInt32(equipmentId[addUnit.wtg]);//A
+                    addUnit.site_id = Convert.ToInt32(eqSiteId[addUnit.wtg]);//E
+                    addUnit.site_name = (string)siteName[addUnit.site_id];//D
+                    meta.importSiteId = addUnit.site_id;
 
-                    addWindUploadingFileBreakDown.wtg = Convert.ToString(dr["WTG"]);
-                    addWindUploadingFileBreakDown.site_name = (string)siteName[addWindUploadingFileBreakDown.wtg];
-                    addWindUploadingFileBreakDown.site_id = Convert.ToInt32(siteNameId[addWindUploadingFileBreakDown.wtg]);
-                    addWindUploadingFileBreakDown.wtg_id = Convert.ToInt32(equipmentId[addWindUploadingFileBreakDown.wtg]);
-
-                    addWindUploadingFileBreakDown.bd_type = Convert.ToString(dr["BD_Type"]);
-                    addWindUploadingFileBreakDown.bd_type_id = Convert.ToInt32(breakdownType[addWindUploadingFileBreakDown.bd_type]);
-
-                    addWindUploadingFileBreakDown.stop_from = Convert.ToString(dr["Stop From"]);
-                    addWindUploadingFileBreakDown.stop_to = Convert.ToString(dr["Stop To"]);
-                    addWindUploadingFileBreakDown.total_stop = ValidationObject.breakDownCalc(addWindUploadingFileBreakDown.stop_from, addWindUploadingFileBreakDown.stop_to);
-
-                    addWindUploadingFileBreakDown.error_description = Convert.ToString(dr["Error description"]);
-                    addWindUploadingFileBreakDown.action_taken = Convert.ToString(dr["Action Taken"]);
-
-                    errorFlag = ValidationObject.validateBreakDownData(rowNumber, addWindUploadingFileBreakDown.bd_type, addWindUploadingFileBreakDown.stop_from, addWindUploadingFileBreakDown.stop_to);
+                    addUnit.bd_type = Convert.ToString(dr["BD_Type"]);
+                    addUnit.bd_type_id = Convert.ToInt32(breakdownType[addUnit.bd_type]);//B
+                    addUnit.stop_from = Convert.ToString(dr["Stop From"]);
+                    addUnit.stop_to = Convert.ToString(dr["Stop To"]);
+                    addUnit.total_stop = ValidationObject.breakDownCalc(addUnit.stop_from, addUnit.stop_to);
+                    addUnit.error_description = Convert.ToString(dr["Error description"]);
+                    addUnit.action_taken = Convert.ToString(dr["Action Taken"]);
+                    errorFlag = ValidationObject.validateBreakDownData(rowNumber, addUnit.bd_type, addUnit.stop_from, addUnit.stop_to);
                     if (errorFlag)
                     {
                         errorCount++;
                         continue;
                     }
-                    addWindUploadingFileBreakDown.stop_from = Convert.ToDateTime(dr["Stop From"]).ToString("hh:mm:ss");
-                    addWindUploadingFileBreakDown.stop_to = Convert.ToDateTime(dr["Stop To"]).ToString("hh:mm:ss");
-                    addWindUploadingFileBreakDowns.Add(addWindUploadingFileBreakDown);
+                    addUnit.stop_from = Convert.ToDateTime(dr["Stop From"]).ToString("hh:mm:ss");
+                    addUnit.stop_to = Convert.ToDateTime(dr["Stop To"]).ToString("hh:mm:ss");
+                    addSet.Add(addUnit);
                 }
                 if (!(errorCount > 0))
                 {
-                    var json = JsonConvert.SerializeObject(addWindUploadingFileBreakDowns);
+                    var json = JsonConvert.SerializeObject(addSet);
                     var data = new StringContent(json, Encoding.UTF8, "application/json");
-                    var url = "http://localhost:23835/api/DGR/InsertWindUploadingFileBreakDown";
+                    //var url = "http://localhost:23835/api/DGR/InsertWindUploadingFileBreakDown";
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindUploadingFileBreakDown";
                     using (var client = new HttpClient())
                     {
                         var response = await client.PostAsync(url, data);
@@ -640,45 +930,47 @@ namespace DGRA_V1.Areas.admin.Controllers
                 {
                     status = "Failed to upload";
                 }
-                equipmentId.Clear();
-                siteName.Clear();
-                siteNameId.Clear();
             }
             return status;
         }
-        private static async Task<string> InsertSolarPyranoMeter1Min(string status, DataSet ds)
+        private  async Task<string> InsertSolarPyranoMeter1Min(string status, DataSet ds)
         {
+            //Needs to rebuilt
             if (ds.Tables.Count > 0)
             {
                 List<SolarUploadingPyranoMeter1Min> addSet = new List<SolarUploadingPyranoMeter1Min>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    SolarUploadingPyranoMeter1Min adUnit = new SolarUploadingPyranoMeter1Min();
-                    adUnit.date_time = Convert.ToString(dr["Time stamp"]);
-                    adUnit.ghi_1 = Convert.ToString(dr["GHI-1"]);
-                    adUnit.ghi_2 = Convert.ToString(dr["GHI-2"]);
-                    adUnit.poa_1 = Convert.ToString(dr["POA-1"]);
-                    adUnit.poa_2 = Convert.ToString(dr["POA-2"]);
-                    adUnit.poa_3 = Convert.ToString(dr["POA-3"]);
-                    adUnit.poa_4 = Convert.ToString(dr["POA-4"]);
-                    adUnit.poa_5 = Convert.ToString(dr["POA-5"]);
-                    adUnit.poa_6 = Convert.ToString(dr["POA-6"]);
-                    adUnit.poa_7 = Convert.ToString(dr["POA-7"]);
-                    adUnit.avg_ghi = Convert.ToDecimal(dr["Average GHI (w/m²)"]);
-                    adUnit.avg_poa = Convert.ToDecimal(dr["Average POA (w/m²)"]);
-                    addSet.Add(adUnit);
+                    SolarUploadingPyranoMeter1Min addUnit = new SolarUploadingPyranoMeter1Min();
+                    addUnit.date_time = Convert.ToString(dr["Time stamp"]);
+                    //addUnit.site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    //meta.importSiteId = addUnit.site_id;
+
+                    addUnit.ghi_1 = Convert.ToString(dr["GHI-1"]);
+                    addUnit.ghi_2 = Convert.ToString(dr["GHI-2"]);
+                    addUnit.poa_1 = Convert.ToString(dr["POA-1"]);
+                    addUnit.poa_2 = Convert.ToString(dr["POA-2"]);
+                    addUnit.poa_3 = Convert.ToString(dr["POA-3"]);
+                    addUnit.poa_4 = Convert.ToString(dr["POA-4"]);
+                    addUnit.poa_5 = Convert.ToString(dr["POA-5"]);
+                    addUnit.poa_6 = Convert.ToString(dr["POA-6"]);
+                    addUnit.poa_7 = Convert.ToString(dr["POA-7"]);
+                    addUnit.avg_ghi = Convert.ToDecimal(dr["Average GHI (w/m²)"]);
+                    addUnit.avg_poa = Convert.ToDecimal(dr["Average POA (w/m²)"]);
+                    addSet.Add(addUnit);
                 }
 
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var url = "http://localhost:23835/api/DGR/InsertSolarUploadingPyranoMeter1Min";
+                //var url = "http://localhost:23835/api/DGR/InsertSolarUploadingPyranoMeter1Min";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarUploadingPyranoMeter1Min";
                 using (var client = new HttpClient())
                 {
                     var response = await client.PostAsync(url, data);
                     if (response.IsSuccessStatusCode)
                     {
                         status = "Successfully uploaded";
-                        //importMetaData(importData[0], importData[1],"Developer");
                     }
                     else
                     {
@@ -689,8 +981,9 @@ namespace DGRA_V1.Areas.admin.Controllers
 
             return status;
         }
-        private static async Task<string> InsertSolarPyranoMeter15Min(string status, DataSet ds)
+        private  async Task<string> InsertSolarPyranoMeter15Min(string status, DataSet ds)
         {
+            //Needs to rebuilt
             if (ds.Tables.Count > 0)
             {
                 List<SolarUploadingPyranoMeter15Min> addSet = new List<SolarUploadingPyranoMeter15Min>();
@@ -698,6 +991,9 @@ namespace DGRA_V1.Areas.admin.Controllers
                 {
                     SolarUploadingPyranoMeter15Min addUnit = new SolarUploadingPyranoMeter15Min();
                     addUnit.date_time = Convert.ToString(dr["Time stamp"]);
+                    //addUnit.site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    //meta.importSiteId = addUnit.site_id;
                     addUnit.ghi_1 = Convert.ToDecimal(dr["GHI-1"]);
                     addUnit.ghi_2 = Convert.ToDecimal(dr["GHI-2"]);
                     addUnit.poa_1 = Convert.ToDecimal(dr["POA-1"]);
@@ -716,7 +1012,8 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var url = "http://localhost:23835/api/DGR/InsertSolarUploadingPyranoMeter15Min";
+                //var url = "http://localhost:23835/api/DGR/InsertSolarUploadingPyranoMeter15Min";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarUploadingPyranoMeter15Min";
                 using (var client = new HttpClient())
                 {
                     var response = await client.PostAsync(url, data);
@@ -732,8 +1029,102 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return status;
         }
-        private async Task<string> InsertWindMonthly_JMR_Input_and_Output(string status, DataSet ds)
+        private async Task<string> InsertSolarMonthlyJMR(string status, DataSet ds)
         {
+            if (ds.Tables.Count > 0)
+            {
+                List<SolarMonthlyJMR> addSet = new List<SolarMonthlyJMR>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    SolarMonthlyJMR addUnit = new SolarMonthlyJMR();
+                    addUnit.FY = Convert.ToString(dr["FY"]);
+                    addUnit.Site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.Site]);//C
+                    //meta.importSiteId = addUnit.site_id;//C
+                    addUnit.Plant_Section = Convert.ToString(dr["Plant Section"]);
+
+                    if (dr["Controller KWH/INV KWH"] is DBNull) { addUnit.Controller_KWH_INV = 0; }
+                    else { addUnit.Controller_KWH_INV = Convert.ToDecimal(dr["Controller KWH/INV KWH"]); }
+
+                    if (dr["Scheduled Units  (kWh)"] is DBNull) { addUnit.Scheduled_Units_kWh = 0; }
+                    else { addUnit.Scheduled_Units_kWh = Convert.ToDecimal(dr["Scheduled Units  (kWh)"]); }
+
+                    if (dr["Export (kWh)"] is DBNull) { addUnit.Export_kWh = 0; }
+                    else { addUnit.Export_kWh = Convert.ToDecimal(dr["Export (kWh)"]); }
+
+                    if (dr["Import (kWh)"] is DBNull) { addUnit.Import_kWh = 0; }
+                    else { addUnit.Import_kWh = Convert.ToDecimal(dr["Import (kWh)"]); }
+
+                    if (dr["Net Export (kWh)"] is DBNull) { addUnit.Net_Export_kWh = 0; }
+                    else { addUnit.Net_Export_kWh = Convert.ToDecimal(dr["Net Export (kWh)"]); }
+
+                    if (dr["Export (kVAh)"] is DBNull) { addUnit.Export_kVAh = 0; }
+                    else { addUnit.Export_kVAh = Convert.ToDecimal(dr["Export (kVAh)"]); }
+
+                    if (dr["Import (kVAh)"] is DBNull) { addUnit.Import_kVAh = 0; }
+                    else { addUnit.Import_kVAh = Convert.ToDecimal(dr["Import (kVAh)"]); }
+
+                    if (dr["Export (kVArh lag)"] is DBNull) { addUnit.Export_kVArh_lag = 0; }
+                    else { addUnit.Export_kVArh_lag = Convert.ToDecimal(dr["Export (kVArh lag)"]); }
+
+                    if (dr["Import (kVArh lag)"] is DBNull) { addUnit.Import_kVArh_lag = 0; }
+                    else { addUnit.Import_kVArh_lag = Convert.ToDecimal(dr["Import (kVArh lag)"]); }
+
+                    if (dr["Export (kVArh lead)"] is DBNull) { addUnit.Export_kVArh_lead = 0; }
+                    else { addUnit.Export_kVArh_lead = Convert.ToDecimal(dr["Export (kVArh lead)"]); }
+
+                    if (dr["Import (kVArh lead)"] is DBNull) { addUnit.Import_kVArh_lead = 0; }
+                    else { addUnit.Import_kVArh_lead = Convert.ToDecimal(dr["Import (kVArh lead)"]); }
+
+                    if ((dr["JMR date"]) is DBNull) { addUnit.JMR_date = "0000-00-00"; }
+                    else { addUnit.JMR_date = Convert.ToDateTime(dr["JMR date"]).ToString("yyyy-MM-dd"); }
+
+                    addUnit.JMR_Month = Convert.ToString(dr["JMR Month"]);
+
+                    addUnit.JMR_Year = Convert.ToString(dr["JMR Year"]);
+
+                    if (dr["LineLoss"] is DBNull) { addUnit.LineLoss = 0; }
+                    else { addUnit.LineLoss = Convert.ToDecimal(dr["LineLoss"]); }
+
+                    if (dr["Line Loss%"] is DBNull) { addUnit.Line_Loss_percentage = 0; }
+                    else
+                    {
+                        addUnit.Line_Loss_percentage = Convert.ToDouble(dr["Line Loss%"]) * 100;
+                        addUnit.Line_Loss_percentage = Convert.ToDecimal(addUnit.Line_Loss_percentage).ToString() + "%";
+                    }
+
+                    if (dr["RKVH%"] is DBNull) { addUnit.RKVH_percentage = 0; }
+                    else
+                    {
+                        addUnit.RKVH_percentage = Convert.ToDouble(dr["RKVH%"]) * 100;
+                        addUnit.RKVH_percentage = Convert.ToDecimal(addUnit.RKVH_percentage).ToString() + "%";
+                    }
+
+
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarJMR";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarJMR";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+
+        private async Task<string> InsertWindMonthlyJMR(string status, DataSet ds)
+        {//siteID recorded
             if (ds.Tables.Count > 0)
             {
                 List<WindMonthlyJMR> addSet = new List<WindMonthlyJMR>();
@@ -742,6 +1133,9 @@ namespace DGRA_V1.Areas.admin.Controllers
                     WindMonthlyJMR addUnit = new WindMonthlyJMR();
                     addUnit.fy = Convert.ToString(dr["FY"]);
                     addUnit.site = Convert.ToString(dr["Site"]);
+                    addUnit.siteId = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    meta.importSiteId = addUnit.siteId;
+
                     addUnit.plantSection = Convert.ToString(dr["Plant Section"]);
 
                     if ((dr["JMR date"]) is DBNull) { addUnit.jmrDate = "0000-00-00"; }
@@ -791,7 +1185,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var url = "http://localhost:23835/api/DGR/InsertWindJMR";
+                //var url = "http://localhost:23835/api/DGR/InsertWindJMR";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindJMR";
                 using (var client = new HttpClient())
                 {
                     var response = await client.PostAsync(url, data);
@@ -807,26 +1202,28 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return status;
         }
-        private async Task<string> InsertWindDaily_Load_Shedding(string status, DataSet ds)
-        {
+        private async Task<string> InsertSolarMonthlyLineLoss(string status, DataSet ds)
+        {//siteID recorded
             if (ds.Tables.Count > 0)
             {
-                List<WindDailyLoadShedding> addSet = new List<WindDailyLoadShedding>();
+                List<SolarMonthlyUploadingLineLosses> addSet = new List<SolarMonthlyUploadingLineLosses>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    WindDailyLoadShedding addUnit = new WindDailyLoadShedding();
-                    addUnit.site = Convert.ToString(dr["Site"]);
-                    addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
-                    addUnit.startTime = Convert.ToDateTime(dr["Start Time"]).ToString("hh-mm-ss");
-                    addUnit.endTime = Convert.ToDateTime(dr["End Time"]).ToString("hh-mm-ss");
-                    addUnit.totalTime = Convert.ToDateTime(dr["Total Time"]).ToString("HH-mm-ss");
-                    addUnit.permLoad = Convert.ToString(dr[" Permissible Load (MW)"]);
-                    addUnit.genShedding = Convert.ToString(dr["Generation loss in KWH due to Load shedding"]);
+                    SolarMonthlyUploadingLineLosses addUnit = new SolarMonthlyUploadingLineLosses();
+                    addUnit.FY = Convert.ToString(dr["FY"]);
+                    addUnit.Sites = Convert.ToString(dr["Sites"]);
+                    addUnit.Site_Id = Convert.ToInt32(siteNameId[addUnit.Sites]);
+                    meta.importSiteId = addUnit.Site_Id;//C
+
+                    addUnit.Month = Convert.ToString(dr["Month"]);
+                    addUnit.LineLoss = Convert.ToDouble(dr["LineLoss"]) * 100;
+                    addUnit.LineLoss = Convert.ToDecimal(addUnit.LineLoss).ToString() + "%";
                     addSet.Add(addUnit);
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var url = "http://localhost:23835/api/DGR/InsertWindDailyLoadShedding";
+                //var url = "http://localhost:23835/api/DGR/InsertSolarMonthlyUploadingLineLosses";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarMonthlyUploadingLineLosses";
                 using (var client = new HttpClient())
                 {
                     var response = await client.PostAsync(url, data);
@@ -842,8 +1239,8 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return status;
         }
-        private async Task<string> WindMonthlyLineLoss(string status, DataSet ds)
-        {
+        private async Task<string> InsertWindMonthlyLineLoss(string status, DataSet ds)
+        {//siteID recorded
             if (ds.Tables.Count > 0)
             {
                 List<WindMonthlyUploadingLineLosses> addSet = new List<WindMonthlyUploadingLineLosses>();
@@ -852,13 +1249,17 @@ namespace DGRA_V1.Areas.admin.Controllers
                     WindMonthlyUploadingLineLosses addUnit = new WindMonthlyUploadingLineLosses();
                     addUnit.fy = Convert.ToString(dr["FY"]);
                     addUnit.site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    //meta.importSiteId = addUnit.site_id;//C
+
                     addUnit.month = Convert.ToString(dr["Month"]);
                     addUnit.lineLoss = Convert.ToString(dr["Line Loss"]);
                     addSet.Add(addUnit);
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var url = "http://localhost:23835/api/DGR/InsertMonthlyUploadingLineLosses";
+                //var url = "http://localhost:23835/api/DGR/InsertMonthlyUploadingLineLosses";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertMonthlyUploadingLineLosses";
                 using (var client = new HttpClient())
                 {
                     var response = await client.PostAsync(url, data);
@@ -874,8 +1275,51 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return status;
         }
-        private async Task<string> WindMonthlyTargetKPI(string status, DataSet ds)
-        {
+
+        private async Task<string> InsertSolarMonthlyTargetKPI(string status, DataSet ds)
+        {//siteId recorded
+            if (ds.Tables.Count > 0)
+            {
+                List<SolarMonthlyTargetKPI> addSet = new List<SolarMonthlyTargetKPI>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    SolarMonthlyTargetKPI addUnit = new SolarMonthlyTargetKPI();
+                    addUnit.FY = Convert.ToString(dr["FY"]);
+                    addUnit.Month = Convert.ToString(dr["Month"]);
+                    addUnit.Sites = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.Sites]);//C
+                    //meta.importSiteId = addUnit.site_id;//C
+                    addUnit.GHI = Convert.ToDecimal(dr[3]);
+                    addUnit.POA = Convert.ToDecimal(dr[4]);
+                    addUnit.kWh = Convert.ToDecimal(dr[5]);
+                    addUnit.MA = Convert.ToDecimal(dr["MA (%)"]);
+                    addUnit.IGA = Convert.ToDecimal(dr["IGA (%)"]);
+                    addUnit.EGA = Convert.ToDecimal(dr["EGA (%)"]);
+                    addUnit.PR = Convert.ToDecimal(dr["PR (%)"]);
+                    addUnit.PLF = Convert.ToDecimal(dr["PLF (%)"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarMonthlyTargetKPI";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarMonthlyTargetKPI";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+        private async Task<string> InsertWindMonthlyTargetKPI(string status, DataSet ds)
+        {//siteId recorded
             if (ds.Tables.Count > 0)
             {
                 List<WindMonthlyTargetKPI> addSet = new List<WindMonthlyTargetKPI>();
@@ -885,6 +1329,9 @@ namespace DGRA_V1.Areas.admin.Controllers
                     addUnit.fy = Convert.ToString(dr["FY"]);
                     addUnit.month = Convert.ToString(dr["Month"]);
                     addUnit.site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    //meta.importSiteId = addUnit.site_id;//C
+
                     addUnit.windSpeed = Convert.ToDecimal(dr["WindSpeed"]);
                     addUnit.kwh = Convert.ToDecimal(dr["kWh"]);
                     addUnit.ma = Convert.ToString(dr["MA"]);
@@ -895,7 +1342,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var url = "http://localhost:23835/api/DGR/InsertMonthlyTargetKPI";
+                //var url = "http://localhost:23835/api/DGR/InsertMonthlyTargetKPI";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertMonthlyTargetKPI";
                 using (var client = new HttpClient())
                 {
                     var response = await client.PostAsync(url, data);
@@ -911,8 +1359,86 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return status;
         }
-        private async Task<string> InsertWindDailyJMR(string status, DataSet ds)
+        private async Task<string> InsertSolarDailyLoadShedding(string status, DataSet ds)
         {
+            if (ds.Tables.Count > 0)
+            {
+                List<SolarDailyLoadShedding> addSet = new List<SolarDailyLoadShedding>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    SolarDailyLoadShedding addUnit = new SolarDailyLoadShedding();
+                    addUnit.Site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.Site]);//C
+                    //meta.importSiteId = addUnit.site_id;//C
+                    addUnit.Date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                    addUnit.Start_Time = Convert.ToDateTime(dr["Start Time"]).ToString("hh-mm-ss");
+                    addUnit.End_Time = Convert.ToDateTime(dr["End Time"]).ToString("hh-mm-ss");
+                    addUnit.Total_Time = Convert.ToDateTime(dr["Total Time"]).ToString("HH-mm-ss");
+                    addUnit.Permissible_Load_MW = Convert.ToString(dr[" Permissible Load (MW)"]);
+                    addUnit.Gen_loss_kWh = Convert.ToString(dr["Generation loss in KWH due to Load shedding"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarDailyLoadShedding";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarDailyLoadShedding";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+        private async Task<string> InsertWindDailyLoadShedding(string status, DataSet ds)
+        {//siteID recorded
+            if (ds.Tables.Count > 0)
+            {
+                List<WindDailyLoadShedding> addSet = new List<WindDailyLoadShedding>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    WindDailyLoadShedding addUnit = new WindDailyLoadShedding();
+                    addUnit.site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    //meta.importSiteId = addUnit.site_id;//C
+                    addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                    addUnit.startTime = Convert.ToDateTime(dr["Start Time"]).ToString("hh-mm-ss");
+                    addUnit.endTime = Convert.ToDateTime(dr["End Time"]).ToString("hh-mm-ss");
+                    addUnit.totalTime = Convert.ToDateTime(dr["Total Time"]).ToString("HH-mm-ss");
+                    addUnit.permLoad = Convert.ToString(dr[" Permissible Load (MW)"]);
+                    addUnit.genShedding = Convert.ToString(dr["Generation loss in KWH due to Load shedding"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertWindDailyLoadShedding";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindDailyLoadShedding";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+
+
+        private async Task<string> InsertWindDailyJMR(string status, DataSet ds)
+        {//siteID recorded
             if (ds.Tables.Count > 0)
             {
                 List<WindDailyJMR> addSet = new List<WindDailyJMR>();
@@ -920,13 +1446,297 @@ namespace DGRA_V1.Areas.admin.Controllers
                 {
                     WindDailyJMR addUnit = new WindDailyJMR();
                     addUnit.site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    //meta.importSiteId = addUnit.site_id;
                     addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
                     addUnit.jmr_kwh = Convert.ToString(dr[" Permissible Load (MW)"]);
                     addSet.Add(addUnit);
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                var url = "http://localhost:23835/api/DGR/InsertDailyJMR";
+                //var url = "http://localhost:23835/api/DGR/InsertDailyJMR";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertDailyJMR";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+        private async Task<string> InsertSolarDailyTargetKPI(string status, DataSet ds)
+        {
+            if (ds.Tables.Count > 0)
+            {
+                List<SolarDailyTargetKPI> addSet = new List<SolarDailyTargetKPI>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    SolarDailyTargetKPI addUnit = new SolarDailyTargetKPI();
+                    addUnit.FY = Convert.ToString(dr["FY"]);
+                    addUnit.Date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                    addUnit.Sites = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.Sites]);//C
+                    //meta.importSiteId = addUnit.site_id;//C
+                    addUnit.GHI = Convert.ToDecimal(dr[3]);
+                    addUnit.POA = Convert.ToDecimal(dr[4]);
+                    addUnit.kWh = Convert.ToDecimal(dr[5]);
+                    addUnit.MA = Convert.ToDecimal(dr["MA (%)"]);
+                    addUnit.IGA = Convert.ToDecimal(dr["IGA (%)"]);
+                    addUnit.EGA = Convert.ToDecimal(dr["EGA (%)"]);
+                    addUnit.PR = Convert.ToDecimal(dr["PR (%)"]);
+                    addUnit.PLF = Convert.ToDecimal(dr["PLF (%)"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarDailyTargetKPI";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarDailyTargetKPI";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+        private async Task<string> InsertWindDailyTargetKPI(string status, DataSet ds)
+        {
+            if (ds.Tables.Count > 0)
+            {
+                List<WindDailyTargetKPI> addSet = new List<WindDailyTargetKPI>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    WindDailyTargetKPI addUnit = new WindDailyTargetKPI();
+                    addUnit.FY = Convert.ToString(dr["FY"]);
+                    addUnit.Date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                    addUnit.Site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.Site]);//C
+                    //meta.importSiteId = addUnit.site_id;//C
+                    addUnit.WindSpeed = Convert.ToDecimal(dr["WindSpeed"]);
+                    addUnit.kWh = Convert.ToDecimal(dr["kWh"]);
+                    addUnit.MA = Convert.ToString(dr["MA"]);
+                    addUnit.IGA = Convert.ToString(dr["IGA"]);
+                    addUnit.EGA = Convert.ToString(dr["EGA"]);
+                    addUnit.PLF = Convert.ToString(dr["PLF"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertDailyTargetKPI";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertDailyTargetKPI";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+        private async Task<string> InsertSolarSiteMaster(string status, DataSet ds)
+        {//siteID recorded
+            if (ds.Tables.Count > 0)
+            {
+                List<SolarSiteMaster> addSet = new List<SolarSiteMaster>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    SolarSiteMaster addUnit = new SolarSiteMaster();
+                    addUnit.country = Convert.ToString(dr["Country"]);
+                    addUnit.site = Convert.ToString(dr["Site"]);
+                    meta.importSiteId = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    addUnit.spv = Convert.ToString(dr["SPV"]);
+                    addUnit.state = Convert.ToString(dr["State"]);
+                    addUnit.dc_capacity = Convert.ToDouble(dr["DC Capacity (MWp)"]);
+                    addUnit.ac_capacity = Convert.ToDouble(dr["AC Capacity (MW)"]);
+                    addUnit.total_tarrif = Convert.ToDouble(dr["Total Tariff"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarSiteMaster";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarSiteMaster";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+        private async Task<string> InsertWindSiteMaster(string status, DataSet ds)
+        {//siteID recorded
+            if (ds.Tables.Count > 0)
+            {
+                List<WindSiteMaster> addSet = new List<WindSiteMaster>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    WindSiteMaster addUnit = new WindSiteMaster();
+                    addUnit.country = Convert.ToString(dr["Country"]);
+                    addUnit.site = Convert.ToString(dr["Site"]);
+                    meta.importSiteId = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    addUnit.spv = Convert.ToString(dr["SPV"]);
+                    addUnit.state = Convert.ToString(dr["State"]);
+                    addUnit.model = Convert.ToString(dr["Model"]);
+                    addUnit.capacity_mw = Convert.ToDouble(dr["Capacity(MW)"]);
+                    addUnit.wtg = Convert.ToDouble(dr["WTG"]);
+                    addUnit.total_mw = Convert.ToDouble(dr["Total_MW"]);
+                    addUnit.tarrif = Convert.ToDouble(dr["Tariff"]);
+                    addUnit.gbi = Convert.ToDouble(dr["GBI"]);
+                    addUnit.total_tarrif = Convert.ToDouble(dr["Total_Tariff"]);
+                    addUnit.ll_compensation = Convert.ToDouble(dr["LL_Compensation"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertWindSiteMaster";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindSiteMaster";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+        private async Task<string> InsertSolarLocationMaster(string status, DataSet ds)
+        {//siteID recorded
+            if (ds.Tables.Count > 0)
+            {
+                List<SolarLocationMaster> addSet = new List<SolarLocationMaster>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    SolarLocationMaster addUnit = new SolarLocationMaster();
+                    addUnit.country = Convert.ToString(dr["Country"]);
+                    addUnit.site = Convert.ToString(dr["Site"]);
+                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    //meta.importSiteId = addUnit.site_id;//C
+                    addUnit.eg = Convert.ToString(dr["EG"]);
+                    addUnit.ig = Convert.ToString(dr["IG"]);
+                    addUnit.icr_inv = Convert.ToString(dr["ICR/INV"]);
+                    addUnit.icr = Convert.ToString(dr["ICR"]);
+                    addUnit.inv = Convert.ToString(dr["INV"]);
+                    addUnit.smb = Convert.ToString(dr["SMB"]);
+                    addUnit.strings = Convert.ToString(dr["String"]);
+                    addUnit.string_configuration = Convert.ToString(dr["String Configuration"]);
+                    addUnit.total_string_current = Convert.ToDouble(dr["Total String Current (amp)"]);
+                    addUnit.total_string_voltage = Convert.ToDouble(dr["Total String voltage"]);
+                    addUnit.modules_quantity = Convert.ToDouble(dr[12]);
+                    addUnit.wp = Convert.ToDouble(dr["Wp"]);
+                    addUnit.capacity = Convert.ToDouble(dr["Capacity (KWp)"]);
+                    addUnit.module_make = Convert.ToString(dr["Module Make"]);
+                    addUnit.module_model_no = Convert.ToString(dr[16]);
+                    addUnit.module_type = Convert.ToString(dr["Module Type"]);
+                    addUnit.string_inv_central_inv = Convert.ToString(dr["String Inv / Central Inv"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarLocationMaster";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarLocationMaster";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+        private async Task<string> InsertWindLocationMaster(string status, DataSet ds)
+        {//siteID recorded
+            if (ds.Tables.Count > 0)
+            {
+                List<WindLocationMaster> addSet = new List<WindLocationMaster>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    WindLocationMaster addUnit = new WindLocationMaster();
+                    addUnit.site_master_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    meta.importSiteId = addUnit.site_master_id;
+                    addUnit.site = Convert.ToString(dr["Site"]);
+                    addUnit.wtg = Convert.ToString(dr["WTG"]);
+                    addUnit.feeder = Convert.ToDouble(dr["Feeder"]);
+                    addUnit.max_kwh_day = Convert.ToDouble(dr["Max. kWh/Day"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertWindLocationMaster";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindLocationMaster";
+                using (var client = new HttpClient())
+                {
+                    var response = await client.PostAsync(url, data);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        status = "Successfully uploaded";
+                    }
+                    else
+                    {
+                        status = "Failed to upload";
+                    }
+                }
+            }
+            return status;
+        }
+        private async Task<string> InsertSolarAcDcCapacity(string status, DataSet ds)
+        {//siteID recorded
+            if (ds.Tables.Count > 0)
+            {
+                List<SolarInvAcDcCapacity> addSet = new List<SolarInvAcDcCapacity>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    SolarInvAcDcCapacity addUnit = new SolarInvAcDcCapacity();
+                    addUnit.site = Convert.ToString(dr["Site"]);
+                    addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);
+                    addUnit.inverter = Convert.ToString(dr["INVERTER"]);
+                    meta.importSiteId = addUnit.site_id;
+                    addUnit.dc_capacity = Convert.ToDecimal(dr["DC Capacity(kWp)"]);
+                    addUnit.ac_capacity = Convert.ToDecimal(dr["AC Capacity (kW)"]);
+                    addSet.Add(addUnit);
+                }
+                var json = JsonConvert.SerializeObject(addSet);
+                var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarInvAcDcCapacity";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarInvAcDcCapacity";
                 using (var client = new HttpClient())
                 {
                     var response = await client.PostAsync(url, data);
@@ -955,13 +1765,165 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             var json = JsonConvert.SerializeObject(meta);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            var url = "http://localhost:23835/api/DGR/importMetaData";
+            //var url = "http://localhost:23835/api/DGR/importMetaData";
+            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/importMetaData";
             using (var client = new HttpClient())
             {
                 var response = await client.PostAsync(url, data);
             }
             string status = "Logged activity successfully";
             return status;
+        }
+        public void masterHashtable_WtgToWtgId()
+        {
+            //fills a hashtable with key = wtg and value = location_master_id from table : Wind Location Master
+            //gets equipmentID from equipmentName in Wind Location Master
+            DataTable dTable = new DataTable();
+            //var url = "http://localhost:23835/api/DGR/GetWindLocationMaster";
+            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindLocationMaster";
+            var result = string.Empty;
+            WebRequest request = WebRequest.Create(url);
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                Stream receiveStream = response.GetResponseStream();
+                using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                {
+                    result = readStream.ReadToEnd();
+                }
+                dTable = JsonConvert.DeserializeObject<DataTable>(result);
+            }
+
+            foreach (DataRow dr in dTable.Rows)
+            {
+                equipmentId.Add((string)dr["wtg"], Convert.ToInt32(dr["location_master_id"]));
+            }
+        }
+        public void masterHashtable_BDNameToBDId()
+        {
+            //fills a hashtable with key = bdTypeName and value = bdTypeId from table : BDType 
+            //gets breakdownId from breakdownName in BDType
+
+            DataTable dTable = new DataTable();
+            //var url = "http://localhost:23835/api/DGR/GetBDType";
+            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetBDType";
+            var result = string.Empty;
+            WebRequest request = WebRequest.Create(url);
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                Stream receiveStream = response.GetResponseStream();
+                using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                {
+                    result = readStream.ReadToEnd();
+                }
+                dTable = JsonConvert.DeserializeObject<DataTable>(result);
+            }
+
+            foreach (DataRow dr in dTable.Rows)
+            {
+                breakdownType.Add((string)dr["bd_type_name"], Convert.ToInt32(dr["bd_type_id"]));
+            }
+        }
+        public void masterHashtable_SiteName_To_SiteId()
+        {
+            //fills a hashtable with as key = siteName and value = siteId from table : Wind Site Master
+            //gets siteID from siteName in Wind Site Master
+
+            siteNameId.Clear();
+            DataTable dTable = new DataTable();
+            var url = "";
+            if (importData[0] == "Solar")
+            {
+                //url = "http://localhost:23835/api/DGR/GetSolarSiteMaster";
+                url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarSiteMaster";
+            }
+            else if (importData[0] == "Wind")
+            {
+                //url = "http://localhost:23835/api/DGR/GetWinsdSiteMaster";
+                url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWinsdSiteMaster";
+            }
+            var result = string.Empty;
+            WebRequest request = WebRequest.Create(url);
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                Stream receiveStream = response.GetResponseStream();
+                using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                {
+                    result = readStream.ReadToEnd();
+                }
+                dTable = JsonConvert.DeserializeObject<DataTable>(result);
+            }
+
+            if (importData[0] == "Solar")
+            {
+                foreach (DataRow dr in dTable.Rows)
+                {
+                    siteNameId.Add((string)dr["site"], Convert.ToInt32(dr["site_master_solar_id"]));
+                }
+            }
+            else if (importData[0] == "Wind")
+            {
+                foreach (DataRow dr in dTable.Rows)
+                {
+                    siteNameId.Add((string)dr["site"], Convert.ToInt32(dr["site_master_id"]));
+                }
+            }
+        }
+
+        public void masterHashtable_SiteIdToSiteName()
+        {
+            //fills a hashtable with as key = siteId and value = siteNameId from table : Wind Site Master
+            //gets siteName from siteId in Wind Site Master
+
+            siteName.Clear();
+            DataTable dTable = new DataTable();
+            //var url = "http://localhost:23835/api/DGR/GetWindSiteMaster";
+            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindSiteMaster";
+            var result = string.Empty;
+            WebRequest request = WebRequest.Create(url);
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                Stream receiveStream = response.GetResponseStream();
+                using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                {
+                    result = readStream.ReadToEnd();
+                }
+                dTable = JsonConvert.DeserializeObject<DataTable>(result);
+            }
+
+            foreach (DataRow dr in dTable.Rows)
+            {
+                siteName.Add(Convert.ToInt32(dr["site_master_id"]), Convert.ToString(dr["site"]));
+            }
+        }
+        public void masterHashtable_WtgToSiteId()
+        {
+            //fills a hashtable with as key = siteId and value = siteNameId from table : Wind Site Master
+            //gets siteId from wtg(equipment) in Wind Location Master
+
+            DataTable dTable = new DataTable();
+            //var url = "http://localhost:23835/api/DGR/GetWindLocationMaster";
+            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindLocationMaster";
+            var result = string.Empty;
+            WebRequest request = WebRequest.Create(url);
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                Stream receiveStream = response.GetResponseStream();
+                using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                {
+                    result = readStream.ReadToEnd();
+                }
+                dTable = JsonConvert.DeserializeObject<DataTable>(result);
+            }
+
+            foreach (DataRow dr in dTable.Rows)
+            {
+                eqSiteId.Add((string)dr["wtg"], Convert.ToInt32(dr["site_master_id"]));
+            }
         }
     }
 }

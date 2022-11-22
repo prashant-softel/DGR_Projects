@@ -9,6 +9,7 @@ namespace DGRA_V1.Models
     {
         
         public string date_time { get; set; }
+        public int site_id { get; set; }
         public string ghi_1 { get; set; }
         public string ghi_2 { get; set; }
         public string poa_1 { get; set; }

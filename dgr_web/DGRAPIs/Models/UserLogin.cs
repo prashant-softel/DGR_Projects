@@ -15,4 +15,17 @@ namespace DGRAPIs.Models
         // public string dgr { get; set; }
         // public int status { get; set; }
     }
+    public class UserInfomation
+    {
+        public int login_id { get; set; }
+        public string username { get; set; }
+        public string useremail { get; set; }
+        public string user_role { get; set; }
+        public int created_on { get; set; }
+        public int blocked_user { get; set; }
+        //public TimeSpan last_accessed { get; set; }
+        
+        // public string dgr { get; set; }
+        // public int status { get; set; }
+    }
 }

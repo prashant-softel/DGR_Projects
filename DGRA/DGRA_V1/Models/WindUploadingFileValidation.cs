@@ -132,7 +132,7 @@ namespace DGRA_V1.Models
             bool gridHrsFlag = false;
 
             //1)Date Validation CodeBlock
-            string checker = (Convert.ToDateTime(verifyDate)).ToString("dd-MM-yyyy");
+            string checker = (Convert.ToDateTime(verifyDate)).ToString("yyyy-MM-dd");
             if (!(verifyDate == checker))
             {
                 dateFlag = true;

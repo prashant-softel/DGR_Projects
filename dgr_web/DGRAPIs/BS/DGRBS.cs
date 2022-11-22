@@ -43,7 +43,8 @@ namespace DGRAPIs.BS
         Task<List<WindPerformanceReports>> GetWindPerformanceReportSiteWise(string fy, string fromDate, string todate);
         Task<List<WindPerformanceReports>> GetWindPerformanceReportBySPVWise(string fy, string fromDate, string todate);
         Task<List<SolarDailyBreakdownReport>> GetSolarDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site);
-       
+        Task<bool> CalculateDailyWindKPI(string fromDate, string toDate, string site);
+
         Task<int> InsertDailyTargetKPI(List<WindDailyTargetKPI> windDailyTargetKPI);
         Task<int> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> set);
         Task<int> InsertMonthlyUploadingLineLosses(List<WindMonthlyUploadingLineLosses> set);
@@ -51,6 +52,7 @@ namespace DGRAPIs.BS
         Task<bool> InsertWindJMR(List<WindMonthlyJMR> set);
         Task<bool> InsertWindUploadingFilegeneration(List<WindUploadingFilegeneration> set);
         Task<bool> InsertWindUploadingFileBreakDown(List<WindUploadingFileBreakDown> set);
+        Task<List<SolarSiteMaster>> GetSolarSiteList(string state, string spvdata);
         Task<int> InsertDailyJMR(List<WindDailyJMR> windDailyJMR);
         Task<int> InsertSolarDailyTargetKPI(List<SolarDailyTargetKPI> solarDailyTargetKPI);
         Task<int> InsertSolarMonthlyTargetKPI(List<SolarMonthlyTargetKPI> solarMonthlyTargetKPI);
@@ -89,6 +91,13 @@ namespace DGRAPIs.BS
         Task<List<SolarDailyGenSummary>> GetSolarDailyGenSummaryPending(string date, string site);
         Task<List<WindDailyBreakdownReport>> GetWindDailyBreakdownPending(string date, string site);
         Task<List<SolarFileBreakdown>> GetSolarDailyBreakdownPending(string date, string site);
+        Task<int> InsertWindSiteMaster(List<WindSiteMaster> set);
+        Task<int> InsertWindLocationMaster(List<WindLocationMaster> set);
+        
+        Task<int> InsertSolarLocationMaster(List<SolarLocationMaster> set);
+        Task<int> InsertSolarSiteMaster(List<SolarSiteMaster> set);
+       
+        
         Task<int> UpdateWindDailyGenSummaryApproveStatus(List<DailyGenSummary> dailyGenSummary);
         Task<int> UpdateWindDailyBreakdownApproveStatus(List<WindDailyBreakdownReport> windDailyBreakdownReport);
         Task<int> DeleteWindDailyGenSummaryApproveStatus(List<DailyGenSummary> dailyGenSummary);
@@ -98,7 +107,7 @@ namespace DGRAPIs.BS
         Task<int> UpdateSolarDailyBreakdownApproveStatus(List<SolarFileBreakdown> solarFileBreakdown);
         Task<int> DeleteSolarDailyBreakdownApproveStatus(List<SolarFileBreakdown> solarFileBreakdown);
 
-        Task<bool> InsertSolarUploadingFilegeneration(List<SolarUploadingFilegeneration> solarUploadingFilegeneration);
+        Task<bool> InsertSolarUploadingFileGeneration(List<SolarUploadingFilegeneration> set);
         Task<bool> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> solarUploadingFileBreakDown);
        
         Task<List<approvalObject>> GetImportBatches(string importFromDate, string importToDate, int siteId,int importType, int status);
@@ -556,6 +565,81 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
+
+        public async Task<bool> CalculateDailyWindKPI(string fromDate, string toDate, string site)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.CalculateDailyWindKPI(fromDate, toDate, site);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        public async Task<int> InsertWindSiteMaster(List<WindSiteMaster> set)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.InsertWindSiteMaster(set);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<int> InsertWindLocationMaster(List<WindLocationMaster> set)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.InsertWindLocationMaster(set);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<int> InsertSolarLocationMaster(List<SolarLocationMaster> set)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.InsertSolarLocationMaster(set);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<int> InsertSolarSiteMaster(List<SolarSiteMaster> set)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.InsertSolarSiteMaster(set);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
         public async Task<int> InsertDailyTargetKPI(List<WindDailyTargetKPI> windDailyTargetKPI)
         {
             try
@@ -633,7 +717,21 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
+        public async Task<List<SolarSiteMaster>> GetSolarSiteList(string state, string spvdata)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetSolarSiteData(state, spvdata);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
 
+        }
         public async Task<int> InsertDailyJMR(List<WindDailyJMR> windDailyJMR)
         {
             try
@@ -803,13 +901,13 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<bool> InsertSolarUploadingFilegeneration(List<SolarUploadingFilegeneration> solarUploadingFilegeneration)
+        public async Task<bool> InsertSolarUploadingFileGeneration(List<SolarUploadingFilegeneration> solarUploadingFilegeneration)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.InsertSolarUploadingFilegeneration(solarUploadingFilegeneration);
+                    return await repos.InsertSolarUploadingFileGeneration(solarUploadingFilegeneration);
 
                 }
             }

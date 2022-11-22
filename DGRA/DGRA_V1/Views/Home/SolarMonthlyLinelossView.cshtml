@@ -1,0 +1,162 @@
+﻿@{
+    ViewData["Title"] = "Solar Monthly LineLoss";
+}
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Solar Monthly LineLoss</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="content">
+
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Monthly LineLoss</h3>
+
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <!--<button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+        <i class="fas fa-times"></i>
+    </button>-->
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-5">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Financial Year : </label>
+                                <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                    <option value="">Select Financial Year</option>
+                                    <!--<option value="2020-21">2020-21</option>
+    <option value="2021-22">2021-22</option>
+    <option value="2022-23">2022-23</option>-->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Month : </label>
+                                <select class="form-control  col-sm-8" id="month" name="month" value="">
+                                    <option value="">Select Month</option>
+                                    <option value="Jan">January</option>
+                                    <option value="Feb">February</option>
+                                    <option value="Mar">March</option>
+                                    <option value="Apr">April</option>
+                                    <option value="May">May</option>
+                                    <option value="Jun">June</option>
+                                    <option value="Jul">July</option>
+                                    <option value="Aug">August</option>
+                                    <option value="Sep">September</option>
+                                    <option value="Oct">October</option>
+                                    <option value="Nov">November</option>
+                                    <option value="Dec">December</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <!-- select -->
+                        <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
+                    </div>
+                </div>
+
+            </div>
+                <hr>
+                <div id="MontlyLonelossView"></div>
+            </div>
+
+            <div class="card-footer">
+                Footer
+            </div>
+
+        </div>
+
+
+    </section>
+
+</div>
+<!-- /.content-wrapper -->
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script type="text/javascript">
+
+    window.onload = function () {
+        $.ajax({
+            type: "GET",
+            url: "/SolarReport/GetFinancialYear",
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                options += '<option value="">Select Financial Year</option>';
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
+                }
+                $("#fy").html(options);
+            }
+        });
+    }
+    function getReport() {
+        var year = $('select#fy option:selected').val();
+        var month = $('select#month option:selected').val();
+        $.ajax({
+            type: "GET",
+            url: "/SolarView/SolarMonthlyLinelossView?year=" + year + "&month=" + month ,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
+                tbl += '<thead><tr>';
+                tbl += '<th>FY</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Month</th>';
+                tbl += '<th>Line Losses</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        tbl += '<tr>';
+                        tbl += '<td>' + result[i].fy + '</td>';
+                        tbl += '<td>' + result[i].sites + '</td>';
+                        tbl += '<td>' + result[i].month + '</td>';
+                        tbl += '<td>' + result[i].lineLoss + '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+
+                    tbl += '<tr><th colspan="4" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#MontlyLonelossView").html(tbl);
+
+            }
+        });
+    }
+</script>

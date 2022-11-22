@@ -6,5 +6,6 @@
 */*.csproj.vspscc
 */*bin
 /packages
+*/*bin
 /bin
 /obj

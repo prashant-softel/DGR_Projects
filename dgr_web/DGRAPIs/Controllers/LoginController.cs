@@ -37,6 +37,40 @@ namespace Login.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Route("WindUserRegistration")]
+        [HttpGet]
+        // public async Task<IActionResult> UserLogin(string username, string password)
+        public async Task<IActionResult> WindUserRegistration(string fname, string useremail, string role, string created_on)
+        {
+            try
+            {
+
+                var data = await _loginBs.WindUserRegistration(fname, useremail, role, created_on);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("GetWindUserInformation")]
+        [HttpGet]
+        // public async Task<IActionResult> UserLogin(string username, string password)
+        public async Task<IActionResult> GetWindUserInformation(int login_id)
+        {
+            try
+            {
+
+                var data = await _loginBs.GetWindUserInformation(login_id);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
         [Route("eQry/{qry}")]
         [HttpGet]
         public async Task<IActionResult> eQry(string qry)

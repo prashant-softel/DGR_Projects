@@ -1,0 +1,419 @@
+﻿@model DGRA_V1.Models.CountryList
+@{
+    ViewData["Title"] = "Solar Performance Reports";
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <!--<div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Wind Performance Reports</li>
+                    </ol>
+                </div>
+            </div>
+        </div>-->
+    </section>
+
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Solar Performance Reports</h3>
+                <!--<div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                <i class="fas fa-minus"></i>
+                </button>
+                </div>-->
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">FY : </label>
+                                <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                    <option value="">Select Financial Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group " style="margin-left: -5px; width: 104%;">
+                            <label class="col-sm-4 col-form-label text-right">Date : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="row">
+                            <div class="col-sm-3 text-center"></div>
+                            <div class="col-sm-6 text-center">
+                                <button type="button" class="btn btn-block btn-primary" onclick="GetPRReport();">Search</button>
+                            </div>
+                            <div class="col-sm-3 text-center"></div>
+                        </div>
+                    </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-5">
+                            <div class="card-body table-responsive pad">
+                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                    <label class="btn bg-olive">
+                                        <input type="radio" name="reportType" value="Site" id="pr_b1" autocomplete="off" checked> Site Wise Report
+                                    </label>
+                                    <label class="btn bg-olive">
+                                        <input type="radio" name="reportType" value="INV" id="pr_b2" autocomplete="off"> INV Wise Report
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-2 text-center">
+
+                        </div>
+                        <div class="col-sm-5 text-center"></div>
+                    </div>
+                </div>
+                <hr>
+                <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<!--Datatable -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+
+    window.onload = function () {
+        getYear();
+    }
+    function getYear() {
+        $.ajax({
+            type: "GET",
+            url: "/SolarReport/GetFinancialYear",
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                options += '<option value="">Select Financial Year</option>';
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
+                }
+                $("#fy").html(options);
+            }
+        });
+    }
+
+    function GetPRReport() {
+        var ReportType = $("input[name='reportType']:checked").val();
+        if (ReportType == "INV") {
+            GetSolarPRReportSPVWise();
+        }
+        else {
+            GetSolarPRReportSiteWise();
+        }
+    }
+
+    // Daily Gen Report SPV WIse
+    function GetSolarPRReportSPVWise() {
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var fyear = $('select#fy option:selected').val();
+        var reporthead = "SPV Wise Report";
+        $.ajax({
+            type: "GET",
+            url: "/SolarReport/GetSolarPRReportSPVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                tbl += '<table id="example1"  class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+
+                //tbl += '<th>SPV</th>';
+                //tbl += '<th>Capcity</th>';
+                //tbl += '<th colspan="5" class="text-center">Gen nos.(MUs)</th>';
+                //tbl += '<th>Revenue</th>';
+                //tbl += '<th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th>';
+                //tbl += '<th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th>';
+
+                //tbl += '<th colspan="3" class="text-center">GHI Vs POA Gain%</th>';
+                //tbl += '<th colspan="3" class="text-center">PLF</th>';
+                //tbl += '<th colspan="3" class="text-center">PR</th></tr>';
+
+                tbl += '<th>SPV</th><th>Capcity</th><th colspan="5" class="text-center">Gen nos.(MUs)</th><th>Revenue</th><th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">GHI Vs POA Gain%</th><th colspan="3" class="text-center">PLF</th><th colspan="3" class="text-center">PR</th></tr>';
+
+                tbl += '<tr><th>&nbsp;</th>';
+
+                tbl += '<th>(MW)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Exp</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>T.Var%</th>';
+                tbl += '<th>E.Var%</th>';
+
+                tbl += '<th>(MINR)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var(%)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var(%)</th>';
+
+                tbl += '<th>Tar(%)</th>';
+                tbl += '<th>Act(%)</th>';
+                tbl += '<th>Var(%)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var(%)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var(%)</th>';
+
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        //tbl += '<th>SPV</th>';
+                        tbl += '<td>' + result[i].spv + '</td>';
+                        //tbl += '<th>Capcity</th>';
+                        tbl += '<td>' + result[i].capacity + '</td>';
+                        //tbl += '<th colspan="5" class="text-center">Gen nos.(MUs)</th>';
+                        tbl += '<td>' + result[i].tar_kwh+ '</td>';
+                        tbl += '<td>' + result[i].expected_kwh+ '</td>';
+                        tbl += '<td>' + result[i].act_kwh + '</td>';
+                        tbl += '<td>' + result[i].null + '</td>';
+                        tbl += '<td>' + result[i].null + '</td>';
+                        //tbl += '<th>Revenue</th>';
+                        tbl += '<td>' + result[i].null + '</td>';
+
+                        //tbl += '<th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th>';
+                        tbl += '<td>' + result[i].tar_ghi + '</td>';
+                        tbl += '<td>' + result[i].act_ghi + '</td>';
+                        tbl += '<td>' + result[i].null + '</td>';
+
+                        //tbl += '<th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th>';
+                        tbl += '<td>' + result[i].tar_poa + '</td>';
+                        tbl += '<td>' + result[i].act_poa + '</td>';
+                        tbl += '<td>' + result[i].null + '</td>';
+
+                        //tbl += '<th colspan="3" class="text-center">GHI Vs POA Gain%</th>
+                        tbl += '<td>' + result[i].null + '</td>';
+                        tbl += '<td>' + result[i].null + '</td>';
+                        tbl += '<td>' + result[i].null + '</td>';
+
+                        //tbl += '<th colspan="3" class="text-center">PLF</th>';
+                        tbl += '<td>' + result[i].tar_plf + '</td>';
+                        tbl += '<td>' + result[i].act_plf + '</td>';
+                        tbl += '<td>' + result[i].null + '</td>';
+
+                        //tbl += '<th colspan="3" class="text-center">PR</th></tr>';
+                        tbl += '<td>' + result[i].tar_pr + '</td>';
+                        tbl += '<td>' + result[i].act_pr + '</td>';
+                        tbl += '<td>' + result[i].null + '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+
+                }
+                tbl += '</table>';
+                $("#reportsDaily").html(tbl);
+                $.noConflict();
+                $('#example1').DataTable({
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+                //document.getElementById("reportsDaily").style.display = 'block';
+                ///document.getElementById("reportsMonthly").style.display = 'block';
+                // document.getElementById("reportsYearly").style.display = 'block';
+            }
+        });
+
+    }
+    // -----------------------------------------------
+
+    // Daily Gen Report Site WIse
+    function GetSolarPRReportSiteWise() {
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var fyear = $('select#fy option:selected').val();
+        var reporthead = "Site Wise Report";
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetWindPRReportSiteWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
+            contentType: "application/json; charset=utf-8",
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                tbl += '<table id="example1"  class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>Site</th><th>Capcity</th>';
+                tbl += '<th colspan="3" class="text-center">Gen nos.(MUs)</th><th>Revenue</th>';
+                tbl += '<th colspan="3" class="text-center">Wind Speed(m/s)</th><th colspan="3" class="text-center">PLF</th>';
+                tbl += '<th colspan="3" class="text-center">MA (Actual)</th><th colspan="3" class="text-center">IGA</th>';
+                tbl += '<th colspan="3" class="text-center">EGA</th></tr>';
+                tbl += '<tr><th>&nbsp;</th>';
+                tbl += '<th>(MW)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act JMR</th>';
+                tbl += '<th>Var(%)</th>';
+                tbl += '<th>(MINR)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var(%)</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td>' + result[i].site + '</td>';
+                        tbl += '<td>' + result[i].total_mw.toFixed(2) + '</td>';
+                        tbl += '<td>' + result[i].tar_kwh_mu.toFixed(2) + '</td>';
+                        tbl += '<td>' + result[i].act_jmr_kwh_mu.toFixed(2) + '</td>';
+                        tbl += '<td>-</td>';
+                        tbl += '<td>-</td>';
+                        tbl += '<td>' + result[i].tar_wind.toFixed(2) + '</td>';
+                        tbl += '<td>' + result[i].act_Wind.toFixed(2) + '</td>';
+                        tbl += '<td>-</td>';
+                        tbl += '<td>' + result[i].tar_plf.toFixed(2) + '</td>';
+                        tbl += '<td>' + result[i].act_plf.toFixed(2) + '</td>';
+                        tbl += '<td>-</td>';
+                        tbl += '<td>' + result[i].tar_ma.toFixed(2) + '</td>';
+                        tbl += '<td>' + result[i].act_ma.toFixed(2) + '</td>';
+                        tbl += '<td>-</td>';
+                        tbl += '<td>' + result[i].tar_iga.toFixed(2) + '</td>';
+                        tbl += '<td>' + result[i].act_iga.toFixed(2) + '</td>';
+                        tbl += '<td>-</td>';
+                        tbl += '<td>' + result[i].tar_ega.toFixed(2) + '</td>';
+                        tbl += '<td>' + result[i].act_ega.toFixed(2) + '</td>';
+                        tbl += '<td>-</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+
+                }
+                tbl += '</table>';
+                $("#reportsDaily").html(tbl);
+                $.noConflict();
+                $('#example1').DataTable({
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+                //document.getElementById("reportsDaily").style.display = 'block';
+                ///document.getElementById("reportsMonthly").style.display = 'block';
+                // document.getElementById("reportsYearly").style.display = 'block';
+            }
+        });
+    }
+
+
+
+</script>

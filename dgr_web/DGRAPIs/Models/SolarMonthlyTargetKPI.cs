@@ -12,13 +12,11 @@ namespace DGRAPIs.Models
         public string Sites { get; set; }
         public dynamic GHI { get; set; }
         public dynamic POA { get; set; }
-        public dynamic GenNosMU { get; set; }
+        public dynamic kWh { get; set; }
         public dynamic MA { get; set; }
         public dynamic IGA { get; set; }
         public dynamic EGA { get; set; }
         public dynamic PR { get; set; }
         public dynamic PLF { get; set; }
-            
-
     }
 }

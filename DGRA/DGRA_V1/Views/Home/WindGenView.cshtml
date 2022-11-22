@@ -147,10 +147,10 @@
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
-                console.log(result);
-                var tbl = '<table id="example1" class="table table-bordered table-striped">';
+                console.log(result); //table 
+                var tbl = '<table id="example1" class="table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th style="width:90px">Date</th>';
+                tbl += '<th style="width:120px">Date</th>';
                 tbl += '<th >State</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Wind(m/s)</th>';
@@ -208,15 +208,15 @@
                 $("#DailyGenView").html(tbl);
                 $.noConflict();
                 $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "responsive": false, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["csv", "excel", "colvis"],
                     "paging": true,
                     "lengthChange": false,
                     "searching": true,
                     "ordering": true,
                     "info": true,
                     "autoWidth": false,
-                    "responsive": true,
+                    "responsive": false,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
             }
         });

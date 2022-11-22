@@ -11,6 +11,7 @@ namespace DGRA_V1.Common
     {
         public const string Solar = "Solar";
         public const string Wind = "Wind";
+
        
         public static readonly string[] All = {
             Solar,

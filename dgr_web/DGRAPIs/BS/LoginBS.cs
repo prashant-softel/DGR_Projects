@@ -12,6 +12,10 @@ namespace DGRAPIs.BS
     {
         Task<int> eQry(string qry);
          Task<UserLogin> GetUserLogin(string username, string password);
+      
+        Task<int> WindUserRegistration(string fname, string useremail, string role, string created_on);
+      
+        Task<List<UserInfomation>> GetWindUserInformation(int login_id);
 
     }
     public class LoginBS : iLoginBS
@@ -30,6 +34,37 @@ namespace DGRAPIs.BS
                 using (var repos = new LoginRepository(getDB))
                 {
                     return await repos.GetUserLogin(username, password);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<int> WindUserRegistration(string fname, string useremail, string role, string created_on)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.WindUserRegistration(fname, useremail, role, created_on);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+       
+        public async Task<List<UserInfomation>> GetWindUserInformation(int login_id)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.GetWindUserInformation(login_id);
 
                 }
             }

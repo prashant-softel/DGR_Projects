@@ -39,6 +39,7 @@ namespace DGRA_V1
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddControllersWithViews();
             services.AddRazorPages();
+          
             //  services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
             
          //   services.AddScoped<IDapperRepository, DapperRepository>();
