@@ -791,11 +791,11 @@ namespace DGRAPIs.Controllers
 
         [Route("InsertSolarJMR")]
         [HttpPost]
-        public async Task<IActionResult> InsertSolarJMR(List<SolarMonthlyJMR> solarMonthlyJMR)
+        public async Task<IActionResult> InsertSolarJMR(List<SolarMonthlyJMR> set)
         {
             try
             {
-                var data = await _dgrBs.InsertSolarJMR(solarMonthlyJMR);
+                var data = await _dgrBs.InsertSolarJMR(set);
                 return Ok(data);
 
             }
@@ -891,7 +891,7 @@ namespace DGRAPIs.Controllers
         }
         [Route("InsertSolarUploadingFileGeneration")]
         [HttpPost]
-        public async Task<IActionResult> InsertSolarUploadingFileGeneration(List<SolarUploadingFilegeneration> set)
+        public async Task<IActionResult> InsertSolarUploadingFileGeneration(List<SolarUploadingFileGeneration> set)
         {
             try
             {
@@ -908,11 +908,11 @@ namespace DGRAPIs.Controllers
        
         [Route("InsertSolarUploadingFileBreakDown")]
         [HttpPost]
-        public async Task<IActionResult> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> addSolarUploadingFileBreakDowns)
+        public async Task<IActionResult> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> set)
         {
             try
             {
-                var data = await _dgrBs.InsertSolarUploadingFileBreakDown(addSolarUploadingFileBreakDowns);
+                var data = await _dgrBs.InsertSolarUploadingFileBreakDown(set);
                 return Ok(data);
 
             }
@@ -1097,13 +1097,13 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("InsertWindUploadingFilegeneration")]
+        [Route("InsertWindUploadingFileGeneration")]
         [HttpPost]
-        public async Task<IActionResult> InsertWindUploadingFilegeneration(List<WindUploadingFilegeneration> addWindUploadingFilegenerations)
+        public async Task<IActionResult> InsertWindUploadingFileGeneration(List<WindUploadingFileGeneration> set)
         {
             try
             {
-                var data = await _dgrBs.InsertWindUploadingFilegeneration(addWindUploadingFilegenerations);
+                var data = await _dgrBs.InsertWindUploadingFileGeneration(set);
                 return Ok(data);
                 //Console.WriteLine("Entering wind file generation while debugging");
             }

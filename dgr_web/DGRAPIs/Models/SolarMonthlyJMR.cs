@@ -9,6 +9,7 @@ namespace DGRAPIs.Models
     {
         public string FY { get; set; }
         public string Site { get; set; }
+        public int site_id { get; set; }
         public string Plant_Section { get; set; }
         public dynamic Controller_KWH_INV { get; set; }
         public dynamic Scheduled_Units_kWh { get; set; }
@@ -16,7 +17,6 @@ namespace DGRAPIs.Models
         public dynamic Import_kWh { get; set; }
         public dynamic Net_Export_kWh { get; set; }
         public dynamic Export_kVAh { get; set; }
-
         public dynamic Import_kVAh { get; set; }
         public dynamic Export_kVArh_lag { get; set; }
         public dynamic Import_kVArh_lag { get; set; }

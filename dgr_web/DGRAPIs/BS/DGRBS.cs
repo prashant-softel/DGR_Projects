@@ -45,24 +45,24 @@ namespace DGRAPIs.BS
         Task<List<SolarDailyBreakdownReport>> GetSolarDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site);
         Task<bool> CalculateDailyWindKPI(string fromDate, string toDate, string site);
 
-        Task<int> InsertDailyTargetKPI(List<WindDailyTargetKPI> windDailyTargetKPI);
+        Task<int> InsertDailyTargetKPI(List<WindDailyTargetKPI> set);
         Task<int> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> set);
         Task<int> InsertMonthlyUploadingLineLosses(List<WindMonthlyUploadingLineLosses> set);
         Task<bool> InsertWindDailyLoadShedding(List<WindDailyLoadShedding> set);
         Task<bool> InsertWindJMR(List<WindMonthlyJMR> set);
-        Task<bool> InsertWindUploadingFilegeneration(List<WindUploadingFilegeneration> set);
+        Task<bool> InsertWindUploadingFileGeneration(List<WindUploadingFileGeneration> set);
         Task<bool> InsertWindUploadingFileBreakDown(List<WindUploadingFileBreakDown> set);
         Task<List<SolarSiteMaster>> GetSolarSiteList(string state, string spvdata);
-        Task<int> InsertDailyJMR(List<WindDailyJMR> windDailyJMR);
-        Task<int> InsertSolarDailyTargetKPI(List<SolarDailyTargetKPI> solarDailyTargetKPI);
-        Task<int> InsertSolarMonthlyTargetKPI(List<SolarMonthlyTargetKPI> solarMonthlyTargetKPI);
-        Task<int> InsertSolarMonthlyUploadingLineLosses(List<SolarMonthlyUploadingLineLosses> solarMonthlyUploadingLineLosses);
-        Task<int> InsertSolarJMR(List<SolarMonthlyJMR> solarMonthlyJMR);
-        Task<int> InsertSolarDailyLoadShedding(List<SolarDailyLoadShedding> solarDailyLoadShedding);
-        Task<int> InsertSolarInvAcDcCapacity(List<SolarInvAcDcCapacity> solarInvAcDcCapacity);
-        Task<int> InsertSolarDailyBDloss(List<SolarDailyBDloss> solarDailyBDloss);
-        Task<int> InsertSolarUploadingPyranoMeter1Min(List<SolarUploadingPyranoMeter1Min> solarUploadingPyranoMeter1Min);
-        Task<int> InsertSolarUploadingPyranoMeter15Min(List<SolarUploadingPyranoMeter15Min> solarUploadingPyranoMeter15Min);
+        Task<int> InsertDailyJMR(List<WindDailyJMR> set);
+        Task<int> InsertSolarDailyTargetKPI(List<SolarDailyTargetKPI> set);
+        Task<int> InsertSolarMonthlyTargetKPI(List<SolarMonthlyTargetKPI> set);
+        Task<int> InsertSolarMonthlyUploadingLineLosses(List<SolarMonthlyUploadingLineLosses> set);
+        Task<int> InsertSolarJMR(List<SolarMonthlyJMR> set);
+        Task<int> InsertSolarDailyLoadShedding(List<SolarDailyLoadShedding> set);
+        Task<int> InsertSolarInvAcDcCapacity(List<SolarInvAcDcCapacity> set);
+        Task<int> InsertSolarDailyBDloss(List<SolarDailyBDloss> set);
+        Task<int> InsertSolarUploadingPyranoMeter1Min(List<SolarUploadingPyranoMeter1Min> set);
+        Task<int> InsertSolarUploadingPyranoMeter15Min(List<SolarUploadingPyranoMeter15Min> set);
         Task<List<SolarDailyGenReports1>> GetSolarDailyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month);
         Task<List<SolarDailyGenReports2>> GetSolarDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month);
         Task<List<SolarDailyGenReports1>> GetSolarMonthlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month);
@@ -107,7 +107,7 @@ namespace DGRAPIs.BS
         Task<int> UpdateSolarDailyBreakdownApproveStatus(List<SolarFileBreakdown> solarFileBreakdown);
         Task<int> DeleteSolarDailyBreakdownApproveStatus(List<SolarFileBreakdown> solarFileBreakdown);
 
-        Task<bool> InsertSolarUploadingFileGeneration(List<SolarUploadingFilegeneration> set);
+        Task<bool> InsertSolarUploadingFileGeneration(List<SolarUploadingFileGeneration> set);
         Task<bool> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> solarUploadingFileBreakDown);
        
         Task<List<approvalObject>> GetImportBatches(string importFromDate, string importToDate, int siteId,int importType, int status);
@@ -795,13 +795,13 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<int> InsertSolarJMR(List<SolarMonthlyJMR> solarMonthlyJMR)
+        public async Task<int> InsertSolarJMR(List<SolarMonthlyJMR> set)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.InsertSolarJMR(solarMonthlyJMR);
+                    return await repos.InsertSolarJMR(set);
 
                 }
             }
@@ -901,7 +901,7 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<bool> InsertSolarUploadingFileGeneration(List<SolarUploadingFilegeneration> solarUploadingFilegeneration)
+        public async Task<bool> InsertSolarUploadingFileGeneration(List<SolarUploadingFileGeneration> solarUploadingFilegeneration)
         {
             try
             {
@@ -933,13 +933,13 @@ namespace DGRAPIs.BS
             }
         }
 
-        public async Task<bool> InsertWindUploadingFilegeneration(List<WindUploadingFilegeneration> windUploadingFilegeneration)
+        public async Task<bool> InsertWindUploadingFileGeneration(List<WindUploadingFileGeneration> set)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.InsertWindUploadingFilegeneration(windUploadingFilegeneration);
+                    return await repos.InsertWindUploadingFileGeneration(set);
 
                 }
             }

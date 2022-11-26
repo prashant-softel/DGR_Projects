@@ -11,6 +11,7 @@ namespace DGRAPIs.Models
         public string date { get; set; }
         public string wtg { get; set; }
         public string bd_type { get; set; }
+        public int bd_type_id{ get; set; }
         public string bd_type_name { get; set; }
         public string stop_from { get; set; }
         public string stop_to { get; set; }

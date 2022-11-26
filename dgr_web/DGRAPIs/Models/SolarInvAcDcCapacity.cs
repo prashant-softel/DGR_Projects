@@ -12,6 +12,5 @@ namespace DGRAPIs.Models
         public string inverter { get; set; }
         public dynamic dc_capacity { get; set; }
         public dynamic ac_capacity { get; set; }
-          
     }
 }

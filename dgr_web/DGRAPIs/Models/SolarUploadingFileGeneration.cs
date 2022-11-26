@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace DGRAPIs.Models
 {
-    public class SolarUploadingFilegeneration
+    public class SolarUploadingFileGeneration
     {
         public int uploading_file_generation_solar_id { get; set; }
-        public string date { get; set; }
+        public DateTime date { get; set; }
         public string site { get; set; }
         public int site_id { get; set; }
         public string inverter { get; set; }
