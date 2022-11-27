@@ -9,7 +9,7 @@ namespace DGRA_V1.Models
     public class SolarUploadingFileGeneration
     {
         public int uploading_file_generation_solar_id { get; set; }
-        public string date { get; set; }
+        public dynamic date { get; set; }
         public string site { get; set; }
         public int site_id{ get; set; }
         public string inverter { get; set; }

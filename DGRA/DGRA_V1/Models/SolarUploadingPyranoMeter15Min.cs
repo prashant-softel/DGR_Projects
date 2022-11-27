@@ -7,7 +7,7 @@ namespace DGRA_V1.Models
 {
     public class SolarUploadingPyranoMeter15Min
     {
-        public string date_time { get; set; }
+        public dynamic date_time { get; set; }
         public decimal ghi_1 { get; set; }
         public decimal ghi_2 { get; set; }
         public decimal poa_1 { get; set; }

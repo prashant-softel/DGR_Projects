@@ -8,17 +8,17 @@ namespace DGRA_V1.Models
     public class SolarUploadingPyranoMeter1Min
     {
         
-        public string date_time { get; set; }
+        public dynamic date_time { get; set; }
         public int site_id { get; set; }
-        public string ghi_1 { get; set; }
-        public string ghi_2 { get; set; }
-        public string poa_1 { get; set; }
-        public string poa_2 { get; set; }
-        public string poa_3 { get; set; }
-        public string poa_4 { get; set; }
-        public string poa_5 { get; set; }
-        public string poa_6 { get; set; }
-        public string poa_7 { get; set; }
+        public decimal ghi_1 { get; set; }
+        public decimal ghi_2 { get; set; }
+        public decimal poa_1 { get; set; }
+        public decimal poa_2 { get; set; }
+        public decimal poa_3 { get; set; }
+        public decimal poa_4 { get; set; }
+        public decimal poa_5 { get; set; }
+        public decimal poa_6 { get; set; }
+        public decimal poa_7 { get; set; }
         public decimal avg_ghi { get; set; }
         public decimal avg_poa { get; set; }
           

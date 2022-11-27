@@ -17,8 +17,8 @@ namespace DGRA_V1.Models
         public string inv { get; set; }
         public string smb { get; set; }
         public string strings { get; set; }
-        public string from_bd { get; set; }
-        public string to_bd { get; set; }
+        public dynamic from_bd { get; set; }
+        public dynamic to_bd { get; set; }
         public string total_bd { get; set; }
         public string bd_remarks { get; set; }
         public string bd_type { get; set; }
