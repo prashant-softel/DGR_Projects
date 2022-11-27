@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DGRA_V1.Models
+﻿namespace DGRA_V1.Models
 {
     public class SolarUploadingPyranoMeter1Min
     {
-        
         public dynamic date_time { get; set; }
         public int site_id { get; set; }
         public decimal ghi_1 { get; set; }
@@ -21,6 +15,7 @@ namespace DGRA_V1.Models
         public decimal poa_7 { get; set; }
         public decimal avg_ghi { get; set; }
         public decimal avg_poa { get; set; }
-          
+        public decimal amb_temp { get; set; }
+        public decimal mod_temp { get; set; }
     }
 }

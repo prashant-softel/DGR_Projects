@@ -28,6 +28,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             m_ErrorLog = new ErrorLog(meta);
         }
         static string[] importData = new string[2];
+        ArrayList kpiArgs = new ArrayList();
         //WindUploadingFileValidation m_ValidationObject;
         ErrorLog m_ErrorLog;
         ImportLog meta = new ImportLog();
@@ -675,6 +676,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                                 m_ErrorLog.SetInformation(",Import Operation Complete :");
                                 m_ErrorLog.SaveToCSV(importData[1]);
                                 await importMetaData(importData[0], importData[1]);
+                                if (fileSheets.Contains("Uploading_File_Generation$") || fileSheets.Contains("Uploading_File_Breakdown$"))
+                                {
+                                    if (fileUpload == "Wind")
+                                    {
+                                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(kpiArgs[0]).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(kpiArgs[1]).ToString("yyyy-MM-dd") + "&site=" + (string)kpiArgs[2] + "";
+                                        using (var client = new HttpClient())
+                                        {
+                                            await client.GetAsync(url);
+                                        }
+                                    }
+                                    
+                                }
                             }
                             else
                             {
@@ -819,8 +832,9 @@ namespace DGRA_V1.Areas.admin.Controllers
                         if (response.IsSuccessStatusCode)
                         {
                             status = "Successfully uploaded";
-                            url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(fromDate).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(toDate).ToString("yyyy-MM-dd") + "&site=" + site + "";
-                            await client.GetAsync(url);
+                            kpiArgs.Add(fromDate);
+                            kpiArgs.Add(toDate);
+                            kpiArgs.Add(site);
                         }
                         else
                         {
@@ -1399,7 +1413,6 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                //var url = "http://localhost:23835/api/DGR/InsertSolarDailyLoadShedding";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarDailyLoadShedding";
                 using (var client = new HttpClient())
                 {
