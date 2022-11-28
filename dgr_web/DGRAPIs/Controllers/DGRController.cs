@@ -51,7 +51,6 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
         #region get Masters
 
         [Route("GetWindSiteMaster")]

@@ -25,4 +25,10 @@
 	  <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="5.0.17" NoWarn="NU1605" />
   </ItemGroup>
 
+ 
+  <ItemGroup>
+    <Folder Include="FileLog\" />
+    <Folder Include="ImportedFile\" />
+  </ItemGroup>
+
 </Project>

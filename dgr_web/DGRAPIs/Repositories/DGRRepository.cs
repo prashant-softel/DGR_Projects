@@ -1,8 +1,14 @@
 ﻿using DGRAPIs.Helper;
 using DGRAPIs.Models;
 using System;
+using System.Web;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
+using DGRAPIs.Helper;
+using DGRAPIs.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DGRAPIs.Repositories
 {
@@ -3824,154 +3830,341 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         /// <param name="toDate"></param>
         /// <param name="site"></param>
         /// <returns></returns>
+        /// 
         internal async Task<bool> CalculateDailyWindKPI(string fromDate, string toDate, string site)
         {
             bool response = false;
-            double Final_USMH = 0;
-            double Final_SMH = 0;
-            double Final_IGBD = 0;
-            double Final_EGBD = 0;
-            double Final_LoadShedding = 0;
-            double Final_LULL = 0;
-            double Final_OthersHour = 0;
-            string MA_Actual_FormulaID = "";
-            string MA_Contractual_FormulaID = "";
-            string IGA_FormulaID = "";
-            string EGA_FormulaID = "";
+
+            TimeSpan Final_USMH_Time = new TimeSpan();
+            TimeSpan Final_SMH_Time = new TimeSpan();
+            TimeSpan Final_IGBD_Time = new TimeSpan();
+            TimeSpan Final_EGBD_Time = new TimeSpan();
+            TimeSpan Final_LoadShedding_Time = new TimeSpan();
+            TimeSpan Final_LULL_Time = new TimeSpan();
+            TimeSpan Final_OthersHour_Time = new TimeSpan();
+
+            string MA_Actual_Formula = "";
+            string MA_Contractual_Formula = "";
+            string IGA_Formula = "";
+            string EGA_Formula = "";
             string sCurrentWTG = "";
             string sLastWTG = "";
-
-            if (string.IsNullOrEmpty(site) || site == "All")
+            try
             {
-                //throw SystemException("Invalid site " + site);
-                return response;
-            }
-
-            int site_id = int.Parse(site);
-
-            if (site_id <= 0)
-            {
-                //throw SystemException("Invalid site " + site);
-                return response;
-            }
-
-            string qrySiteFormulas = "SELECT * FROM `wind_site_formulas` where site_id = '" + site_id + "'";
-            List<SiteFormulas> _SiteFormulas = await Context.GetData<SiteFormulas>(qrySiteFormulas).ConfigureAwait(false);
-            foreach (SiteFormulas SiteFormula in _SiteFormulas)
-            {
-                MA_Actual_FormulaID = SiteFormula.MA_Actual; //(string)reader["MA_Actual"];
-                MA_Contractual_FormulaID = SiteFormula.MA_Contractual; // (string)reader["MA_Contractual"];
-                IGA_FormulaID = SiteFormula.IGA; // (string)reader["IGA"];
-                EGA_FormulaID = SiteFormula.EGA; // (string)reader["EGA"];
-                //break;
-            }
-
-            //string qryFileBreakdown = "SELECT fd.site_id,fd.bd_type,fd.wtg,bd.bd_type_name, SEC_TO_TIME(SUM(TIME_TO_SEC( fd.`total_stop` ) ) ) AS totalTime FROM `uploading_file_breakdown` as fd join bd_type as bd on bd.bd_type_id=fd.bd_type where site_id = " + site_id + " AND`date` = '" + fromDate + "' group by fd.wtg, fd.bd_type";
-            string qry = @"SELECT date, t1.wtg, bd_type, t1.bd_type_id, stop_from, stop_to, total_stop, error_description, action_taken, t3.country, t3.state, t3.spv,  t2.site, t4.bd_type_name FROM uploading_file_breakdown t1 left join location_master t2 on t2.wtg=t1.wtg left join site_master t3 on t3.site_master_id=t2.site_master_id left join bd_type as t4 on t4.bd_type_id=t1.bd_type ";
-            int iBreakdownCount = 0;
-            string filter = "";
-            int chkfilter = 0;
-            if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
-            {
-                //filter += "(date >= '" + fromDate + "'  and date<= '" + toDate + "')";
-                filter += "(date = '" + fromDate + "')";
-                chkfilter = 1;
-            }
-
-            if (!string.IsNullOrEmpty(filter))
-            {
-                qry += " where  " + filter;
-            }
-            qry += " group by t1.wtg, t1.bd_type";
-            List<WindDailyBreakdownReport> _WindFileBreakdown = await Context.GetData<WindDailyBreakdownReport>(qry).ConfigureAwait(false);
-            foreach (WindDailyBreakdownReport sBreakdown in _WindFileBreakdown)
-            {
-                iBreakdownCount++;
-                DateTime result;
-                TimeSpan Get_Time;
-                string site2 = sBreakdown.site;
-                int site_id2 = sBreakdown.site_id;
-                //site_id = reader["site_id"].ToInt();
-                sCurrentWTG = sBreakdown.wtg; // (string)reader["wtg"];
-                int bd_type = Convert.ToInt32(sBreakdown.bd_type_id);// reader["bd_type"];
-                string bd_type_name = sBreakdown.bd_type_name; // reader["bd_type_name"];
-                var totalTime = sBreakdown.total_stop;// reader["totalTime"];
-
-                if (iBreakdownCount == 1)
+                if (string.IsNullOrEmpty(site) || site == "All")
                 {
-                    sLastWTG = sCurrentWTG;
-                }
-                if (sCurrentWTG != sLastWTG)
-                {
-                    //Update WTG KPIs
-                    CalculateAndUpdateKPIs(site_id, fromDate, sLastWTG, Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Actual_FormulaID, MA_Contractual_FormulaID, IGA_FormulaID, EGA_FormulaID);
-                    sLastWTG = sCurrentWTG;
-                    Final_USMH = 0;
-                    Final_SMH = 0;
-                    Final_IGBD = 0;
-                    Final_EGBD = 0;
-                    Final_LoadShedding = 0;
-                    Final_LULL = 0;
-                    Final_OthersHour = 0;
+                    throw new Exception("Invalid site " + site);
+                    //return response;
                 }
 
-                switch (bd_type)
+                int site_id = int.Parse(site);
+
+                if (site_id <= 0)
                 {
-                    case 1:                 //if (bd_type_name.Equals("USMH"))            //Pending : optimise it use bd_type id
-                        result = Convert.ToDateTime(totalTime.ToString());
-                        Get_Time = result.TimeOfDay;
-                        Get_Time = Get_Time * 24;
-                        Final_USMH = Get_Time.TotalDays;
-                        break;
-
-                    case 2:                 //else if (bd_type_name.Equals("SMH"))              
-                        result = Convert.ToDateTime(totalTime.ToString());
-                        Get_Time = result.TimeOfDay;
-                        Get_Time = Get_Time * 24;
-                        Final_SMH = Get_Time.TotalDays;
-                        break;
-
-                    case 3:                 //else if (bd_type_name.Equals("IGBD"))                
-                        result = Convert.ToDateTime(totalTime.ToString());
-                        Get_Time = result.TimeOfDay;
-                        Get_Time = Get_Time * 24;
-                        Final_IGBD = Get_Time.TotalDays;
-                        break;
-
-                    case 4:                 //else if (bd_type_name.Equals("EGBD"))                
-                        result = Convert.ToDateTime(totalTime.ToString());
-                        Get_Time = result.TimeOfDay;
-                        Get_Time = Get_Time * 24;
-                        Final_EGBD = Get_Time.TotalDays;
-                        break;
-
-                    case 5:                 //if (bd_type_name.Equals("LoadShedding"))                
-                        result = Convert.ToDateTime(totalTime.ToString());
-                        Get_Time = result.TimeOfDay;
-                        Get_Time = Get_Time * 24;
-                        Final_LoadShedding = Get_Time.TotalDays;
-                        break;
-
-                    case 6:                 //if (bd_type_name.Equals("OthersHour"))                
-                        result = Convert.ToDateTime(totalTime.ToString());
-                        Get_Time = result.TimeOfDay;
-                        Get_Time = Get_Time * 24;
-                        Final_OthersHour = Get_Time.TotalDays;
-                        break;
-
-                    default:
-                        //Pending : error reporting
-                        //throw;
-                        break;
-
+                    throw new Exception("Invalid site " + site);
+                    //return response;
                 }
+
+                string qrySiteFormulas = "SELECT * FROM `wind_site_formulas` where site_id = '" + site_id + "'";
+                List<SiteFormulas> _SiteFormulas = await Context.GetData<SiteFormulas>(qrySiteFormulas).ConfigureAwait(false);
+                foreach (SiteFormulas SiteFormula in _SiteFormulas)
+                {
+                    MA_Actual_Formula = SiteFormula.MA_Actual; //(string)reader["MA_Actual"];
+                    MA_Contractual_Formula = SiteFormula.MA_Contractual; // (string)reader["MA_Contractual"];
+                    IGA_Formula = SiteFormula.IGA; // (string)reader["IGA"];
+                    EGA_Formula = SiteFormula.EGA; // (string)reader["EGA"];
+                                                   //break;
+                }
+
+                //string qryFileBreakdown = "SELECT fd.site_id,fd.bd_type,fd.wtg,bd.bd_type_name, SEC_TO_TIME(SUM(TIME_TO_SEC( fd.`total_stop` ) ) ) AS totalTime FROM `uploading_file_breakdown` as fd join bd_type as bd on bd.bd_type_id=fd.bd_type where site_id = " + site_id + " AND`date` = '" + fromDate + "' group by fd.wtg, fd.bd_type";
+                string qry = @"SELECT date,t1.site_id,t1.wtg,t1.bd_type_id,t1.bd_type,SEC_TO_TIME(SUM(TIME_TO_SEC(total_stop)))  AS total_stop FROM uploading_file_breakdown t1 left join location_master t2 on t2.wtg=t1.wtg left join site_master t3 on t3.site_master_id=t2.site_master_id left join bd_type as t4 on t4.bd_type_id=t1.bd_type ";
+                int iBreakdownCount = 0;
+                string filter = "";
+                int chkfilter = 0;
+                filter =""+ site_id;
+                if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
+                {
+                    //filter += "(date >= '" + fromDate + "'  and date<= '" + toDate + "')";
+                    filter += " AND date = '" + fromDate + "'";
+                    chkfilter = 1;
+                }
+
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    qry += " where  site_id = " + filter;
+                }
+                //qry += "  AND t1.wtg = 'BD-25'";
+                qry += "  group by t1.wtg, t1.bd_type";
+                List<WindFileBreakdown> _WindFileBreakdown = await Context.GetData<WindFileBreakdown>(qry).ConfigureAwait(false);
+                foreach (WindFileBreakdown sBreakdown in _WindFileBreakdown)
+                {
+                    iBreakdownCount++;
+                    DateTime result;
+                    TimeSpan Get_Time;
+                    int site_id2 = sBreakdown.site_id;
+                    sCurrentWTG = sBreakdown.wtg; // (string)reader["wtg"];
+                    int bd_type_id = sBreakdown.bd_type_id;// reader["bd_type"];
+                    string bd_type_name = sBreakdown.bd_type; // reader["bd_type_name"];
+                    var totalTime = sBreakdown.total_stop;// reader["totalTime"];
+
+                    if (iBreakdownCount == 1)
+                    {
+                        sLastWTG = sCurrentWTG;
+                    }
+                    if (sCurrentWTG != sLastWTG)
+                    {
+                        //Update WTG KPIs
+                        CalculateAndUpdateKPIs(site_id, fromDate, sLastWTG, Final_USMH_Time, Final_SMH_Time, Final_IGBD_Time, Final_EGBD_Time, Final_OthersHour_Time, Final_LoadShedding_Time, MA_Actual_Formula, MA_Contractual_Formula, IGA_Formula, EGA_Formula);
+                        CalculateAndUpdatePLFandKWHAfterLineLoss(site_id, fromDate, sLastWTG);
+                        Final_USMH_Time = TimeSpan.Zero;
+                        Final_SMH_Time = TimeSpan.Zero;
+                        Final_IGBD_Time = TimeSpan.Zero;
+                        Final_EGBD_Time = TimeSpan.Zero;
+                        Final_LoadShedding_Time = TimeSpan.Zero;
+                        Final_LULL_Time = TimeSpan.Zero;
+                        Final_OthersHour_Time = TimeSpan.Zero;
+
+                        sLastWTG = sCurrentWTG;
+                    }
+                    switch (bd_type_id)
+                    {
+                        case 1:                 //if (bd_type_name.Equals("USMH"))            //Pending : optimise it use bd_type id
+                            result = Convert.ToDateTime(totalTime.ToString());
+                            Final_USMH_Time = result.TimeOfDay;
+                            break;
+
+                        case 2:                 //else if (bd_type_name.Equals("SMH"))              
+                            result = Convert.ToDateTime(totalTime.ToString());
+                            Final_SMH_Time = result.TimeOfDay;
+                            break;
+
+                        case 3:                 //else if (bd_type_name.Equals("IGBD"))                
+                            result = Convert.ToDateTime(totalTime.ToString());
+                            Final_IGBD_Time = result.TimeOfDay;
+                            break;
+
+                        case 4:                 //else if (bd_type_name.Equals("EGBD"))                
+                            result = Convert.ToDateTime(totalTime.ToString());
+                            Final_EGBD_Time = result.TimeOfDay;
+                            break;
+
+                        case 5:                 //if (bd_type_name.Equals("Load Shedding"))                
+                            result = Convert.ToDateTime(totalTime.ToString());
+                            Final_LoadShedding_Time = result.TimeOfDay;
+                            break;
+
+                        case 6:                 //if (bd_type_name.Equals("Others Hour"))                
+                            result = Convert.ToDateTime(totalTime.ToString());
+                            Final_OthersHour_Time = result.TimeOfDay;
+                            break;
+
+                        default:
+                            //Pending : error reporting
+                            throw new Exception("Unsupported BD_TYPE " + bd_type_id + " For WTG " + sCurrentWTG + " for date " + fromDate);
+                            break;
+
+                    }
+                }
+
+                //Pending : validation of Total time to be 24
+                CalculateAndUpdateKPIs(site_id, fromDate, sCurrentWTG, Final_USMH_Time, Final_SMH_Time, Final_IGBD_Time, Final_EGBD_Time, Final_OthersHour_Time, Final_LoadShedding_Time, MA_Actual_Formula, MA_Contractual_Formula, IGA_Formula, EGA_Formula);
+                CalculateAndUpdatePLFandKWHAfterLineLoss(site_id, fromDate, sCurrentWTG);
             }
-            //Pending : validation of Total time to be 24
-            CalculateAndUpdateKPIs(site_id, fromDate, sCurrentWTG, Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Actual_FormulaID, MA_Contractual_FormulaID, IGA_FormulaID, EGA_FormulaID);
+            catch (Exception ex)
+            {
+                string strEx = ex.ToString();
+                response = false;
+                //pending : log error
+                throw new Exception(strEx);
+            }
 
             return response;
         }
+        private async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLoss(int site_id, string fromDate, string sWTG_Name)
+        {
+            //site_id, string fromDate, string sWTG_Name
+            double dLineLoss = 0.65;
+            string fy = GetFY(fromDate);
+            string site = GetSiteFromSiteID(site_id);
+            string month = GetMonth(fromDate);
 
+            bool response = false;
+            try
+            {
+                int chkfilter = 0;
+                string filter = "";
+                int iGenerationCount = 0;
+
+                string qryLineLoass = @"SELECT  fy, month,site,line_loss as LineLoss FROM monthly_uploading_line_losses where site = '" + site + "' and fy = '" + fy + "' and month = '" + month + "'";
+
+                List<WindMonthlyUploadingLineLosses> _WindMonthlyUploadingLineLosses = await Context.GetData<WindMonthlyUploadingLineLosses>(qryLineLoass).ConfigureAwait(false);
+
+                foreach (WindMonthlyUploadingLineLosses WindMonthlyLineLosses in _WindMonthlyUploadingLineLosses)
+                {
+                    dLineLoss = double.Parse(WindMonthlyLineLosses.LineLoss);
+                    break;
+
+                }
+
+                string sLog = "Updating WTG <" + sWTG_Name + ">  KWH and PLF paramters.";
+                //Pending : Log the result
+                string qry = @"SELECT uploading_file_generation_id, date,t1.wtg,t2.site_master_id as site_id,t2.site as site_name,t1.kwh,t3.capacity_mw FROM uploading_file_generation t1 left join location_master t2 on t2.wtg=t1.wtg left join site_master t3 on t3.site_master_id=t2.site_master_id";
+                //,t1.wind_speed
+                if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
+                {
+                    //filter += "(date >= '" + fromDate + "'  and date<= '" + toDate + "')";
+                    filter += "(date = '" + fromDate + "')";
+                    chkfilter = 1;
+                }
+
+                if (!string.IsNullOrEmpty(filter))
+                {
+                    qry += " where  " + filter;
+                }
+                qry += " order by t1.wtg";
+
+                double dCalculatedPLF = 0; ;
+                double dWTG_Capacity = 0;
+                double dDaily_kwh = 0;
+                double dKWH_AfterLineLoss = 0;
+                int iCount = 0;
+                int id = 0;
+                string updateQry = "UPDATE uploading_file_generation s JOIN( ";
+
+                List<WindUploadedData> _WindUploadedData = await Context.GetData<WindUploadedData>(qry).ConfigureAwait(false);
+                foreach (WindUploadedData WindGeneration in _WindUploadedData)
+                {
+                    iCount++;
+                    id = WindGeneration.uploading_file_generation_id;
+                    dDaily_kwh = (double)WindGeneration.kwh;
+                    dWTG_Capacity = (double)WindGeneration.Capacity_mw;
+                    dCalculatedPLF = Math.Round(dDaily_kwh / (dWTG_Capacity * 1000 * 24) * 100, 6);
+                    dKWH_AfterLineLoss = Math.Round(dDaily_kwh - Math.Round(dDaily_kwh * dLineLoss / 100));
+                    if (iCount == 1)
+                    {
+                        updateQry += "SELECT " + id + " as id, " + dKWH_AfterLineLoss + " as new_kwh, " + dWTG_Capacity + " as wtg_capacity, " + dCalculatedPLF + " as new_plf";
+                    }
+                    else
+                    {
+                        updateQry += " UNION ALL ";
+                        updateQry += "SELECT " + id + ", " + dKWH_AfterLineLoss + ", " + dWTG_Capacity + ", " + dCalculatedPLF + "";
+                    }
+                }
+
+                updateQry += ") vals ON s.uploading_file_generation_id = vals.id";
+                updateQry += " SET kwh_afterloss = new_kwh, capacity_kw = wtg_capacity, plf = new_plf;";
+
+                if (iCount > 0)
+                {
+                    int result = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
+                    if (result > 0)
+                        response = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                string strEx = ex.ToString();
+                //pending : log error
+                throw;
+
+            }
+            return response;
+        }
+        string GetFY(string fromDate)
+        {
+            fromDate = "2022-03-28";
+            string sFY;
+            DateTime dt = Convert.ToDateTime(fromDate);
+            int year = dt.Year;
+            int month = dt.Month;
+            if (month >= 4)
+            {
+                int nextyear = year % 2000 + 1;
+                sFY = year + "-" + nextyear;
+            }
+            else
+            {
+
+                int prevyear = year - 1;
+                year = year % 2000;
+                sFY = prevyear + "-" + year;
+            }
+            return sFY;
+        }
+        private static readonly string[] Months = new[]
+        {
+            "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        };
+
+        string GetMonth(string fromDate)
+        {
+            DateTime dt = Convert.ToDateTime(fromDate);
+            int month = dt.Month;
+            string sMonth = Months[month - 1];
+            return sMonth;
+        }
+        string GetSiteFromSiteID(int site_id)
+        {
+            return "Badnawar";
+        }
+        private async Task<double> GetLineLoss(int site_id, string fromDate)
+        {
+            double dLineLoss = 0.65;
+            string fy = GetFY(fromDate);
+            string site = GetSiteFromSiteID(site_id);
+            string month = GetMonth(fromDate);
+
+            string filter = " fy='" + fy + "' ";
+
+            if (!string.IsNullOrEmpty(site) && site != "All")
+            {
+                // filter += " and site='" + site + "'";
+
+                string[] siteSplit = site.Split("~");
+                if (siteSplit.Length > 0)
+                {
+                    string sitesnames = "";
+                    for (int i = 0; i < siteSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(siteSplit[i]))
+                        {
+                            sitesnames += "'" + siteSplit[i] + "',";
+                        }
+                    }
+                    sitesnames = sitesnames.TrimEnd(',');
+                    filter += " and site in(" + sitesnames + ")";
+                }
+            }
+
+            if (!string.IsNullOrEmpty(month) && month != "All")
+            {
+                string[] monthSplit = month.Split("~");
+                if (monthSplit.Length > 0)
+                {
+                    string monthnames = "";
+                    for (int i = 0; i < monthSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(monthSplit[i]))
+                        {
+                            monthnames += "'" + monthSplit[i] + "',";
+                        }
+                    }
+                    monthnames = monthnames.TrimEnd(',');
+                    filter += " and month in(" + monthnames + ")";
+                }
+
+            }
+            string qry = @"SELECT  fy, month,site as Sites,line_loss as LineLoss FROM monthly_uploading_line_losses where " + filter;
+
+            List<WindMonthlyUploadingLineLosses> _WindMonthlyUploadingLineLosses = await Context.GetData<WindMonthlyUploadingLineLosses>(qry).ConfigureAwait(false);
+
+            foreach (WindMonthlyUploadingLineLosses WindMonthlyLineLosses in _WindMonthlyUploadingLineLosses)
+            {
+                dLineLoss = double.Parse(WindMonthlyLineLosses.LineLoss);
+                break;
+            }
+            return dLineLoss;
+        }
         /// <summary>
         /// This function calculates the KPI of the given WTG and update the KPI to uploading_file_generation table. 
         /// Approval function then copy this data to daily_generaition_summary table
@@ -3990,21 +4183,42 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         /// <param name="IGA_FormulaID"></param>
         /// <param name="EGA_FormulaID"></param>
         /// <returns></returns>
-        private async Task<bool> CalculateAndUpdateKPIs(int site_id, string fromDate, string sWTG_Name, double Final_USMH, double Final_SMH, double Final_IGBD, double Final_EGBD, double Final_OthersHour, double Final_LoadShedding, string MA_Actual_FormulaID, string MA_Contractual_FormulaID, string IGA_FormulaID, string EGA_FormulaID)
+        private async Task<bool> CalculateAndUpdateKPIs(int site_id, string fromDate, string sWTG_Name, TimeSpan Final_USMH_Time, TimeSpan Final_SMH_Time, TimeSpan Final_IGBD_Time, TimeSpan Final_EGBD_Time, TimeSpan Final_OthersHour_Time, TimeSpan Final_LoadShedding_Time, string MA_Actual_Formula, string MA_Contractual_Formula, string IGA_Formula, string EGA_Formula)
         {
             bool response = false;
+            double Final_USMH = 0;
+            double Final_SMH = 0;
+            double Final_IGBD = 0;
+            double Final_EGBD = 0;
+            double Final_LoadShedding = 0;
+            double Final_LULL = 0;
+            double Final_OthersHour = 0;
+            TimeSpan Get_Time;
             try
             {
                 string sLog = "Updating WTG <" + sWTG_Name + "> KPI paramters.";
                 //Pending : Log the result
 
-                double dMA_ACT = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Actual_FormulaID), 6);
-                double dMA_CON = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Contractual_FormulaID), 6);
-                double dIGA = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, IGA_FormulaID), 6);
-                double dEGA = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, EGA_FormulaID), 6);
+                Get_Time = Final_USMH_Time * 24;
+                Final_USMH = Get_Time.TotalDays;
+                Get_Time = Final_SMH_Time * 24;
+                Final_SMH = Get_Time.TotalDays;
+                Get_Time = Final_IGBD_Time * 24;
+                Final_IGBD = Get_Time.TotalDays;
+                Get_Time = Final_EGBD_Time * 24;
+                Final_EGBD = Get_Time.TotalDays;
+                Get_Time = Final_LoadShedding_Time * 24;
+                Final_LoadShedding = Get_Time.TotalDays;
+                Get_Time = Final_OthersHour_Time * 24;
+                Final_OthersHour = Get_Time.TotalDays;
+
+                double dMA_ACT = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Actual_Formula), 6);
+                double dMA_CON = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, MA_Contractual_Formula), 6);
+                double dIGA = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, IGA_Formula), 6);
+                double dEGA = Math.Round(GetCalculatedValue(Final_USMH, Final_SMH, Final_IGBD, Final_EGBD, Final_OthersHour, Final_LoadShedding, EGA_Formula), 6);
 
                 string qryUpdate = "UPDATE `uploading_file_generation` set ma_actual = " + dMA_ACT + ", ma_contractual = " + dMA_CON + ", iga = " + dIGA + ", ega = " + dEGA;
-                qryUpdate += ", unschedule_hrs = " + Final_USMH + ", schedule_hrs = " + Final_SMH + ", igbdh = " + Final_IGBD + ", egbdh = " + Final_EGBD + ", others = " + Final_OthersHour + ", load_shedding = " + Final_LoadShedding;
+                qryUpdate += ", unschedule_hrs = '" + Final_USMH_Time + "', schedule_hrs = '" + Final_SMH_Time + "', igbdh = '" + Final_IGBD_Time + "', egbdh = '" + Final_EGBD_Time + "', others = '" + Final_OthersHour_Time + "', load_shedding = '" + Final_LoadShedding_Time + "'";
                 qryUpdate += " where wtg = '" + sWTG_Name + "' and date = '" + fromDate + "'";
 
                 int result = await Context.ExecuteNonQry<int>(qryUpdate).ConfigureAwait(false);

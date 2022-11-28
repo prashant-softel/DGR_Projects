@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
+using System;
 using System.Collections;
 using System.IO;
 using System.Text;
@@ -11,9 +13,12 @@ namespace DGRA_V1.Models
     public class ErrorLog
     {
         ImportLog meta;
-        public ErrorLog(ImportLog newLog)
+
+        private IWebHostEnvironment env ;
+        public ErrorLog(ImportLog newLog, IWebHostEnvironment obj)
         {
             meta = newLog;
+            env = obj;
         }
         ~ErrorLog()
         {
@@ -133,9 +138,11 @@ namespace DGRA_V1.Models
                 content.AppendLine(sMessage);
             }
 
+            string projectRootPath = env.ContentRootPath;
             DateTime today = DateTime.Now;
             csvPath += "_" + today.ToString("dd-MM-yyyy") + "_" + today.ToString("hh-mm-ss") + ".csv";
             meta.importLogName = csvPath;
+            csvPath = projectRootPath+ @"\FileLog\" + csvPath;
             File.AppendAllText(csvPath, Convert.ToString(content));
             sMessage = "Total errors <" + errorCount + ">";
 

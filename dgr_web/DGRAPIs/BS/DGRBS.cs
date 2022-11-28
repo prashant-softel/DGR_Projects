@@ -14,16 +14,12 @@ namespace DGRAPIs.BS
         Task<List<DailyGenSummary>> GetWindDailyGenSummary(string fromDate, string ToDate);
         Task<List<WindDashboardData>> GetWindDashboardData(string startDate, string endDate, string FY, string sites);
         Task<List<WindDashboardData>> GetWindDashboardDataByLastDay(string startDate, string endDate, string FY, string sites, string date);
-
         Task<List<WindDashboardData>> GetWindDashboardDataByCurrentMonth(string startDate, string endDate, string FY, string sites, string month);
         Task<List<WindDashboardData>> GetWindDashboardDataByYearly(string startDate, string endDate, string FY, string sites);
-
         Task<List<SolarDashboardData>> GetSolarDashboardData(string startDate, string endDate, string FY, string sites);
-
         Task<List<SolarDashboardData>> GetSolarDashboardDataByLastDay(string startDate, string endDate, string FY, string sites, string date);
         Task<List<SolarDashboardData>> GetSolarDashboardDataByCurrentMonth(string startDate, string endDate, string FY, string sites, string month);
         Task<List<SolarDashboardData>> GetSolarDashboardDataByYearly(string startDate, string endDate, string FY, string sites);
-
         Task<List<WindSiteMaster>> GetWindSiteMaster();
         Task<List<WindLocationMaster>> GetWindLocationMaster();
         Task<List<SolarSiteMaster>> GetSolarSiteMaster();

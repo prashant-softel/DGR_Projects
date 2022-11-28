@@ -1,21 +1,14 @@
 ﻿using DGRA_V1.Models;
 using DGRA_V1.Repository.Interface;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Microsoft.Graph;
 using Microsoft.Identity.Web;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -24,7 +17,7 @@ using System.Threading.Tasks;
 namespace DGRA_V1.Controllers
 {
 
-   // [Authorize]
+    // [Authorize]
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
@@ -43,19 +36,19 @@ namespace DGRA_V1.Controllers
 
         public object GetWindDailyGenSummary { get; private set; }
         public JsonSerializerOptions _options { get; private set; }
-       
-       // private readonly GraphServiceClient _graphServiceClient;
+
+        // private readonly GraphServiceClient _graphServiceClient;
         // TEST A 123456789
-      //  public HomeController(ILogger<HomeController> logger, IDapperRepository idapperRepo, GraphServiceClient graphServiceClient)
-       // {
+        //  public HomeController(ILogger<HomeController> logger, IDapperRepository idapperRepo, GraphServiceClient graphServiceClient)
+        // {
         //    _logger = logger;
-          //  _idapperRepo = idapperRepo;
+        //  _idapperRepo = idapperRepo;
 
-       // }
-      
+        // }
 
 
-      
+
+
         //public IActionResult Index()
         //{
         //    return View();
@@ -83,15 +76,15 @@ namespace DGRA_V1.Controllers
             //{
             //    return RedirectToAction("Dashbord");
             //}
-          //  HttpContext.Session.SetString("product", "laptop");
+            //  HttpContext.Session.SetString("product", "laptop");
 
             return View();
         }
 
 
         [AuthorizeForScopes(ScopeKeySection = "DownstreamApi:Scopes")]
-      
-        public async Task<IActionResult> SSOLogin ()
+
+        public async Task<IActionResult> SSOLogin()
         {
             var user = await _graphServiceClient.Me.Request().GetAsync();
             ViewBag.Username = "";
@@ -106,7 +99,7 @@ namespace DGRA_V1.Controllers
             ViewData["ApiResult"] = user.DisplayName;
             if (!string.IsNullOrEmpty(user.DisplayName))
             {
-               
+
                 if (user.DisplayName == "Sujit")
                 {
                     TempData["name"] = "Sujit Kumar";
@@ -154,7 +147,7 @@ namespace DGRA_V1.Controllers
         [Authorize]
         public IActionResult Dashbord()
         {
-           
+
             //return RedirectToAction("Dashbord", "Home");
             return View();
             //return RedirectToAction("Upload", "FileUpload");
@@ -481,7 +474,6 @@ namespace DGRA_V1.Controllers
             }
             if (Name == "prashant")
             {
-
                 TempData["name"] = "Prashant Shetye";
                 TempData["role"] = "Admin";
                 TempData["userid"] = "2";
@@ -491,33 +483,33 @@ namespace DGRA_V1.Controllers
 
         public IActionResult ImportApproval()
         {
-           
-          String Name =  HttpContext.Session.GetString("DisplayName");
-           
+
+            String Name = HttpContext.Session.GetString("DisplayName");
+
             if (Name == "Sujit")
             {
                 TempData["name"] = "Sujit Kumar";
                 TempData["role"] = "User";
                 TempData["userid"] = "1";
-              
+
             }
             if (Name == "prashant")
             {
-               
+
                 TempData["name"] = "Prashant Shetye";
                 TempData["role"] = "Admin";
                 TempData["userid"] = "2";
             }
-           
+
             return View();
         }
-        public async Task<IActionResult> WindNewUserRegister(string fname,string useremail,string role, string created_on)
+        public async Task<IActionResult> WindNewUserRegister(string fname, string useremail, string role, string created_on)
         {
             string line = "";
             try
             {
                 //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
-                var url = "http://localhost:23835/api/Login/WindUserRegistration?fname=" + fname + "&useremail=" + useremail + "&role=" + role+ "&created_on="+ created_on + "";
+                var url = "http://localhost:23835/api/Login/WindUserRegistration?fname=" + fname + "&useremail=" + useremail + "&role=" + role + "&created_on=" + created_on + "";
                 WebRequest request = WebRequest.Create(url);
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
                 {
@@ -541,7 +533,7 @@ namespace DGRA_V1.Controllers
             try
             {
                 //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
-                var url = "http://localhost:23835/api/Login/GetWindUserInformation?login_id="+ login_id;
+                var url = "http://localhost:23835/api/Login/GetWindUserInformation?login_id=" + login_id;
                 WebRequest request = WebRequest.Create(url);
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
                 {
@@ -579,9 +571,9 @@ namespace DGRA_V1.Controllers
             }
             return View();
         }
-		public IActionResult SolarGenView()
+        public IActionResult SolarGenView()
         {
-		   String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -601,7 +593,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarDailyTargetKPIView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -621,7 +613,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarDailyLoadSheddingView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -641,7 +633,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarMonthlyTargetKPIView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -661,7 +653,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarMonthlyLinelossView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -681,7 +673,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarMonthlyJMRView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -701,7 +693,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarAcDcCapacityView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -722,7 +714,7 @@ namespace DGRA_V1.Controllers
         // Report Routs
         public IActionResult SolarGenReport()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -742,7 +734,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarBDReport()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -762,7 +754,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarSiteMaster()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -782,7 +774,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarLocationMaster()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -802,7 +794,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarPRReport()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
+            String Name = HttpContext.Session.GetString("DisplayName");
 
             if (Name == "Sujit")
             {
@@ -822,7 +814,7 @@ namespace DGRA_V1.Controllers
         }
         public ActionResult WindUserDetails(string id)
         {
-           return RedirectToAction("WindUserView", new { id });
+            return RedirectToAction("WindUserView", new { id });
         }
         public async Task<ActionResult> Logout(string username, string pass)
         {

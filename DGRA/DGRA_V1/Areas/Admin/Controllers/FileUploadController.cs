@@ -1,6 +1,7 @@
 ﻿using DGRA_V1.Common;
 using DGRA_V1.Models;
 using DGRA_V1.Repository.Interface;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -21,17 +22,19 @@ namespace DGRA_V1.Areas.admin.Controllers
     [Area("admin")]
     public class FileUploadController : Controller
     {
+        ImportLog meta = new ImportLog();
         private IDapperRepository _idapperRepo;
-        public FileUploadController(IDapperRepository idapperRepo)
+        private IWebHostEnvironment env;
+        public FileUploadController(IDapperRepository idapperRepo, IWebHostEnvironment obj)
         {
             _idapperRepo = idapperRepo;
-            m_ErrorLog = new ErrorLog(meta);
+            m_ErrorLog = new ErrorLog(meta,obj);
+            env = obj;
         }
         static string[] importData = new string[2];
         ArrayList kpiArgs = new ArrayList();
         //WindUploadingFileValidation m_ValidationObject;
         ErrorLog m_ErrorLog;
-        ImportLog meta = new ImportLog();
         // static string[] importData = new string[2];
 
         Hashtable equipmentId = new Hashtable();
@@ -100,6 +103,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
         public async Task<string> ExcelDataReaderAndUpload(IFormFile file, string fileUpload)
         {
+            var saveFile = file;
             OleDbConnection oconn = null;
             importData[0] = fileUpload;
             string status = "";
@@ -114,14 +118,15 @@ namespace DGRA_V1.Areas.admin.Controllers
                         DirectoryInfo dinfo = Directory.CreateDirectory(@"\TempFile");
                     }
                     // HttpContext.Current.Server.MapPath(@"~" + @"\TempFile");
-                    /* if (!Directory.Exists(Server.MapPath(@"~" + @"\TempFile")))
-                     {
-                         DirectoryInfo dinfo = Directory.CreateDirectory(Server.MapPath(@"~" + @"\TempFile"));
-                     }*/
+                    //if (!Directory.Exists(Server.MapPath(@"~" + @"\TempFile")))
+                    //{
+                    //    DirectoryInfo dinfo = Directory.CreateDirectory(Server.MapPath(@"~" + @"\TempFile"));
+                    //}
                     else
                     {
                         string tempName = file.FileName;
                         importData[1] = tempName;//Server.MapPath("/" + tempName);
+
                         string[] filePaths = Directory.GetFiles(@"\TempFile");
                         if (filePaths.Length > 0)
                         {
@@ -675,6 +680,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                             {
                                 m_ErrorLog.SetInformation(",Import Operation Complete :");
                                 m_ErrorLog.SaveToCSV(importData[1]);
+                                await UploadFile(saveFile);
                                 await importMetaData(importData[0], importData[1]);
                                 if (fileSheets.Contains("Uploading_File_Generation$") || fileSheets.Contains("Uploading_File_Breakdown$"))
                                 {
@@ -685,6 +691,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                                         {
                                             await client.GetAsync(url);
                                         }
+
+
                                     }
                                     
                                 }
@@ -1804,7 +1812,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             var json = JsonConvert.SerializeObject(meta);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            //var url = "http://localhost:23835/api/DGR/importMetaData";
             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/importMetaData";
             using (var client = new HttpClient())
             {
@@ -1944,7 +1951,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             //gets siteId from wtg(equipment) in Wind Location Master
 
             DataTable dTable = new DataTable();
-            //var url = "http://localhost:23835/api/DGR/GetWindLocationMaster";
             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindLocationMaster";
             var result = string.Empty;
             WebRequest request = WebRequest.Create(url);
@@ -1963,6 +1969,20 @@ namespace DGRA_V1.Areas.admin.Controllers
             {
                 eqSiteId.Add((string)dr["wtg"], Convert.ToInt32(dr["site_master_id"]));
             }
+        }
+        private async Task<bool> UploadFile(IFormFile ufile)
+        {
+            if (ufile != null && ufile.Length > 0)
+            {
+                var fileName = Path.GetFileName(ufile.FileName);
+                var filePath = env.ContentRootPath + @"\ImportedFile\" + fileName;
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ufile.CopyToAsync(fileStream);
+                }
+                return true;
+            }
+            return false;
         }
     }
 }
