@@ -28,7 +28,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         public FileUploadController(IDapperRepository idapperRepo, IWebHostEnvironment obj)
         {
             _idapperRepo = idapperRepo;
-            m_ErrorLog = new ErrorLog(meta,obj);
+            m_ErrorLog = new ErrorLog(meta, obj);
             env = obj;
         }
         static string[] importData = new string[2];
@@ -42,6 +42,8 @@ namespace DGRA_V1.Areas.admin.Controllers
         Hashtable siteNameId = new Hashtable(); //(C)Gets siteId from siteName
         Hashtable siteName = new Hashtable(); //(D)Gets siteName from siteId
         Hashtable eqSiteId = new Hashtable();//(E)Gets siteId from (wtg)equipmentName
+        Hashtable MonthList = new Hashtable(){{"Jan",1},{"Feb",2},{"Mar",3},{"Apr",4},{"May",5},{"Jun",6},{"Jul",7},{"Aug",8},{"Sept",9},{"Oct",10},{"Nov",11},{"Dec",12}};
+
         /*~FileUploadController()
         {
             //Destructor
@@ -170,7 +172,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                 if (fileUpload == "Wind")
                                 {
                                     masterHashtable_WtgToWtgId();
-                                    masterHashtable_SiteIdToSiteName();
+                                    masterHashtable_SiteIdToSiteName(); 
                                     masterHashtable_BDNameToBDId();
                                     masterHashtable_WtgToSiteId();
                                 }
@@ -686,7 +688,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                 {
                                     if (fileUpload == "Wind")
                                     {
-                                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(kpiArgs[0]).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(kpiArgs[1]).ToString("yyyy-MM-dd") + "&site=" + (string)kpiArgs[2] + "";
+                                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(kpiArgs[0]).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(kpiArgs[1]).ToString("yyyy-MM-dd") + "&site=" + (string)kpiArgs[2] + "&logFileName=" + meta.importLogName + "";
                                         using (var client = new HttpClient())
                                         {
                                             await client.GetAsync(url);
@@ -694,7 +696,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
 
                                     }
-                                    
+
                                 }
                             }
                             else
@@ -793,9 +795,9 @@ namespace DGRA_V1.Areas.admin.Controllers
             bool errorFlag = false;
             int errorCount = 0;
             DateTime fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
-            DateTime toDate= Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+            DateTime toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
             DateTime nextDate;
-            string site="";
+            string site = "";
             WindUploadingFileValidation validationObject = new WindUploadingFileValidation(m_ErrorLog);
 
             if (ds.Tables.Count > 0)
@@ -813,7 +815,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                     meta.importSiteId = addUnit.site_id;
                     nextDate = Convert.ToDateTime(dr["Date"]);
                     fromDate = ((nextDate < fromDate) ? (nextDate) : (fromDate));
-                    toDate = (nextDate > toDate) ? (nextDate) :(toDate);
+                    toDate = (nextDate > toDate) ? (nextDate) : (toDate);
                     site = Convert.ToString(addUnit.site_id);
                     addUnit.wind_speed = Convert.ToDecimal(dr["Wind_Speed"]);
                     addUnit.kwh = Convert.ToDecimal(dr["kWh"]);
@@ -1286,16 +1288,19 @@ namespace DGRA_V1.Areas.admin.Controllers
                     WindMonthlyUploadingLineLosses addUnit = new WindMonthlyUploadingLineLosses();
                     addUnit.fy = Convert.ToString(dr["FY"]);
                     addUnit.site = Convert.ToString(dr["Site"]);
-                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
-                    //meta.importSiteId = addUnit.site_id;//C
-
+                    addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    meta.importSiteId = addUnit.site_id;//C
                     addUnit.month = Convert.ToString(dr["Month"]);
+                    addUnit.month_number = Convert.ToInt32(MonthList[addUnit.month]);
+                    int hiphen = addUnit.fy.IndexOf("-");
+                    hiphen += 1;
+                    int finalYear = Convert.ToInt32("20"+addUnit.fy.Substring(hiphen));
+                    addUnit.year = (addUnit.month_number>3)?finalYear-=1:finalYear; 
                     addUnit.lineLoss = Convert.ToString(dr["Line Loss"]);
                     addSet.Add(addUnit);
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                //var url = "http://localhost:23835/api/DGR/InsertMonthlyUploadingLineLosses";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertMonthlyUploadingLineLosses";
                 using (var client = new HttpClient())
                 {

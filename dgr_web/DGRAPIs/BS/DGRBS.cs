@@ -38,7 +38,7 @@ namespace DGRAPIs.BS
         Task<List<WindPerformanceReports>> GetWindPerformanceReportSiteWise(string fy, string fromDate, string todate);
         Task<List<WindPerformanceReports>> GetWindPerformanceReportBySPVWise(string fy, string fromDate, string todate);
         Task<List<SolarDailyBreakdownReport>> GetSolarDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site);
-        Task<bool> CalculateDailyWindKPI(string fromDate, string toDate, string site);
+        Task<bool> CalculateDailyWindKPI(string fromDate, string toDate, string site, string logFileName);
 
         Task<int> InsertDailyTargetKPI(List<WindDailyTargetKPI> set);
         Task<int> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> set);
@@ -561,13 +561,13 @@ namespace DGRAPIs.BS
             }
         }
 
-        public async Task<bool> CalculateDailyWindKPI(string fromDate, string toDate, string site)
+        public async Task<bool> CalculateDailyWindKPI(string fromDate, string toDate, string site, string logFileName)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.CalculateDailyWindKPI(fromDate, toDate, site);
+                    return await repos.CalculateDailyWindKPI(fromDate, toDate, site, logFileName);
                 }
             }
             catch (Exception ex)
