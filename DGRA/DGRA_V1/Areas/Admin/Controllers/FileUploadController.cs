@@ -1,6 +1,7 @@
 ﻿using DGRA_V1.Common;
 using DGRA_V1.Models;
 using DGRA_V1.Repository.Interface;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
@@ -21,16 +22,19 @@ namespace DGRA_V1.Areas.admin.Controllers
     [Area("admin")]
     public class FileUploadController : Controller
     {
+        ImportLog meta = new ImportLog();
         private IDapperRepository _idapperRepo;
-        public FileUploadController(IDapperRepository idapperRepo)
+        private IWebHostEnvironment env;
+        public FileUploadController(IDapperRepository idapperRepo, IWebHostEnvironment obj)
         {
             _idapperRepo = idapperRepo;
-            m_ErrorLog = new ErrorLog(meta);
+            m_ErrorLog = new ErrorLog(meta, obj);
+            env = obj;
         }
         static string[] importData = new string[2];
+        ArrayList kpiArgs = new ArrayList();
         //WindUploadingFileValidation m_ValidationObject;
         ErrorLog m_ErrorLog;
-        ImportLog meta = new ImportLog();
         // static string[] importData = new string[2];
 
         Hashtable equipmentId = new Hashtable();
@@ -38,6 +42,8 @@ namespace DGRA_V1.Areas.admin.Controllers
         Hashtable siteNameId = new Hashtable(); //(C)Gets siteId from siteName
         Hashtable siteName = new Hashtable(); //(D)Gets siteName from siteId
         Hashtable eqSiteId = new Hashtable();//(E)Gets siteId from (wtg)equipmentName
+        Hashtable MonthList = new Hashtable(){{"Jan",1},{"Feb",2},{"Mar",3},{"Apr",4},{"May",5},{"Jun",6},{"Jul",7},{"Aug",8},{"Sept",9},{"Oct",10},{"Nov",11},{"Dec",12}};
+
         /*~FileUploadController()
         {
             //Destructor
@@ -99,6 +105,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
         public async Task<string> ExcelDataReaderAndUpload(IFormFile file, string fileUpload)
         {
+            var saveFile = file;
             OleDbConnection oconn = null;
             importData[0] = fileUpload;
             string status = "";
@@ -113,14 +120,15 @@ namespace DGRA_V1.Areas.admin.Controllers
                         DirectoryInfo dinfo = Directory.CreateDirectory(@"\TempFile");
                     }
                     // HttpContext.Current.Server.MapPath(@"~" + @"\TempFile");
-                    /* if (!Directory.Exists(Server.MapPath(@"~" + @"\TempFile")))
-                     {
-                         DirectoryInfo dinfo = Directory.CreateDirectory(Server.MapPath(@"~" + @"\TempFile"));
-                     }*/
+                    //if (!Directory.Exists(Server.MapPath(@"~" + @"\TempFile")))
+                    //{
+                    //    DirectoryInfo dinfo = Directory.CreateDirectory(Server.MapPath(@"~" + @"\TempFile"));
+                    //}
                     else
                     {
                         string tempName = file.FileName;
                         importData[1] = tempName;//Server.MapPath("/" + tempName);
+
                         string[] filePaths = Directory.GetFiles(@"\TempFile");
                         if (filePaths.Length > 0)
                         {
@@ -164,7 +172,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                 if (fileUpload == "Wind")
                                 {
                                     masterHashtable_WtgToWtgId();
-                                    masterHashtable_SiteIdToSiteName();
+                                    masterHashtable_SiteIdToSiteName(); 
                                     masterHashtable_BDNameToBDId();
                                     masterHashtable_WtgToSiteId();
                                 }
@@ -674,7 +682,22 @@ namespace DGRA_V1.Areas.admin.Controllers
                             {
                                 m_ErrorLog.SetInformation(",Import Operation Complete :");
                                 m_ErrorLog.SaveToCSV(importData[1]);
+                                await UploadFile(saveFile);
                                 await importMetaData(importData[0], importData[1]);
+                                if (fileSheets.Contains("Uploading_File_Generation$") || fileSheets.Contains("Uploading_File_Breakdown$"))
+                                {
+                                    if (fileUpload == "Wind")
+                                    {
+                                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(kpiArgs[0]).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(kpiArgs[1]).ToString("yyyy-MM-dd") + "&site=" + (string)kpiArgs[2] + "&logFileName=" + meta.importLogName + "";
+                                        using (var client = new HttpClient())
+                                        {
+                                            await client.GetAsync(url);
+                                        }
+
+
+                                    }
+
+                                }
                             }
                             else
                             {
@@ -772,9 +795,9 @@ namespace DGRA_V1.Areas.admin.Controllers
             bool errorFlag = false;
             int errorCount = 0;
             DateTime fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
-            DateTime toDate= Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+            DateTime toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
             DateTime nextDate;
-            string site="";
+            string site = "";
             WindUploadingFileValidation validationObject = new WindUploadingFileValidation(m_ErrorLog);
 
             if (ds.Tables.Count > 0)
@@ -792,7 +815,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                     meta.importSiteId = addUnit.site_id;
                     nextDate = Convert.ToDateTime(dr["Date"]);
                     fromDate = ((nextDate < fromDate) ? (nextDate) : (fromDate));
-                    toDate = (nextDate > toDate) ? (nextDate) :(toDate);
+                    toDate = (nextDate > toDate) ? (nextDate) : (toDate);
                     site = Convert.ToString(addUnit.site_id);
                     addUnit.wind_speed = Convert.ToDecimal(dr["Wind_Speed"]);
                     addUnit.kwh = Convert.ToDecimal(dr["kWh"]);
@@ -819,8 +842,9 @@ namespace DGRA_V1.Areas.admin.Controllers
                         if (response.IsSuccessStatusCode)
                         {
                             status = "Successfully uploaded";
-                            url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(fromDate).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(toDate).ToString("yyyy-MM-dd") + "&site=" + site + "";
-                            await client.GetAsync(url);
+                            kpiArgs.Add(fromDate);
+                            kpiArgs.Add(toDate);
+                            kpiArgs.Add(site);
                         }
                         else
                         {
@@ -1264,16 +1288,19 @@ namespace DGRA_V1.Areas.admin.Controllers
                     WindMonthlyUploadingLineLosses addUnit = new WindMonthlyUploadingLineLosses();
                     addUnit.fy = Convert.ToString(dr["FY"]);
                     addUnit.site = Convert.ToString(dr["Site"]);
-                    //addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
-                    //meta.importSiteId = addUnit.site_id;//C
-
+                    addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                    meta.importSiteId = addUnit.site_id;//C
                     addUnit.month = Convert.ToString(dr["Month"]);
+                    addUnit.month_number = Convert.ToInt32(MonthList[addUnit.month]);
+                    int hiphen = addUnit.fy.IndexOf("-");
+                    hiphen += 1;
+                    int finalYear = Convert.ToInt32("20"+addUnit.fy.Substring(hiphen));
+                    addUnit.year = (addUnit.month_number>3)?finalYear-=1:finalYear; 
                     addUnit.lineLoss = Convert.ToString(dr["Line Loss"]);
                     addSet.Add(addUnit);
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                //var url = "http://localhost:23835/api/DGR/InsertMonthlyUploadingLineLosses";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertMonthlyUploadingLineLosses";
                 using (var client = new HttpClient())
                 {
@@ -1399,7 +1426,6 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-                //var url = "http://localhost:23835/api/DGR/InsertSolarDailyLoadShedding";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarDailyLoadShedding";
                 using (var client = new HttpClient())
                 {
@@ -1791,7 +1817,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             var json = JsonConvert.SerializeObject(meta);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            //var url = "http://localhost:23835/api/DGR/importMetaData";
             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/importMetaData";
             using (var client = new HttpClient())
             {
@@ -1931,7 +1956,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             //gets siteId from wtg(equipment) in Wind Location Master
 
             DataTable dTable = new DataTable();
-            //var url = "http://localhost:23835/api/DGR/GetWindLocationMaster";
             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindLocationMaster";
             var result = string.Empty;
             WebRequest request = WebRequest.Create(url);
@@ -1950,6 +1974,20 @@ namespace DGRA_V1.Areas.admin.Controllers
             {
                 eqSiteId.Add((string)dr["wtg"], Convert.ToInt32(dr["site_master_id"]));
             }
+        }
+        private async Task<bool> UploadFile(IFormFile ufile)
+        {
+            if (ufile != null && ufile.Length > 0)
+            {
+                var fileName = Path.GetFileName(ufile.FileName);
+                var filePath = env.ContentRootPath + @"\ImportedFile\" + fileName;
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await ufile.CopyToAsync(fileStream);
+                }
+                return true;
+            }
+            return false;
         }
     }
 }

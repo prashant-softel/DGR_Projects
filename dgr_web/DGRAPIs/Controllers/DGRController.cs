@@ -51,7 +51,6 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
         #region get Masters
 
         [Route("GetWindSiteMaster")]
@@ -616,11 +615,11 @@ namespace DGRAPIs.Controllers
 
         [Route("CalculateDailyWindKPI")]
         [HttpGet]
-        public async Task<IActionResult> CalculateDailyWindKPI(string fromDate, string toDate, string site)
+        public async Task<IActionResult> CalculateDailyWindKPI(string fromDate, string toDate, string site, string logFileName)
         {
             try
             {
-                var data = await _dgrBs.CalculateDailyWindKPI(fromDate, toDate, site);
+                var data = await _dgrBs.CalculateDailyWindKPI(fromDate, toDate, site, logFileName);
                 return Ok(data);
 
             }

@@ -9,7 +9,13 @@ namespace DGRAPIs.Models
     public class ImportLog
     {
         public string importFilePath { get; set; }
+        public int importSiteId { get; set; }
         public string importType { get; set; }
         public string importLogName { get; set; }
+    }
+
+    public class BatchIdImport
+    { 
+        public int import_log_id{ get; set; }
     }
 }

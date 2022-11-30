@@ -1,5 +1,5 @@
 ﻿@{
-    ViewData["Title"] = "Wind Daily Load Shedding";
+    ViewData["Title"] = "Import Approval";
 }
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -35,19 +35,19 @@
 
     <section class="content">
 
-       
+
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title text-center">Import Data Approval</h3>
 
                 <!--<div class="card-tools">
-                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                    <i class="fas fa-minus"></i>
-                </button>
-                <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>-->
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>-->
             </div>
             <div class="card-body">
                 <div class="row">
@@ -171,230 +171,233 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <script type="text/javascript">
 
-/* $(function () {
+    /* $(function () {
 
-        $('#chkveg').multiselect({
-            includeSelectAllOption: true
-        });
+            $('#chkveg').multiselect({
+                includeSelectAllOption: true
+            });
 
-    $('#btnget').click(function () {
-        alert($('#chkveg').val());
-        });
-    });*/
+        $('#btnget').click(function () {
+            alert($('#chkveg').val());
+            });
+        });*/
 
-$(document).ready(function () {
-    $('#daterange').daterangepicker(
-        {
-            locale: {
-                format: 'DD/MM/YYYY',
-            }
-    });
-});
-
-window.onload = function () {
-    var state = "";
-    var spv = "";
-    $.ajax({
-        type: "GET",
-        url: "/WindReport/GetSiteList",
-        contentType: "application/json; charset=utf-8",
-        //data: '{"state":"' + val + '"}',
-        datatype: "html",
-        success: function (result, status, xhr) {
-            var options = "";
-            options += '<option value="">Select Site</option>';
-            options += '<option value="0">All Site</option>';
-            for (var k = 0; k < result.length; k++) {
-                options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
-            }
-            $("#site").html(options);
-        }
-    });
-}
-
-function getReport() {
-    var site = $('select#site option:selected').val();
-    var status = $('select#status option:selected').val();
-    var importType = $('select#importType option:selected').val();
-    var daterange = $('#daterange').val();
-    var arr1 = new Array();
-    arr1 = daterange.split("-");
-    var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
-    var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-    // var fromDate = "2021-04-14";
-    //var toDate = "2021-04-20";
-    $.ajax({
-        type: "GET",
-        url: "/WindView/GetImportBatches?importFromDate=" + fromDate + "&importToDate=" + toDate + "&siteId=" + site + "&importType=" + importType + "&status=" + status,
-        contentType: "application/json; charset=utf-8",
-        //data: '{"state":"' + val + '"}',
-        datatype: "JSON",
-        success: function (result, status, xhr) {
-            //console.log(result);
-            var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
-            tbl += '<thead class="tbl-head"><tr>';
-            tbl += '<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>';
-            tbl += '<th>Site</th>';
-            tbl += '<th style="width:100px">Import Date</th>';
-            tbl += '<th>File Name</th>';
-            tbl += '<th>Impo. By</th>';
-            tbl += '<th>Status</th>';
-            tbl += '<th>App. Date</th>';
-            tbl += '<th>App. By</th>';
-            tbl += '<th>Rej Date</th>';
-            tbl += '<th>Rej. By</th>';
-            tbl += '<th>Action</th>';
-            tbl += '</tr></thead>';
-
-            if (result.length > 0) {
-                for (var i = 0; i < result.length; i++) {
-                    var arr2 = new Array();
-                    arr2 = result[i].file_name.split("\\");
-                    var formattedDate = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                    var status = "";
-                    var isDisable = "";
-                    if (result[i].is_approved == 0) {
-                        status = "Waiting for Approve";
-                        isDisable = "";
-                    }
-                    if (result[i].is_approved == 1) {
-                        status = "Approved";
-                        isDisable = "disabled";
-                    }
-                    if (result[i].is_approved == 2) {
-                        status = "Rejected";
-                        isDisable = "disabled";
-                    }
-                   // console.log(status);
-                    tbl += '<tr>';
-                    tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_log_id + '" data-id=' + result[i].import_log_id + ' style="margin-left: 0rem;" ' + isDisable + '></td>';
-                    tbl += '<td>' + result[i].site_name + '</td>';
-                    tbl += '<td>' + formattedDate + '</td>';
-                    tbl += '<td>' + arr2[5] + '</td>';
-                    tbl += '<td>' + result[i].import_by_name + '</td>';
-                    tbl += '<td>' + status + '</td>';
-                    if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
-                        var formattedDate1 = '';
-                    }
-                    else {
-                        var formattedDate1 = moment(result[i].approval_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                    }
-                    var approval_name = "";
-                    if (result[i].approved_by == 0) {
-                        approval_name = "";
-                    }
-                    else {
-                        approval_name = result[i].approved_by_name;
-                    }
-                    if (result[i].rejected_date == '0001-01-01T00:00:00' || result[i].rejected_date == null) {
-                        var formattedDate2 = '';
-                    }
-                    else {
-                        var formattedDate2 = moment(result[i].rejected_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                    }
-                    var rejected_name = "";
-                    if (result[i].rejected_by == 0) {
-                        rejected_name = "";
-                    }
-                    else {
-                        rejected_name = result[i].rejected_by_name;
-                    }
-                    tbl += '<td>' + formattedDate1 + '</td>';
-                    tbl += '<td>' + approval_name + '</td>';
-                    tbl += '<td>' + formattedDate2 + '</td>';
-                    tbl += '<td>' + rejected_name + '</td>';
-                    tbl += '<td style="width:250px"><div style="width: 48%;float: left;"><a href="#" class="btn btn-info" onclick="ViewGenData(' + result[i].import_log_id +')"  data-toggle="modal" data-target="#modal-xl">Generation</a></div>';
-                    tbl += '<div style="width: 48%;float: left;"><a href="#" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_log_id +')" data-toggle="modal" data-target="#modal-xl" >Breakdown</a></div>';
-                  
-                    tbl += '</td ></tr>';
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
                 }
+            });
+    });
+
+    window.onload = function () {
+        var state = "";
+        var spv = "";
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetSiteList",
+            contentType: "application/json; charset=utf-8",
+            //data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                options += '<option value="">Select Site</option>';
+                options += '<option value="0">All Site</option>';
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").html(options);
             }
-        else {
-                //tbl += '<tr><th colspan="7" style="text-align:center">Data Not Available <th></tr>';
-            }
-            tbl += '</table>';
-            $("#LogData").html(tbl);
-            $.noConflict();
-            $('#example1').DataTable({
-                "responsive": true, "lengthChange": false, "autoWidth": false,
-                "buttons": ["csv", "excel", "colvis"],
-                "paging": true,
-                "lengthChange": false,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "responsive": true,
+        });
+    }
+
+    function getReport() {
+        var site = $('select#site option:selected').val();
+        var status = $('select#status option:selected').val();
+        var importType = $('select#importType option:selected').val();
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        // var fromDate = "2021-04-14";
+        //var toDate = "2021-04-20";
+        $.ajax({
+            type: "GET",
+            url: "/WindView/GetImportBatches?importFromDate=" + fromDate + "&importToDate=" + toDate + "&siteId=" + site + "&importType=" + importType + "&status=" + status,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"state":"' + val + '"}',
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                //console.log(result);
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th style="width:100px">Import Date</th>';
+                tbl += '<th>File Name</th>';
+                tbl += '<th>Impo. By</th>';
+                tbl += '<th>Status</th>';
+                tbl += '<th>App. Date</th>';
+                tbl += '<th>App. By</th>';
+                tbl += '<th>Rej Date</th>';
+                tbl += '<th>Rej. By</th>';
+                tbl += '<th>Action</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        var arr2 = new Array();
+                        arr2 = result[i].file_name.split("\\");
+                        var formattedDate = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        var status = "";
+                        var isDisable = "";
+                        if (result[i].is_approved == 0) {
+                            status = "Waiting for Approve";
+                            isDisable = "";
+                        }
+                        if (result[i].is_approved == 1) {
+                            status = "Approved";
+                            isDisable = "disabled";
+                        }
+                        if (result[i].is_approved == 2) {
+                            status = "Rejected";
+                            isDisable = "disabled";
+                        }
+                        // console.log(status);
+                        tbl += '<tr>';
+                        tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_log_id + '" data-id=' + result[i].import_log_id + ' style="margin-left: 0rem;" ' + isDisable + '></td>';
+                        tbl += '<td>' + result[i].site_name + '</td>';
+                        tbl += '<td>' + formattedDate + '</td>';
+                        tbl += '<td>' + arr2[5] + '</td>';
+                        tbl += '<td>' + result[i].import_by_name + '</td>';
+                        tbl += '<td>' + status + '</td>';
+                        if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
+                            var formattedDate1 = '';
+                        }
+                        else {
+                            var formattedDate1 = moment(result[i].approval_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        }
+                        var approval_name = "";
+                        if (result[i].approved_by == 0) {
+                            approval_name = "";
+                        }
+                        else {
+                            approval_name = result[i].approved_by_name;
+                        }
+                        if (result[i].rejected_date == '0001-01-01T00:00:00' || result[i].rejected_date == null) {
+                            var formattedDate2 = '';
+                        }
+                        else {
+                            var formattedDate2 = moment(result[i].rejected_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        }
+                        var rejected_name = "";
+                        if (result[i].rejected_by == 0) {
+                            rejected_name = "";
+                        }
+                        else {
+                            rejected_name = result[i].rejected_by_name;
+                        }
+                        tbl += '<td>' + formattedDate1 + '</td>';
+                        tbl += '<td>' + approval_name + '</td>';
+                        tbl += '<td>' + formattedDate2 + '</td>';
+                        tbl += '<td>' + rejected_name + '</td>';
+                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewGenData(' + result[i].import_log_id + ')"  data-toggle="modal" data-target="#modal-xl">G</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_log_id + ')" data-toggle="modal" data-target="#modal-xl" >B</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Imported File" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_log_id + ')" data-toggle="modal" data-target="#modal-xl" >F</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Log" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_log_id + ')" data-toggle="modal" data-target="#modal-xl" >L</a></div>';
+                        tbl += '</td ></tr>';
+                    }
+                }
+                else {
+                    //tbl += '<tr><th colspan="7" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#LogData").html(tbl);
+                $.noConflict();
+                $('#example1').DataTable({
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-            document.getElementById("approvebtn").style.display = 'flex';
+                document.getElementById("approvebtn").style.display = 'flex';
             }
         });
 
-}
+    }
 
     function DataApproved(actionType) {
-    var values = '';
-    $.each($("input[class='form-check-input']:checked"), function () {
-        if (values == '') {
-            values = $(this).attr('data-id');
+        var values = '';
+        $.each($("input[class='form-check-input']:checked"), function () {
+            if (values == '') {
+                values = $(this).attr('data-id');
+            }
+            else {
+                values = values + "," + $(this).attr('data-id');
+            }
+        });
+        if (values == "") {
+            alert("Please select data");
+            return false;
         }
-        else {
-            values = values + "," + $(this).attr('data-id');
-        }
-    });
-    if (values == "") {
-        alert("Please select data");
-        return false;
-    }
-    var approved_by = 1;
-    var approved_by_name = "Sujit Kumar"; // seseeion kaha pe set hai kamlesh isko usme add krna hia
-        
+        var approved_by = 1;
+        var approved_by_name = "Sujit Kumar"; // seseeion kaha pe set hai kamlesh isko usme add krna hia
+
         var uri = "";
         if (actionType == 1) {
             var Approvestatus = 1;
             uri = "/WindView/DataApproved?data=" + values + "&approvedBy=" + approved_by + "&approvedByName=" + approved_by_name + "&status=" + Approvestatus + "&actionType=" + actionType
-    }
+        }
         if (actionType == 2) {
             var Rejectstatus = 2;
             uri = "/WindView/DataReject?data=" + values + "&rejectedBy=" + approved_by + "&rejectByName=" + approved_by_name + "&status=" + Rejectstatus + "&actionType=" + actionType
-    }
-    
-    
-    $.ajax({
-        type: "POST",
-        url: uri, //"/WindView/DataApproved?data=" + values + "&approvedBy=" + approved_by + "&approvedByName=" + approved_by_name + "&status=" + status + "actionType" + actionType,
-       
-        contentType: "application/json; charset=utf-8",
-        success: function (result, status, xhr) {
-            if (result > 0) {
-                if (actionType == 1) {
-                    alert("Data Approved Successfully !");
-                }
-                if (actionType == 2) {
-                    alert("Data Rejected Successfully !");
-                }
-                
-                location.reload();
-            }
-            else {
-                alert("Faild Please try again !");
-            }
         }
-    });
-    }
 
+
+        $.ajax({
+            type: "POST",
+            url: uri, //"/WindView/DataApproved?data=" + values + "&approvedBy=" + approved_by + "&approvedByName=" + approved_by_name + "&status=" + status + "actionType" + actionType,
+
+            contentType: "application/json; charset=utf-8",
+            success: function (result, status, xhr) {
+                if (result > 0) {
+                    if (actionType == 1) {
+                        alert("Data Approved Successfully !");
+                    }
+                    if (actionType == 2) {
+                        alert("Data Rejected Successfully !");
+                    }
+
+                    location.reload();
+                }
+                else {
+                    alert("Faild Please try again !");
+                }
+            }
+        });
+    }
+    function ViewImportFile() {
+
+    }
     function ViewGenData(importlogId) {
         $.ajax({
-             type: "POST",
+            type: "POST",
             url: "/WindView/GetGenerationImportData?importId=" + importlogId,
-             // url: "/WindView/DataApproved",
-             contentType: "application/json; charset=utf-8",
+            // url: "/WindView/DataApproved",
+            contentType: "application/json; charset=utf-8",
             success: function (result1, status, xhr) {
                 console.log(result1);
-               
+
                 var tbl1 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:100%">';
-                    tbl1 += '<thead class="tbl-head"><tr>';
-                    tbl1 += '<th style="font-size: 12px;width:8%;">Date</th>';
+                tbl1 += '<thead class="tbl-head"><tr>';
+                tbl1 += '<th style="font-size: 12px;width:8%;">Date</th>';
                 tbl1 += '<th style="font-size: 12px;text-align: center; ">Site</th>';
                 tbl1 += '<th style="font-size: 12px;text-align: center;">WTG</th>';
                 tbl1 += '<th style="font-size: 12px;text-align: center;">Wind(m/s)</th>';
@@ -413,12 +416,12 @@ function getReport() {
                 tbl1 += '<th style="font-size: 12px;text-align: center;">IGBDH</th>';
                 tbl1 += '<th style="font-size: 12px;text-align: center;">EGBDH</th>';
                 tbl1 += '<th style="font-size: 12px;text-align: center;">Load Sh.</th>';
-                    tbl1 += '</tr></thead>';
-            
+                tbl1 += '</tr></thead>';
+
                 if (result1.length > 0) {
                     console.log(result1.length);
                     for (var j = 0; j < result1.length; j++) {
-                       
+
                         var formattedDate = moment(result1[j].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl1 += '<tr>';
                         tbl1 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
@@ -441,11 +444,11 @@ function getReport() {
                         tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].egbdh.toFixed(2) + '</td>';
                         tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].load_shedding.toFixed(2) + '</td>';
                         tbl1 += '</tr>';
-                       // console.log(j);
+                        // console.log(j);
                     }
                 }
                 else {
-                   
+
                 }
                 tbl1 += '</table>';
                 document.getElementById("title").innerHTML = "Generation View";
@@ -462,7 +465,7 @@ function getReport() {
                     "autoWidth": false,
                     "responsive": true,
                 });*///.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-            //}
+                //}
             }
         });
     }
@@ -485,7 +488,7 @@ function getReport() {
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Start To</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Total Stop</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Reason of Breakdown</th>';
-              
+
                 tbl2 += '</tr></thead>';
 
                 if (result1.length > 0) {
@@ -500,7 +503,7 @@ function getReport() {
                         tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].bd_type_name + '</td>';
                         tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].stop_from + '</td>';
                         tbl2 += '<td style="font-size: 12px; text-align: center;">' + result1[j].stop_to + '</td>';
-                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_stop+ '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_stop + '</td>';
                         tbl2 += '<td style="font-size: 12px;">' + result1[j].error_description + '</td>';
                         tbl2 += '</tr>';
                         // console.log(j);

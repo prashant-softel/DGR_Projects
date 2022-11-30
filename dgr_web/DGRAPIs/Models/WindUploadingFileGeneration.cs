@@ -19,7 +19,6 @@ namespace DGRAPIs.Models
         public decimal operating_hrs { get; set; }
         public decimal production_rs { get; set; }
         public decimal kwh { get; set; }
-
     }
     public class WindUploadingFilegeneration1
     {
@@ -75,5 +74,23 @@ namespace DGRAPIs.Models
         public double egbdh { get; set; }
         public double load_shedding { get; set; }
 
+    }
+    public class WindUploadingFilegeneration
+    {
+        
+    }
+
+    public class WindUploadedData
+    {
+        //        public int uploading_file_generation_id { get; set; }
+        public int uploading_file_generation_id { get; set; }
+        public string date { get; set; }
+        public string wtg { get; set; }
+        public int wtg_id { get; set; }
+        public int site_id { get; set; }
+        public string site_name { get; set; }
+        public decimal wind_speed { get; set; }
+        public double Capacity_mw { get; set; }
+        public double kwh { get; set; }
     }
 }

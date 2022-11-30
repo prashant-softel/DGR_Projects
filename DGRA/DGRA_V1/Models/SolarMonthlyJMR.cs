@@ -4,6 +4,7 @@
     {
         public string FY { get; set; }
         public string Site { get; set; }
+        public int site_id { get; set; }
         public string Plant_Section { get; set; }
         public dynamic Controller_KWH_INV { get; set; }
         public dynamic Scheduled_Units_kWh { get; set; }

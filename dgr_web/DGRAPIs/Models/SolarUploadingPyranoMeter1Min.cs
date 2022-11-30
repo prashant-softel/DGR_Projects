@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DGRAPIs.Models
+﻿namespace DGRAPIs.Models
 {
     public class SolarUploadingPyranoMeter1Min
     {
-        public string date_time { get; set; }
+        public dynamic date_time { get; set; }
         public int site_id { get; set; }
         public decimal ghi_1 { get; set; }
         public decimal ghi_2 { get; set; }
