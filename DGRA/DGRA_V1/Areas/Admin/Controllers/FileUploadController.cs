@@ -1,21 +1,23 @@
-﻿using DGRA_V1.Common;
+﻿
 using DGRA_V1.Models;
-using DGRA_V1.Repository.Interface;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using DGRA_V1.Common;
+using Grpc.Core;
+using System.Net;
+using System.Collections;
+using DGRA_V1.Repository.Interface;
 
 namespace DGRA_V1.Areas.admin.Controllers
 {
@@ -28,7 +30,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         public FileUploadController(IDapperRepository idapperRepo, IWebHostEnvironment obj)
         {
             _idapperRepo = idapperRepo;
-            m_ErrorLog = new ErrorLog(meta,obj);
+            m_ErrorLog = new ErrorLog(meta, obj);
             env = obj;
         }
         static string[] importData = new string[2];
@@ -41,6 +43,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         Hashtable breakdownType = new Hashtable();//(B)Gets bdTypeID from bdTypeName: BDType table
         Hashtable siteNameId = new Hashtable(); //(C)Gets siteId from siteName
         Hashtable siteName = new Hashtable(); //(D)Gets siteName from siteId
+       
         Hashtable eqSiteId = new Hashtable();//(E)Gets siteId from (wtg)equipmentName
         /*~FileUploadController()
         {
@@ -56,7 +59,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             if (Name == "Sujit")
             {
                 TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "User";
+                TempData["role"] = "Admin";
                 TempData["userid"] = "1";
 
             }
@@ -64,7 +67,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             {
 
                 TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "Admin";
+                TempData["role"] = "User";
                 TempData["userid"] = "2";
             }
             return View();
@@ -76,7 +79,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             if (Name == "Sujit")
             {
                 TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "User";
+                TempData["role"] = "Admin";
                 TempData["userid"] = "1";
 
             }
@@ -84,7 +87,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             {
 
                 TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "Admin";
+                TempData["role"] = "User";
                 TempData["userid"] = "2";
             }
             try
@@ -117,16 +120,15 @@ namespace DGRA_V1.Areas.admin.Controllers
                     {
                         DirectoryInfo dinfo = Directory.CreateDirectory(@"\TempFile");
                     }
-                    // HttpContext.Current.Server.MapPath(@"~" + @"\TempFile");
-                    //if (!Directory.Exists(Server.MapPath(@"~" + @"\TempFile")))
-                    //{
-                    //    DirectoryInfo dinfo = Directory.CreateDirectory(Server.MapPath(@"~" + @"\TempFile"));
-                    //}
+                   // HttpContext.Current.Server.MapPath(@"~" + @"\TempFile");
+                   /* if (!Directory.Exists(Server.MapPath(@"~" + @"\TempFile")))
+                    {
+                        DirectoryInfo dinfo = Directory.CreateDirectory(Server.MapPath(@"~" + @"\TempFile"));
+                    }*/
                     else
                     {
                         string tempName = file.FileName;
                         importData[1] = tempName;//Server.MapPath("/" + tempName);
-
                         string[] filePaths = Directory.GetFiles(@"\TempFile");
                         if (filePaths.Length > 0)
                         {
@@ -147,9 +149,9 @@ namespace DGRA_V1.Areas.admin.Controllers
                                 file.CopyTo(stream);
                             }
 
-                            // file.SaveAs(Server.MapPath(@"~" + @"\TempFile\docupload.xlsx"));
-                            // string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=" + Server.MapPath(@"~" + @"\TempFile\docupload.xlsx") + ";" + "Extended Properties=" + "\"" + "Excel 12.0;HDR=YES;" + "\"";
-                            string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=" + @"\TempFile\docupload.xlsx" + ";" + "Extended Properties=" + "\"" + "Excel 12.0;HDR=YES;" + "\"";
+                           // file.SaveAs(Server.MapPath(@"~" + @"\TempFile\docupload.xlsx"));
+                           // string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=" + Server.MapPath(@"~" + @"\TempFile\docupload.xlsx") + ";" + "Extended Properties=" + "\"" + "Excel 12.0;HDR=YES;" + "\"";
+                            string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=" +@"\TempFile\docupload.xlsx" + ";" + "Extended Properties=" + "\"" + "Excel 12.0;HDR=YES;" + "\"";
                             List<string> fileSheets = new List<string>();
                             oconn = new System.Data.OleDb.OleDbConnection(connectionString);
                             oconn.Open();
@@ -166,7 +168,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                             }
                             if (fileSheets.Contains("Uploading_File_Generation$") || fileSheets.Contains("Uploading_File_Breakdown$"))
                             {
-                                masterHashtable_SiteName_To_SiteId();
+                                    masterHashtable_SiteName_To_SiteId();
                                 if (fileUpload == "Wind")
                                 {
                                     masterHashtable_WtgToWtgId();
@@ -510,7 +512,6 @@ namespace DGRA_V1.Areas.admin.Controllers
                                         }
                                         else
                                         {
-                                            //As per instructions : Daily JMR function is not supposed to exist but is allowed for wind imports
 
                                             //status = await InsertSolarDailyJMR(status, ds);
                                             //if (status == "Successfully uploaded")
@@ -676,6 +677,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     }
                                 }
                             }
+
                             if (status == "Successfully uploaded")
                             {
                                 m_ErrorLog.SetInformation(",Import Operation Complete :");
@@ -686,7 +688,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                 {
                                     if (fileUpload == "Wind")
                                     {
-                                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(kpiArgs[0]).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(kpiArgs[1]).ToString("yyyy-MM-dd") + "&site=" + (string)kpiArgs[2] + "";
+                                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(kpiArgs[0]).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(kpiArgs[1]).ToString("yyyy-MM-dd") + "&site=" + (string)kpiArgs[2] + "&logFileName=" + meta.importLogName + "";
                                         using (var client = new HttpClient())
                                         {
                                             await client.GetAsync(url);
@@ -694,7 +696,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
 
                                     }
-                                    
+
                                 }
                             }
                             else
@@ -764,6 +766,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 {
                     var json = JsonConvert.SerializeObject(addSet);
                     var data = new StringContent(json, Encoding.UTF8, "application/json");
+                   // var url = "http://localhost:23835/api/DGR/InsertSolarUploadingFileGeneration";
                     var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarUploadingFileGeneration";
                     using (var client = new HttpClient())
                     {
@@ -793,9 +796,9 @@ namespace DGRA_V1.Areas.admin.Controllers
             bool errorFlag = false;
             int errorCount = 0;
             DateTime fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
-            DateTime toDate= Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+            DateTime toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
             DateTime nextDate;
-            string site="";
+            string site = "";
             WindUploadingFileValidation validationObject = new WindUploadingFileValidation(m_ErrorLog);
 
             if (ds.Tables.Count > 0)
@@ -813,7 +816,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                     meta.importSiteId = addUnit.site_id;
                     nextDate = Convert.ToDateTime(dr["Date"]);
                     fromDate = ((nextDate < fromDate) ? (nextDate) : (fromDate));
-                    toDate = (nextDate > toDate) ? (nextDate) :(toDate);
+                    toDate = (nextDate > toDate) ? (nextDate) : (toDate);
                     site = Convert.ToString(addUnit.site_id);
                     addUnit.wind_speed = Convert.ToDecimal(dr["Wind_Speed"]);
                     addUnit.kwh = Convert.ToDecimal(dr["kWh"]);
@@ -904,6 +907,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
+               // var url = "http://localhost:23835/api/DGR/InsertSolarUploadingFileBreakDown";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarUploadingFileBreakDown";
                 using (var client = new HttpClient())
                 {
@@ -918,10 +922,11 @@ namespace DGRA_V1.Areas.admin.Controllers
                     }
                 }
             }
+
             return status;
         }
         private async Task<string> InsertWindFileBreakDown(string status, DataSet ds)
-        {
+        {//siteID recorded
             WindUploadingFileValidation ValidationObject = new WindUploadingFileValidation(m_ErrorLog);
             long rowNumber = 0;
             bool errorFlag = false;
@@ -938,6 +943,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                     addUnit.site_id = Convert.ToInt32(eqSiteId[addUnit.wtg]);//E
                     addUnit.site_name = (string)siteName[addUnit.site_id];//D
                     meta.importSiteId = addUnit.site_id;
+
                     addUnit.bd_type = Convert.ToString(dr["BD_Type"]);
                     addUnit.bd_type_id = Convert.ToInt32(breakdownType[addUnit.bd_type]);//B
                     addUnit.stop_from = Convert.ToString(dr["Stop From"]);
@@ -959,6 +965,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 {
                     var json = JsonConvert.SerializeObject(addSet);
                     var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    //var url = "http://localhost:23835/api/DGR/InsertWindUploadingFileBreakDown";
                     var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindUploadingFileBreakDown";
                     using (var client = new HttpClient())
                     {
@@ -980,7 +987,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return status;
         }
-        private async Task<string> InsertSolarPyranoMeter1Min(string status, DataSet ds)
+        private  async Task<string> InsertSolarPyranoMeter1Min(string status, DataSet ds)
         {
             //Changed model datatypes reflecting database
             //Updated API function
@@ -1015,6 +1022,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarUploadingPyranoMeter1Min";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarUploadingPyranoMeter1Min";
                 using (var client = new HttpClient())
                 {
@@ -1029,10 +1037,10 @@ namespace DGRA_V1.Areas.admin.Controllers
                     }
                 }
             }
+
             return status;
         }
-
-        private async Task<string> InsertSolarPyranoMeter15Min(string status, DataSet ds)
+        private  async Task<string> InsertSolarPyranoMeter15Min(string status, DataSet ds)
         {
             //Changed model datatypes reflecting database
             //Updated API function
@@ -1085,10 +1093,6 @@ namespace DGRA_V1.Areas.admin.Controllers
         }
         private async Task<string> InsertSolarMonthlyJMR(string status, DataSet ds)
         {
-            //Changed model datatypes reflecting database
-            //Updated API function
-            //records site id
-            //fixed percentages
             if (ds.Tables.Count > 0)
             {
                 List<SolarMonthlyJMR> addSet = new List<SolarMonthlyJMR>();
@@ -1129,6 +1133,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarJMR";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarJMR";
                 using (var client = new HttpClient())
                 {
@@ -1208,6 +1213,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertWindJMR";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindJMR";
                 using (var client = new HttpClient())
                 {
@@ -1383,7 +1389,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
-
+                //var url = "http://localhost:23835/api/DGR/InsertMonthlyTargetKPI";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertMonthlyTargetKPI";
                 using (var client = new HttpClient())
                 {
@@ -1781,6 +1787,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 var json = JsonConvert.SerializeObject(addSet);
                 var data = new StringContent(json, Encoding.UTF8, "application/json");
+                //var url = "http://localhost:23835/api/DGR/InsertSolarInvAcDcCapacity";
                 var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarInvAcDcCapacity";
                 using (var client = new HttpClient())
                 {
@@ -1788,7 +1795,6 @@ namespace DGRA_V1.Areas.admin.Controllers
                     if (response.IsSuccessStatusCode)
                     {
                         status = "Successfully uploaded";
-
                     }
                     else
                     {
@@ -1812,6 +1818,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             var json = JsonConvert.SerializeObject(meta);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
+            //var url = "http://localhost:23835/api/DGR/importMetaData";
             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/importMetaData";
             using (var client = new HttpClient())
             {
@@ -1951,6 +1958,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             //gets siteId from wtg(equipment) in Wind Location Master
 
             DataTable dTable = new DataTable();
+            //var url = "http://localhost:23835/api/DGR/GetWindLocationMaster";
             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindLocationMaster";
             var result = string.Empty;
             WebRequest request = WebRequest.Create(url);

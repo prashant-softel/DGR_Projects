@@ -196,7 +196,8 @@
         var spv = "";
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetSiteList",
+           // url: "/WindReport/GetSiteList",
+             url: '@Url.Action("GetSiteList", "WindReport")',
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -225,7 +226,8 @@
         //var toDate = "2021-04-20";
         $.ajax({
             type: "GET",
-            url: "/WindView/GetImportBatches?importFromDate=" + fromDate + "&importToDate=" + toDate + "&siteId=" + site + "&importType=" + importType + "&status=" + status,
+            url: '@Url.Action("GetImportBatches", "WindView")' + '?importFromDate=' + fromDate + '&importToDate=' + toDate + '&siteId=' + site + '&importType=' + importType + '&status='+status,
+            //url: "/WindView/GetImportBatches?importFromDate=" + fromDate + "&importToDate=" + toDate + "&siteId=" + site + "&importType=" + importType + "&status=" + status,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "JSON",
@@ -353,11 +355,13 @@
         var uri = "";
         if (actionType == 1) {
             var Approvestatus = 1;
-            uri = "/WindView/DataApproved?data=" + values + "&approvedBy=" + approved_by + "&approvedByName=" + approved_by_name + "&status=" + Approvestatus + "&actionType=" + actionType
+            url: '@Url.Action("DataApproved", "WindView")' + '?data=' + values + '&approvedBy=' + approved_by + '&approvedByName=' + approved_by_name + '&status=' + Approvestatus + '&actionType=' + actionType
+          //  uri = "/WindView/DataApproved?data=" + values + "&approvedBy=" + approved_by + "&approvedByName=" + approved_by_name + "&status=" + Approvestatus + "&actionType=" + actionType
         }
         if (actionType == 2) {
             var Rejectstatus = 2;
-            uri = "/WindView/DataReject?data=" + values + "&rejectedBy=" + approved_by + "&rejectByName=" + approved_by_name + "&status=" + Rejectstatus + "&actionType=" + actionType
+            url: '@Url.Action("DataReject", "WindView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
+           // uri = "/WindView/DataReject?data=" + values + "&rejectedBy=" + approved_by + "&rejectByName=" + approved_by_name + "&status=" + Rejectstatus + "&actionType=" + actionType
         }
 
 
@@ -389,7 +393,8 @@
     function ViewGenData(importlogId) {
         $.ajax({
             type: "POST",
-            url: "/WindView/GetGenerationImportData?importId=" + importlogId,
+            //url: "/WindView/GetGenerationImportData?importId=" + importlogId,
+            url: '@Url.Action("GetGenerationImportData", "WindView")' + '?importId=' + importlogId,
             // url: "/WindView/DataApproved",
             contentType: "application/json; charset=utf-8",
             success: function (result1, status, xhr) {
@@ -472,7 +477,8 @@
     function ViewBreakdownData(importlogId) {
         $.ajax({
             type: "POST",
-            url: "/WindView/GetBrekdownImportData?importId=" + importlogId,
+            //url: "/WindView/GetBrekdownImportData?importId=" + importlogId,
+             url: '@Url.Action("GetBrekdownImportData", "WindView")' + '?importId=' + importlogId,
             // url: "/WindView/DataApproved",
             contentType: "application/json; charset=utf-8",
             success: function (result1, status, xhr) {

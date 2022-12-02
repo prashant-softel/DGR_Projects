@@ -179,3 +179,7 @@ G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Release\netcoreapp3.1
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Release\netcoreapp3.1\DGRAPIs.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Release\netcoreapp3.1\DGRAPIs.pdb
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Release\netcoreapp3.1\DGRAPIs.genruntimeconfig.cache
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.DotNet.PlatformAbstractions.dll
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.DependencyModel.dll
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.PlatformAbstractions.dll
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Nancy.dll

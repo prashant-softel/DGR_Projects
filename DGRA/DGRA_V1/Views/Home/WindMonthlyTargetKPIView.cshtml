@@ -38,7 +38,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Monthly Target KPI</h3>
+                <h3 class="card-title text-center">Wind Monthly Target KPI</h3>
 
             </div>
             <div class="card-body">
@@ -138,7 +138,8 @@
     window.onload = function () {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetFinacialYear",
+           // url: "/WindReport/GetFinacialYear",
+            url: '@Url.Action("GetFinacialYear", "WindReport")',
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -159,7 +160,8 @@
         //var month = "Apr";
         $.ajax({
             type: "GET",
-            url: "/WindView/GetMonthlyTargetKPI?year=" + year + "&month=" + month,
+            url: '@Url.Action("GetMonthlyTargetKPI", "WindView")' + '?year=' + year + '&month=' + month,
+           // url: "/WindView/GetMonthlyTargetKPI?year=" + year + "&month=" + month,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
@@ -170,26 +172,26 @@
                 tbl += '<th style="width:90px">FY</th>';
                 tbl += '<th>Month</th>';
                 tbl += '<th>Site</th>';
-                tbl += '<th>Wind Speed</th>';
-                tbl += '<th>KWH</th>';
-                tbl += '<th>MA</th>';
-                tbl += '<th>IGA</th>';
-                tbl += '<th>EGA</th>';
-                tbl += '<th>PLF</th>';
+                tbl += '<th>Wind Speed(m/s)</th>';
+                tbl += '<th>kWh</th>';
+                tbl += '<th>MA(%)</th>';
+                tbl += '<th>IGA(%)</th>';
+                tbl += '<th>EGA(%)</th>';
+                tbl += '<th>PLF(%)</th>';
                 tbl += '</tr></thead>';
 
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].fy + '</td>';
-                        tbl += '<td>' + result[i].month + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].windSpeed + '</td>';
-                        tbl += '<td>' + result[i].kwh + '</td>';
-                        tbl += '<td>' + result[i].ma + '%</td>';
-                        tbl += '<td>' + result[i].iga + '%</td>';
-                        tbl += '<td>' + result[i].ega + '%</td>';
-                        tbl += '<td>' + result[i].plf + '%</td>';
+                        tbl += '<td class="text-left">' + result[i].fy + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-right">' + result[i].windSpeed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }
@@ -201,16 +203,17 @@
                 $("#MontlyKPIView").html(tbl);
                 $.noConflict();
                 $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "responsive": false, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["csv", "excel","colvis"],
                     "paging": true,
                     "lengthChange": false,
                     "searching": true,
                     "ordering": true,
                     "info": true,
                     "autoWidth": false,
-                    "responsive": true,
+                    "responsive": false,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example1').removeClass('dataTable');
             }
         });
     }

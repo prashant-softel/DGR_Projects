@@ -440,7 +440,8 @@
         var selcountry = $('select#country option:selected').val();
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetStateList?countryname=" + selcountry,
+           // url: "/WindReport/GetStateList?countryname=" + selcountry,
+            url: '@Url.Action("GetStateList", "WindReport")' + '?countryname=' + selcountry,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -461,6 +462,7 @@
     $.ajax({
         type: "GET",
         url: "/WindReport/GetFinacialYear",
+        url: '@Url.Action("GetFinacialYear", "WindReport")',
         contentType: "application/json; charset=utf-8",
         //data: '{"countryname":"' + selcountry + '"}',
         datatype: "html",
@@ -496,7 +498,8 @@
     function GetSPV(val) {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetSPVList?state=" + val,
+            ///url: "/WindReport/GetSPVList?state=" + val,
+            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + val,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -519,7 +522,8 @@
 
         $.ajax({
             type: "POST",
-            url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+            //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state + '&spv=' + spv,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -538,7 +542,8 @@
     function GetWTG(siteid) {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWTGList?siteid=" + siteid,
+           // url: "/WindReport/GetWTGList?siteid=" + siteid,
+            url: '@Url.Action("GetWTGList", "WindReport")' + '?siteid=' + siteid,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -554,7 +559,7 @@
             }
         });
     }
-   
+
 
     function GetDailyGenReport() {
 
@@ -566,7 +571,7 @@
             GetDailyGenReportSiteWise();
         }
     }
-    // Daily Gen Report WTG WIse 
+    // Daily Gen Report WTG WIse
     function GetDailyGenReportWTGWise() {
         var daterange = $('#daterange').val();
         var arr1 = new Array();
@@ -582,12 +587,13 @@
         var reporthead = "WTG Wise Report";
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWindDailyGenerationReportWTGWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
+            url: '@Url.Action("GetWindDailyGenerationReportWTGWise", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg,
+            //url: "/WindReport/GetWindDailyGenerationReportWTGWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
             contentType: "application/json; charset=utf-8",
-           
+
             datatype: "JSON",
             success: function (result, status, xhr) {
-                
+
                 var tbl = '<div class="text-center"><h5>' + reporthead+'</h5></div>';
                 tbl += '<table id="example1"  class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -597,21 +603,21 @@
                 tbl += '<th>SPV</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>WTG</th>';
-                tbl += '<th>Wind (m/s)</th>';
+                tbl += '<th>Wind(m/s)</th>';
                 tbl += '<th>kWh</th>';
-                tbl += '<th>PLF(%)</th>';
-                tbl += '<th>MA(%)(ACT)</th>';
-                tbl += '<th>MA(%)(CON)</th>';
-                tbl += '<th>IGA(%)</th>';
-                tbl += '<th>EGA(%)</th>';
-                tbl += '<th>Gen Hrs</th>';
-                tbl += '<th>Lull Hrs</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
                 tbl += '<th>USMH</th>';
                 tbl += '<th>SMH</th>';
                 tbl += '<th>OH</th>';
                 tbl += '<th>IGBD</th>';
                 tbl += '<th>EGBD</th>';
-                tbl += '<th>Load Shedding</th>';
+                tbl += '<th>Load_Shedding</th>';
                 tbl += '</tr></thead>';
                 console.log(result.length);
                 if (result.length > 0) {
@@ -619,39 +625,39 @@
                     for (var i = 0; i < result.length; i++) {
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + formattedDate + '</td>';
-                        tbl += '<td>' + result[i].country + '</td>';
-                        tbl += '<td>' + result[i].state + '</td>';
-                        tbl += '<td>' + result[i].spv + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].wtg + '</td>';
-                        tbl += '<td>' + result[i].wind_speed.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].kwh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].plf.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_actual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_contractual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].iga.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ega.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].grid_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].load_shedding.toFixed(2) + '</td>';
-                       
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+
                         tbl += '</tr>';
                     }
                 }
                 else {
                     console.log("Data not available");
-                  
+
                 }
                 tbl += '</table>';
                 $("#reportsDaily").html(tbl);
                 $.noConflict();
-                $('#example1').DataTable({
+                /*$('#example1').DataTable({
                     "responsive": true, "lengthChange": false, "autoWidth": false,
                     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
                     "paging": true,
@@ -661,8 +667,20 @@
                     "info": true,
                     "autoWidth": false,
                     "responsive": true,
-                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example1').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
 
+                    "columnDefs": [
+                        { "width": "15%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example1').removeClass('dataTable');
                 //document.getElementById("reportsDaily").style.display = 'block';
                 ///document.getElementById("reportsMonthly").style.display = 'block';
                // document.getElementById("reportsYearly").style.display = 'block';
@@ -672,7 +690,7 @@
     }
    // -----------------------------------------------
 
-    // Daily Gen Report Site WIse 
+    // Daily Gen Report Site WIse
     function GetDailyGenReportSiteWise() {
         var daterange = $('#daterange').val();
         var arr1 = new Array();
@@ -688,7 +706,8 @@
         var reporthead = "Site Wise Report";
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWindDailyGenerationReportSiteWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            url: '@Url.Action("GetWindDailyGenerationReportSiteWise", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
+            //url: "/WindReport/GetWindDailyGenerationReportSiteWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
             contentType: "application/json; charset=utf-8",
 
             datatype: "JSON",
@@ -697,27 +716,27 @@
                 var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
                 tbl += '<table id="example1"  class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th style="width:80px;">Date</th>';
+                tbl += '<th >Date</th>';
                 tbl += '<th>Country</th>';
                 tbl += '<th>State</th>';
                 tbl += '<th>SPV</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Capacity(MW)</th>';
-                tbl += '<th>Wind (m/s)</th>';
+                tbl += '<th>Wind(m/s)</th>';
                 tbl += '<th>kWh</th>';
-                tbl += '<th>PLF(%)</th>';
-                tbl += '<th>MA(%)(ACT)</th>';
-                tbl += '<th>MA(%)(CON)</th>';
-                tbl += '<th>IGA(%)</th>';
-                tbl += '<th>EGA(%)</th>';
-                tbl += '<th>Gen Hrs</th>';
-                tbl += '<th>Lull Hrs</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
                 tbl += '<th>USMH</th>';
                 tbl += '<th>SMH</th>';
                 tbl += '<th>OH</th>';
                 tbl += '<th>IGBD</th>';
                 tbl += '<th>EGBD</th>';
-                tbl += '<th>Load Shedding</th>';
+                tbl += '<th>Load_Shedding</th>';
                 tbl += '</tr></thead>';
                 console.log(result.length);
                 if (result.length > 0) {
@@ -725,27 +744,27 @@
                     for (var i = 0; i < result.length; i++) {
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + formattedDate + '</td>';
-                        tbl += '<td>' + result[i].country + '</td>';
-                        tbl += '<td>' + result[i].state + '</td>';
-                        tbl += '<td>' + result[i].spv + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].total_mw.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].wind_speed.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].kwh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].plf.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_actual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_contractual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].iga.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ega.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].grid_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
 
                         tbl += '</tr>';
                     }
@@ -757,7 +776,7 @@
                 tbl += '</table>';
                 $("#reportsDaily").html(tbl);
                 $.noConflict();
-                $('#example1').DataTable({
+               /* $('#example1').DataTable({
                     "responsive": true, "lengthChange": false, "autoWidth": false,
                     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
                     "paging": true,
@@ -767,8 +786,20 @@
                     "info": true,
                     "autoWidth": false,
                     "responsive": true,
-                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example1').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
 
+                    "columnDefs": [
+                        { "width": "15%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example1').removeClass('dataTable');
                 //document.getElementById("reportsDaily").style.display = 'block';
                 ///document.getElementById("reportsMonthly").style.display = 'block';
                 // document.getElementById("reportsYearly").style.display = 'block';
@@ -779,7 +810,7 @@
 
    // -----------------------------------Monthly ---------------------//
     function GetMonthlyGenReport() {
-       
+
        var ReportType = $("input[name='monthly']:checked").val();
         if (ReportType == "WTG") {
            //alert("WTG");
@@ -793,7 +824,7 @@
 
     // Mothly Report WTG Wise
     function GetMonthlyGenReportWTGWise() {
-       
+
         var country = $('select#countryM option:selected').val();
         var state = $('select#stateM option:selected').val();
         var spv = $('select#spvM option:selected').val();
@@ -811,18 +842,19 @@
         {
             fromDate = '20' + arr1[1] + '-' + month + '-01';
         }
-        
+
         var reportType = "WTG";
         var reporthead = "WTG Wise Report";
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWindMonthlyGenerationReportWTGWise?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            url: '@Url.Action("GetWindMonthlyGenerationReportWTGWise", "WindReport")' + '?fromDate=' + fromDate + '&month=' + month + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
+           //url: "/WindReport/GetWindMonthlyGenerationReportWTGWise?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
             contentType: "application/json; charset=utf-8",
 
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
-               
+
                 var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
                 tbl += '<table id="example2"  class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -835,19 +867,19 @@
                 tbl += '<th>WTG</th>';
                 tbl += '<th>Wind(m/s)</th>';
                 tbl += '<th>kWh</th>';
-                tbl += '<th>PLF(%)</th>';
-                tbl += '<th>MA(%)(ACT)</th>';
-                tbl += '<th>MA(%)(CON)</th>';
-                tbl += '<th>IGA(%)</th>';
-                tbl += '<th>EGA(%)</th>';
-                tbl += '<th>Gen Hrs</th>';
-                tbl += '<th>Lull Hrs</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
                 tbl += '<th>USMH</th>';
                 tbl += '<th>SMH</th>';
                 tbl += '<th>OH</th>';
                 tbl += '<th>IGBD</th>';
                 tbl += '<th>EGBD</th>';
-                tbl += '<th>Load Shedding</th>';
+                tbl += '<th>Load_Shedding</th>';
                 tbl += '</tr></thead>';
                 console.log(result.length);
                 if (result.length > 0) {
@@ -855,28 +887,28 @@
                     for (var i = 0; i < result.length; i++) {
                         //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].year + '</td>';
-                        tbl += '<td>' + result[i].month + '</td>';
-                        tbl += '<td>' + result[i].country + '</td>';
-                        tbl += '<td>' + result[i].state + '</td>';
-                        tbl += '<td>' + result[i].spv + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].wtg + '</td>';
-                        tbl += '<td>' + result[i].wind_speed.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].kwh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].plf.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_actual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_contractual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].iga.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ega.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].grid_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + result[i].year + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
 
                         tbl += '</tr>';
                     }
@@ -888,7 +920,7 @@
                tbl += '</table>';
                 $("#reportsMonthly").html(tbl);
                 $.noConflict();
-                $('#example2').DataTable({
+               /* $('#example2').DataTable({
                     "responsive": true, "lengthChange": false, "autoWidth": false,
                     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
                     "paging": true,
@@ -898,7 +930,20 @@
                     "info": true,
                     "autoWidth": false,
                     "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example2').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
+
+                    "columnDefs": [
+                        { "width": "8%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example2').removeClass('dataTable');
             }
         });
 
@@ -928,7 +973,8 @@
         var reporthead = "WTG Wise Report";
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWindMonthlyGenerationReportSiteWise?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+             url: '@Url.Action("GetWindMonthlyGenerationReportSiteWise", "WindReport")' + '?fromDate=' + fromDate + '&month=' + month + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
+           // url: "/WindReport/GetWindMonthlyGenerationReportSiteWise?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
             contentType: "application/json; charset=utf-8",
 
             datatype: "JSON",
@@ -947,19 +993,19 @@
                 tbl += '<th>Capacity(MW)</th>';
                 tbl += '<th>Wind(m/s)</th>';
                 tbl += '<th>kWh</th>';
-                tbl += '<th>PLF(%)</th>';
-                tbl += '<th>MA(%)(ACT)</th>';
-                tbl += '<th>MA(%)(CON)</th>';
-                tbl += '<th>IGA(%)</th>';
-                tbl += '<th>EGA(%)</th>';
-                tbl += '<th>Gen Hrs</th>';
-                tbl += '<th>Lull Hrs</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
                 tbl += '<th>USMH</th>';
                 tbl += '<th>SMH</th>';
                 tbl += '<th>OH</th>';
                 tbl += '<th>IGBD</th>';
                 tbl += '<th>EGBD</th>';
-                tbl += '<th>Load Shedding</th>';
+                tbl += '<th>Load_Shedding</th>';
                 tbl += '</tr></thead>';
                 console.log(result.length);
                 if (result.length > 0) {
@@ -967,40 +1013,40 @@
                     for (var i = 0; i < result.length; i++) {
                         //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + fyyear + '</td>';
-                        tbl += '<td>' + result[i].month + '</td>';
-                        tbl += '<td>' + result[i].country + '</td>';
-                        tbl += '<td>' + result[i].state + '</td>';
-                        tbl += '<td>' + result[i].spv + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].total_mw.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].wind_speed.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].kwh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].plf.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_actual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_contractual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].iga.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ega.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].grid_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + fyyear + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
 
                         tbl += '</tr>';
                     }
                 }
                 else {
                     console.log("Data not available");
-                   
+
                 }
                 tbl += '</table>';
                 $("#reportsMonthly").html(tbl);
                 $.noConflict();
-                $('#example2').DataTable({
+               /* $('#example2').DataTable({
                     "responsive": true, "lengthChange": false, "autoWidth": false,
                     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
                     "paging": true,
@@ -1010,7 +1056,20 @@
                     "info": true,
                     "autoWidth": false,
                     "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example2').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
+
+                    "columnDefs": [
+                        { "width": "8%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example2').removeClass('dataTable');
             }
         });
 
@@ -1044,20 +1103,21 @@
         var fromDate = "";
         fromDate = arr1[0] +'-04-01';
         toDate = '20' + arr1[1] + '-03-31';
-        
+
        // alert(fromDate);
       //  alert(toDate);
         var reportType = "WTG";
         var reporthead = "WTG Wise Report";
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWindYearlyGenerationReportWTGWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            url: '@Url.Action("GetWindYearlyGenerationReportWTGWise", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
+            //url: "/WindReport/GetWindYearlyGenerationReportWTGWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
             contentType: "application/json; charset=utf-8",
 
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
-               
+
                 var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
                 tbl += '<table id="example3"  class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -1067,21 +1127,21 @@
                 tbl += '<th>SPV</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>WTG</th>';
-                tbl += '<th>Wind (m/s)</th>';
+                tbl += '<th>Wind(m/s)</th>';
                 tbl += '<th>kWh</th>';
-                tbl += '<th>PLF(%)</th>';
-                tbl += '<th>MA(%)(ACT)</th>';
-                tbl += '<th>MA(%)(CON)</th>';
-                tbl += '<th>IGA(%)</th>';
-                tbl += '<th>EGA(%)</th>';
-                tbl += '<th>Gen Hrs</th>';
-                tbl += '<th>Lull Hrs</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
                 tbl += '<th>USMH</th>';
                 tbl += '<th>SMH</th>';
                 tbl += '<th>OH</th>';
                 tbl += '<th>IGBD</th>';
                 tbl += '<th>EGBD</th>';
-                tbl += '<th>Load Shedding</th>';
+                tbl += '<th>Load_Shedding</th>';
                 tbl += '</tr></thead>';
                 console.log(result.length);
                 if (result.length > 0) {
@@ -1089,27 +1149,27 @@
                     for (var i = 0; i < result.length; i++) {
                        // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + fyyear  + '</td>';
-                        tbl += '<td>' + result[i].country + '</td>';
-                        tbl += '<td>' + result[i].state + '</td>';
-                        tbl += '<td>' + result[i].spv + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].wtg + '</td>';
-                        tbl += '<td>' + result[i].wind_speed.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].kwh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].plf.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_actual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_contractual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].iga.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ega.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].grid_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + fyyear  + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
 
                         tbl += '</tr>';
                     }
@@ -1120,12 +1180,12 @@
                 }
                 tbl += '</table>';
                 $("#reportsYearly").html(tbl);
-               
+
                 $.noConflict();
-                
+
                 //$('#example1').DataTable().clear().destroy();
-                $('#example3').DataTable({
-                   
+               /* $('#example3').DataTable({
+
                     "responsive": true, "lengthChange": false, "autoWidth": false,
                     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
                     "paging": true,
@@ -1135,8 +1195,20 @@
                     "info": true,
                     "autoWidth": false,
                     "responsive": true,
-                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example3').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
 
+                    "columnDefs": [
+                        { "width": "8%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example3').removeClass('dataTable');
             }
         });
 
@@ -1163,13 +1235,14 @@
         var reporthead = "Site Wise Report";
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWindYearlyGenerationReportSiteWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            url: '@Url.Action("GetWindYearlyGenerationReportSiteWise", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
+            //url: "/WindReport/GetWindYearlyGenerationReportSiteWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
             contentType: "application/json; charset=utf-8",
 
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
-                
+
                 var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
                 tbl += '<table id="example3"  class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -1179,21 +1252,21 @@
                 tbl += '<th>SPV</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Capacity(MW)</th>';
-                tbl += '<th>Wind (m/s)</th>';
+                tbl += '<th>Wind(m/s)</th>';
                 tbl += '<th>kWh</th>';
-                tbl += '<th>PLF(%)</th>';
-                tbl += '<th>MA(%)(ACT)</th>';
-                tbl += '<th>MA(%)(CON)</th>';
-                tbl += '<th>IGA(%)</th>';
-                tbl += '<th>EGA(%)</th>';
-                tbl += '<th>Gen Hrs</th>';
-                tbl += '<th>Lull Hrs</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
                 tbl += '<th>USMH</th>';
                 tbl += '<th>SMH</th>';
                 tbl += '<th>OH</th>';
                 tbl += '<th>IGBD</th>';
                 tbl += '<th>EGBD</th>';
-                tbl += '<th>Load Shedding</th>';
+                tbl += '<th>Load_Shedding</th>';
                 tbl += '</tr></thead>';
                 console.log(result.length);
                 if (result.length > 0) {
@@ -1201,27 +1274,27 @@
                     for (var i = 0; i < result.length; i++) {
                         // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + fyyear + '</td>';
-                        tbl += '<td>' + result[i].country + '</td>';
-                        tbl += '<td>' + result[i].state + '</td>';
-                        tbl += '<td>' + result[i].spv + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].total_mw.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].wind_speed.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].kwh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].plf.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_actual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ma_contractual.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].iga.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].ega.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].grid_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + fyyear + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
 
                         tbl += '</tr>';
                     }
@@ -1236,7 +1309,7 @@
                 $.noConflict();
 
                 //$('#example1').DataTable().clear().destroy();
-                $('#example3').DataTable({
+                /*$('#example3').DataTable({
 
                     "responsive": true, "lengthChange": false, "autoWidth": false,
                     "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
@@ -1247,8 +1320,20 @@
                     "info": true,
                     "autoWidth": false,
                     "responsive": true,
-                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example3').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
 
+                    "columnDefs": [
+                        { "width": "8%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example3').removeClass('dataTable');
             }
         });
 

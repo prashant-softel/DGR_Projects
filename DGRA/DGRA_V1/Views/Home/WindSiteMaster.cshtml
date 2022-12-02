@@ -1,6 +1,6 @@
 ﻿@model DGRA_V1.Models.CountryList
 @{
-    ViewData["Title"] = "Wind Performance Reports";
+    ViewData["Title"] = "Wind Site Master Reports";
 }
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -84,49 +84,54 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript">
-  
+
     window.onload = function () {
-      
+
         getSiteData();
     }
     function getSiteData() {
     $.ajax({
         type: "GET",
-        url: "/WindReport/GetSiteMaster",
+       // url: "/WindReport/GetSiteMaster",
+        url: '@Url.Action("GetSiteMaster", "WindReport")',
         contentType: "application/json; charset=utf-8",
         //data: '{"countryname":"' + selcountry + '"}',
         datatype: "html",
         success: function (result, status, xhr) {
-           
+
             console.log(result);
-            var tbl = '<table id="example1" class="table table-bordered table-striped">';
+            var tbl = '<table id="example1"  class="table table-bordered table-striped dataTable dtr-inline">';
             tbl += '<thead class="tbl-head"><tr>';
-            tbl += '<td>Country</td>';
-            tbl += '<td>Site</td>';
-            tbl += '<td>SPV</td>';
-            tbl += '<td>State</td>';
-            tbl += '<td>Model</th>';
-            tbl += '<td>Capacity(MW)</td>';
-            tbl += '<td>WTG</td>';
-            tbl += '<td>Total MW</td>';
-            tbl += '<td>Tariff</td>';
-            tbl += '<td>LL Compensation</td>';
+            tbl += '<th>Country</th>';
+            tbl += '<th>Site</th>';
+            tbl += '<th>SPV</th>';
+            tbl += '<th>State</th>';
+            tbl += '<th>Model</th>';
+            tbl += '<th>Capacity(MW)</th>';
+            tbl += '<th>WTG</th>';
+            tbl += '<th>Total MW</th>';
+            tbl += '<th>Tariff</th>';
+            tbl += '<th>GBI</th>';
+            tbl += '<th>Total Tariff</th>';
+            tbl += '<th>LL Compensation(%)</th>';
             tbl += '</tr></thead>';
             if (result.length > 0) {
                 for (var i = 0; i < result.length; i++) {
 
-                
+
                     tbl += '<tr>';
-                    tbl += '<td>' + result[i].country + '</td>';
-                    tbl += '<td>' + result[i].site + '</td>';
-                    tbl += '<td>' + result[i].spv + '</td>';
-                    tbl += '<td>' + result[i].state + '</td>';
-                    tbl += '<td>' + result[i].model + '</td>';
-                    tbl += '<td>' + result[i].capacity_mw.toFixed(2) + '</td>';
-                    tbl += '<td>' + result[i].wtg + '</td>';
-                    tbl += '<td>' + result[i].total_mw.toFixed(2) + '</td>';
-                    tbl += '<td>' + result[i].tarrif.toFixed(2)+ '</td>';
-                    tbl += '<td>' + result[i].ll_compensation.toFixed(2) + '%</td>';
+                    tbl += '<td class="text-left">' + result[i].country + '</td>';
+                    tbl += '<td class="text-left">' + result[i].site + '</td>';
+                    tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                    tbl += '<td class="text-left">' + result[i].state + '</td>';
+                    tbl += '<td class="text-left">' + result[i].model + '</td>';
+                    tbl += '<td class="text-right">' + result[i].capacity_mw.toFixed(2) + '</td>';
+                    tbl += '<td class="text-right">' + result[i].wtg + '</td>';
+                    tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                    tbl += '<td class="text-right">' + result[i].tarrif.toFixed(2) + '</td>';
+                    tbl += '<td class="text-right">-</td>';
+                    tbl += '<td class="text-right">-</td>';
+                    tbl += '<td class="text-right">' + result[i].ll_compensation.toFixed(2) + '</td>';
 
                     tbl += '</tr>';
                 }
@@ -149,10 +154,11 @@
                 "autoWidth": false,
                 "responsive": true,
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $('#example1').removeClass('dataTable');
         }
     });
     }
-   
-   
+
+
 
 </script>

@@ -17,65 +17,65 @@
 <div class="content-wrapper">
 
     <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
+        <!--<div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
 
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Solar Daily Target KPI</li>
-                    </ol>
-                </div>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Solar Daily Target KPI</li>
+                </ol>
             </div>
         </div>
+    </div>-->
     </section>
 
     <section class="content">
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Daily Target KPI</h3>
+                <h3 class="card-title text-center">Solar Daily Target KPI</h3>
 
-                <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                <!--<div class="card-tools">
+        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+            <i class="fas fa-minus"></i>
+        </button>
+        <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>-->
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-2"></div>
-                    <div class="col-md-6">
-                        <div class="input-group row">
-                            <label class="col-sm-3 col-form-label">Date Range : </label>
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">
-                                    <i class="far fa-calendar-alt"></i>
-                                </span>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2"></div>
+                        <div class="col-md-6">
+                            <div class="input-group row">
+                                <label class="col-sm-3 col-form-label">Date Range : </label>
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="far fa-calendar-alt"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control float-right" id="daterange" name="daterange">
                             </div>
-                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
                         </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
+                        </div>
+                        <div class="col-md-2"></div>
                     </div>
-                    <div class="col-md-2">
-                        <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
-                    </div>
-                    <div class="col-md-2"></div>
+                    <br>
+                    <hr>
+                    <div id="DailyTargetKPIView" style="overflow-x: auto;" class="DailyTargetKPIView"></div>
                 </div>
-                <br>
-                <hr>
-                <div id="DailyTargetKPIView" style="overflow-x: auto;" class="DailyTargetKPIView" ></div>
-            </div>
 
-            <div class="card-footer">
-                Footer
-            </div>
+                <div class="card-footer">
+                    Footer
+                </div>
 
-        </div>
+            </div>
 
 
     </section>
@@ -127,14 +127,15 @@
 
         $.ajax({
             type: "GET",
-            url: "/SolarView/SolarDailyTargetKPIView?fromDate=" + fromDate + "&toDate=" + toDate,
+            url: '@Url.Action("SolarDailyTargetKPIView", "SolarView")' + '?fromDate=' + fromDate +'&toDate=' + toDate,
+           // url: "/SolarView/SolarDailyTargetKPIView?fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
-                tbl += '<thead><tr>';
+                tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<td>FY</td>';
                 tbl += '<td>Date</td>';
                 tbl += '<td>Site</td>';

@@ -1,46 +1,23 @@
-﻿@model DGRA_V1.Models.DailyGenSummary
+﻿@*@model DGRA_V1.Models.DailyGenSummary*@
 @{
     ViewData["Title"] = "Wind Gen Summery";
 }
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-<!-- Font Awesome -->
+
 <link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
-<!-- daterange picker -->
+
 <link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
-<!-- DataTables -->
+
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
-<style>
-    .tbodydata {
-        font-size: 12px;
-    }
-
-    .theaddata {
-        font-size: 12px;
-        font-weight: bold;
-    }
-</style>
-
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
 
     <section class="content-header">
-        <!--<div class="container-fluid">
-        <div class="row mb-2">
-            <div class="col-sm-6">
-
-            </div>
-            <div class="col-sm-6">
-                <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="#">Home</a></li>
-                    <li class="breadcrumb-item active">Wind Gen Summery</li>
-                </ol>
-            </div>
-        </div>
-    </div>-->
+        
     </section>
 
 
@@ -49,14 +26,8 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Generation Summery</h3>
+                <h3 class="card-title text-center">Wind Generation Summary</h3>
 
-                <!--<div class="card-tools">
-        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-            <i class="fas fa-minus"></i>
-        </button>
-
-    </div>-->
             </div>
             <div class="card-body">
 
@@ -81,16 +52,9 @@
                 <br>
                 <hr>
 
-                <div id="DailyGenView" style="overflow-x: auto;"></div>
+                <div id="DailyGenView" style="overflow-x: auto;" class="DailyGenView" ></div>
             </div>
-
-           
-           
-
-        </div>
-
-
-    </section>
+ </section>
 
 </div>
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
@@ -142,33 +106,36 @@
 
         $.ajax({
             type: "GET",
-            url: "/WindView/WindGenView?fromDate=" + fromDate + "&toDate=" + toDate,
+            url: '@Url.Action("WindGenView", "WindView")' + '?fromDate=' + fromDate + '&toDate=' + toDate,
+            //url: "/WindView/WindGenView?fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
-                console.log(result); //table 
-                var tbl = '<table id="example1" class="table-bordered table-striped">';
+                console.log(result); //table
+                var tbl = '<table id="example1" class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th style="width:120px">Date</th>';
-                tbl += '<th >State</th>';
+                tbl += '<th style="width:150px">Date</th>';
+                tbl += '<th>State</th>';
                 tbl += '<th>Site</th>';
+                tbl += '<th>WTG</th>';
                 tbl += '<th>Wind(m/s)</th>';
-                tbl += '<th>KWH</th>';
-                tbl += '<th >MA(ACT)</th>';
-                tbl += '<th>MA(CON)</th>';
-                tbl += '<th>IGA</th>';
-                tbl += '<th>EGA</th>';
-                tbl += '<th>PLF</th>';
-                tbl += '<th>Grid hrs</th>';
-                tbl += '<th>Lull hrs</th>';
-                tbl += '<th>Pro hrs</th>';
+                tbl += '<th>kWh</th>';
+                tbl += '<th>Feeder</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>Grid_hrs</th>';
+                tbl += '<th>Lull_hrs</th>';
+                tbl += '<th>Pro_hrs</th>';
                 tbl += '<th>USMH</th>';
                 tbl += '<th>SMH</th>';
                 tbl += '<th>Others</th>';
                 tbl += '<th>IGBDH</th>';
                 tbl += '<th>EGBDH</th>';
-                tbl += '<th>Load Sh.</th>';
+                tbl += '<th>Load_Sh.</th>';
                 tbl += '</tr></thead>';
 
                 if (result.length > 0) {
@@ -178,50 +145,71 @@
                         //var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + formattedDate + '</td>';
-                        tbl += '<td>' + result[i].state + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].wind_speed + '</td>';
-                        tbl += '<td>' + result[i].kwh + '</td>';
-                        tbl += '<td>' + result[i].ma_actual + '</td>';
-                        tbl += '<td>' + result[i].ma_contractual + '</td>';
-                        tbl += '<td>' + result[i].iga + '</td>';
-                        tbl += '<td>' + result[i].ega + '</td>';
-                        tbl += '<td>' + result[i].plf + '</td>';
-                        tbl += '<td>' + result[i].grid_hrs + '</td>';
-                        tbl += '<td>' + result[i].lull_hrs + '</td>';
-                        tbl += '<td>' + result[i].production_hrs + '</td>';
-                        tbl += '<td>' + result[i].unschedule_hrs + '</td>';
-                        tbl += '<td>' + result[i].schedule_hrs + '</td>';
-                        tbl += '<td>' + result[i].others + '</td>';
-                        tbl += '<td>' + result[i].igbdh + '</td>';
-                        tbl += '<td>' + result[i].egbdh + '</td>';
-                        tbl += '<td>' + result[i].load_shedding + '</td>';
+                        tbl += '<td  class="text-left" style="width:200px">' + formattedDate + '</td>';
+                        tbl += '<td  class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td  class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td  class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].feeder + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].production_hrs.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }
                 else {
 
-                   // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
+                    // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
                 $("#DailyGenView").html(tbl);
                 $.noConflict();
                 $('#example1').DataTable({
-                    "responsive": false, "lengthChange": false, "autoWidth": false,
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
                     "buttons": ["csv", "excel", "colvis"],
                     "paging": true,
-                    "lengthChange": false,
-                    "searching": true,
-                    "ordering": true,
-                    "info": true,
-                    "autoWidth": false,
-                    "responsive": false,
+
+                    "columnDefs": [
+                        { "width": "10%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example1').removeClass('dataTable');
+
+                /*var table = $('#example1').removeAttr('width').DataTable({
+                    buttons : ["csv", "excel", "colvis"],
+                    scrollX: false,
+                    scrollCollapse: false,
+                    paging: true,
+                    columnDefs: [
+                        { width: 80, targets: 0 },
+                        { width: 80, targets: 2 },
+                        { width: 80, targets: 3 },
+                        { width: 80, targets: 4 },
+                        { width: 80, targets: 5 },
+                        { width: 80, targets: 6 },
+                    ],
+                    fixedColumns: true
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example1').removeClass('dataTable');*/
             }
         });
     }
-   
+
 
 
 </script>

@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace DGRAPIs.Models
 {
@@ -38,5 +41,5 @@ namespace DGRAPIs.Models
         public string action_taken { get; set; }
         public string approve_status { get; set; }
     }
-
+  
 }

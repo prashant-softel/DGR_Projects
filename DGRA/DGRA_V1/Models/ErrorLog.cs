@@ -142,7 +142,7 @@ namespace DGRA_V1.Models
             DateTime today = DateTime.Now;
             csvPath += "_" + today.ToString("dd-MM-yyyy") + "_" + today.ToString("hh-mm-ss") + ".csv";
             meta.importLogName = csvPath;
-            csvPath = projectRootPath+ @"\FileLog\" + csvPath;
+            csvPath = projectRootPath + @"\FileLog\" + csvPath;
             File.AppendAllText(csvPath, Convert.ToString(content));
             sMessage = "Total errors <" + errorCount + ">";
 

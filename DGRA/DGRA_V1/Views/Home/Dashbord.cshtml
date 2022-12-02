@@ -1,26 +1,20 @@
 ﻿@{
     ViewData["Title"] = "Home Page";
 }
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 
-<!-- Ionicons -->
-<link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-<!-- Tempusdominus Bootstrap 4 -->
-<link rel="stylesheet" href="~/theme/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
-<!-- iCheck -->
-<link rel="stylesheet" href="~/theme/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
-<!-- JQVMap -->
-<link rel="stylesheet" href="~/theme/plugins/jqvmap/jqvmap.min.css">
-<!-- Theme style -->
-<!-- overlayScrollbars -->
-<link rel="stylesheet" href="~/theme/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
-<!-- Daterange picker -->
-<link rel="stylesheet" href="~/theme/plugins/daterangepicker/daterangepicker.css">
-<!-- summernote -->
-<link rel="stylesheet" href="~/theme/plugins/summernote/summernote-bs4.min.css">
-<!-- Content Wrapper. Contains page content -->
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
 <div class="content-wrapper">
     <section class="content-header">
-        <div class="container-fluid">
+        <!--<div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
                     <h1>Dashboard</h1>
@@ -32,38 +26,541 @@
                     </ol>
                 </div>
             </div>
-        </div>
+        </div>-->
     </section>
 
 
     <section class="content">
-       
+
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Title</h3>
+                <h3 class="card-title text-center">Dashboard</h3>
 
-                <div class="card-tools">
+                <!--<div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                         <i class="fas fa-minus"></i>
                     </button>
                     <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
                         <i class="fas fa-times"></i>
                     </button>
-                </div>
+                </div>-->
             </div>
             <div class="card-body">
-                Start creating your amazing application!
-            </div>
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="input-group ">
+                            <label class="col-sm-4 col-form-label text-right">FY : </label>
+                            <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                <option value="">Please select </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Wind Site : </label>
+                                <select class="form-control  col-sm-8" id="wind_site" name="wind_site" value="">
+                                    <option value="">Select wind site</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Solar Site : </label>
+                                <select class="form-control  col-sm-8" id="solar_site" name="solar_site" value="">
+                                    <option value="">Select solar site</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-2 text-center">
+                        <button type="button" class="btn btn-block btn-primary" onclick="GetDailyGenReport();" style=" width: 6rem;">Search</button>
+                    </div>
 
-            <div class="card-footer">
-                Footer
-            </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <div class="card tbl-head" style="max-height: 185px; height: 185px; width: 100%; padding: 1rem 1rem 0 0; border-radius: 3rem;">
+                            <table style="border-collapse: collapse; width: 100%;">
+                                <tbody>
+                                    <tr style="border-bottom:2px solid lightgray">
+                                        <td rowspan="2">
+                                            <div style="width: 70%; float: left; text-align: center;">
+                                                <img src="~/Content/img/image010.png" width="60" height="60" />
+                                                <br><br><span>Wind <br> (530 MW)</span>
+                                            </div>
+                                            <div style="width: 30%; float: left;">
+                                                <img src="~/Content/img/image002.png" width="40" height="40" />
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">Last Day Energy</span><br>
+                                            <span style="font-size:15px"><b> 0</b></span>
+                                            <span style="font-size:12px">MWh</span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">MTD Energy</span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">GWh</span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">YTD Energy</span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">GWh</span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <span style="font-size:14px">Last Day Wind Speed</span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">m/s</span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">MTD Wind Speed</span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">m/s</span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">YTD Wind Speed</span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">m/s</span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
-        </div>
+                            <!-- <img src="~/Content/img/image002.png" />-->
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="card tbl-head" style="max-height: 185px; height: 185px; width: 100%; padding: 1rem 1rem 0 0; border-radius: 3rem;">
+                            <table style="border-collapse: collapse; width: 100%;">
+                                <tbody>
+                                    <tr style="border-bottom:2px solid lightgray">
+                                        <td rowspan="2">
+                                            <div style="width: 70%; float: left; text-align: center;">
+                                                <img src="~/Content/img/image019.png" width="60" height="60" />
+                                                <br><span>Solar <br> (530 MW)</span>
+                                            </div>
+                                            <div style="width: 30%; float: left;">
+                                                <img src="~/Content/img/image020.png" width="40" height="40" />
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">Last Day Energy </span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">MWh</span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">MTD Energy </span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">GWh</span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">YTD Energy </span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">GWh</span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td>
+                                            <span style="font-size:14px">Last Day IR</span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">kWh/m<sup>2</sup></span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">MTD IR </span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">kWh/m<sup>2</sup></span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+                                        </td>
+                                        <td>
+                                            <span style="font-size:14px">YTD IR </span><br>
+                                            <span style="font-size:15px"><b>0</b></span>
+                                            <span style="font-size:12px">kWh/m<sup>2</sup></span><br>
+                                            <span style="font-size:12px">(%)</span><br>
+
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
 
 
-    </section>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="card-header">
+                    <h3 class="card-title text-center">Generation Trend</h3>
+                </div>
+                <br>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group row">
+                                <div class="col-sm-6">
+                                    <div class="custom-control custom-radio ">
+                                        <input class="custom-control-input" type="radio" id="customRadio1" name="customRadio">
+                                        <label for="customRadio1" class="custom-control-label">Last 10 Days</label>
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="custom-control custom-radio ">
+                                        <input class="custom-control-input" type="radio" id="customRadio2" name="customRadio" checked>
+                                        <label for="customRadio2" class="custom-control-label">Monthly</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-8">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col-sm-6">
+                            
+                            <canvas id="energy_wind" style="min-height: 400px; height: 400px; max-height: 400px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="col-sm-6">
+                         
+                            <canvas id="energy_solar" style="min-height: 400px; height: 400px; max-height: 400px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+
+</section>
 
 </div>
 <!-- /.content-wrapper -->
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+
+<script src="~/Content/theme/plugins/chart.js/Chart.min.js"></script>
+<script type="text/javascript">
+    window.onload = function () {
+        getYear();
+        getWindSite();
+        getSolarSite();
+
+        new Chart(document.getElementById("energy_wind"), {
+            type: 'bar',
+            data: {
+                labels: ["April", "May", "June", "July","August","September","October","November","December","January","February","March"],
+                datasets: [{
+                    label: "Target Wind",
+                    type: "line",
+                    borderColor: "#86C466",
+                    data: [408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                    fill: false
+                }, {
+                    label: "Actual Wind",
+                    type: "line",
+                    borderColor: "#FFCA5A",
+                    data: [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
+                    fill: false
+                }, {
+                    label: "Target Energy",
+                    type: "bar",
+                    backgroundColor: "#77CAE7",
+                    data: [408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                }, {
+                    label: "Actual Energy",
+                    type: "bar",
+                    backgroundColor: "#31576D",
+                    backgroundColorHover: "#3e95cd",
+                    data: [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                }
+                ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Monthly'
+                },
+                legend: {
+                    display: true,
+                    position:"bottom"
+                }
+            }
+        });
+
+        new Chart(document.getElementById("energy_solar"), {
+            type: 'bar',
+            data: {
+                labels: ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"],
+                datasets: [{
+                    label: "Target IR",
+                    type: "line",
+                    borderColor: "#86C466",
+                    data: [408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                    fill: false
+                }, {
+                    label: "Actual IR",
+                    type: "line",
+                    borderColor: "#FFCA5A",
+                    data: [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
+                    fill: false
+                }, {
+                    label: "Target Energy",
+                    type: "bar",
+                    backgroundColor: "#77CAE7",
+                    data: [408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                }, {
+                    label: "Actual Energy",
+                    type: "bar",
+                    backgroundColor: "#31576D",
+                    backgroundColorHover: "#3e95cd",
+                    data: [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                }
+                ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'Monthly'
+                },
+                legend: {
+                    display: true,
+                    position: "bottom"
+                }
+            }
+        });
+    }
+
+    function getYear() {
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetFinacialYear", "Dashboard")',
+            //url: "/Dashboard/GetFinacialYear",
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                options += '<option value="">Select Financial Year</option>';
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
+                }
+                $("#fy").html(options);
+
+            }
+        });
+    }
+    function getWindSite() {
+        $.ajax({
+            type: "GET",
+           // url: "/Dashboard/GetWindSiteList",
+            url: '@Url.Action("GetWindSiteList", "Dashboard")',
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var options = "";
+                options += '<option value="">Select Wind Site</option>';
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].site_master_id + '">' + result[i].site + '</option>';
+                }
+                $("#wind_site").html(options);
+
+            }
+        });
+    }
+    function getSolarSite() {
+        $.ajax({
+            type: "GET",
+            //url: "/Dashboard/GetSolarSiteList",
+             url: '@Url.Action("GetSolarSiteList", "Dashboard")',
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var options = "";
+                options += '<option value="">Select Solar Site</option>';
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].site_master_solar_id + '">' + result[i].site + '</option>';
+                }
+                $("#solar_site").html(options);
+
+            }
+        });
+    }
+    // Wind call
+    function GetWindDataByLastDay() {
+        var startDate="2022-04-01";
+        var endDate = "2022-04-30";
+        var FY = "2022-23";
+        var sites="";
+        var date = "2022-04-01";
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetWindDashboardDataByLastDay?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + sites + "&date=" + date,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+
+            }
+        });
+    }
+    function GetWindData() {
+        var startDate = "2022-04-01";
+        var endDate = "2020-04-30";
+        var FY = "2022-23";
+        var sites = "";
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetWindDashboardData?startDate" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + sites,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+
+            }
+        });
+    }
+    function GetWindDataByCurrentMonth() {
+        var startDate = "2022-04-01";
+        var endDate = "2022-04-30";
+        var FY = "2022-23";
+        var sites = "";
+        var month = "4";
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetWindDashboardDataByCurrentMonth?startDate=" + startDate + "&endDate=" + endDate + "&FY" + FY + "&sites=" + sites + "&month=" + month,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+
+            }
+        });
+    }
+    function GetWindDataByYearly() {
+        var startDate = "2022-04-01";
+        var endDate = "2022-04-30";
+        var FY = "2022-23";
+        var sites = "";
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetWindDashboardDataByYearly?startDate=" + startDate + "&endDate=" + endDate + "&FY" + FY + "&sites=" + sites,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+
+            }
+        });
+    }
+
+    // Solar call
+    function GetSolarDataByLastDay() {
+        var startDate = "2022-04-01";
+        var endDate = "2022-04-30";
+        var FY = "2022-23";
+        var sites = "";
+        var date = "2022-04-01";
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetSolarDashboardDataByLastDay?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + sites + "&date=" + date,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+
+            }
+        });
+    }
+    function GetSolarData() {
+        var startDate = "2022-04-01";
+        var endDate = "2020-04-30";
+        var FY = "2022-23";
+        var sites = "";
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetSolarDashboardData?startDate" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + sites,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+
+            }
+        });
+    }
+    function GetSolarDataByCurrentMonth() {
+        var startDate = "2022-04-01";
+        var endDate = "2022-04-30";
+        var FY = "2022-23";
+        var sites = "";
+        var month = "4";
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetSolarDashboardDataByCurrentMonth?startDate=" + startDate + "&endDate=" + endDate + "&FY" + FY + "&sites=" + sites + "&month=" + month,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+
+            }
+        });
+    }
+    function GetSolarDataByYearly() {
+        var startDate = "2022-04-01";
+        var endDate = "2022-04-30";
+        var FY = "2022-23";
+        var sites = "";
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetSolarDashboardDataByYearly?startDate=" + startDate + "&endDate=" + endDate + "&FY" + FY + "&sites=" + sites,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+
+            }
+        });
+    }
+</script>

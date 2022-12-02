@@ -1,6 +1,6 @@
 ﻿@model DGRA_V1.Models.CountryList
 @{
-    ViewData["Title"] = "Wind Performance Reports";
+    ViewData["Title"] = "Wind Location Master Reports";
 }
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -78,15 +78,16 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript">
-   
+
     window.onload = function () {
-      
+
         getLocationData();
     }
     function getLocationData() {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetLocationMaster",
+            url: '@Url.Action("GetLocationMaster", "WindReport")',
+           // url: "/WindReport/GetLocationMaster",
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -94,20 +95,20 @@
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<td>Site</td>';
-                tbl += '<td>WTG</td>';
-                tbl += '<td>Feeder</td>';
-                tbl += '<td>Max kWh/Day</td>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>WTG</th>';
+                tbl += '<th>Feeder</th>';
+                tbl += '<th>Max kWh/Day</th>';
                 tbl += '</tr></thead>';
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
 
-                      
+
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].wtg + '</td>';
-                        tbl += '<td>' + result[i].feeder + '</td>';
-                        tbl += '<td>' + result[i].max_kwh_day + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td class="text-right">' + result[i].feeder.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].max_kwh_day.toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }
@@ -130,7 +131,7 @@
                     "autoWidth": false,
                     "responsive": true,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
+                $('#example1').removeClass('dataTable');
             }
         });
     }

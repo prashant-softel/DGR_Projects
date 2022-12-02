@@ -25,7 +25,7 @@ namespace DGRA_V1.Models
 
 
 
-    public static class Permission1
+   /* public static class Permission1
     {
 
         private static List<MonthList> _list = new List<MonthList>()
@@ -39,6 +39,6 @@ namespace DGRA_V1.Models
         public static List<MonthList> PermissionList { get { return _list; } }
 
 
-    }
+    }*/
 
 }

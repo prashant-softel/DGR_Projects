@@ -2,12 +2,22 @@
 @{
     ViewData["Title"] = "Solar Monthly Target KPI";
 }
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
 
     <section class="content-header">
-        <div class="container-fluid">
+        <!-- <div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
 
@@ -19,22 +29,15 @@
                     </ol>
                 </div>
             </div>
-        </div>
+        </div>-->
     </section>
 
     <section class="content">
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Monthly Target KPI</h3>
-                <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <!--<button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-                        <i class="fas fa-times"></i>
-                    </button>-->
-                </div>
+                <h3 class="card-title text-center">Solar Monthly Target KPI</h3>
+
             </div>
             <div class="card-body">
                 <div class="row">
@@ -101,12 +104,36 @@
 <!-- /.content-wrapper -->
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<!--Date Range -->
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/jquery/jquery.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/jszip/jszip.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript">
 
     window.onload = function () {
         $.ajax({
             type: "GET",
-            url: "/SolarReport/GetFinancialYear",
+            //url: "/SolarReport/GetFinancialYear",
+             url: '@Url.Action("GetFinancialYear", "SolarReport")',
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -128,14 +155,15 @@
         //var month = "Apr";
         $.ajax({
             type: "GET",
-            url: "/SolarView/SolarMonthlyTargetKPIView?year=" + year + "&month=" + month,
+            //url: "/SolarView/SolarMonthlyTargetKPIView?year=" + year + "&month=" + month,
+            url: '@Url.Action("SolarMonthlyTargetKPIView", "SolarView")' + '?year=' + year + '&month=' + month,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
-                tbl += '<thead><tr>';
+                tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<td>FY</td>';
                 tbl += '<td>Date</td>';
                 tbl += '<td>Site</td>';

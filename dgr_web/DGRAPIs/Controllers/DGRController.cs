@@ -51,6 +51,7 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
         #region get Masters
 
         [Route("GetWindSiteMaster")]
@@ -157,11 +158,9 @@ namespace DGRAPIs.Controllers
         }
         #endregion //Masters
 
-        // [Route("GetWindDashboardData")]
-        [Route("GetWindDashboardData/{startDate}/{endDate}/{FY}/{sites}")]
-        //  [HttpGet("{filter}/{FY}")]
-        // [HttpGet("startDate={startDate}&endDate={endDate}&FY={FY}")]
-        //[Route("GetVolunteersByEmpId/{emdId}")]
+         [Route("GetWindDashboardData")]
+        //[Route("GetWindDashboardData/{startDate}/{endDate}/{FY}/{sites}")]
+      
         [HttpGet]
         public async Task<IActionResult> GetWindDashboardData(string startDate, string endDate, string FY, string sites)
         {
@@ -197,7 +196,8 @@ namespace DGRAPIs.Controllers
         //}
 
 
-        [Route("GetWindDashboardDataByLastDay/{startDate}/{endDate}/{FY}/{sites}/{date}")]
+       // [Route("GetWindDashboardDataByLastDay/{startDate}/{endDate}/{FY}/{sites}/{date}")]
+        [Route("GetWindDashboardDataByLastDay")]
         [HttpGet]
         public async Task<IActionResult> GetWindDashboardDataByLastDay(string startDate, string endDate, string FY, string sites,string date)
         {
@@ -213,7 +213,8 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Route("GetWindDashboardDataByCurrentMonth/{startDate}/{endDate}/{FY}/{sites}/{month}")]
+        //[Route("GetWindDashboardDataByCurrentMonth/{startDate}/{endDate}/{FY}/{sites}/{month}")]
+        [Route("GetWindDashboardDataByCurrentMonth")]
         [HttpGet]
         public async Task<IActionResult> GetWindDashboardDataByCurrentMonth(string startDate, string endDate, string FY, string sites, string month)
         {
@@ -229,7 +230,8 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Route("GetWindDashboardDataByYearly/{startDate}/{endDate}/{FY}/{sites}")]
+        //[Route("GetWindDashboardDataByYearly/{startDate}/{endDate}/{FY}/{sites}")]
+        [Route("GetWindDashboardDataByYearly")]
         [HttpGet]
         public async Task<IActionResult> GetWindDashboardDataByYearly(string startDate, string endDate, string FY, string sites)
         {
@@ -247,7 +249,8 @@ namespace DGRAPIs.Controllers
         }
 
 
-        [Route("GetSolarDashboardData/{startDate}/{endDate}/{FY}/{sites}")]
+        //[Route("GetSolarDashboardData/{startDate}/{endDate}/{FY}/{sites}")]
+        [Route("GetSolarDashboardData")]
         [HttpGet]
         public async Task<IActionResult> GetSolarDashboardData(string startDate, string endDate, string FY, string sites)
         {
@@ -264,7 +267,8 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("GetSolarDashboardDataByLastDay/{startDate}/{endDate}/{FY}/{sites}/{date}")]
+        //[Route("GetSolarDashboardDataByLastDay/{startDate}/{endDate}/{FY}/{sites}/{date}")]
+        [Route("GetSolarDashboardDataByLastDay")]
         [HttpGet]
         public async Task<IActionResult> GetSolarDashboardDataByLastDay(string startDate, string endDate, string FY, string sites, string date)
         {
@@ -280,7 +284,8 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Route("GetSolarDashboardDataByCurrentMonth/{startDate}/{endDate}/{FY}/{sites}/{month}")]
+        //[Route("GetSolarDashboardDataByCurrentMonth/{startDate}/{endDate}/{FY}/{sites}/{month}")]
+        [Route("GetSolarDashboardDataByCurrentMonth")]
         [HttpGet]
         public async Task<IActionResult> GetSolarDashboardDataByCurrentMonth(string startDate, string endDate, string FY, string sites, string month)
         {
@@ -296,7 +301,8 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Route("GetSolarDashboardDataByYearly/{startDate}/{endDate}/{FY}/{sites}")]
+        //[Route("GetSolarDashboardDataByYearly/{startDate}/{endDate}/{FY}/{sites}")
+        [Route("GetSolarDashboardDataByYearly")]
         [HttpGet]
         public async Task<IActionResult> GetSolarDashboardDataByYearly(string startDate, string endDate, string FY, string sites)
         {
@@ -539,8 +545,25 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        //[Route("GetWindPerformanceReportSiteWise/{fy}/{fromDate}/{toDate}")]
-        [Route("GetWindPerformanceReportSiteWise")]
+        [Route("GetWindPerformanceReportSiteWise_2")]
+        [HttpGet]
+        public async Task<IActionResult> GetWindPerformanceReportSiteWise_2(string fromDate, string toDate, string site)
+        {
+            try
+            {
+                var data = await _dgrBs.GetWindPerformanceReportSiteWise_2(fromDate, toDate, site);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+         //[Route("GetWindPerformanceReportSiteWise/{fy}/{fromDate}/{toDate}")]
+         [Route("GetWindPerformanceReportSiteWise")]
         [HttpGet]
         public async Task<IActionResult> GetWindPerformanceReportSiteWise(string fy, string fromDate, string todate)
         {
@@ -615,11 +638,11 @@ namespace DGRAPIs.Controllers
 
         [Route("CalculateDailyWindKPI")]
         [HttpGet]
-        public async Task<IActionResult> CalculateDailyWindKPI(string fromDate, string toDate, string site)
+        public async Task<IActionResult> CalculateDailyWindKPI(string fromDate, string toDate, string site, string logFileName)
         {
             try
             {
-                var data = await _dgrBs.CalculateDailyWindKPI(fromDate, toDate, site);
+                var data = await _dgrBs.CalculateDailyWindKPI(fromDate, toDate, site, logFileName);
                 return Ok(data);
 
             }

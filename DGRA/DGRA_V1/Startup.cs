@@ -34,15 +34,19 @@ namespace DGRA_V1
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Enable CORS
+            services.AddCors(c =>
+            c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+
             ConfigSetting.ApplicationConfig(services, Configuration);
-            services.AddControllersWithViews();
+          //  services.AddControllersWithViews();
             services.AddMvc(options => options.EnableEndpointRouting = false);
             services.AddControllersWithViews();
             services.AddRazorPages();
-          
+
             //  services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
-            
-         //   services.AddScoped<IDapperRepository, DapperRepository>();
+
+            //   services.AddScoped<IDapperRepository, DapperRepository>();
 
             //services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
             //.AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"));
@@ -55,21 +59,21 @@ namespace DGRA_V1
             //    options.Filters.Add(new AuthorizeFilter(policy));
             //});
 
-            var initialScopes = Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
+            //var initialScopes = Configuration.GetValue<string>("DownstreamApi:Scopes")?.Split(' ');
 
-            services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
-                .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
-                    .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
-                        .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
-                        .AddInMemoryTokenCaches();
-
-            services.AddControllersWithViews(options =>
-            {
-                var policy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .Build();
-                options.Filters.Add(new AuthorizeFilter(policy));
-            });
+            //services.AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+            //    .AddMicrosoftIdentityWebApp(Configuration.GetSection("AzureAd"))
+            //        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
+            //            .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
+            //            .AddInMemoryTokenCaches();
+            
+            //services.AddControllersWithViews(options =>
+            //{
+            //    var policy = new AuthorizationPolicyBuilder()
+            //        .RequireAuthenticatedUser()
+            //        .Build();
+            //    options.Filters.Add(new AuthorizeFilter(policy));
+            //});
             services.AddRazorPages()
                  .AddMicrosoftIdentityUI();
             services.AddSession(options => {
@@ -103,12 +107,12 @@ namespace DGRA_V1
             app.UseSession();
 
             app.UseRouting();
-
+            app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
 
 
-      
+
 
 
             app.UseEndpoints(endpoints =>

@@ -38,7 +38,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Monthly JMR</h3>
+                <h3 class="card-title text-center">Wind Monthly JMR</h3>
 
             </div>
             <div class="card-body">
@@ -129,7 +129,8 @@
     window.onload = function () {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetFinacialYear",
+            //url: "/WindReport/GetFinacialYear",
+            url: '@Url.Action("GetFinacialYear", "WindReport")',
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -148,7 +149,8 @@
         var month = $('select#month option:selected').val();
         $.ajax({
             type: "GET",
-            url: "/WindView/GetMonthlyJMRView?year=" + year + "&month=" + month,
+            //url: "/WindView/GetMonthlyJMRView?year=" + year + "&month=" + month,
+            url: '@Url.Action("GetMonthlyJMRView", "WindView")' + '?year=' + year + '&month=' + month,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
@@ -170,7 +172,7 @@
                 tbl += '<th>Import kVArh log</th>';
                 tbl += '<th>Export kVArh lead</th>';
                 tbl += '<th>Import kVArh lead</th>';
-                tbl += '<th >JMR Date</th>';
+                tbl += '<th style="width: 150px;">JMR Date</th>';
                 tbl += '<th>JMR Month</th>';
                 tbl += '<th>JMR Year</th>';
                 tbl += '<th>Line Loss</th>';
@@ -182,48 +184,62 @@
                     for (var i = 0; i < result.length; i++) {
                         var tempDate = new Date(result[i].jmR_date);
                         var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
+                        var plant_sel = result[i].plant_Section;
+                        if (result[i].plant_Section == null || result[i].plant_Section == "") {
+                            plant_sel = "";
+                        }
+                        var sch_Unit = result[i].scheduled_Units_kWh;
+                        if (result[i].scheduled_Units_kWh == null ) {
+                            sch_Unit = 0;
+                        }
+                        var export_kVArh_lags = result[i].export_kVArh_lag;
+                        if (result[i].export_kVArh_lag == null  ) {
+                            export_kVArh_lags = 0;
+                        }
+
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].fy + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].plant_Section + '</td>';
-                        tbl += '<td>' + result[i].controller_KWH_INV + '</td>';
-                        tbl += '<td>' + result[i].scheduled_Units_kWh + '</td>';
-                        tbl += '<td>' + result[i].export_kWh + '</td>';
-                        tbl += '<td>' + result[i].import_kWh + '</td>';
-                        tbl += '<td>' + result[i].net_Export_kWh + '</td>';
-                        tbl += '<td>' + result[i].export_kVAh + '</td>';
-                        tbl += '<td>' + result[i].import_kVAh + '</td>';
-                        tbl += '<td>' + result[i].export_kVArh_lag + '</td>';
-                        tbl += '<td>' + result[i].import_kVArh_lag + '</td>';
-                        tbl += '<td>' + result[i].export_kVArh_lead + '</td>';
-                        tbl += '<td>' + result[i].import_kVArh_lead + '</td>';
-                        tbl += '<td>' + formattedDate + '</td>';
-                        tbl += '<td>' + result[i].jmR_Month + '</td>';
-                        tbl += '<td>' + result[i].jmR_Year + '</td>';
-                        tbl += '<td>' + result[i].lineLoss + '</td>';
-                        tbl += '<td>' + result[i].line_Loss_percentage + '</td>';
-                        tbl += '<td>' + result[i].rkvH_percentage + '</td>';
+                        tbl += '<td class="text-left">' + result[i].fy + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + plant_sel + '</td>';
+                        tbl += '<td class="text-right">' + result[i].controller_KWH_INV.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + sch_Unit.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].export_kWh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].import_kWh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].net_Export_kWh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].export_kVAh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].import_kVAh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + export_kVArh_lags.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].import_kVArh_lag.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].export_kVArh_lead.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].import_kVArh_lead.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].jmR_Month + '</td>';
+                        tbl += '<td class="text-right">' + result[i].jmR_Year + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lineLoss.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].line_Loss_percentage + '</td>';
+                        tbl += '<td class="text-right">' + result[i].rkvH_percentage + '</td>';
                         tbl += '</tr>';
                     }
                 }
                 else {
 
-                    tbl += '<tr><th colspan="20" style="text-align:center">Data Not Available <th></tr>';
+                   // tbl += '<tr><th colspan="20" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
                 $("#MontlyJMRView").html(tbl);
                 $.noConflict();
                 $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "responsive": false, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["csv", "excel","colvis"],
                     "paging": true,
                     "lengthChange": false,
                     "searching": true,
                     "ordering": true,
                     "info": true,
                     "autoWidth": false,
-                    "responsive": true,
+                    "responsive": false,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example1').removeClass('dataTable');
             }
         });
     }

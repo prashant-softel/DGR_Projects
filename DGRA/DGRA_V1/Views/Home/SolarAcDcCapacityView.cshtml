@@ -17,19 +17,19 @@
 <div class="content-wrapper">
 
     <section class="content-header">
-        <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
+        <!--<div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
 
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Solar AC DC Capacity</li>
-                    </ol>
-                </div>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Solar AC DC Capacity</li>
+                </ol>
             </div>
         </div>
+    </div>-->
     </section>
 
 
@@ -38,16 +38,8 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Solar AC DC Capacity</h3>
+                <h3 class="card-title text-center">Solar AC DC Capacity</h3>
 
-                <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -160,7 +152,8 @@
         var spv = "";
         $.ajax({
             type: "POST",
-            url: "/SolarReport/GetSiteList",
+           // url: "/SolarReport/GetSiteList",
+             url: '@Url.Action("GetSiteList", "SolarReport")',
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -189,14 +182,15 @@
         //var toDate = "2021-04-20";
         $.ajax({
             type: "POST",
-            url: "/SolarView/SolarAcDcCapacityView?site=" + site,
+            url: '@Url.Action("SolarAcDcCapacityView", "SolarView")' + '?site=' + site,
+            //url: "/SolarView/SolarAcDcCapacityView?site=" + site,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
-                tbl += '<thead><tr>';
+                tbl += '<thead  class="tbl-head"><tr>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Inverter</th>';
                 tbl += '<th>DC Capacity(KWP)</th>';

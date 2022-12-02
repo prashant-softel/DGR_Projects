@@ -11,11 +11,15 @@ namespace DGRAPIs.BS
     public interface iLoginBS
     {
         Task<int> eQry(string qry);
-         Task<UserLogin> GetUserLogin(string username, string password);
-      
+        //Task<List<UserLogin>> GetUserLogin(string username, string password);
+        Task<UserLogin> GetUserLogin(string username, string password);
         Task<int> WindUserRegistration(string fname, string useremail, string role, string created_on);
       
         Task<List<UserInfomation>> GetWindUserInformation(int login_id);
+        Task<List<HFEPage>> GetPageList(int login_id);
+        Task<List<UserAccess>> GetWindUserAccess(int login_id);
+
+        Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList);
 
     }
     public class LoginBS : iLoginBS
@@ -26,7 +30,8 @@ namespace DGRAPIs.BS
         {
             databaseProvider = dbProvider;
         }
-      
+
+        //public async Task<List<UserLogin>> GetUserLogin(string username, string password)
         public async Task<UserLogin> GetUserLogin(string username, string password)
         {
             try
@@ -65,6 +70,51 @@ namespace DGRAPIs.BS
                 using (var repos = new LoginRepository(getDB))
                 {
                     return await repos.GetWindUserInformation(login_id);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<List<HFEPage>> GetPageList(int login_id)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.GetPageList(login_id);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<List<UserAccess>> GetWindUserAccess(int login_id)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.GetWindUserAccess(login_id);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.SubmitUserAccess(login_id, siteList, pageList, reportList);
 
                 }
             }

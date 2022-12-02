@@ -1,0 +1,1218 @@
+﻿@model DGRA_V1.Models.CountryList
+@{
+    ViewData["Title"] = "Wind Weekly Reports";
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <!--<div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Wind Generation Reports</li>
+                </ol>
+            </div>
+        </div>
+    </div>-->
+    </section>
+
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Wind Weekly Performance Reports</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 col-sm-12">
+                        <div class="card card-primary card-outline card-tabs">
+                            <div class="p-0 pt-1 border-bottom-0">
+                                <!--<div class="card-header p-0 pt-1 border-bottom-0">-->
+                                <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="custom-tabs-two-op-tab" data-toggle="pill" href="#custom-tabs-two-op" role="tab" aria-controls="custom-tabs-two-op" aria-selected="true">Operational Performance</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="custom-tabs-two-pr-tab" data-toggle="pill" href="#custom-tabs-two-pr" role="tab" aria-controls="custom-tabs-two-pr" aria-selected="false">Weekly Performance</a>
+                                    </li>
+                                 </ul>
+                            </div>
+
+                            <div class="card-body">
+                                <div class="tab-content" id="custom-tabs-two-tabContent">
+                                    <div class="tab-pane fade show active" id="custom-tabs-two-op" role="tabpanel" aria-labelledby="custom-tabs-two-op-tab">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-4 col-form-label text-right">FY : </label>
+                                                        <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                                            <option value="">Select Financial Year</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="input-group " style="margin-left: -5px; width: 104%;">
+                                                    <label class="col-sm-4 col-form-label text-right">Date : </label>
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">
+                                                            <i class="far fa-calendar-alt"></i>
+                                                        </span>
+                                                    </div>
+                                                    <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2"></div>
+                                            <div class="col-sm-2">
+                                                <button type="button" class="btn btn-block btn-primary" onclick="GetOperationPR();">Search</button>
+                                            </div>
+                                            <hr>
+
+                                        </div>
+                                        <hr>
+                                        <div class="row">
+                                            <div class="chart col-sm-4">
+                                                <canvas id="energy_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                            </div>
+                                            <div class="chart col-sm-4">
+                                                <canvas id="wind_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                            </div>
+                                            <div class="chart col-sm-4">
+                                                <canvas id="plf_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                                            </div>
+                                        </div>
+                                        </div>
+                                        <div class="tab-pane fade" id="custom-tabs-two-pr" role="tabpanel" aria-labelledby="custom-tabs-two-pr-tab">
+                                            <div class="row">
+                                                <div class="col-sm-4">
+                                                    <div class="form-group">
+                                                        <div class="row">
+                                                            <label class="col-sm-4 col-form-label text-right">FY : </label>
+                                                            <select class="form-control  col-sm-8" id="fy1" name="fy1" value="">
+                                                                <option value="">Select Financial Year</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-4">
+                                                    <div class="input-group " style="margin-left: -5px; width: 104%;">
+                                                        <label class="col-sm-4 col-form-label text-right">Date : </label>
+                                                        <div class="input-group-prepend">
+                                                            <span class="input-group-text">
+                                                                <i class="far fa-calendar-alt"></i>
+                                                            </span>
+                                                        </div>
+                                                        <input type="text" class="form-control float-right" id="daterange1" name="daterange1">
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-2"></div>
+                                                <div class="col-sm-2">
+                                                    <button type="button" class="btn btn-block btn-primary" onclick="GetMonthlyGenReport();">Search</button>
+                                                </div>
+                                            </div>
+                                            <div class="row">
+                                                <div class="col-sm-5">
+                                                    <div class="table-responsive pad">
+                                                        <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                                            <label class="btn bg-olive">
+                                                                <input type="radio" name="weekly" value="SPV" id="weekly_b1" autocomplete="off" checked> Performance By SPV
+                                                            </label>
+                                                            <label class="btn bg-olive">
+                                                                <input type="radio" name="weekly" value="Site" id="weekly_b2" autocomplete="off"> Performance By Site
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="col-sm-7"></div>
+                                            </div>
+                                            <hr>
+                                            <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                                <!-- /.card -->
+                         </div>
+                    </div>
+                </div>
+
+                <!--<div class="card-footer">
+        Footer
+    </div>-->
+
+            </div>
+
+
+    </section>
+
+</div>
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<!--Datatable -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/Content/theme/plugins/chart.js/Chart.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+        $('#daterange1').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+    window.onload = function () {
+        
+        getYear();
+    }
+    function getYear() {
+    $.ajax({
+        type: "GET",
+        url: "/WindReport/GetFinacialYear",
+        contentType: "application/json; charset=utf-8",
+        //data: '{"countryname":"' + selcountry + '"}',
+        datatype: "html",
+        success: function (result, status, xhr) {
+            var options = "";
+            options += '<option value="">Select Financial Year</option>';
+            for (var i = 0; i < result.length; i++) {
+                options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
+            }
+            $("#fy").html(options);
+            $("#fy1").html(options);
+        }
+    });
+    }
+   
+  
+    function GetOperationPR() {
+
+        var Tar_energy = 0;
+        var Act_energy = 0;
+        var energy_var =0
+        var Tar_wind = 0;
+        var Act_wind = 0;
+        var wind_var = 0;
+        var Tar_plf = 0;
+        var Act_plf = 0;
+        var plf_var = 0;
+        var Tar_ma = 0;
+        var Act_ma = 0;
+        var ma_var = 0;
+        var Tar_iga = 0;
+        var Act_iga = 0;
+        var iga_var = 0;
+        var Tar_ega = 0;
+        var Act_ega = 0;
+        var ega_var = 0;
+        var wk_energy = [];
+        var wk_wind = [];
+        var wk_plf = [];
+        var wk_ma = [];
+        var wk_iga = [];
+        var wk_ega = [];
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var fy = $('select#fy option:selected').val();
+        var site = 190;
+        //202-10-07'2022 - 10 - 07'
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetWeeklyOperation?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+                Tar_energy  = result[0].tar_kwh_mu;
+                Act_energy = result[0].act_jmr_kwh_mu;
+                energy_var = (Act_energy - Tar_energy) / Tar_energy;
+                let en_pasitive;
+                let en_negative;
+                if (energy_var < 0) {
+                    en_negative = energy_var;
+                }
+                else {
+                    en_pasitive = energy_var;
+                }
+                wk_energy.push({ "Target": Tar_energy }, { "Actual": Act_energy }, { "-ve": en_negative }, { "+ve": en_pasitive });
+
+                Tar_wind = result[0].tar_wind;
+                Act_wind    = result[0].act_Wind;
+                wind_var = (Act_wind - Tar_wind) / Tar_wind;
+                let w_positive;
+                let w_negative;
+                if (wind_var < 0) {
+                    w_negative = wind_var;
+                }
+                else {
+                    w_positive = wind_var;
+                }
+                wk_wind.push({ "Target": Tar_energy }, { "Actual": Act_energy }, { "-ve": w_negative }, { "+ve": w_positive });
+                Tar_plf = result[0].tar_plf;
+                Act_plf = result[0].act_plf;
+                plf_var = (Act_plf - Tar_plf) / Tar_plf;
+
+                let plf_positive;
+                let plf_negative;
+                if (plf_var < 0) {
+                    plf_negative = plf_var;
+                }
+                else {
+                    plf_positive = plf_var;
+                }
+                wk_plf.push({ "Target": Tar_energy }, { "Actual": Act_energy }, { "-ve": plf_negative }, { "+ve": plf_positive });
+
+                Tar_ma      = result[0].tar_ma;
+                Act_ma = result[0].act_ma;
+                ma_var = (Act_ma - Tar_ma);
+                let ma_positive;
+                let ma_negative;
+                if (ma_var < 0) {
+                    ma_negative = ma_var;
+                }
+                else {
+                    ma_positive = ma_var;
+                }
+                wk_ma.push({ "Target": Tar_energy }, { "Actual": Act_energy }, { "-ve": ma_negative }, { "+ve": ma_positive });
+                Tar_iga     = result[0].tar_iga;
+                Act_iga = result[0].act_iga;
+                iga_var = (Act_iga - Tar_iga);
+                let iga_positive;
+                let iga_negative;
+                if (iga_var < 0) {
+                    iga_negative = iga_var;
+                }
+                else {
+                    iga_positive = iga_var;
+                }
+                wk_iga.push({ "Target": Tar_energy }, { "Actual": Act_energy }, { "-ve": iga_negative }, { "+ve": iga_positive });
+                Tar_ega     = result[0].tar_ega;
+                Act_ega     = result[0].act_ega;
+                ega_var = (Act_ega - Tar_ega);
+                let ega_positive;
+                let ega_negative;
+                if (ega_var < 0) {
+                    ega_negative = ega_var;
+                }
+                else {
+                    ega_positive = ega_var;
+                }
+                wk_ega.push({ "Target": Tar_energy }, { "Actual": Act_energy }, { "-ve": ega_negative }, { "+ve": ega_positive });
+
+                var barChartCanvas = $('#energy_chart').get(0).getContext('2d')
+                var barChartData = $.extend(true, {}, areaChartData)
+                var temp0 = areaChartData.datasets[0]
+                var temp1 = areaChartData.datasets[1]
+                barChartData.datasets[0] = temp1
+                barChartData.datasets[1] = temp0
+
+                var barChartOptions = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    datasetFill: false
+                }
+
+                new Chart(barChartCanvas, {
+                    type: 'bar',
+                    data: barChartData,
+                    options: barChartOptions
+                })
+
+                var barChartCanvas1 = $('#wind_chart').get(0).getContext('2d')
+                var barChartData1 = $.extend(true, {}, areaChartData)
+                var temp2 = areaChartData.datasets[0]
+                var temp3 = areaChartData.datasets[1]
+                barChartData.datasets[0] = temp2
+                barChartData.datasets[1] = temp3
+                var barChartOptions1 = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    datasetFill: false
+                }
+
+                new Chart(barChartCanvas1, {
+                    type: 'bar',
+                    data: barChartData1,
+                    options: barChartOptions1
+                })
+
+                var barChartCanvas2 = $('#plf_chart').get(0).getContext('2d')
+                var barChartData2 = $.extend(true, {}, areaChartData)
+                var temp4 = areaChartData.datasets[0]
+                var temp5 = areaChartData.datasets[1]
+                barChartData.datasets[0] = temp4
+                barChartData.datasets[1] = temp5
+                var barChartOptions2 = {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    datasetFill: false
+                }
+
+                new Chart(barChartCanvas2, {
+                    type: 'bar',
+                    data: barChartData2,
+                    options: barChartOptions2
+                })
+                
+            }
+        });
+        console.log("energy ",wk_energy);
+        console.log("wind ",wk_wind);
+        console.log("plf ",wk_plf);
+        console.log("ma ",wk_ma);
+        console.log("iga ",wk_iga);
+        console.log("ega ",wk_ega);
+    }
+    var areaChartData = {
+        labels: ['WK', 'MTD', 'YTD'],
+        datasets: [
+            {
+                label: 'Energy MUS',
+                backgroundColor: 'rgba(60,141,188,0.9)',
+                borderColor: 'rgba(60,141,188,0.8)',
+                pointRadius: false,
+                pointColor: '#3b8bba',
+                pointStrokeColor: 'rgba(60,141,188,1)',
+                pointHighlightFill: '#fff',
+                pointHighlightStroke: 'rgba(60,141,188,1)',
+                data: [28, 48, 40]
+            },
+            {
+                label: 'Electronics',
+                backgroundColor: 'rgba(210, 214, 222, 1)',
+                borderColor: 'rgba(210, 214, 222, 1)',
+                pointRadius: false,
+                pointColor: 'rgba(210, 214, 222, 1)',
+                pointStrokeColor: '#c1c7d1',
+                pointHighlightFill: '#fff',
+                pointHighlightStroke: 'rgba(220,220,220,1)',
+                data: [65, 59, 80]
+            },
+        ]
+    }
+
+   
+
+    function GetDailyGenReport() {
+
+        var ReportType = $("input[name='daily']:checked").val();
+        if (ReportType == "WTG") {
+            GetDailyGenReportWTGWise();
+        }
+        else {
+            GetDailyGenReportSiteWise();
+        }
+    }
+    // Daily Gen Report WTG WIse 
+    function GetDailyGenReportWTGWise() {
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var country = $('select#country option:selected').val();
+        var state = $('select#state option:selected').val();
+        var spv = $('select#spv option:selected').val();
+        var site = $('select#site option:selected').val();
+        var wtg = $('select#wtg option:selected').val();
+        var reportType = "WTG";
+        var reporthead = "WTG Wise Report";
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetWindDailyGenerationReportWTGWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
+            contentType: "application/json; charset=utf-8",
+           
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                
+                var tbl = '<div class="text-center"><h5>' + reporthead+'</h5></div>';
+                tbl += '<table id="example1"  class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th style="width:80px;">Date</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>WTG</th>';
+                tbl += '<th>Wind(m/s)</th>';
+                tbl += '<th>kWh</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load_Shedding</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                       
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                  
+                }
+                tbl += '</table>';
+                $("#reportsDaily").html(tbl);
+                $.noConflict();
+                /*$('#example1').DataTable({
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example1').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
+
+                    "columnDefs": [
+                        { "width": "15%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example1').removeClass('dataTable');
+                //document.getElementById("reportsDaily").style.display = 'block';
+                ///document.getElementById("reportsMonthly").style.display = 'block';
+               // document.getElementById("reportsYearly").style.display = 'block';
+            }
+        });
+
+    }
+   // -----------------------------------------------
+
+    // Daily Gen Report Site WIse 
+    function GetDailyGenReportSiteWise() {
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var country = $('select#country option:selected').val();
+        var state = $('select#state option:selected').val();
+        var spv = $('select#spv option:selected').val();
+        var site = $('select#site option:selected').val();
+        var wtg = $('select#wtg option:selected').val();
+        var reportType = "WTG";
+        var reporthead = "Site Wise Report";
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetWindDailyGenerationReportSiteWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                tbl += '<table id="example1"  class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th >Date</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Capacity(MW)</th>';
+                tbl += '<th>Wind(m/s)</th>';
+                tbl += '<th>kWh</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load_Shedding</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+
+                }
+                tbl += '</table>';
+                $("#reportsDaily").html(tbl);
+                $.noConflict();
+               /* $('#example1').DataTable({
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example1').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
+
+                    "columnDefs": [
+                        { "width": "15%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example1').removeClass('dataTable');
+                //document.getElementById("reportsDaily").style.display = 'block';
+                ///document.getElementById("reportsMonthly").style.display = 'block';
+                // document.getElementById("reportsYearly").style.display = 'block';
+            }
+        });
+    }
+
+
+   // -----------------------------------Monthly ---------------------//
+    function GetMonthlyGenReport() {
+       
+       var ReportType = $("input[name='monthly']:checked").val();
+        if (ReportType == "WTG") {
+           //alert("WTG");
+            GetMonthlyGenReportWTGWise();
+        }
+        else {
+            //alert("SIte");
+            GetMonthlyGenReportSiteWise();
+        }
+    }
+
+    // Mothly Report WTG Wise
+    function GetMonthlyGenReportWTGWise() {
+       
+        var country = $('select#countryM option:selected').val();
+        var state = $('select#stateM option:selected').val();
+        var spv = $('select#spvM option:selected').val();
+        var site = $('select#siteM option:selected').val();
+        var wtg = $('select#wtgM option:selected').val();
+        var year = $('select#fyM option:selected').val();
+        var month = $('select#monthM option:selected').val();
+        var arr1 = new Array();
+        arr1 = year.split("-");
+        var fromDate = "";
+        if (month >= '04' || month >= 04) {
+            fromDate = arr1[0] + '-' + month + '-01';
+        }
+        else
+        {
+            fromDate = '20' + arr1[1] + '-' + month + '-01';
+        }
+        
+        var reportType = "WTG";
+        var reporthead = "WTG Wise Report";
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetWindMonthlyGenerationReportWTGWise?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+               
+                var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                tbl += '<table id="example2"  class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>FY</th>';
+                tbl += '<th>Month</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>WTG</th>';
+                tbl += '<th>Wind(m/s)</th>';
+                tbl += '<th>kWh</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load_Shedding</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + result[i].year + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                    // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                }
+               tbl += '</table>';
+                $("#reportsMonthly").html(tbl);
+                $.noConflict();
+               /* $('#example2').DataTable({
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example2').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
+
+                    "columnDefs": [
+                        { "width": "8%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example2').removeClass('dataTable');
+            }
+        });
+
+    }
+    //------------------------------------
+    // Mothly Report SIte Wise
+    function GetMonthlyGenReportSiteWise() {
+
+        var country = $('select#countryM option:selected').val();
+        var state = $('select#stateM option:selected').val();
+        var spv = $('select#spvM option:selected').val();
+        var site = $('select#siteM option:selected').val();
+        var wtg = $('select#wtgM option:selected').val();
+        var fyyear = $('select#fyM option:selected').val();
+        var month = $('select#monthM option:selected').val();
+        var arr1 = new Array();
+        arr1 = fyyear.split("-");
+        var fromDate = "";
+        if (month >= '04' || month >= 04) {
+            fromDate = arr1[0] + '-' + month + '-01';
+        }
+        else {
+            fromDate = '20' + arr1[1] + '-' + month + '-01';
+        }
+
+        var reportType = "WTG";
+        var reporthead = "WTG Wise Report";
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetWindMonthlyGenerationReportSiteWise?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+                var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                tbl += '<table id="example2"  class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>FY</th>';
+                tbl += '<th>Month</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Capacity(MW)</th>';
+                tbl += '<th>Wind(m/s)</th>';
+                tbl += '<th>kWh</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load_Shedding</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + fyyear + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                   
+                }
+                tbl += '</table>';
+                $("#reportsMonthly").html(tbl);
+                $.noConflict();
+               /* $('#example2').DataTable({
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example2').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
+
+                    "columnDefs": [
+                        { "width": "8%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example2').removeClass('dataTable');
+            }
+        });
+
+    }
+
+    // -----------------------------------Yearly ---------------------//
+    function GetYearlyGenReport() {
+
+        var ReportType = $("input[name='yearly']:checked").val();
+        if (ReportType == "WTG") {
+            //alert("WTG");
+            GetYearlyGenReportWTGWise();
+        }
+        else {
+            //alert("SIte");
+            GetYearlyGenReportSiteWise();
+        }
+    }
+
+    // Yearly WTG Wise
+    function GetYearlyGenReportWTGWise() {
+        var country = $('select#countryM option:selected').val();
+        var state = $('select#stateM option:selected').val();
+        var spv = $('select#spvY option:selected').val();
+        var site = $('select#siteY option:selected').val();
+        var wtg = $('select#wtgY option:selected').val();
+        var fyyear = $('select#fyY option:selected').val();
+        //var month = $('select#monthM option:selected').val();
+        var arr1 = new Array();
+        arr1 = fyyear.split("-");
+        var fromDate = "";
+        fromDate = arr1[0] +'-04-01';
+        toDate = '20' + arr1[1] + '-03-31';
+        
+       // alert(fromDate);
+      //  alert(toDate);
+        var reportType = "WTG";
+        var reporthead = "WTG Wise Report";
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetWindYearlyGenerationReportWTGWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+               
+                var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                tbl += '<table id="example3"  class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>Fy</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>WTG</th>';
+                tbl += '<th>Wind(m/s)</th>';
+                tbl += '<th>kWh</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load_Shedding</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                       // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + fyyear  + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                    // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#reportsYearly").html(tbl);
+               
+                $.noConflict();
+                
+                //$('#example1').DataTable().clear().destroy();
+               /* $('#example3').DataTable({
+                   
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example3').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
+
+                    "columnDefs": [
+                        { "width": "8%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example3').removeClass('dataTable');
+            }
+        });
+
+    }
+
+    // Yearly SIte Wise
+    function GetYearlyGenReportSiteWise() {
+        var country = $('select#countryM option:selected').val();
+        var state = $('select#stateM option:selected').val();
+        var spv = $('select#spvY option:selected').val();
+        var site = $('select#siteY option:selected').val();
+        var wtg = $('select#wtgY option:selected').val();
+        var fyyear = $('select#fyY option:selected').val();
+        //var month = $('select#monthM option:selected').val();
+        var arr1 = new Array();
+        arr1 = fyyear.split("-");
+        var fromDate = "";
+        fromDate = arr1[0] + '-04-01';
+        toDate = '20' + arr1[1] + '-03-31';
+
+        // alert(fromDate);
+        //  alert(toDate);
+        var reportType = "Site";
+        var reporthead = "Site Wise Report";
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetWindYearlyGenerationReportSiteWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                
+                var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                tbl += '<table id="example3"  class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>Fy</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Capacity(MW)</th>';
+                tbl += '<th>Wind(m/s)</th>';
+                tbl += '<th>kWh</th>';
+                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA%(ACT)</th>';
+                tbl += '<th>MA%(CON)</th>';
+                tbl += '<th>IGA%</th>';
+                tbl += '<th>EGA%</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load_Shedding</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + fyyear + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wind_speed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                    // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#reportsYearly").html(tbl);
+
+                $.noConflict();
+
+                //$('#example1').DataTable().clear().destroy();
+                /*$('#example3').DataTable({
+
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                $('#example3').DataTable({
+                    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                    "buttons": ["csv", "excel", "colvis"],
+                    "paging": true,
+
+                    "columnDefs": [
+                        { "width": "8%", "targets": 0 },
+
+                    ],
+                    "fixedColumns": true
+
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example3').removeClass('dataTable');
+            }
+        });
+
+    }
+
+</script>

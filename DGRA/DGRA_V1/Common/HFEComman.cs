@@ -8,70 +8,25 @@ using System.Web;
 
 namespace DGRA_V1.Common
 {
-    public class HFEComman
+    public  class HFEComman
     {
-        ReadOnlyDictionary<int, string> dict = new ReadOnlyDictionary<int, string>(new Dictionary<int, string> { { 1, "one" }, { 2, "two" } });
+        public  string name { set; get; }
+        public int value { set; get; }
     }
-    public class ReadOnlyDictionary<TKey, TValue>
+    public static class PageList
     {
-        private Dictionary<TKey, TValue> _dict;
-        public ReadOnlyDictionary(Dictionary<TKey, TValue> dict)
+        public static List<HFEComman> _list { get; } = new List<HFEComman>()
         {
-            _dict = dict;
-        }
+            new HFEComman{ name ="Generation View Summery",value=1},
+            new HFEComman{ name ="Daily Target KPI",value=2},
+            new HFEComman{ name ="Daily Loadshedding",value=3},
+            new HFEComman{ name ="Mothly Target KPI",value=4},
+            new HFEComman{ name ="Monthly Lineloss",value=5},
+            new HFEComman{ name ="Monthly JMR",value=6},
+           // new HFEComman{ name="2",value="1"},
+           // new HFEComman{ name="13",value="1"},
+        };
+        public static List<HFEComman> PermissionList { get { return _list; } }
 
-        public TValue this[TKey key] { get { return _dict[key]; } }
     }
-    /* public const int TheAnswerToLife = 42;
-     public const int TheFakeAnswerToLife = 43;
-     public const string Uploading_File_Generation = "Uploading_File_Generation$";
-     public static readonly int[] All = {
-       TheAnswerToLife,
-       TheFakeAnswerToLife
-      };
-
-     //internal string name;
-     //internal int value;
-
-
-     private static readonly List<SelectListItem> items;
-
-     public static SelectList SelectListItems
-     {
-         get { return new SelectList(items, "Value", "Text"); }
-     }
-
-     static HFEComman()
-     {
-         items = All.Select(s => new SelectListItem { Value = s.ToString(), Text = s.ToString() }).ToList();
-     }*/
-    /* enum ViewsPages_Type
-{
-eWindGenView = 1,
-eWindDailyTargetKpi = 2,
-eWindDailyLoadShedding = 3,
-eWindMonthlyTargetKpi = 4,
-eWindMothlyLineLoss = 5,
-eWindMonthlyJMR = 6
-}
-}
-enum Report_Type
-{
-eWindSiteMaster = 1,
-eWindLoactionMaster = 2,
-eWindDailyLoadShedding = 3,
-eWindGenReport = 4,
-eWindBDReport = 5,
-eWindPRReport = 6
-
-}
-
-private static readonly List<SelectListItem> items;
-
-public static SelectList SelectListItems
-{
-get { return new SelectList(items, "Value", "Text"); }
-}*/
-
-//}
 }

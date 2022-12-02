@@ -45,7 +45,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Wind Beakdown</h3>
+                <h3 class="card-title text-center">Wind Beakdown Reports</h3>
 
                 <!-- <div class="card-tools">
          <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -190,7 +190,8 @@
         var selcountry = $('select#country option:selected').val();
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetStateList?countryname=" + selcountry,
+           // url: "/WindReport/GetStateList?countryname=" + selcountry,
+            url: '@Url.Action("GetStateList", "WindReport")' + '?countryname=' + selcountry,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -226,7 +227,8 @@
     function GetSPV(val) {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetSPVList?state=" + val,
+           // url: "/WindReport/GetSPVList?state=" + val,
+            url: '@Url.Action("GetStateList", "WindReport")' + '?state=' + val,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -247,7 +249,8 @@
 
         $.ajax({
             type: "POST",
-            url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+            //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state + '&spv=' + spv,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -264,7 +267,8 @@
     function GetWTG(siteid) {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWTGList?siteid=" + siteid,
+            //url: "/WindReport/GetWTGList?siteid=" + siteid,
+            url: '@Url.Action("GetWTGList", "WindReport")' + '?siteid=' + siteid ,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -293,7 +297,8 @@
         var wtg = $('select#wtg option:selected').val();
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWindBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
+            //url: "/WindReport/GetWindBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
+            url: '@Url.Action("GetWindBreakdownReport", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg,
             contentType: "application/json; charset=utf-8",
             // data: '{"fromDate":"' + fromDate + '","toDate":"' + toDate + '","country":"' + country + '","state":"' + state + '","spv":"' + spv + '","site":"' + site + '","wtg":"' + wtg+'" }',
             datatype: "JSON",
@@ -301,7 +306,7 @@
                 //console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th style="width:80px;">Date</th>';
+                tbl += '<th style="width:100px;">Date</th>';
                 tbl += '<th>Country</th>';
                 tbl += '<th>State</th>';
                 tbl += '<th>SPV</th>';
@@ -320,40 +325,40 @@
                     for (var i = 0; i < result.length; i++) {
                         console.log(result[i].date);
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].date + '</td>';
-                        tbl += '<td>' + result[i].country + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].spv + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].wtg + '</td>';
-                        tbl += '<td>' + result[i].bd_type_name + '</td>';
-                        tbl += '<td>' + result[i].stop_from + '</td>';
-                        tbl += '<td>' + result[i].stop_to + '</td>';
-                        tbl += '<td>' + result[i].total_stop + '</td>';
-                        tbl += '<td>' + result[i].error_description + '</td>';
-                        tbl += '<td>' + result[i].action_taken + '</td>';
+                        tbl += '<td class="text-left">' + result[i].date + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td class="text-left">' + result[i].bd_type_name + '</td>';
+                        tbl += '<td class="text-right">' + result[i].stop_from + '</td>';
+                        tbl += '<td class="text-right">' + result[i].stop_to + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_stop + '</td>';
+                        tbl += '<td class="text-left">' + result[i].error_description + '</td>';
+                        tbl += '<td class="text-left">' + result[i].action_taken + '</td>';
                         tbl += '</tr>';
                     }
                 }
                 else {
                     console.log("Data not available");
-                    tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                   // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
                 $("#reports").html(tbl);
                 $.noConflict();
                 $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "responsive": false, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["csv", "excel", "colvis"],
                     "paging": true,
                     "lengthChange": false,
                     "searching": true,
                     "ordering": true,
                     "info": true,
                     "autoWidth": false,
-                    "responsive": true,
+                    "responsive": false,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
+                $('#example1').removeClass('dataTable');
             }
         });
 

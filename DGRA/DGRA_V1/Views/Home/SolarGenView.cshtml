@@ -47,7 +47,7 @@
     <section class="content">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Generation Summary</h3>
+                <h3 class="card-title text-center">Solar Generation Summary</h3>
                 @*<div class="card-tools">
                         <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
                             <i class="fas fa-minus"></i>
@@ -187,14 +187,15 @@
 
         $.ajax({
             type: "GET",
-            url: "/SolarView/SolarGenView?fromDate=" + fromDate + "&toDate=" + toDate,
+            url: '@Url.Action("SolarGenView", "SolarView")' + '?fromDate=' + fromDate + '&toDate=' + toDate,
+            //url: "/SolarView/SolarGenView?fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
-                tbl += '<thead><tr>';
+                tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<td class="theaddata" style="width:10%">Date</td>';
                 tbl += '<td class="theaddata" style="width:4%">State</td>';
                 tbl += '<td class="theaddata" style="width:6%">Site</td>';

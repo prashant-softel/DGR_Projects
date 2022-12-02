@@ -71,6 +71,55 @@ namespace Login.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Route("GetPageList")]
+        [HttpGet]
+        public async Task<IActionResult> GetPageList(int login_id)
+        {
+            try
+            {
+
+                var data = await _loginBs.GetPageList(login_id);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("GetWindUserAccess")]
+        [HttpGet]
+        public async Task<IActionResult> GetWindUserAccess(int login_id)
+        {
+            try
+            {
+
+                var data = await _loginBs.GetWindUserAccess(login_id);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("SubmitUserAccess")]
+        [HttpGet]
+        public async Task<IActionResult> SubmitUserAccess(int login_id,string siteList,string pageList,string reportList)
+        {
+            try
+            {
+
+                var data = await _loginBs.SubmitUserAccess(login_id, siteList, pageList, reportList);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
         [Route("eQry/{qry}")]
         [HttpGet]
         public async Task<IActionResult> eQry(string qry)

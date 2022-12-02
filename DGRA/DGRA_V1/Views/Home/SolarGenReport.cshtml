@@ -211,7 +211,8 @@
         var selcountry = $('select#country option:selected').val();
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetStateList?countryname=" + selcountry,
+            //url: "/WindReport/GetStateList?countryname=" + selcountry,
+            url: '@Url.Action("GetStateList", "WindReport")' + '?countryname=' + selcountry,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -247,7 +248,8 @@
     function GetSPV(val) {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetSPVList?state=" + val,
+            //url: "/WindReport/GetSPVList?state=" + val,
+            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + val,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -265,10 +267,11 @@
     function getSite() {
         var state = $('select#state option:selected').val();
         var spv = $('select#spv option:selected').val();
-       
+
         $.ajax({
             type: "POST",
-            url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+           // url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state + '&spv=' + spv,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -285,7 +288,8 @@
     function GetWTG(siteid) {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWTGList?siteid=" + siteid,
+           // url: "/WindReport/GetWTGList?siteid=" + siteid,
+            url: '@Url.Action("GetWTGList", "WindReport")' + '?siteid=' + siteid,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -310,7 +314,8 @@
         var wtg = $('select#wtg option:selected').val();
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetSolarGenerationReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
+            url: '@Url.Action("GetSolarGenerationReport", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg,
+            //url: "/WindReport/GetSolarGenerationReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
             contentType: "application/json; charset=utf-8",
             // data: '{"fromDate":"' + fromDate + '","toDate":"' + toDate + '","country":"' + country + '","state":"' + state + '","spv":"' + spv + '","site":"' + site + '","wtg":"' + wtg+'" }',
             datatype: "JSON",

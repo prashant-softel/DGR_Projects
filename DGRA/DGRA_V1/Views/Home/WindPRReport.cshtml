@@ -85,29 +85,47 @@
                             <div class="col-sm-3 text-center"></div>
                         </div>
                     </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-5">
-                            <div class="card-body table-responsive pad">
-                                <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                    <label class="btn bg-olive">
-                                        <input type="radio" name="reportType" value="Site" id="pr_b1" autocomplete="off" checked> Site Wise Report
-                                    </label>
-                                    <label class="btn bg-olive">
-                                        <input type="radio" name="reportType" value="SPV" id="pr_b2" autocomplete="off"> SPV Wise Report
-                                    </label>
-                                </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-5">
+                        <div class="card-body table-responsive pad">
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <label class="btn bg-olive">
+                                    <input type="radio" name="reportType" value="Site" id="pr_b1" autocomplete="off" checked> Site Wise Report
+                                </label>
+                                <label class="btn bg-olive">
+                                    <input type="radio" name="reportType" value="SPV" id="pr_b2" autocomplete="off"> SPV Wise Report
+                                </label>
                             </div>
                         </div>
-                        <div class="col-sm-2 text-center">
-                           
-                        </div>
-                        <div class="col-sm-5 text-center"></div>
+                    </div>
+                    <div class="col-sm-2 text-center">
+
+                    </div>
+                    <div class="col-sm-5 text-center"></div>
+                </div>
+
+                <hr>
+
+                <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
+                <hr>
+                <div class="row" id="sitewisechart" style="display:none">
+                    <div class="chart col-sm-6 text-center">
+                        <h5>Energy (MUs) </h5>
+                        <canvas id="energy_chart" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                    </div>
+                    <div class="chart col-sm-6 text-center">
+                        <h5>Wind (m/s) </h5>
+                    <canvas id="wind_chart" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
                     </div>
 
-                    <hr>
-                    <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
-
+                </div>
+                <div class="row" id="spvwisechart"  style="display:none">
+                    <div class="col-sm-6 text-center">
+                        <canvas id="pieChart" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                    </div>
+                    <div class="col-sm-6 text-center"></div>
+                    </div>
                 </div>
         </div>
      </div>
@@ -134,6 +152,7 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/Content/theme/plugins/chart.js/Chart.min.js"></script>
 <script type="text/javascript">
     $(document).ready(function () {
         $('#daterange').daterangepicker(
@@ -144,13 +163,14 @@
             });
     });
     window.onload = function () {
-      
+
         getYear();
     }
     function getYear() {
     $.ajax({
         type: "GET",
-        url: "/WindReport/GetFinacialYear",
+       // url: "/WindReport/GetFinacialYear",
+         url: '@Url.Action("GetFinacialYear", "WindReport")',
         contentType: "application/json; charset=utf-8",
         //data: '{"countryname":"' + selcountry + '"}',
         datatype: "html",
@@ -161,11 +181,11 @@
                 options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
             }
             $("#fy").html(options);
-            
+
         }
     });
     }
-   
+
     function GetPRReport() {
 
         var ReportType = $("input[name='reportType']:checked").val();
@@ -173,11 +193,11 @@
             GetWindPRReportSPVWise();
         }
         else {
-            
+
            GetWindPRReportSiteWise();
         }
     }
-    // Daily Gen Report SPV WIse 
+    // Daily Gen Report SPV WIse
     function GetWindPRReportSPVWise() {
         var daterange = $('#daterange').val();
         var arr1 = new Array();
@@ -185,73 +205,103 @@
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var fyear = $('select#fy option:selected').val();
-        var reporthead = "SPV Wise Report";
+        var leble = [];
+        var revenue_arr = [];
+        var reporthead = "SPV Wise Reports";
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWindPRReportSPVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
+            url: '@Url.Action("GetWindPRReportSPVWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            //url: "/WindReport/GetWindPRReportSPVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
-           
+
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
-                var tbl = '<div class="text-center"><h5>' + reporthead+'</h5></div>';
-                tbl += '<table id="example1"  class="table table-bordered table-striped">';
+                //var tbl = '<div class="text-center"><h5>' + reporthead+'</h5></div>';
+                var tbl= '<table id="example1"  class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th>SPV</th><th>Capcity</th>';
-                tbl += '<th colspan="3" class="text-center">Gen nos.(MUs)</th><th>Revenue</th>';
-                tbl += '<th colspan="3" class="text-center">Wind Speed(m/s)</th><th colspan="3" class="text-center">PLF</th>';
+                tbl += '<th rowspan="2">SPV</th><th rowspan="2">Capacity (MW)</th>';
+                tbl += '<th colspan="3" class="text-center">JMR Gen nos.(MUs)</th><th>Revenue</th>';
+                tbl += '<th colspan="3" class="text-center">Wind Speed (m/s)</th><th colspan="3" class="text-center">PLF</th>';
                 tbl += '<th colspan="3" class="text-center">MA (Actual)</th><th colspan="3" class="text-center">IGA</th>';
                 tbl += '<th colspan="3" class="text-center">EGA</th></tr>';
-                tbl += '<tr><th>&nbsp;</th>';
-                tbl += '<th>(MW)</th>';
-                tbl += '<th>Tar</th>';
-                tbl += '<th>Act JMR</th>';
-                tbl += '<th>Var(%)</th>';
+                //tbl += '<tr><th>&nbsp;</th>';
+               // tbl += '<th>(MW)</th>';
+                tbl += '<tr><th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>(MINR)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
-               
+                tbl += '<th>Var (%)</th>';
+
                 tbl += '</tr></thead>';
-               
+
                 if (result.length > 0) {
                     console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {
-                       // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        leble.push(result[i].spv);
+                        let revenue = 0;
+                        let jmr_var = 0;
+                        let wind_var = 0;
+                        let plf_var = 0;
+                        let ma_act_var = 0;
+                        let iga_var = 0;
+                        let ega_var = 0;
+                        revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
+                        if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
+                            jmr_var = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) / result[i].tar_kwh_mu) * 100;
+                        }
+                        if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
+                            wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
+                        }
+                        if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
+                            plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                        }
+                        if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
+                            ma_act_var = (result[i].act_ma - result[i].tar_ma);
+                        }
+                        if (result[i].act_iga != 0 || result[i].tar_iga != 0) {
+                            iga_var = (result[i].act_iga - result[i].tar_iga);
+                        }
+                        if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
+                            ega_var = (result[i].act_ega - result[i].tar_ega);
+                        }
+                        revenue_arr.push(revenue.toFixed(2));
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].spv + '</td>';
-                        tbl += '<td>' + result[i].total_mw.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].tar_kwh_mu.toFixed(2)+'</td>';
-                        tbl += '<td>' + result[i].act_jmr_kwh_mu.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_wind.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_Wind.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_plf.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_plf.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_ma.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_ma.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_iga.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_iga.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_ega.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_ega.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_kwh_mu.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].act_jmr_kwh_mu.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + jmr_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + revenue.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_wind.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_Wind.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + wind_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + plf_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ma_act_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + iga_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ega_var.toFixed(2)+'</td>';
 
                         tbl += '</tr>';
                     }
@@ -264,27 +314,99 @@
                 $("#reportsDaily").html(tbl);
                 $.noConflict();
                 $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "responsive": false, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["csv", "excel","colvis"],
                     "paging": true,
                     "lengthChange": false,
                     "searching": true,
                     "ordering": true,
                     "info": true,
                     "autoWidth": false,
-                    "responsive": true,
+                    "responsive": false,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
+                $('#example1').removeClass('dataTable');
                 //document.getElementById("reportsDaily").style.display = 'block';
-                ///document.getElementById("reportsMonthly").style.display = 'block';
-               // document.getElementById("reportsYearly").style.display = 'block';
+                document.getElementById("sitewisechart").style.display = 'none';
+                document.getElementById("spvwisechart").style.display = 'flex';
+                RevenueChart(leble, revenue_arr);
             }
+        });
+
+
+    }
+    function RevenueChart(lebels, data)
+    {
+        var ctx1 = $("#pieChart");
+        //pie chart data
+        var data1 = {
+            labels: lebels, //["match1", "match2", "match3", "match4", "match5"],
+            datasets: [
+                {
+                    label: lebels ,
+                    data:data,
+                    backgroundColor: [
+                        "#31576D",
+                        "#86C466",
+                        "#FFCA5A",
+                        "#EE403D",
+                        "#77CAE7",
+                        "#31576D",
+                        "#86C466",
+                        "#FFCA5A",
+                        "#EE403D",
+                        "#77CAE7"
+                    ],
+                    borderColor: [
+                        "#31576D",
+                        "#86C466",
+                        "#FFCA5A",
+                        "#EE403D",
+                        "#77CAE7",
+                        "#31576D",
+                        "#86C466",
+                        "#FFCA5A",
+                        "#EE403D",
+                        "#77CAE7"
+                    ],
+                    borderWidth: [1, 1, 1, 1, 1]
+                }
+            ]
+        };
+
+
+        //options
+        var options = {
+            responsive: true,
+            maintainAspectRatio: false,
+            title: {
+                display: true,
+                position: "top",
+                text: "Revenue (MINR) by SPVs",
+                fontSize: 14,
+                fontColor: "#111"
+            },
+            legend: {
+                display: true,
+                position: "left",
+                labels: {
+                    fontColor: "#333",
+                    fontSize: 12
+                }
+            }
+        };
+
+        //create Chart class object
+        var chart1 = new Chart(ctx1, {
+            type: "pie",
+            data: data1,
+            options: options,
+            maintainAspectRatio: false,
         });
 
     }
    // -----------------------------------------------
 
-    // Daily Gen Report Site WIse 
+    // Daily Gen Report Site WIse
     function GetWindPRReportSiteWise() {
         var daterange = $('#daterange').val();
         var arr1 = new Array();
@@ -292,74 +414,152 @@
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var fyear = $('select#fy option:selected').val();
-        var reporthead = "Site Wise Report";
+        var reporthead = "Site Wise Reports";
+        var Energy_Dataset = [];
+        var Wind_Dataset = [];
+        var Levels = [];
+        //var Actual_Energy_Dataset = [];
+        //var Energy_var_Dataset = [];
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetWindPRReportSiteWise?fy=" + fyear+" &fromDate=" + fromDate + "&toDate=" + toDate,
+              url: '@Url.Action("GetWindPRReportSiteWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            //url: "/WindReport/GetWindPRReportSiteWise?fy=" + fyear+" &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
-                var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
-                tbl += '<table id="example1"  class="table table-bordered table-striped">';
+               // var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                var tbl = '<table id="example2"  class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th>Site</th><th>Capcity</th>';
-                tbl += '<th colspan="3" class="text-center">Gen nos.(MUs)</th><th>Revenue</th>';
-                tbl += '<th colspan="3" class="text-center">Wind Speed(m/s)</th><th colspan="3" class="text-center">PLF</th>';
+                tbl += '<th rowspan="2">Site</th><th  rowspan="2">Capacity (MW)</th>';
+                tbl += '<th colspan="3" class="text-center">JMR Gen nos.(MUs)</th><th>Revenue</th>';
+                tbl += '<th colspan="3" class="text-center">Wind Speed (m/s)</th><th colspan="3" class="text-center">PLF</th>';
                 tbl += '<th colspan="3" class="text-center">MA (Actual)</th><th colspan="3" class="text-center">IGA</th>';
                 tbl += '<th colspan="3" class="text-center">EGA</th></tr>';
-                tbl += '<tr><th>&nbsp;</th>';
-                tbl += '<th>(MW)</th>';
-                tbl += '<th>Tar</th>';
+               // tbl += '<tr><th>&nbsp;</th>';
+                //tbl += '<th>(MW)</th>';
+                tbl += '<tr><th>Tar</th>';
                 tbl += '<th>Act JMR</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>(MINR)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
-                tbl += '<th>Var(%)</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '</tr></thead>';
                 console.log(result.length);
                 if (result.length > 0) {
                     console.log("Datatable");
+                    let target_energy = [];
+                    let actual_energy = [];
+                    let pas_energy_var = [];
+                    let neg_energy_var = [];
+                    let target_wind = [];
+                    let actual_wind = [];
+                    let pas_wind_var = [];
+                    let neg_wind_var = [];
                     for (var i = 0; i < result.length; i++) {
-                        //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        let revenue = 0;
+                        let jmr_var = 0;
+                        let wind_var = 0;
+                        let plf_var = 0;
+                        let ma_act_var = 0;
+                        let iga_var = 0;
+                        let ega_var = 0;
+
+                        revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
+                        if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
+                            jmr_var = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) / result[i].tar_kwh_mu) * 100;
+                        }
+                        if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
+                            wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
+                        }
+                        if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
+                            plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                        }
+                        if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
+                            ma_act_var = (result[i].act_ma - result[i].tar_ma);
+                        }
+                        if (result[i].act_iga != 0 || result[i].tar_iga != 0) {
+                            iga_var = (result[i].act_iga - result[i].tar_iga);
+                        }
+                        if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
+                            ega_var = (result[i].act_ega - result[i].tar_ega);
+                        }
+                        let pasitive;
+                        let negative;
+                        if (jmr_var < 0) {
+                            negative = jmr_var;
+                        }
+                        else {
+                            pasitive = jmr_var;
+                        }
+                        let w_pasitive;
+                        let w_negative;
+                        if (wind_var < 0) {
+                            w_negative = wind_var;
+                        }
+                        else {
+                            w_pasitive = wind_var;
+                        }
+
+                        target_energy.push(result[i].tar_kwh_mu.toFixed(2));
+                        actual_energy.push(result[i].act_jmr_kwh_mu.toFixed(2));
+                        pas_energy_var.push(pasitive);
+                        neg_energy_var.push(negative);
+                        Levels.push(result[i].site);
+                        target_wind.push(result[i].tar_wind.toFixed(2));
+                        actual_wind.push(result[i].act_Wind.toFixed(2));
+                        pas_wind_var.push(w_pasitive);
+                        neg_wind_var.push(w_negative);
+
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].total_mw.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].tar_kwh_mu.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_jmr_kwh_mu.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_wind.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_Wind.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_plf.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_plf.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_ma.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_ma.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_iga.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_iga.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
-                        tbl += '<td>' + result[i].tar_ega.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].act_ega.toFixed(2) + '</td>';
-                        tbl += '<td>-</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_kwh_mu.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_jmr_kwh_mu.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + jmr_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + revenue.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_wind.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_Wind.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + wind_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + plf_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ma_act_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + iga_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ega_var.toFixed(2)+'</td>';
 
                         tbl += '</tr>';
                     }
+
+                    Energy_Dataset.push({ type: 'bar', label: 'Target', data: target_energy, yAxix: 1, backgroundColor: '#77CAE7'},
+                        { type: 'bar', label: 'Actual', data: actual_energy, yAxix: 0, backgroundColor: '#31576D' },
+                        { type: 'line', label: '+ve', data: pas_energy_var, xAxix: 0, backgroundColor: '#86C466' },
+                        { type: 'line', label: '-ve', data: neg_energy_var, xAxix: 0, backgroundColor: '#EE403D' });
+
+                    Wind_Dataset.push({ type: 'bar', label: 'Target', data: target_wind, yAxix: 1, backgroundColor: '#77CAE7' },
+                        { type: 'bar', label: 'Actual', data: actual_wind, yAxix: 0, backgroundColor: '#31576D' },
+                        { type: 'line', label: '+ve', data: pas_wind_var, xAxix: 0, backgroundColor: '#86C466' },
+                        { type: 'line', label: '-ve', data: neg_wind_var, xAxix: 0, backgroundColor: '#EE403D' });
+
                 }
                 else {
                     console.log("Data not available");
@@ -368,25 +568,108 @@
                 tbl += '</table>';
                 $("#reportsDaily").html(tbl);
                 $.noConflict();
-                $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                $('#example2').DataTable({
+                    "responsive": false, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["csv", "excel","colvis"],
                     "paging": true,
                     "lengthChange": false,
                     "searching": true,
                     "ordering": true,
                     "info": true,
                     "autoWidth": false,
-                    "responsive": true,
+                    "responsive": false,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
-                //document.getElementById("reportsDaily").style.display = 'block';
-                ///document.getElementById("reportsMonthly").style.display = 'block';
-                // document.getElementById("reportsYearly").style.display = 'block';
+                $('#example2').removeClass('dataTable');
+               // console.log(data_arr);
+               // BarChart(Target_Energy_Dataset, Actual_Energy_Dataset, Energy_var_Dataset);
+                document.getElementById("sitewisechart").style.display = 'flex';
+                document.getElementById("spvwisechart").style.display = 'none';
+                EnergyBarChart(Energy_Dataset, Levels);
+                WindBarChart(Wind_Dataset, Levels);
             }
         });
     }
+    function EnergyBarChart(data, Levels)
+    {
+        console.log("Target", data);
+
+            var areaChartData = {
+                labels: Levels,// ['WK', 'MTD', 'YTD'],
+                datasets: data,
+            }
+            var barChartCanvas = $('#energy_chart').get(0).getContext('2d')
+            var barChartData = $.extend(true, {}, areaChartData)
+            var temp0 = areaChartData.datasets[0]
+            var temp1 = areaChartData.datasets[1]
+            barChartData.datasets[0] = temp1
+            barChartData.datasets[1] = temp0
+
+            var barChartOptions = {
+                responsive: true,
+                maintainAspectRatio: false,
+                datasetFill: false
+            }
+
+            new Chart(barChartCanvas, {
+                type: 'bar',
+                data: barChartData,
+                options: barChartOptions,
+                pasition: 'bottom',
+            })
+
+           /* var barChartCanvas1 = $('#wind_chart').get(0).getContext('2d')
+            var barChartData1 = $.extend(true, {}, areaChartData)
+            var temp2 = areaChartData.datasets[0]
+            var temp3 = areaChartData.datasets[1]
+            barChartData.datasets[0] = temp2
+            barChartData.datasets[1] = temp3
+            var barChartOptions1 = {
+                responsive: true,
+                maintainAspectRatio: false,
+                datasetFill: false
+            }
+
+            new Chart(barChartCanvas1, {
+                type: 'bar',
+                data: barChartData1,
+                options: barChartOptions1
+            })*/
 
 
+
+   }
+
+    function WindBarChart(data, Levels) {
+        console.log("Target", data);
+
+        var areaChartData = {
+            labels: Levels,// ['WK', 'MTD', 'YTD'],
+            datasets: data,
+        }
+        var barChartCanvas = $('#wind_chart').get(0).getContext('2d')
+        var barChartData = $.extend(true, {}, areaChartData)
+        var temp0 = areaChartData.datasets[0]
+        var temp1 = areaChartData.datasets[1]
+        barChartData.datasets[0] = temp1
+        barChartData.datasets[1] = temp0
+
+        var barChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            datasetFill: false
+        }
+
+        new Chart(barChartCanvas, {
+            type: 'bar',
+            data: barChartData,
+            options: barChartOptions,
+            pasition: 'bottom',
+        })
+
+
+
+
+
+    }
 
 </script>

@@ -38,7 +38,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Daily Target KPI</h3>
+                <h3 class="card-title text-center">Wind Daily Target KPI</h3>
 
                 <!--<div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -131,7 +131,8 @@
 
         $.ajax({
             type: "GET",
-            url: "/WindView/WindDailyTargetKPI?fromDate=" + fromDate + "&toDate=" + toDate,
+             url: '@Url.Action("WindDailyTargetKPI", "WindView")' + '?fromDate=' + fromDate + '&toDate=' + toDate,
+            //url: "/WindView/WindDailyTargetKPI?fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
@@ -139,15 +140,15 @@
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<td>FY</td>';
-                tbl += '<td style="width:80px;">Date</td>';
-                tbl += '<td>Site</td>';
-                tbl += '<td>Wind Speed</td>';
-                tbl += '<td>KWH</th>';
-                tbl += '<td>MA</td>';
-                tbl += '<td>IGA</td>';
-                tbl += '<td>EGA</td>';
-                tbl += '<td>PLF</td>';
+                tbl += '<th>FY</th>';
+                tbl += '<th style="width:150px;">Date</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Wind(m/s)</th>';
+                tbl += '<th>kWh</th>';
+                tbl += '<th>MA(%)</th>';
+                tbl += '<th>IGA(%)</th>';
+                tbl += '<th>EGA(%)</th>';
+                tbl += '<th>PLF(%)</th>';
 
                 tbl += '</tr></thead>';
 
@@ -158,15 +159,15 @@
                         //var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].fy + '</td>';
-                        tbl += '<td>' + formattedDate + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].windSpeed + '</td>';
-                        tbl += '<td>' + result[i].kWh + '</td>';
-                        tbl += '<td>' + result[i].ma + '</td>';
-                        tbl += '<td>' + result[i].iga + '</td>';
-                        tbl += '<td>' + result[i].ega + '</td>';
-                        tbl += '<td>' + result[i].plf + '</td>';
+                        tbl += '<td class="text-left">' + result[i].fy + '</td>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-right">' + result[i].windSpeed.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kWh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
 
                         tbl += '</tr>';
                     }
@@ -179,17 +180,17 @@
                 $("#DailyTargetKPIView").html(tbl);
                 $.noConflict();
                 $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "responsive": false, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["csv", "excel", "colvis"],
                     "paging": true,
                     "lengthChange": false,
                     "searching": true,
                     "ordering": true,
                     "info": true,
                     "autoWidth": false,
-                    "responsive": true,
+                    "responsive": false,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-
+                $('#example1').removeClass('dataTable');
 
             }
         });

@@ -37,7 +37,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Monthly LineLoss</h3>
+                <h3 class="card-title text-center">Wind Monthly LineLoss</h3>
 
 
             </div>
@@ -129,7 +129,8 @@
     window.onload = function () {
         $.ajax({
             type: "GET",
-            url: "/WindReport/GetFinacialYear",
+            //url: "/WindReport/GetFinacialYear",
+            url: '@Url.Action("GetFinacialYear", "WindReport")',
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -148,7 +149,8 @@
         var month = $('select#month option:selected').val();
         $.ajax({
             type: "GET",
-            url: "/WindView/GetMonthlyLinelossView?year=" + year + "&month=" + month,
+           // url: "/WindView/GetMonthlyLinelossView?year=" + year + "&month=" + month,
+             url: '@Url.Action("GetMonthlyLinelossView", "WindView")' + '?year=' + year + '&month=' + month,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
@@ -159,29 +161,29 @@
                 tbl += '<th>FY</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Month</th>';
-                tbl += '<th>Line Losses</th>';
+                tbl += '<th>Line Losses(%)</th>';
                 tbl += '</tr></thead>';
 
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].fy + '</td>';
-                        tbl += '<td>' + result[i].sites + '</td>';
-                        tbl += '<td>' + result[i].month + '</td>';
-                        tbl += '<td>' + result[i].lineLoss + '</td>';
+                        tbl += '<td class="text-left">' + result[i].fy + '</td>';
+                        tbl += '<td class="text-left">' + result[i].sites + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lineLoss.toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }
                 else {
 
-                    tbl += '<tr><th colspan="4" style="text-align:center">Data Not Available <th></tr>';
+                    //tbl += '<tr><th colspan="4" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
                 $("#MontlyLonelossView").html(tbl);
                 $.noConflict();
                 $('#example1').DataTable({
                     "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "buttons": ["csv", "excel","colvis"],
                     "paging": true,
                     "lengthChange": false,
                     "searching": true,
@@ -190,6 +192,7 @@
                     "autoWidth": false,
                     "responsive": true,
                 }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $('#example1').removeClass('dataTable');
             }
         });
     }

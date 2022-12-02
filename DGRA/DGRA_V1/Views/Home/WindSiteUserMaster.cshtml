@@ -68,9 +68,9 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript">
-  
+
     window.onload = function () {
-      
+
         getUserData();
     }
     function getUserData() {
@@ -78,11 +78,12 @@
     $.ajax({
         type: "GET",
         url: "/Home/GetWindUserInfo?login_id=" + loginid,
+        url: '@Url.Action("GetWindUserInfo", "Home")' + '?login_id=' + loginid ,
         contentType: "application/json; charset=utf-8",
         //data: '{"countryname":"' + selcountry + '"}',
         datatype: "html",
         success: function (result, status, xhr) {
-           
+
             console.log(result);
             var tbl = '<table id="example1" class="table table-bordered table-striped">';
             tbl += '<thead class="tbl-head"><tr>';
@@ -92,7 +93,7 @@
             tbl += '<td>Created By</td>';
             tbl += '<td>Status</td>';
             tbl += '<td>Action</td>';
-            
+
             tbl += '</tr></thead>';
             if (result.length > 0) {
                 for (var i = 0; i < result.length; i++) {
@@ -110,7 +111,7 @@
                     tbl += '<td>' + result[i].created_on + '</td>';
                     tbl += '<td>' + status + '</td>';
                     tbl += '<td><a href="#" class="btn btn-info" onclick="ViewUser(' + result[i].login_id +')">View</a></td>';
-                   
+
 
                     tbl += '</tr>';
                 }
@@ -141,6 +142,6 @@
             window.location.href = "/Home/WindUserView?id=" + login_id ;
         });
     }
-   
+
 
 </script>

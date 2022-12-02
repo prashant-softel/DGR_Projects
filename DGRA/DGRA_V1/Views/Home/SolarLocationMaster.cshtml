@@ -78,15 +78,16 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript">
-   
+
     window.onload = function () {
-      
+
         getLocationData();
     }
     function getLocationData() {
         $.ajax({
             type: "GET",
-            url: "/SolarReport/GetLocationMaster",
+            //url: "/SolarReport/GetLocationMaster",
+             url: '@Url.Action("GetLocationMaster", "SolarReport")',
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -117,7 +118,7 @@
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
 
-                      
+
                         tbl += '<tr>';
                         tbl += '<td>' + result[i].country + '</td>';
                         tbl += '<td>' + result[i].site + '</td>';

@@ -185,7 +185,8 @@
 
         $.ajax({
             type: "POST",
-            url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state + '&spv=' + spv,
+            //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -207,6 +208,7 @@
         var created_on = "Sujit";//@TempData["name"];
         $.ajax({
             type: "POST",
+           // url: '@Url.Action("WindNewUserRegister", "Home")' + '?fname=' + fname + '&useremail=' + useremail + '&role=' + role + '&created_on='+created_on,
             url: "/Home/WindNewUserRegister?fname=" + fname + "&useremail=" + useremail + "&role=" + role + "&created_on=" + created_on,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
