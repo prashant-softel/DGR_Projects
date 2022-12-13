@@ -194,10 +194,10 @@
     function getSite() {
         var state = "";
         var spv = "";
-
+        var sitelist = "";
         $.ajax({
             type: "POST",
-            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state + '&spv=' + spv,
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state + '&spv=' + spv + '&sitelist=' + sitelist,
            // url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
@@ -265,7 +265,7 @@
                 if (result.length > 0) {
                     var SiteCnt = 0;
                     for (var i = 0; i < result.length; i++) {
-                        if (result[i].page_type == 3) {
+                        if (result[i].page_type == 3 && result[i].site_type == 1 ) {
                             var upload_access = (result[i].upload_access == 1) ? true : false;
                             if (SiteCnt > 0) {
                                 addRow('dataTable');

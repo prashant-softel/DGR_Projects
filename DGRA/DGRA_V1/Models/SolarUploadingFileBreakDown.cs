@@ -22,6 +22,7 @@ namespace DGRA_V1.Models
         public string total_bd { get; set; }
         public string bd_remarks { get; set; }
         public string bd_type { get; set; }
+        public int bd_type_id { get; set; }
         public string action_taken { get; set; }
     }
 }

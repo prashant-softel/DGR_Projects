@@ -20,5 +20,18 @@ namespace DGRA_V1.Models
 
        
     }
-  
+    public class UserAccess
+    {
+        public int login_id { get; set; }
+        public int site_type { get; set; }
+        public int page_type { get; set; }
+        public int identity { get; set; }
+        public int upload_access { get; set; }
+        public string display_name { get; set; }
+        public string action_url { get; set; }
+        public string controller_name { get; set; }
+
+        public List<UserAccess> access_list = new List<UserAccess>();
+    }
+
 }

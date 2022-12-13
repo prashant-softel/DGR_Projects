@@ -25,7 +25,7 @@ using System.Threading.Tasks;
 namespace DGRA_V1.Controllers
 {
     
-    // [Authorize]
+   //  [Authorize]
     public class HomeController : Controller
     {
         
@@ -101,24 +101,16 @@ namespace DGRA_V1.Controllers
 
             //var user = await _graphServiceClient.Me.Request().GetAsync();
            // user.DisplayName = "";
-            ViewBag.Username = "";
-            ViewBag.Role = "";
-            ViewBag.userID = "";
-            TempData["name"] = "";
-            TempData["role"] = "";
-            TempData["userid"] = "";
+           
 
-          //  HttpContext.Session.SetString("DisplayName", user.DisplayName);
-            HttpContext.Session.SetString("DisplayName", "Sujit");
-
-           // ViewData["ApiResult"] = user.DisplayName;
-            ViewData["ApiResult"] = "Sujit";
-            String Name = HttpContext.Session.GetString("DisplayName");
-            //if (!string.IsNullOrEmpty(user.DisplayName))
-                if (!string.IsNullOrEmpty(Name))
+          // HttpContext.Session.SetString("DisplayName", user.DisplayName);
+           
+           // String Name = HttpContext.Session.GetString("DisplayName");
+           
+               /*if (!string.IsNullOrEmpty(Name))
                 {
                
-               // if (user.DisplayName == "Sujit")
+                if (user.DisplayName == "Sujit")
                     if (Name == "Sujit")
                     {
                     TempData["name"] = "Sujit Kumar";
@@ -137,34 +129,29 @@ namespace DGRA_V1.Controllers
                     TempData["name"] = "Prashant Shetye";
                     TempData["role"] = "User";
                     TempData["userid"] = "2";
-                }
+                }*/
                 return RedirectToAction("Dashbord");
-            }
-            return RedirectToAction("Index");
+           // }
+            //return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> Login(string username, string pass)
         {
-            Console.WriteLine("Inside Login");
             string status = "";
             string line = "";
             string[] userList = username.Split("@");
             string last = userList[1];
             if (last.Equals("herofutureenergies.com")) {
                 SSOLogin();
-                Console.WriteLine("Inside Hero");
             }
             else {
-                Console.WriteLine("Inside DB Login");
                 bool login_status = false;
                 LoginModel model = new LoginModel();
+                //UserAccess usermodel = new UserAccess();
                 System.Collections.Generic.Dictionary<string, object>[] map = new System.Collections.Generic.Dictionary<string, object>[1];
                 try
                 {
                     var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/UserLogin?username=" + username + "&password=" + pass + "";
-                    Console.WriteLine("URL"+ url);
-
-                    // var url = "http://localhost:5000/api/Login/UserLogin?username=" + username + "&password=" + pass + "";
                     WebRequest request = WebRequest.Create(url);
                     using (WebResponse response = (HttpWebResponse)request.GetResponse()){
                         Stream receiveStream = response.GetResponseStream();
@@ -172,8 +159,6 @@ namespace DGRA_V1.Controllers
                              line = readStream.ReadToEnd().Trim();
                         if (string.IsNullOrEmpty(line)){
                                 
-                                //var name = line["username"];
-                                //HttpContext.Session.SetString("DisplayName", line.username);
                                 login_status = false;
                                
                         }
@@ -181,10 +166,13 @@ namespace DGRA_V1.Controllers
                                 login_status = true;
                                 model = JsonConvert.DeserializeObject<LoginModel>(line);
                                 HttpContext.Session.SetString("DisplayName", model.username);
-                                //string name = model.username;
-                                TempData["name"] = model.username;
-                                TempData["role"] = model.user_role;
-                                TempData["userid"] = model.login_id;
+                                HttpContext.Session.SetString("role", model.user_role);
+                                HttpContext.Session.SetString("userid",model.login_id.ToString());
+                             
+                                int loginid = model.login_id;
+                                var actionResult = await GetUserAccess(loginid,true);
+                              
+
                             }
 
                     }
@@ -212,350 +200,110 @@ namespace DGRA_V1.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
         // Added Code on Redirection Remote 
-        [ActionName("signin-oidc")]
+       /* [ActionName("signin-oidc")]
         public IActionResult signinoidc()
         {
             //return View();
             return RedirectToAction("Dashbord");
-        }
+        }*/
 
         //[Authorize]
         public IActionResult Dashbord()
         {
 
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
             
         }
         
         public IActionResult WindDailyTargetKPIView()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
         public IActionResult WindGenView()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+           
             return View();
         }
         public IActionResult WindMonthlyTargetKPIView()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+           
             return View();
         }
         public IActionResult WindMonthlyLinelossView()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+           
             return View();
         }
         public IActionResult WindMonthlyJMRView()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
         public IActionResult WindDailyLoadSheddingView()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
 
         // Report Routs
         public IActionResult WindSiteMaster()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
         public IActionResult WindLocationMaster()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
         public IActionResult WindGenReport()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
         public IActionResult WindBDReport()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
         public IActionResult WindPRReport()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
         public IActionResult WindWeeklyPRReports()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+           
             return View();
         }
         public IActionResult WindSiteUserMaster()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
         public IActionResult WindUserRegister()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
 
         public IActionResult ImportApproval()
         {
            
-          String Name =  HttpContext.Session.GetString("DisplayName");
-           
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-              
-            }
-            if (Name == "prashant")
-            {
-               
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+          
            
             return View();
         }
-        public async Task<IActionResult> WindNewUserRegister(string fname,string useremail,string role, string created_on)
+        public async Task<IActionResult> WindNewUserRegister(string fname,string useremail,string role,string userpass)
         {
             string line = "";
             try
             {
                /// var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
                 //var url = "http://localhost:23835/api/Login/WindUserRegistration?fname=" + fname + "&useremail=" + useremail + "&role=" + role+ "&created_on="+ created_on + "";
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail=" + useremail + "&role=" + role + "&created_on=" + created_on + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail=" + useremail + "&role=" + role + "&userpass="+ userpass + "";
                 WebRequest request = WebRequest.Create(url);
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
                 {
@@ -598,8 +346,9 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
-        public async Task<IActionResult> GetUserAccess(int login_id)
+        public async Task<IActionResult> GetUserAccess(int login_id, bool actionType = false)
         {
+            UserAccess usermodel = new UserAccess();
             string line = "";
             try
             {
@@ -613,6 +362,13 @@ namespace DGRA_V1.Controllers
                     using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
                     {
                         line = readStream.ReadToEnd().Trim();
+                        if (actionType == true)
+                        {
+                            usermodel.access_list = JsonConvert.DeserializeObject<List<UserAccess>>(line);
+                            HttpContext.Session.SetString("UserAccess", JsonConvert.SerializeObject( usermodel));
+                           // var people = System.Text.Json.JsonSerializer.Deserialize<List<Person>>(line);
+                           // HttpContext.Session.SetString("UserAccess", people.ToString());
+                        }
                     }
                 }
             }
@@ -651,22 +407,7 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult WindUserView()
         {
-            String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+            
             return View();
         }
 
@@ -698,243 +439,63 @@ namespace DGRA_V1.Controllers
         
         public IActionResult SolarGenView()
         {
-		   String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		   
             return View();
         }
         public IActionResult SolarDailyTargetKPIView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public IActionResult SolarDailyLoadSheddingView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public IActionResult SolarMonthlyTargetKPIView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public IActionResult SolarMonthlyLinelossView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public IActionResult SolarMonthlyJMRView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public IActionResult SolarAcDcCapacityView()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         // Report Routs
         public IActionResult SolarGenReport()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public IActionResult SolarBDReport()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public IActionResult SolarSiteMaster()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public IActionResult SolarLocationMaster()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public IActionResult SolarPRReport()
         {
-		String Name = HttpContext.Session.GetString("DisplayName");
-
-            if (Name == "Sujit")
-            {
-                TempData["name"] = "Sujit Kumar";
-                TempData["role"] = "Admin";
-                TempData["userid"] = "1";
-
-            }
-            if (Name == "prashant")
-            {
-
-                TempData["name"] = "Prashant Shetye";
-                TempData["role"] = "User";
-                TempData["userid"] = "2";
-            }
+		
             return View();
         }
         public ActionResult WindUserDetails(string id)

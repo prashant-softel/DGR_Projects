@@ -1,4 +1,8 @@
 ﻿@using DGRA_V1.Common;
+@using Microsoft.AspNetCore.Http;
+
+@inject IHttpContextAccessor HttpContextAccessor
+
 @{
     ViewData["Title"] = "Upload DGR File Page";
 }
@@ -54,7 +58,7 @@
                     <div class="row">
                         <div class="col-md-4">
                             <div class="form-group row">
-                                <label class="col-sm-3 col-form-label">File Type:</label>
+                                <label class="col-sm-3 col-form-label">Site Type:</label>
                                 <div class="col-sm-9 input-group date" id="reservationdate" data-target-input="nearest">
                                     <select class="form-control custom-select" style="width: 100%;" name="FileUpload">
                                         @*<option value="0">Please select</option>*@
@@ -81,26 +85,51 @@
                 <h3>Templates</h3>
             </div>
             <hr>
-            <div class="col-md-12">
-                @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
-                <a href="../SampleFormat/Solar_DGR_Automation.xlsx" download>Solar_DGR_Automation.xlsx</a><br />
-                <a href="../SampleFormat/Wind_DGR_Automation.xlsx" download>Wind_DGR_Automation.xlsx</a><br />
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-4">
+                    @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
 
+                    <a href="../SampleFormat/Wind_DGR_Automation.xlsx" download>Wind_DGR_Automation.xlsx</a><br />
 
-                @if (!@TempData["role"].Equals("User"))
-                {
-                    <a href="../SampleFormat/Wind_Daily_LoadShedding.xlsx"download>Wind_daily_load_Shedding.xlsx</a><br />
-                    <a href="../SampleFormat/Wind_daily_Target_KPI.xlsx" download>Wind_daily_Target_KPI.xlsx</a><br />
-                    <a href="../SampleFormat/WindMonthlyTargetKPI.xlsx" download>Wind_Monthly_Target_KPI.xlsx</a><br />
-                    <a href="../SampleFormat/Wind_Monthly_JMR.xlsx" download>Wind_Monthly_JMR.xlsx</a><br />
-                    <a href="../SampleFormat/Wind_Monthly_Lineloss.xlsx" download>Wind_Monthly_Lineloss.xlsx</a><br />
-                }
+                    @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                    {
+
+                        <a href="../SampleFormat/Wind_daily_LoadShedding.xlsx" download>Wind_daily_load_Shedding.xlsx</a><br />
+                        <a href="../SampleFormat/Daily_Target_KPI.xlsx" download>Wind_daily_Target_KPI.xlsx</a><br />
+                        <a href="../SampleFormat/Wind_MonTargetKPI.xlsx" download>Wind_Monthly_Target_KPI.xlsx</a><br />
+                        <a href="../SampleFormat/Wind_JMR_Template.xlsx" download>Wind_Monthly_JMR.xlsx</a><br />
+                        <a href="../SampleFormat/Wind_MonthlyLinLoss.xlsx" download>Wind_Monthly_Lineloss.xlsx</a><br />
+                        <a href="../SampleFormat/WindSiteMaster.xlsx" download>SiteMaster.xlsx</a><br />
+                    }
+                </div>
+                    <div class="col-md-4">
+                        @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
+                        <a href="../SampleFormat/Solar_DGR_Automation.xlsx" download>Solar_DGR_Automation.xlsx</a><br />
+                       
+                        @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                        {
+                            <a href="../SampleFormat/Solar_Daily_LoadShedding.xlsx" download>Solar_daily_load_Shedding.xlsx</a><br />
+                            <a href="../SampleFormat/Solar_daily_Target_KPI.xlsx" download>Solar_daily_Target_KPI.xlsx</a><br />
+                            <a href="../SampleFormat/SolarMonthlyTargetKPI.xlsx" download>Solar_Monthly_Target_KPI.xlsx</a><br />
+                            <a href="../SampleFormat/Solar_Monthly_JMR.xlsx" download>Solar_Monthly_JMR.xlsx</a><br />
+                            <a href="../SampleFormat/Solar_Monthly_Lineloss.xlsx" download>Solar_Monthly_Lineloss.xlsx</a><br />
+                        }
+                    </div>
+                    <div class="col-md-3">
+
+                    </div>
+                </div>
+            <hr>
+                <div class="col-md-12 text-center">
+                    <br>You can download these templates and update data in that and upload.</br>
+                    <b>Note :</b> Please do not change the name of the tab name in the template file</p>
+                </div>
+                <div class="card-footer">
+
+                </div>
+
             </div>
-            <div class="card-footer">
-
-            </div>
-
-        </div>
 
 
     </section>

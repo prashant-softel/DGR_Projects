@@ -89,12 +89,12 @@ namespace DGRAPIs.Controllers
 				}
         [Route("GetSolarSiteList")]
         [HttpGet]
-        public async Task<IActionResult> GetSolarSiteList(string state, string spvdata)
+        public async Task<IActionResult> GetSolarSiteList(string state, string spvdata, string site)
         {
             {
                 try
                 {
-                    var data = await _dgrBs.GetSolarSiteList(state, spvdata);
+                    var data = await _dgrBs.GetSolarSiteList(state, spvdata, site);
                     return Ok(data);
 
                 }
@@ -638,11 +638,11 @@ namespace DGRAPIs.Controllers
 
         [Route("CalculateDailyWindKPI")]
         [HttpGet]
-        public async Task<IActionResult> CalculateDailyWindKPI(string fromDate, string toDate, string site, string logFileName)
+        public async Task<IActionResult> CalculateDailyWindKPI(string fromDate, string toDate, string site)
         {
             try
             {
-                var data = await _dgrBs.CalculateDailyWindKPI(fromDate, toDate, site, logFileName);
+                var data = await _dgrBs.CalculateDailyWindKPI(fromDate, toDate, site);
                 return Ok(data);
 
             }
@@ -743,7 +743,7 @@ namespace DGRAPIs.Controllers
         }
 
 
-        [Route("InsertDailyJMR")]
+       /*[Route("InsertDailyJMR")]
         [HttpPost]
         public async Task<IActionResult> InsertDailyJMR(List<WindDailyJMR> windDailyJMR)
         {
@@ -758,7 +758,7 @@ namespace DGRAPIs.Controllers
 
                 return BadRequest(ex.Message);
             }
-        }
+        }*/
 
         [Route("InsertSolarDailyTargetKPI")]
         [HttpPost]
@@ -881,11 +881,11 @@ namespace DGRAPIs.Controllers
         }
         [Route("InsertSolarUploadingPyranoMeter1Min")]
         [HttpPost]
-        public async Task<IActionResult> InsertSolarUploadingPyranoMeter1Min(List<SolarUploadingPyranoMeter1Min> solarUploadingPyranoMeter1Min)
+        public async Task<IActionResult> InsertSolarUploadingPyranoMeter1Min(List<SolarUploadingPyranoMeter1Min> set, int batchId)
         {
             try
             {
-                var data = await _dgrBs.InsertSolarUploadingPyranoMeter1Min(solarUploadingPyranoMeter1Min);
+                var data = await _dgrBs.InsertSolarUploadingPyranoMeter1Min(set, batchId);
                 return Ok(data);
 
             }
@@ -897,11 +897,11 @@ namespace DGRAPIs.Controllers
         }
         [Route("InsertSolarUploadingPyranoMeter15Min")]
         [HttpPost]
-        public async Task<IActionResult> InsertSolarUploadingPyranoMeter15Min(List<SolarUploadingPyranoMeter15Min> solarUploadingPyranoMeter15Min)
+        public async Task<IActionResult> InsertSolarUploadingPyranoMeter15Min(List<SolarUploadingPyranoMeter15Min> set, int batchId)
         {
             try
             {
-                var data = await _dgrBs.InsertSolarUploadingPyranoMeter15Min(solarUploadingPyranoMeter15Min);
+                var data = await _dgrBs.InsertSolarUploadingPyranoMeter15Min(set, batchId);
                 return Ok(data);
 
             }
@@ -913,11 +913,11 @@ namespace DGRAPIs.Controllers
         }
         [Route("InsertSolarUploadingFileGeneration")]
         [HttpPost]
-        public async Task<IActionResult> InsertSolarUploadingFileGeneration(List<SolarUploadingFileGeneration> set)
+        public async Task<IActionResult> InsertSolarUploadingFileGeneration(List<SolarUploadingFileGeneration> set, int batchId)
         {
             try
             {
-                var data = await _dgrBs.InsertSolarUploadingFileGeneration(set);
+                var data = await _dgrBs.InsertSolarUploadingFileGeneration(set, batchId);
                 return Ok(data);
 
             }
@@ -930,11 +930,11 @@ namespace DGRAPIs.Controllers
        
         [Route("InsertSolarUploadingFileBreakDown")]
         [HttpPost]
-        public async Task<IActionResult> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> set)
+        public async Task<IActionResult> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> set, int batchId)
         {
             try
             {
-                var data = await _dgrBs.InsertSolarUploadingFileBreakDown(set);
+                var data = await _dgrBs.InsertSolarUploadingFileBreakDown(set, batchId);
                 return Ok(data);
 
             }
@@ -947,7 +947,7 @@ namespace DGRAPIs.Controllers
 
         [Route("importMetaData")]
         [HttpPost]
-        public async Task<IActionResult> importMetaData(ImportLog meta)
+        public async Task<IActionResult> importMetaData(ImportBatch meta)
         {
             try
             {
@@ -957,6 +957,23 @@ namespace DGRAPIs.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("GetBatchId")]
+        [HttpGet]
+        public async Task<IActionResult> GetBatchId(string logFileName)
+        {
+            try
+            {
+                var data = await _dgrBs.GetBatchId(logFileName);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
                 return BadRequest(ex.Message);
             }
         }
@@ -1121,11 +1138,11 @@ namespace DGRAPIs.Controllers
 
         [Route("InsertWindUploadingFileGeneration")]
         [HttpPost]
-        public async Task<IActionResult> InsertWindUploadingFileGeneration(List<WindUploadingFileGeneration> set)
+        public async Task<IActionResult> InsertWindUploadingFileGeneration(List<WindUploadingFileGeneration> set, int batchId)
         {
             try
             {
-                var data = await _dgrBs.InsertWindUploadingFileGeneration(set);
+                var data = await _dgrBs.InsertWindUploadingFileGeneration(set, batchId);
                 return Ok(data);
                 //Console.WriteLine("Entering wind file generation while debugging");
             }
@@ -1137,11 +1154,11 @@ namespace DGRAPIs.Controllers
 
         [Route("InsertWindUploadingFileBreakDown")]
         [HttpPost]
-        public async Task<IActionResult> InsertWindUploadingFileBreakDown(List<WindUploadingFileBreakDown> addWindUploadingFileBreakDowns)
+        public async Task<IActionResult> InsertWindUploadingFileBreakDown(List<WindUploadingFileBreakDown> set, int batchId)
         {
             try
             {
-                var data = await _dgrBs.InsertWindUploadingFileBreakDown(addWindUploadingFileBreakDowns);
+                var data = await _dgrBs.InsertWindUploadingFileBreakDown(set, batchId);
                 return Ok(data);
             }
             catch (Exception ex)
@@ -1696,12 +1713,12 @@ namespace DGRAPIs.Controllers
         }
         [Route("GetSiteList")]
         [HttpGet]
-        public async Task<IActionResult> GetSiteList(string state, string spvdata)
+        public async Task<IActionResult> GetSiteList(string state, string spvdata,string site)
         {
             {
                 try
                 {
-                    var data = await _dgrBs.GetSiteList(state, spvdata);
+                    var data = await _dgrBs.GetSiteList(state, spvdata, site);
                     return Ok(data);
 
                 }

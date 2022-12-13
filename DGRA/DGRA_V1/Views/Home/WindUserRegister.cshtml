@@ -34,7 +34,7 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <div class="form-group">
                             <div class="row">
                                 <label class="col-sm-4 col-form-label text-right">Full Name : </label>
@@ -42,7 +42,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
                         <div class="form-group">
                             <div class="row">
                                 <label class="col-sm-4 col-form-label text-right">User Email : </label>
@@ -50,7 +50,15 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-4">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Password : </label>
+                                <input type="text" class="form-control  col-sm-8" id="userpass" name="userpass" placeholder="Enter User Password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
                         <div class="form-group">
                             <div class="row">
                                 <label class="col-sm-4 col-form-label text-right">Role : </label>
@@ -143,7 +151,7 @@
                     <div class="col-sm-4"></div>
 
                     <div class="col-sm-2"><button type="button" class="btn btn-block btn-success" onclick="SubmitDetials()">Create</button></div>
-                    <div class="col-sm-2"> <button type="button" class="btn btn-block btn-danger" onclick="DataApproved(2)">Cancel</button></div>
+                    <div class="col-sm-2"> <button type="button" class="btn btn-block btn-danger" onclick="Cancel()">Cancel</button></div>
                     <div class="col-sm-4"></div>
                 </div>
                 <div class="row"><p><br></p></div>
@@ -175,48 +183,25 @@
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript">
 
-    window.onload = function () {
-
-        getSite();
-    }
-    function getSite() {
-        var state = "";
-        var spv = "";
-
-        $.ajax({
-            type: "POST",
-            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state + '&spv=' + spv,
-            //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
-            contentType: "application/json; charset=utf-8",
-            // data: '{"state":"' + val + '"}',
-            datatype: "html",
-            success: function (result, status, xhr) {
-                var options = "";
-                options += '<option value="">Select Site</option>';
-                for (var k = 0; k < result.length; k++) {
-                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
-                }
-                $("#site").html(options);
-
-            }
-        });
-    }
+   
     function SubmitDetials() {
+        
         var fname = document.getElementById("fullname").value;
         var useremail = document.getElementById("useremail").value;
+        var userpass = document.getElementById("userpass").value;
         var role = $('select#userrole option:selected').val();
-        var created_on = "Sujit";//@TempData["name"];
+       
         $.ajax({
             type: "POST",
-           // url: '@Url.Action("WindNewUserRegister", "Home")' + '?fname=' + fname + '&useremail=' + useremail + '&role=' + role + '&created_on='+created_on,
-            url: "/Home/WindNewUserRegister?fname=" + fname + "&useremail=" + useremail + "&role=" + role + "&created_on=" + created_on,
+            url: '@Url.Action("WindNewUserRegister", "Home")' + '?fname=' + fname + '&useremail=' + useremail + '&role=' + role + '$userpass=' + userpass,
+            //url: "/Home/WindNewUserRegister?fname=" + fname + "&useremail=" + useremail + "&role=" + role + "&created_on=" + created_on,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
                 if (result > 0) {
                     alert("User register successfully!");
-                    location.href = @Url.Action("WindSiteUserMaster", "Home");
+                    location.href = "/Home/WindSiteUserMaster";
 
                 }
 

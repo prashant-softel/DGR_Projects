@@ -10,7 +10,10 @@ namespace DGRA_V1.Models
         {
             public string fy { get; set; }
             public string month { get; set; }
-            public string site { get; set; }
+            public int month_no { get; set; }
+        public int year { get; set; }
+        public int site_id { get; set; }
+        public string site { get; set; }
             public decimal windSpeed { get; set; }
             public decimal kwh { get; set; }
             public string ma { get; set; }

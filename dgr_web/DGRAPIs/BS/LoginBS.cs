@@ -13,7 +13,7 @@ namespace DGRAPIs.BS
         Task<int> eQry(string qry);
         //Task<List<UserLogin>> GetUserLogin(string username, string password);
         Task<UserLogin> GetUserLogin(string username, string password);
-        Task<int> WindUserRegistration(string fname, string useremail, string role, string created_on);
+        Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass);
       
         Task<List<UserInfomation>> GetWindUserInformation(int login_id);
         Task<List<HFEPage>> GetPageList(int login_id);
@@ -47,13 +47,13 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<int> WindUserRegistration(string fname, string useremail, string role, string created_on)
+        public async Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass)
         {
             try
             {
                 using (var repos = new LoginRepository(getDB))
                 {
-                    return await repos.WindUserRegistration(fname, useremail, role, created_on);
+                    return await repos.WindUserRegistration(fname, useremail, role, userpass);
 
                 }
             }

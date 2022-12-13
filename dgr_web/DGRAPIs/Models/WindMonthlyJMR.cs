@@ -9,11 +9,12 @@ namespace DGRAPIs.Models
     {
         public string fy { get; set; }
         public string site { get; set; }
+        public int siteId { get; set; }
         public string plantSection { get; set; }
-        public DateTime jmrdate { get; set; }
+        public string jmrDate { get; set; }
         public string jmrMonth { get; set; }
         public string jmrYear { get; set; }
-        public string lineLossPercent { get; set; }
+        public decimal lineLossPercent { get; set; }
         public string rkvhPercent { get; set; }
         public decimal controllerKwhInv { get; set; }
         public decimal scheduledUnitsKwh { get; set; }

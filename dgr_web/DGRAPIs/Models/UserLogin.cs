@@ -24,8 +24,8 @@ namespace DGRAPIs.Models
         public string username { get; set; }
         public string useremail { get; set; }
         public string user_role { get; set; }
-        public int created_on { get; set; }
-        public int blocked_user { get; set; }
+       // public DateTime created_on { get; set; }
+        public int active_user { get; set; }
       
     }
     public class HFEPage

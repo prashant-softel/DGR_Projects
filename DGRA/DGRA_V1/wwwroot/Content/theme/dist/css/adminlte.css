@@ -53037,6 +53037,23 @@ a.text-muted:hover {
 .tbl-head th{
    text-align:center !important;
 }
+.ms-parent {
+    border: unset;
+    padding: unset !important;
+}
+
+.ms-choice {
+    height: inherit;
+}
+
+    .ms-choice > span {
+        top: 5px;
+        padding-left: 10px
+    }
+
+.ms-offscreen {
+    padding: 0;
+}
 
 
 /*# sourceMappingURL=adminlte.css.map */

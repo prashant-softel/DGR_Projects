@@ -1,6 +1,27 @@
-﻿@{
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
     ViewData["Title"] = "Wind Daily Load Shedding";
 }
+@{
+    string windSiteList = "";
+   
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    {
+        windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+    
+
+}
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
@@ -10,7 +31,7 @@
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
-
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
 
 <!-- Content Wrapper. Contains page content -->
@@ -39,15 +60,6 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title text-center">Wind Daily Load Shedding</h3>
-
-                <!-- <div class="card-tools">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>-->
             </div>
             <div class="card-body">
                 <div class="row">
@@ -55,7 +67,7 @@
                         <div class="form-group">
                             <div class="row">
                                 <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" value="">
+                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
                                 </select>
                             </div>
                         </div>
@@ -81,23 +93,6 @@
             <div class="card-footer">
                 Footer
             </div>
-            <!--<form id="form1">
-                <div style="padding:20px">
-
-                    <select id="chkveg" multiple="multiple">
-                        <option value="cheese">Cheese</option>
-                        <option value="tomatoes">Tomatoes</option>
-                        <option value="mozarella">Mozzarella</option>
-                        <option value="mushrooms">Mushrooms</option>
-                        <option value="pepperoni">Pepperoni</option>
-                        <option value="onions">Onions</option>
-                    </select>
-
-                <br /><br />
-
-                <input type="button" id="btnget" value="Get Selected Values" />
-            </div>
-            </form>-->
         </div>
 
 
@@ -108,73 +103,56 @@
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
-<!--<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="~/Content/theme/plugins/select2/js/select2.full.min.js"></script>
-<script src="~/Content/theme/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>-->
 <!--Date Range -->
 <script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
 <script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
 <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
 
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- DataTables  & Plugins -->
-<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js"></script>
-<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js" defer></script>
-<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
 
 
 
 <script type="text/javascript">
-    /* $(function () {
-
-         $('#chkveg').multiselect({
-             includeSelectAllOption: true
-         });
-
-         $('#btnget').click(function () {
-             alert($('#chkveg').val());
-         });
-     });*/
-
-    $(document).ready(function () {
-        $('#daterange').daterangepicker(
-            {
-                locale: {
-                    format: 'DD/MM/YYYY',
-                }
-            });
-    });
-    window.onload = function () {
+$(document).ready(function () {
+    $('#daterange').daterangepicker(
+        {
+            locale: {
+                format: 'DD/MM/YYYY',
+            }
+        });
+});
+    
+window.onload = function () {
         var state = "";
         var spv = "";
+        localStorage.setItem("dataTableInitialize",false);
+        
         $.ajax({
             type: "POST",
-            //url: "/WindReport/GetSiteList",
             url: '@Url.Action("GetSiteList", "WindReport")',
             contentType: "application/json; charset=utf-8",
-            // data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
                 var options = "";
-                options += '<option value="">Select Site</option>';
-                options += '<option value="0">All Site</option>';
                 for (var k = 0; k < result.length; k++) {
                     options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
                 }
                 $("#site").html(options);
-
+                $('#site').multipleSelect({
+                   "minimumCountSelected": 2,
+                   "placeholder":"Select Site(s)",
+                });
             }
-
         });
     }
 
@@ -185,34 +163,21 @@
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        // var fromDate = "2021-04-14";
-        //var toDate = "2021-04-20";
+        
         $.ajax({
             type: "POST",
-           // url: "/WindView/GetDailyLoadshedding?site=" + site + "&fromDate=" + fromDate + "&toDate=" + toDate,
             url: '@Url.Action("GetDailyLoadshedding", "WindView")' + '?site=' + site + '&fromDate=' + fromDate + '&toDate=' + toDate,
             contentType: "application/json; charset=utf-8",
-            // data: '{"state":"' + val + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
-                console.log(result);
+                
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
-                tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th>Site</th>';
-                tbl += '<th style="width:100px">Date</th>';
-                tbl += '<th>Start Time</th>';
-                tbl += '<th>End Time</th>';
-                tbl += '<th>Total Time</th>';
-                tbl += '<th>Permissible Load (MW)</th>';
-                tbl += '<th>Generation loss in kWh due to Load shedding</th>';
-                tbl += '</tr></thead>';
-
+                    tbl += '<thead class="tbl-head"><tr><th>Site</th><th style="width:100px">Date</th><th>Start Time</th><th>End Time</th><th>Total Time</th><th>Permissible Load (MW)</th><th>Generation loss in kWh due to Load shedding</th></tr></thead><tbody>';
+                    
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
-
-
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-
+                        
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].site + '</td>';
                         tbl += '<td class="text-left">' + formattedDate + '</td>';
@@ -226,23 +191,27 @@
                 }
                 else {
 
-                    //tbl += '<tr><th colspan="7" style="text-align:center">Data Not Available <th></tr>';
+                    tbl += '<tr><td colspan="7">No Data Present</td></tr>';
                 }
-                tbl += '</table>';
-                $("#DailyLoadShedding").html(tbl);
-                $.noConflict();
+                tbl += '</tbody></table>';
+                $("#DailyLoadShedding").html("").html(tbl);  
+                
                 $('#example1').DataTable({
-                    "responsive": false, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["csv", "excel", "colvis"],
-                    "paging": true,
-                    "lengthChange": false,
-                    "searching": true,
-                    "ordering": true,
-                    "info": true,
-                    "autoWidth": false,
-                    "responsive": false,
-                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-                $('#example1').removeClass('dataTable');
+                    dom: 'Bfrtip',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    responsive: false,                        
+                    buttons: [
+                        'copy', 'excel', 'csv', 'colvis'
+                    ]
+                });
             }
         });
     }

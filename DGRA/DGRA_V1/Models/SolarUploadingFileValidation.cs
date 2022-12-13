@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DGRA_V1.Repository.Interface;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace DGRA_V1.Models
     public class SolarUploadingFileValidation
     {
         ErrorLog m_ErrorLog;
+        IDapperRepository _idapperRepo;
         List<string> eqList = new List<string> { };
 
         // Adding key/value pair
@@ -28,13 +30,13 @@ namespace DGRA_V1.Models
         ~SolarUploadingFileValidation()
         { }
 
-        public SolarUploadingFileValidation(ErrorLog arErrorLog)
+        public SolarUploadingFileValidation(ErrorLog arErrorLog, IDapperRepository iRepo)
         {
             m_ErrorLog = arErrorLog;
+            _idapperRepo = iRepo;
             DataTable dTable = new DataTable();
-            var url = "http://localhost:23835/api/DGR/GetSolarLocationMaster";
+            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarLocationMaster";
             var result = string.Empty;
-
             WebRequest request = WebRequest.Create(url);
             using (var response = (HttpWebResponse)request.GetResponse())
             {
@@ -52,7 +54,7 @@ namespace DGRA_V1.Models
             }
         }
 
-        public bool validateGenerationData(long rowNumber, string verifyDate, string verifyEq, decimal verifyPowerA, decimal verifyPowerB)
+        public bool validateGenerationData(long rowNumber, string verifyEq, decimal verifyPowerA, decimal verifyPowerB)
         {
             //Here flags are error flags which are assigned true if the validation condition is not satisfied
             bool todayFlag = false;
@@ -62,7 +64,7 @@ namespace DGRA_V1.Models
 
             //Date Validation CodeBlock
             //DateTime today = DateTime.Now;
-            //int weekDay = (int)myDate.DayOfWeek; // 5 due to Friday  
+            //int weekDay = (int)myDate.DayOfWeek; // 5 due to Friday
 
             //bool isEqual = dt.DayOfWeek == DayOfWeek.Thursday);
 
@@ -114,14 +116,14 @@ namespace DGRA_V1.Models
             }
 
             //*Overall Error Status*
-            if (todayFlag == true || powerAFlag == true || powerBFlag == true || eqFlag == true)
+            if ( powerAFlag == true || powerBFlag == true || eqFlag == true)
             {
                 m_ErrorLog.SetError(",File Row (" + rowNumber + ") had error(s) ");
-
-                if (todayFlag == true)
-                {
-                    m_ErrorLog.SetError(",Testing Data Submitted On Same Day :" + verifyDate);
-                }
+                //todayFlag == true ||
+                //if (todayFlag == true)
+                //{
+                //    m_ErrorLog.SetError(",Testing Data Submitted On Same Day :" + verifyDate);
+                //}
                 if (eqFlag == true)
                 {
                     m_ErrorLog.SetError(",Invalid Equipment Name :" + verifyEq);
@@ -142,16 +144,16 @@ namespace DGRA_V1.Models
             }
         }
 
-        public string breakDownCalc(string stopFrom, string stopTo)
+        public string breakDownCalc(DateTime stopFrom, DateTime stopTo)
         {
-            DateTime stopFrom_ = Convert.ToDateTime(stopFrom);
-            DateTime stopTo_ = Convert.ToDateTime(stopTo);
-            TimeSpan totalStop_ = stopTo_ - stopFrom_;
+            //DateTime stopFrom_ = Convert.ToDateTime(stopFrom);
+            //DateTime stopTo_ = Convert.ToDateTime(stopTo);
+            TimeSpan totalStop_ = stopTo - stopFrom;
             string totalStop = Convert.ToString(totalStop_);
             return totalStop;
         }
 
-        public bool validateBreakDownData(long rowNumber, string stopFrom, string stopTo, string igbd)
+        public bool validateBreakDownData(long rowNumber, DateTime stopFrom, DateTime stopTo, string igbd)
         {
             bool greaterStopTo = false;
             //bool lastStopTo = false;
@@ -159,9 +161,9 @@ namespace DGRA_V1.Models
             //bool sumOfBDHours = false;
 
             //1)(Stop To) – column always greater than (Stop From) – column.
-            DateTime stopTo_ = Convert.ToDateTime(stopTo);
-            DateTime stopFrom_ = Convert.ToDateTime(stopFrom);
-            if (stopFrom_> stopTo_)
+            //DateTime stopTo_ = Convert.ToDateTime(stopTo);
+            //DateTime stopFrom_ = Convert.ToDateTime(stopFrom);
+            if (stopFrom> stopTo)
             {
                 greaterStopTo = true;
             }
@@ -173,7 +175,7 @@ namespace DGRA_V1.Models
             //}
 
             //3)BD Hours should not be more than 24 Hrs.
-            TimeSpan bdHours = (stopTo_ - stopFrom_);
+            TimeSpan bdHours = (stopTo - stopFrom);
             if (bdHours.Hours>12)
             {
                 totalBd = true;

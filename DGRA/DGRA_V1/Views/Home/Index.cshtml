@@ -146,8 +146,8 @@
                     if (result.length > 0) {
                         //return RedirectToAction("Dashbord", "Home");
 
-                        //window.location.href = "/DGRA_Web/Home/Dashbord"; //Remote server 
-                        window.location.href = "/Home/Dashbord"; //Local  
+                        window.location.href = "@Url.Action("Dashbord", "Home")";//d"/DGRA_Web/Home/Dashbord"; //Remote server
+                        //window.location.href = "/Home/Dashbord"; //Local  
                     }
                     else {
                         document.getElementById("msg").style.display = 'block';

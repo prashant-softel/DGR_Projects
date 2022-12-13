@@ -1,5 +1,24 @@
 ﻿<!DOCTYPE html>
 @using System.Security.Principal
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@using Newtonsoft.Json;
+@{
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+    //bool upload_access = false;
+    int ucnt = 0;
+}
+
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+    
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].upload_access == 1)
+    {
+        ucnt++;
+    }
+     
+}
+
 <html>
 <head>
     <meta charset="utf-8" />
@@ -27,7 +46,7 @@
                 <li class="nav-item d-none d-sm-inline-block">
                     <a href="@Url.Action("Index", "Home")" class="nav-link">Home</a>
                 </li>
-
+              
             </ul>
 
             <!-- Right navbar links -->
@@ -51,13 +70,13 @@
                             <span class="dropdown-item dropdown-header">User Details</span>
                             <div class="dropdown-divider"></div>
                             <a href="#" class="dropdown-item">
-                                <i class="fas  mr-2"></i> @TempData["name"] @*@User.Identity.Name!*@
+                                <i class="fas  mr-2"></i> @HttpContextAccessor.HttpContext.Session.GetString("DisplayName")
                                 <span class="float-right text-muted text-sm"> </span>
                             </a>
                             <div class="dropdown-divider"></div>
                             <a href="#" class="dropdown-item">
                                 <i class=" mr-2"></i>Role Name
-                                <span class="float-right text-muted text-sm">@TempData["role"]</span>
+                                <span class="float-right text-muted text-sm">@HttpContextAccessor.HttpContext.Session.GetString("role")</span>
                             </a>
                             <div class="dropdown-divider"></div>
                             <a href="~/Home/Logout" class="dropdown-item">
@@ -77,50 +96,50 @@
                     <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
                         <a href="#" class="dropdown-item">
 
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-                        </div>
-                    </li>
-                    <!-- Notifications Dropdown Menu -->
-                    <li class="nav-item dropdown">
-                        <a class="nav-link" data-toggle="dropdown" href="#">
-                            <i class="far fa-bell"></i>
-                            <span class="badge badge-warning navbar-badge">15</span>
                         </a>
-                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                            <span class="dropdown-item dropdown-header">15 Notifications</span>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-envelope mr-2"></i> 4 new messages
-                                <span class="float-right text-muted text-sm">3 mins</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-users mr-2"></i> 8 friend requests
-                                <span class="float-right text-muted text-sm">12 hours</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item">
-                                <i class="fas fa-file mr-2"></i> 3 new reports
-                                <span class="float-right text-muted text-sm">2 days</span>
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                        </div>
-                    </li>
-                    <!--<li class="nav-item">
-            <a class="nav-link" data-widget="fullscreen" href="#" role="button">
-                <i class="fas fa-expand-arrows-alt"></i>
-            </a>
-        </li>-->
-                    <li class="nav-item">
-                        <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
-                            <i class="fas fa-th-large"></i>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+                    </div>
+                </li>
+                <!-- Notifications Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#">
+                        <i class="far fa-bell"></i>
+                        <span class="badge badge-warning navbar-badge">15</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                        <span class="dropdown-item dropdown-header">15 Notifications</span>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-envelope mr-2"></i> 4 new messages
+                            <span class="float-right text-muted text-sm">3 mins</span>
                         </a>
-                    </li>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-users mr-2"></i> 8 friend requests
+                            <span class="float-right text-muted text-sm">12 hours</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-file mr-2"></i> 3 new reports
+                            <span class="float-right text-muted text-sm">2 days</span>
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+                    </div>
+                </li>
+                <!--<li class="nav-item">
+                    <a class="nav-link" data-widget="fullscreen" href="#" role="button">
+                        <i class="fas fa-expand-arrows-alt"></i>
+                    </a>
+                </li>-->
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="control-sidebar" data-slide="true" href="#" role="button">
+                        <i class="fas fa-th-large"></i>
+                    </a>
+                </li>
 
-                </ul>
+            </ul>
         </nav>
         <!-- /.navbar -->
         <!-- Main Sidebar Container -->
@@ -168,14 +187,18 @@
                                 </p>
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a href="~/Admin/FileUpload/Upload" class="nav-link">
-                                <i class="nav-icon fas fa-upload"></i>
-                                <p>
-                                    File Upload
-                                </p>
-                            </a>
-                        </li>
+                        @if (ucnt > 0)
+                        {
+                            <li class="nav-item">
+                                <a href="~/Admin/FileUpload/Upload" class="nav-link">
+                                    <i class="nav-icon fas fa-upload"></i>
+                                    <p>
+                                        File Upload
+                                    </p>
+                                </a>
+                            </li>
+                        }
+
                         <li class="nav-item">
                             <a href="~/Home/ImportApproval" class="nav-link">
                                 <i class="nav-icon fa fa-thumbs-up"></i>
@@ -184,6 +207,7 @@
                                 </p>
                             </a>
                         </li>
+
                         <li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-copy"></i>
@@ -193,101 +217,135 @@
 
                                 </p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="~/Home/WindGenView" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Gen Summary</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="~/Home/WindDailyTargetKPIView" class="nav-link">
-                                        <i class="far nav-icon"></i>
-                                        <p>Daily Target KPI</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="~/Home/WindDailyLoadSheddingView" class="nav-link">
-                                        <i class="far nav-icon"></i>
-                                        <p>Daily Load Shedding</p>
-                                    </a>
-                                </li>
+                            @for (int i = 0; i < @usermodel.access_list.Count; i++)
+                            {
+                                if (@usermodel.access_list[i].page_type == 1 && @usermodel.access_list[i].site_type == 1)
+                                {
 
-                                <li class="nav-item">
-                                    <a href="~/Home/WindMonthlyTargetKPIView" class="nav-link">
-                                        <i class="far nav-icon"></i>
-                                        <p>Monthly Target KPI</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="~/Home/WindMonthlyLinelossView" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Monthly LineLoss</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="~/Home/WindMonthlyJMRView" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Monthly JMR</p>
-                                    </a>
-                                </li>
-                            </ul>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="~/@usermodel.access_list[i].controller_name/@usermodel.access_list[i].action_url" class="nav-link">
+                                                <i class="far  nav-icon"></i>
+                                                <p>@usermodel.access_list[i].display_name</p>
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                }
+                            }
                         </li>
+                        @*<li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-copy"></i>
+                <p>
+                    Wind Views
+                    <i class="fas fa-angle-left right"></i>
 
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="~/Home/WindGenView" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Gen Summary</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Home/WindDailyTargetKPIView" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Daily Target KPI</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Home/WindDailyLoadSheddingView" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Daily Load Shedding</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="~/Home/WindMonthlyTargetKPIView" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Monthly Target KPI</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Home/WindMonthlyLinelossView" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Monthly LineLoss</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Home/WindMonthlyJMRView" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Monthly JMR</p>
+                    </a>
+                </li>
+            </ul>
+        </li>*@
+
+                        @* <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-copy"></i>
+                <p>
+                    Solar Views
+                    <i class="fas fa-angle-left right"></i>
+                </p>
+            </a>
+            @for (int i = 0; i < @usermodel.access_list.Count; i++)
+            {
+                if (@usermodel.access_list[i].page_type == 1 && @usermodel.access_list[i].site_type == 2)
+                {
+                    <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-copy"></i>
-                                <p>
-                                    Solar Views
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
+                            <a href="~/@usermodel.access_list[i].controller_name/@usermodel.access_list[i].action_url" class="nav-link">
+                                <i class="far  nav-icon"></i>
+                                <p>@usermodel.access_list[i].display_name</p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                <li class="nav-item">
-                                    <a href="~/Home/SolarGenView" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Gen Summary</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="~/Home/SolarDailyLoadSheddingView" class="nav-link">
-                                        <i class="far nav-icon"></i>
-                                        <p>Daily Load Shedding</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="~/Home/SolarDailyTargetKPIView" class="nav-link">
-                                        <i class="far nav-icon"></i>
-                                        <p>Daily Target KPI</p>
-                                    </a>
-                                </li>
-
-                                <li class="nav-item">
-                                    <a href="~/Home/SolarMonthlyTargetKPIView" class="nav-link">
-                                        <i class="far nav-icon"></i>
-                                        <p>Monthly Target KPI</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="~/Home/SolarMonthlyLinelossView" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Monthly LineLoss</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="~/Home/SolarMonthlyJMRView" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Monthly JMR</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="~/Home/SolarAcDcCapacityView" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>AC DC Capacity</p>
-                                    </a>
-                                </li>
-                            </ul>
                         </li>
+                    </ul>
+                }
+            }
+        </li>*@
+                        @*<li class="nav-item">
+                    <a href="~/Home/SolarDailyLoadSheddingView" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Daily Load Shedding</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Home/SolarDailyTargetKPIView" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Daily Target KPI</p>
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a href="~/Home/SolarMonthlyTargetKPIView" class="nav-link">
+                        <i class="far nav-icon"></i>
+                        <p>Monthly Target KPI</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Home/SolarMonthlyLinelossView" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Monthly LineLoss</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Home/SolarMonthlyJMRView" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Monthly JMR</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="~/Home/SolarAcDcCapacityView" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>AC DC Capacity</p>
+                    </a>
+                </li>
+            </ul>
+        </li>*@
                         @*<li class="nav-item">
             <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-copy"></i>
@@ -351,71 +409,108 @@
 
                                 </p>
                             </a>
-                            <ul class="nav nav-treeview">
-                                @if (!@TempData["role"].Equals("User"))
+                            @for (int i = 0; i < @usermodel.access_list.Count; i++)
+                            {
+                                if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 1)
                                 {
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindSiteMaster", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Wind Site Master</p>
-                                        </a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("WindLocationMaster", "Home")" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Wind Location Master</p>
-                                        </a>
-                                    </li>
+                                    <ul class="nav nav-treeview">
+                                        <li class="nav-item">
+                                            <a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name)" class="nav-link">
+                                                <i class="far  nav-icon"></i>
+                                                <p>@usermodel.access_list[i].display_name</p>
+                                            </a>
+                                        </li>
+                                    </ul>
                                 }
-                                <li class="nav-item">
-                                    <a href="@Url.Action("WindGenReport", "Home")" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Generation Reports</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="@Url.Action("WindBDReport", "Home")" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Breakdown Reports</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="@Url.Action("WindPRReport", "Home")" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Performance Reports</p>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a href="@Url.Action("WindWeeklyPRReports", "Home")" class="nav-link">
-                                        <i class="far  nav-icon"></i>
-                                        <p>Weekly PR Reports</p>
-                                    </a>
-                                </li>
-                                <!--<li class="nav-item">
-        <a href="@Url.Action("View-Wind-Daily-Report", "WindReport")" class="nav-link">
-            <i class="far  nav-icon"></i>
-            <p>View Wind Daily Report</p>
-        </a>
-    </li>-->
-                            </ul>
+                            }
                         </li>
+                        @* <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-book"></i>
+                                <p>
+                                    Solar Reports
+                                    <i class="fas fa-angle-left right"></i>
+
+                                </p>
+                            </a>
+                           @for (int i = 0; i < @usermodel.access_list.Count; i++)
+            {
+                if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 2)
+                {
+                    <ul class="nav nav-treeview">
                         <li class="nav-item">
-        <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-server"></i>
-            <p>
-                Administration
-                <i class="right fas fa-angle-left"></i>
-            </p>
-        </a>
-        <ul class="nav nav-treeview">
-            <li class="nav-item">
-                <a href="@Url.Action("WindSiteUserMaster", "Home")" class="nav-link">
-                    <i class="far  nav-icon"></i>
-                    <p>Wind Site User Master</p>
-                </a>
-            </li>
-        </ul>
-        </li>
+                            <a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name)" class="nav-link">
+                                <i class="far  nav-icon"></i>
+                                <p>@usermodel.access_list[i].display_name</p>
+                            </a>
+                        </li>
+                    </ul>
+                }
+            }
+        </li>*@
+                        @*<ul class="nav nav-treeview">
+                @if (!@TempData["role"].Equals("User"))
+                {
+                    <li class="nav-item">
+                        <a href="@Url.Action("WindSiteMaster", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Wind Site Master</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("WindLocationMaster", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Wind Location Master</p>
+                        </a>
+                    </li>
+                }
+                <li class="nav-item">
+                    <a href="@Url.Action("WindGenReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Generation Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindBDReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Breakdown Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindPRReport", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Performance Reports</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="@Url.Action("WindWeeklyPRReports", "Home")" class="nav-link">
+                        <i class="far  nav-icon"></i>
+                        <p>Weekly PR Reports</p>
+                    </a>
+                </li>
+
+            </ul>
+        </li>*@
+                        @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon fas fa-server"></i>
+                                    <p>
+                                        Administration
+                                        <i class="right fas fa-angle-left"></i>
+                                    </p>
+                                </a>
+                                <ul class="nav nav-treeview">
+                                    <li class="nav-item">
+                                        <a href="@Url.Action("WindSiteUserMaster", "Home")" class="nav-link">
+                                            <i class="far  nav-icon"></i>
+                                            <p>Wind Site User Master</p>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
                         @*<li class="nav-item">
             <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-book"></i>
@@ -604,7 +699,7 @@
     </li>-->
                     </ul>
 
-</nav>
+                </nav>
                 <!-- /.sidebar-menu -->
             </div>
 
@@ -638,7 +733,7 @@
             <div class="float-right d-none d-sm-block">
                 <!--<b>Version</b> 3.2.0-->
             </div>
-            <strong>Copyright &copy; 2022 <a href="https://softeltech.in/">Softel Technologies</a>.</strong>
+            <!-- <strong>Copyright &copy; 2022 <a href="https://softeltech.in/">Softel Technologies</a>.</strong>-->
         </footer>
 
         <!-- Control Sidebar -->

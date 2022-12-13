@@ -44,7 +44,10 @@ namespace DGRA_V1
             services.AddControllersWithViews();
             services.AddRazorPages();
 
-            //  services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            //Seesion Service enable
+            //services.AddScoped<IHttpContextAccessor, HttpContextAccessor>();
+            services.AddHttpContextAccessor();
+            //----------------
 
             //   services.AddScoped<IDapperRepository, DapperRepository>();
 
@@ -66,7 +69,7 @@ namespace DGRA_V1
             //        .EnableTokenAcquisitionToCallDownstreamApi(initialScopes)
             //            .AddMicrosoftGraph(Configuration.GetSection("DownstreamApi"))
             //            .AddInMemoryTokenCaches();
-            
+
             //services.AddControllersWithViews(options =>
             //{
             //    var policy = new AuthorizationPolicyBuilder()

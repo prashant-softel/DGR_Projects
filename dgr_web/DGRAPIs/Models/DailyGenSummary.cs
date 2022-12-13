@@ -15,7 +15,8 @@ namespace DGRAPIs.Models
         public float wind_speed { get; set; }
        
         public float kwh { get; set; }
-        
+        public float kwh_afterlineloss { get; set; }
+
         public string feeder { get; set; }
        
         public float ma_contractual { get; set; }
@@ -27,24 +28,25 @@ namespace DGRAPIs.Models
         public float ega { get; set; }
      
         public float plf { get; set; }
-        
+        public float plf_afterlineloss { get; set; }
+
         public float grid_hrs { get; set; }
       
         public float lull_hrs { get; set; }
         
         public float production_hrs { get; set; }
       
-        public float unschedule_hrs { get; set; }
+        public dynamic unschedule_hrs { get; set; }
        
-        public float schedule_hrs { get; set; }
+        public dynamic schedule_hrs { get; set; }
        
-        public float others { get; set; }
+        public dynamic others { get; set; }
       
-        public float igbdh { get; set; }
+        public dynamic igbdh { get; set; }
      
-        public float egbdh { get; set; }
+        public dynamic egbdh { get; set; }
        
-        public float load_shedding { get; set; }
+        public dynamic load_shedding { get; set; }
          
     }
 }

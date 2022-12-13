@@ -151,15 +151,19 @@ G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\K4os.Compression.LZ4.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\K4os.Compression.LZ4.Streams.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\K4os.Hash.xxHash.dll
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.DotNet.PlatformAbstractions.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.Caching.Abstractions.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.Caching.Memory.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.DependencyInjection.Abstractions.dll
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.DependencyModel.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.Logging.Abstractions.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.Options.dll
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.PlatformAbstractions.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.Primitives.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\MySql.Data.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Ubiety.Dns.Core.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\ZstdNet.dll
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Nancy.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Newtonsoft.Json.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\System.Configuration.ConfigurationManager.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\System.Runtime.CompilerServices.Unsafe.dll
@@ -179,7 +183,3 @@ G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Release\netcoreapp3.1
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Release\netcoreapp3.1\DGRAPIs.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Release\netcoreapp3.1\DGRAPIs.pdb
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Release\netcoreapp3.1\DGRAPIs.genruntimeconfig.cache
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.DotNet.PlatformAbstractions.dll
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.DependencyModel.dll
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Microsoft.Extensions.PlatformAbstractions.dll
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Release\netcoreapp3.1\Nancy.dll

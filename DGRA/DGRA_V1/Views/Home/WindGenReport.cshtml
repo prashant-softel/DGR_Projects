@@ -640,12 +640,12 @@
                         tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss')+ '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss')+ '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
 
                         tbl += '</tr>';
                     }
@@ -759,12 +759,13 @@
                         tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                       
 
                         tbl += '</tr>';
                     }
@@ -903,12 +904,13 @@
                         tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        
 
                         tbl += '</tr>';
                     }
@@ -1029,12 +1031,12 @@
                         tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
 
                         tbl += '</tr>';
                     }
@@ -1164,12 +1166,12 @@
                         tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
 
                         tbl += '</tr>';
                     }
@@ -1289,12 +1291,12 @@
                         tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].schedule_hrs.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].others.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
 
                         tbl += '</tr>';
                     }

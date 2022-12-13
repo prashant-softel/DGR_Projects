@@ -8,7 +8,7 @@ namespace DGRAPIs.Models
 {
     public class approvalObject
     {
-        public int import_log_id { get; set; }
+        public int import_batch_id { get; set; }
         public string file_name { get; set; }
         public int import_type { get; set; }
         public int site_id { get; set; }

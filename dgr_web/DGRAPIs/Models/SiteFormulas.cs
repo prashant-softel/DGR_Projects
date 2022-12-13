@@ -14,6 +14,7 @@ namespace DGRAPIs.Models
         public string MA_Contractual { get; set; }
         public string IGA { get; set; }
         public string EGA { get; set; }
+        public double capacity_mw { get; set; }
 
     }
 }

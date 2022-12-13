@@ -7,11 +7,15 @@ namespace DGRAPIs.Models
 {
     public class WindMonthlyUploadingLineLosses
     {
-        public string FY { get; set; }
-        public string Sites { get; set; }
-        public string Month { get; set; }
-        public dynamic LineLoss { get; set; }
-              
-         
+        public int monthly_uploading_line_losses_id { get; set; }
+        public string fy { get; set; }
+        public string site { get; set; }
+        public int site_id { get; set; }
+        public int month_no { get; set; }
+        public int year { get; set; }
+        public string month { get; set; }
+        public double lineLoss { get; set; }
+
+
     }
 }

@@ -10,6 +10,7 @@ namespace DGRA_V1.Models
     {
         public string date { get; set; }
         public string site{ get; set; }
+        public int site_id { get; set; }
         public string startTime { get; set; }
         public string endTime { get; set; }
         public string totalTime { get; set; }

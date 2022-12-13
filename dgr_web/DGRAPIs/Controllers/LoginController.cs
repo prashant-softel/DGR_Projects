@@ -40,12 +40,12 @@ namespace Login.Controllers
         [Route("WindUserRegistration")]
         [HttpGet]
         // public async Task<IActionResult> UserLogin(string username, string password)
-        public async Task<IActionResult> WindUserRegistration(string fname, string useremail, string role, string created_on)
+        public async Task<IActionResult> WindUserRegistration(string fname, string useremail, string role, string userpass )
         {
             try
             {
 
-                var data = await _loginBs.WindUserRegistration(fname, useremail, role, created_on);
+                var data = await _loginBs.WindUserRegistration(fname, useremail, role, userpass);
                 return Ok(data);
             }
             catch (Exception ex)

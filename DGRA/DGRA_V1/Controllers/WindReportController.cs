@@ -150,7 +150,7 @@ namespace DGRA_V1.Controllers
 
         }
         // Site List
-        public async Task<IActionResult> GetSiteList(string state, string spv)
+        public async Task<IActionResult> GetSiteList(string state, string spv,string sitelist)
         {
             string line = "";
             string spvdata = "";
@@ -174,7 +174,7 @@ namespace DGRA_V1.Controllers
             
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSiteList?state=" + statedata + "&spvdata=" + spvdata;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSiteList?state=" + statedata + "&spvdata=" + spvdata+"&site="+ sitelist;
                // var url = "http://localhost:23835/api/DGR/GetSiteList?state="+ statedata + "&spvdata="+ spvdata;
                 WebRequest request = WebRequest.Create(url);
 

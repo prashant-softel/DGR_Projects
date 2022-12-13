@@ -1,5 +1,23 @@
-﻿@{
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
     ViewData["Title"] = "Import Approval";
+}
+@{
+    string windSiteList = "";
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    {
+        windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+   
 }
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -100,7 +118,7 @@
                     <div class="col-md-4"></div>
                 </div>
                 <br>
-                @if (!@TempData["role"].Equals("User"))
+                @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                 {
                     <hr>
                     <div class="row" id="approvebtn" style="display:none">
@@ -194,10 +212,11 @@
     window.onload = function () {
         var state = "";
         var spv = "";
+         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
            // url: "/WindReport/GetSiteList",
-             url: '@Url.Action("GetSiteList", "WindReport")',
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -238,7 +257,7 @@
                 tbl += '<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th style="width:100px">Import Date</th>';
-                tbl += '<th>File Name</th>';
+               // tbl += '<th>File Name</th>';
                 tbl += '<th>Impo. By</th>';
                 tbl += '<th>Status</th>';
                 tbl += '<th>App. Date</th>';
@@ -269,11 +288,11 @@
                         }
                         // console.log(status);
                         tbl += '<tr>';
-                        tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_log_id + '" data-id=' + result[i].import_log_id + ' style="margin-left: 0rem;" ' + isDisable + '></td>';
+                        tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style="margin-left: 0rem;" ' + isDisable + '></td>';
                         tbl += '<td>' + result[i].site_name + '</td>';
                         tbl += '<td>' + formattedDate + '</td>';
                         tbl += '<td>' + arr2[5] + '</td>';
-                        tbl += '<td>' + result[i].import_by_name + '</td>';
+                        //tbl += '<td>' + result[i].import_by_name + '</td>';
                         tbl += '<td>' + status + '</td>';
                         if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
                             var formattedDate1 = '';
@@ -305,10 +324,11 @@
                         tbl += '<td>' + approval_name + '</td>';
                         tbl += '<td>' + formattedDate2 + '</td>';
                         tbl += '<td>' + rejected_name + '</td>';
-                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewGenData(' + result[i].import_log_id + ')"  data-toggle="modal" data-target="#modal-xl">G</a></div>';
-                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_log_id + ')" data-toggle="modal" data-target="#modal-xl" >B</a></div>';
-                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Imported File" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_log_id + ')" data-toggle="modal" data-target="#modal-xl" >F</a></div>';
-                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Log" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_log_id + ')" data-toggle="modal" data-target="#modal-xl" >L</a></div>';
+                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl">G</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" >B</a></div>';
+                        //enter filenames paths
+                        tbl += '<div style="width: 25%;float: left;"><a href="C:\LogFile\\'+ result[i].log_filename +'" title=" View Log File" class="btn  btn-info" download>F</a></div>';
+                       // tbl += '<div style="width: 25%;float: left;"><a href="C:\ImportedFile\"' + result[i].file_name + '" title=" View Imported File" class="btn  btn-info" download>L</a></div>';
                         tbl += '</td ></tr>';
                     }
                 }
@@ -336,6 +356,7 @@
     }
 
     function DataApproved(actionType) {
+       // alert(actionType);
         var values = '';
         $.each($("input[class='form-check-input']:checked"), function () {
             if (values == '') {
@@ -349,21 +370,21 @@
             alert("Please select data");
             return false;
         }
-        var approved_by = 1;
-        var approved_by_name = "Sujit Kumar"; // seseeion kaha pe set hai kamlesh isko usme add krna hia
+        var approved_by ="@HttpContextAccessor.HttpContext.Session.GetString("userid")";
+        var approved_by_name = "@HttpContextAccessor.HttpContext.Session.GetString("DisplayName")";
 
         var uri = "";
         if (actionType == 1) {
             var Approvestatus = 1;
-            url: '@Url.Action("DataApproved", "WindView")' + '?data=' + values + '&approvedBy=' + approved_by + '&approvedByName=' + approved_by_name + '&status=' + Approvestatus + '&actionType=' + actionType
-          //  uri = "/WindView/DataApproved?data=" + values + "&approvedBy=" + approved_by + "&approvedByName=" + approved_by_name + "&status=" + Approvestatus + "&actionType=" + actionType
+            uri= '@Url.Action("DataApproved", "WindView")' + '?data=' + values + '&approvedBy=' + approved_by + '&approvedByName=' + approved_by_name + '&status=' + Approvestatus + '&actionType=' + actionType
+
         }
         if (actionType == 2) {
             var Rejectstatus = 2;
-            url: '@Url.Action("DataReject", "WindView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
-           // uri = "/WindView/DataReject?data=" + values + "&rejectedBy=" + approved_by + "&rejectByName=" + approved_by_name + "&status=" + Rejectstatus + "&actionType=" + actionType
-        }
+            uri= '@Url.Action("DataReject", "WindView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
 
+        }
+       // alert(uri);
 
         $.ajax({
             type: "POST",
@@ -424,8 +445,40 @@
                 tbl1 += '</tr></thead>';
 
                 if (result1.length > 0) {
-                    console.log(result1.length);
+                    console.log(result1);
                     for (var j = 0; j < result1.length; j++) {
+                        //debugger;
+                        //console.log("Un Array :"+result1[j]);
+                        let unsch_hrs = "00:00:00";
+                        let sch_hrs = "00:00:00";
+                        let other = "00:00:00";
+                        let igbdh = "00:00:00";
+                        let egbdh = "00:00:00";
+                        let load_shedding = "00:00:00";
+                        if (result1[j].unschedule_hrs != null) {
+                            //unsch_hrs = result1[j].unschedule_hrs['totalHours'];
+                            unsch_hrs =  moment.utc(result1[j].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss');
+                        }
+                        if (result1[j].schedule_hrs != null) {
+                            sch_hrs = moment.utc(result1[j].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss');
+                            //sch_hrs = result1[j].schedule_hrs['hours'] + ":" + result1[j].schedule_hrs['minutes'] + ":" + result1[j].schedule_hrs['totalSeconds'];
+                        }
+                        if (result1[j].others != null) {
+                            other = moment.utc(result1[j].others['totalSeconds'] * 1000).format('HH:mm:ss');
+                           // other = result1[j].others['hours'] + ":" + result1[j].others['minutes'] + ":" + result1[j].others['seconds'];
+                        }
+                        if (result1[j].igbdh != null) {
+                            igbdh = moment.utc(result1[j].igbdh['totalSeconds'] * 1000).format('HH:mm:ss');
+                           // igbdh = result1[j].igbdh['hours'] + ":" + result1[j].igbdh['minutes'] + ":" + result1[j].igbdh['seconds'];
+                        }
+                        if (result1[j].egbdh != null) {
+                            egbdh = moment.utc(result1[j].egbdh['totalSeconds'] * 1000).format('HH:mm:ss');
+                           // egbdh = result1[j].egbdh['hours'] + ":" + result1[j].egbdh['minutes'] + ":" + result1[j].egbdh['seconds'];
+                        }
+                        if (result1[j].load_shedding != null) {
+                            load_shedding = moment.utc(result1[j].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss');
+                            //load_shedding = result1[j].load_shedding['hours'] + ":" + result1[j].load_shedding['minutes'] + ":" + result1[j].load_shedding['seconds'];
+                        }
 
                         var formattedDate = moment(result1[j].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl1 += '<tr>';
@@ -440,14 +493,14 @@
                         tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ega.toFixed(2) + '</td>';
                         tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].plf.toFixed(2) + '</td>';
                         tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].grid_hrs.toFixed(2) + '</td>';
-                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].production_rs.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].lull_hrs.toFixed(2) + '</td>';
                         tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].operating_hrs.toFixed(2) + '</td>';
-                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].unschedule_hrs.toFixed(2) + '</td>';
-                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].schedule_hrs.toFixed(2) + '</td>';
-                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].others.toFixed(2) + '</td>';
-                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].igbdh.toFixed(2) + '</td>';
-                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].egbdh.toFixed(2) + '</td>';
-                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].load_shedding.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + unsch_hrs + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + sch_hrs + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + other+ '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + igbdh + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + egbdh+ '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + load_shedding+ '</td>';
                         tbl1 += '</tr>';
                         // console.log(j);
                     }

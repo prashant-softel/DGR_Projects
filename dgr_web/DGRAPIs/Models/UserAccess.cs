@@ -9,6 +9,7 @@ namespace DGRAPIs.Models
     public class UserAccess
     {
         public int login_id { get; set; }
+        public int site_type { get; set; }
         public Int64 page_type { get; set; }
         public int identity { get; set; }
         public int upload_access { get; set; }

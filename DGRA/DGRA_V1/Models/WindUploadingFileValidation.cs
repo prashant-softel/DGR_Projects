@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using DGRA_V1.Repository.Interface;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Data;
@@ -12,6 +13,8 @@ namespace DGRA_V1.Models
     {
         ErrorLog m_ErrorLog;
         Hashtable m_DeviceCollection = new Hashtable();
+        IDapperRepository _idapperRepo;
+
         // Adding key/value pair
         // in the hashtable
         // Using Add() method
@@ -26,11 +29,12 @@ namespace DGRA_V1.Models
         ~WindUploadingFileValidation()
         { }
 
-        public WindUploadingFileValidation(ErrorLog arErrorLog)
+        public WindUploadingFileValidation(ErrorLog arErrorLog, IDapperRepository iRepo)
         {
             m_ErrorLog = arErrorLog;
+            _idapperRepo = iRepo;
             DataTable dTable = new DataTable();
-            var url = "http://localhost:23835/api/DGR/GetWindLocationMaster";
+            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindLocationMaster";
             var result = string.Empty;
 
             WebRequest request = WebRequest.Create(url);
@@ -58,12 +62,12 @@ namespace DGRA_V1.Models
             string totalStop = Convert.ToString(totalStop_);
             return totalStop;
         }
-        public bool validateBreakDownData(long rowNumber, string breakDownType, string stopFrom, string stopTo)
+        public bool validateBreakDownData(long rowNumber, string breakDownType, string verifyWTG, string stopFrom, string stopTo)
         {
             bool greaterStopTo = false;
             bool lastStopTo = false;
             bool totalStop = false;
-            //bool sumOfBDHours = false;
+            bool wtgFlag = false;
 
             //1)(Stop To) – column always greater than (Stop From) – column.
             DateTime stopTo_ = Convert.ToDateTime(stopTo);
@@ -71,6 +75,11 @@ namespace DGRA_V1.Models
             if (stopFrom_> stopTo_)
             {
                 greaterStopTo = true;
+            }
+
+            if (!(m_DeviceCollection.ContainsKey(verifyWTG)))
+            {
+                wtgFlag = true;
             }
 
             //2)(Stop To) Hours - column 24:00:00 should be 23:59:59
@@ -93,11 +102,15 @@ namespace DGRA_V1.Models
             //}
 
             //*Overall Error Status*
-            if (greaterStopTo == true || lastStopTo == true || totalStop == true )
+            if (wtgFlag == true || greaterStopTo == true || lastStopTo == true || totalStop == true )
             {
                 //|| sumOfBDHours == true
                 m_ErrorLog.SetError(",File Row (" + rowNumber + ") had error(s) ");
 
+                if (wtgFlag == true)
+                {
+                    m_ErrorLog.SetError(",Invalid - Equipment record does not exist : ");
+                }
                 if (greaterStopTo == true)
                 {
                     m_ErrorLog.SetError(",Stop-To Time is lower than Stop-From: ");

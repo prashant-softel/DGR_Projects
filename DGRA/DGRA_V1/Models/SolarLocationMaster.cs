@@ -5,6 +5,7 @@
         public int location_master_solar_id { get; set; }
         public string country { get; set; }
         public string site { get; set; }
+        public int site_id { get; set; }
         public string eg { get; set; }
         public string ig { get; set; }
         public string icr_inv { get; set; }
@@ -21,6 +22,6 @@
         public string module_make { get; set; }
         public string module_model_no { get; set; }
         public string module_type { get; set; }
-        public string string_inv_central_inv { get; set; }
+        public int string_inv_central_inv { get; set; }
     }
 }
