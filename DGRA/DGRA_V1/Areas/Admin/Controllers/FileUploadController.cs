@@ -21,6 +21,7 @@ using DGRA_V1.Repository.Interface;
 
 using OfficeOpenXml;
 using System.ComponentModel;
+using System.Globalization;
 
 namespace DGRA_V1.Areas.admin.Controllers
 {
@@ -30,14 +31,17 @@ namespace DGRA_V1.Areas.admin.Controllers
         ImportBatch objImportBatch = new ImportBatch();
         private IDapperRepository _idapperRepo;
         private IWebHostEnvironment env;
-        public FileUploadController(IDapperRepository idapperRepo, IWebHostEnvironment obj)
+        private static IHttpContextAccessor HttpContextAccessor;
+        public FileUploadController(IDapperRepository idapperobj, IWebHostEnvironment obj, IHttpContextAccessor httpObj)
         {
-            _idapperRepo = idapperRepo;
+            HttpContextAccessor = httpObj;
+            _idapperRepo = idapperobj;
             m_ErrorLog = new ErrorLog(obj);
             env = obj;
         }
         static int batchIdDGRAutomation = 0;
-
+        string siteUserRole;
+        int previousSite = 0;
         static string[] importData = new string[2];
         static bool isGenValidationSuccess = false;
         static bool isBreakdownValidationSuccess = false;
@@ -52,6 +56,9 @@ namespace DGRA_V1.Areas.admin.Controllers
 
 
         ArrayList kpiArgs = new ArrayList();
+        List<int> windSiteUserAccess = new List<int>();
+        List<string> fileSheets = new List<string>();
+
         //WindUploadingFileValidation m_ValidationObject;
         ErrorLog m_ErrorLog;
         // static string[] importData = new string[2];
@@ -97,6 +104,16 @@ namespace DGRA_V1.Areas.admin.Controllers
 
         public async Task<string> ExcelDataReaderAndUpload(IFormFile file, string fileUploadType)
         {
+            var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+            for (int i = 0; i < usermodel.access_list.Count; i++)
+            {
+                if (usermodel.access_list[i].page_type == 3 && usermodel.access_list[i].site_type == 1)
+                {
+                    windSiteUserAccess.Add(Convert.ToInt32(usermodel.access_list[i].identity));
+                }
+            }
+            //windSiteList = HttpContextAccessor.HttpContext.Session.GetString("UserAccess");
+            siteUserRole = HttpContext.Session.GetString("role");
             DateTime today = DateTime.Now;
             string csvFileName = file.FileName + "_" + today.ToString("dd-MM-yyyy") + "_" + today.ToString("hh-mm-ss") + ".csv";
             importData[0] = fileUploadType;
@@ -110,9 +127,6 @@ namespace DGRA_V1.Areas.admin.Controllers
 
             if (allowedExtensions.Contains(ext))
             {
-                m_ErrorLog.SetInformation("Status,Message");
-                m_ErrorLog.SetInformation(",File Import Initiated:");
-
                 try
                 {
                     if (!Directory.Exists(@"\TempFile"))
@@ -151,35 +165,31 @@ namespace DGRA_V1.Areas.admin.Controllers
                             //////////dt = oconn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
                             //////////oconn.Close();
                             DataTable dt = null;
-                            
-                             List<string> fileSheets = new List<string>();
-                             string _filePath = @"C:\TempFile\docupload.xlsx";
-                          // string _filePath = @"G:\TempFile\docupload.xlsx";
-                            dataSetMain = GetDataTableFromExcel(_filePath,true,ref fileSheets);
 
-                            m_ErrorLog.SetInformation("Status,Message");
-                            m_ErrorLog.SetInformation(",File Import Initiated:");
+                            string _filePath = @"C:\TempFile\docupload.xlsx";
+                             //string _filePath = @"G:\TempFile\docupload.xlsx";
+                            dataSetMain = GetDataTableFromExcel(_filePath, true, ref fileSheets);
 
-                            //foreach (DataRow row in dt.Rows)
-                            //{
-                            //    fileSheets.Add(row["TABLE_NAME"].ToString());
-                            //}
+                            if (dataSetMain == null)
+                            {
+                                m_ErrorLog.SetError("Unable to extract excel sheet data for importing,");
+                            }
+
                             if (fileSheets.Contains("Uploading_File_Generation") || fileSheets.Contains("Uploading_File_Breakdown") || fileSheets.Contains("Uploading_PyranoMeter1Min") || fileSheets.Contains("Uploading_PyranoMeter15Min"))
                             {
                                 masterHashtable_SiteName_To_SiteId();//C
                                 masterHashtable_BDNameToBDId();//B
+                                masterHashtable_SiteIdToSiteName();
                                 if (fileUploadType == "Wind")
                                 {
-                                    masterHashtable_SiteIdToSiteName();
                                     masterHashtable_WtgToWtgId();
                                     masterHashtable_WtgToSiteId();
                                 }
                             }
-
-                            if (!(fileSheets.Contains("Uploading_File_Generation") || fileSheets.Contains("Uploading_File_Breakdown") || fileSheets.Contains("Uploading_PyranoMeter1Min") || fileSheets.Contains("Uploading_PyranoMeter15Min")))
+                            else
                             {
                                 masterHashtable_SiteName_To_SiteId();
-                                    masterHashtable_SiteIdToSiteName();
+                                masterHashtable_SiteIdToSiteName();
                             }
                             //Status Codes:
                             //200 = Success ; 400 = Failure(BadRequest)
@@ -215,16 +225,16 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                                         else if (fileUploadType == "Wind")
                                         {
-                                            m_ErrorLog.SetInformation(",Reviewing Wind_Uploading_File_Generation WorkSheet :");
+                                            m_ErrorLog.SetInformation(",Reviewing Wind_Uploading_File_Generation WorkSheet");
                                             statusCode = await InsertWindFileGeneration(status, ds);
                                             if (statusCode == 200)
                                             {
-                                                m_ErrorLog.SetInformation("No Errors,Wind Generation Import Successful:");
+                                                m_ErrorLog.SetInformation("No Errors,Wind Generation Import Successful");
                                             }
                                             else
                                             {
-                                                m_ErrorLog.SetError(",Wind Generation Import Failed:");
-                                                m_ErrorLog.SetInformation(",End of Wind Generation Import:");
+                                                m_ErrorLog.SetError(",Wind Generation Import Failed");
+                                                m_ErrorLog.SetInformation(",End of Wind Generation Import");
                                             }
                                         }
                                     }
@@ -264,7 +274,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                             }
                                             else
                                             {
-                                                m_ErrorLog.SetError(",Wind BreakDown Import Failed:");
+                                                m_ErrorLog.SetError(",Wind BreakDown Import API Failed:");
                                                 m_ErrorLog.SetInformation(",End of Wind BreakDown Import:");
                                             }
                                         }
@@ -702,12 +712,22 @@ namespace DGRA_V1.Areas.admin.Controllers
                                             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(kpiArgs[0]).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(kpiArgs[1]).ToString("yyyy-MM-dd") + "&site=" + (string)kpiArgs[2] + "";
 
                                             m_ErrorLog.SetInformation("Url" + url);
-
-
                                             using (var client = new HttpClient())
                                             {
-                                                await client.GetAsync(url);
+                                                var response = await client.GetAsync(url);
+                                                status = "Respose" + response;
+                                                if (response.IsSuccessStatusCode)
+                                                {
+                                                    m_ErrorLog.SetInformation(",Wind KPI Calculations Updated Successfully:");
+                                                    status = "Successfully Uploaded";
+                                                }
+                                                else
+                                                {
+                                                    m_ErrorLog.SetError(",Wind KPI Calculations API Failed:");
+                                                    status = "Unsuccessfully Uploaded";
+                                                }
                                             }
+
                                         }
                                     }
                                     else
@@ -740,7 +760,6 @@ namespace DGRA_V1.Areas.admin.Controllers
                             else
                             {
                                 m_ErrorLog.SetInformation(",Import Operation Failed:");
-                                status = "Import Operation Failed";
                             }
                         }
                         catch (Exception ex)
@@ -762,13 +781,20 @@ namespace DGRA_V1.Areas.admin.Controllers
                 m_ErrorLog.SetError("," + status + ":");
             }
 
-
             m_ErrorLog.SaveToCSV(csvFileName);
+            if (statusCode != 200)
+            {
+                ArrayList messageList = m_ErrorLog.errorLog();
+                foreach (var item in messageList)
+                {
+                    status += ((string)item).Replace(",", "") + ",";
+                }
+            }
             return status;
         }
 
 
-        private  DataSet GetDataTableFromExcel(string filePath, bool hasHeader ,ref List<string> _worksheetList)
+        private DataSet GetDataTableFromExcel(string filePath, bool hasHeader, ref List<string> _worksheetList)
         {
             try
             {
@@ -777,12 +803,11 @@ namespace DGRA_V1.Areas.admin.Controllers
                 FileInfo excelFile = new FileInfo(filePath);
                 var excel = new ExcelPackage(excelFile);
                 foreach (var worksheet in excel.Workbook.Worksheets)
-            {
+                {
                     _worksheetList.Add(worksheet.Name);
-            }
+                }
 
-
-               // ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+                // ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 using (var package = new ExcelPackage(excelFile))
                 {
                     foreach (var li in _worksheetList)
@@ -851,8 +876,13 @@ namespace DGRA_V1.Areas.admin.Controllers
                     addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
                     addUnit.site = Convert.ToString(dr["Site"]);
                     if (siteNameId.ContainsKey(addUnit.site))
-                    { addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]); }//C
-                    else { errorFlag = true; }
+                    { 
+                        addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]); 
+                    }//C
+                    else 
+                    { 
+                        errorFlag = true; 
+                    }
                     objImportBatch.importSiteId = addUnit.site_id;//C
                     addUnit.inverter = Convert.ToString(dr["Inverter"]);
                     addUnit.inv_act = Convert.ToDecimal(dr["Inv_Act(KWh)"]);
@@ -890,14 +920,29 @@ namespace DGRA_V1.Areas.admin.Controllers
         {
             //siteID recorded
             //siteID validated
+
+            //validation variables
+            DateTime dateValidate = DateTime.MinValue;
             long rowNumber = 0;
-            bool errorFlag = false;
             int errorCount = 0;
-            DateTime fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
-            DateTime toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
-            DateTime nextDate;
+            bool errorFlag = false;
+            DateTime dt1;
+            DateTime dt2;
+            //kpi helper variables
+
+            DateTime.TryParseExact(ds.Tables[0].Rows[0]["Date"].ToString(), "dd-MM-yyyy", CultureInfo.InvariantCulture,DateTimeStyles.None,out dt1);
+
+
+            DateTime fromDate = dt1;// Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+            DateTime toDate = dt1;// Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+
+
+
+            DateTime nextDate= DateTime.MinValue;
             string site = "";
+            //function return variable
             int responseCode = 400;
+
             WindUploadingFileValidation validationObject = new WindUploadingFileValidation(m_ErrorLog, _idapperRepo);
 
             if (ds.Tables.Count > 0)
@@ -908,6 +953,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                     rowNumber++;
                     WindUploadingFileGeneration addUnit = new WindUploadingFileGeneration();
                     addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                    dateValidate = Convert.ToDateTime(addUnit.date);
                     addUnit.wtg = Convert.ToString(dr["WTG"]);
                     addUnit.wtg_id = Convert.ToInt32(equipmentId[addUnit.wtg]);//A
                     addUnit.site_id = Convert.ToInt32(eqSiteId[addUnit.wtg]);
@@ -922,7 +968,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                     addUnit.operating_hrs = Convert.ToDecimal(dr["Gen_Hrs"]);
                     addUnit.lull_hrs = Convert.ToDecimal(dr["Lull_Hrs"]);
                     addUnit.grid_hrs = Convert.ToDecimal(dr["Grid_Hrs"]);
-
+                    errorFlag = uniformSiteValidation(rowNumber, addUnit.site_id, addUnit.wtg);
+                    errorFlag = (siteUserRole == "Admin") ? false : importDateValidation(dateValidate);
                     errorFlag = validationObject.validateGenData(rowNumber, addUnit.date, addUnit.wtg, addUnit.wind_speed, addUnit.kwh, addUnit.operating_hrs, addUnit.lull_hrs, addUnit.grid_hrs);
                     if (errorFlag)
                     {
@@ -1024,6 +1071,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 List<WindUploadingFileBreakDown> addSet = new List<WindUploadingFileBreakDown>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
+                    rowNumber++;
                     WindUploadingFileBreakDown addUnit = new WindUploadingFileBreakDown();
                     addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
                     addUnit.wtg = Convert.ToString(dr["WTG"]);
@@ -2008,7 +2056,8 @@ namespace DGRA_V1.Areas.admin.Controllers
         {
             objImportBatch.importFilePath = fileName;
             objImportBatch.importLogName = importData[1];
-
+            string UserName= HttpContext.Session.GetString("DisplayName");
+            int Userid = Convert.ToInt32(HttpContext.Session.GetString("userid"));
             if (importType == "Solar")
             {
                 objImportBatch.importType = "1";
@@ -2019,7 +2068,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             var json = JsonConvert.SerializeObject(objImportBatch);
             var data = new StringContent(json, Encoding.UTF8, "application/json");
-            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/importMetaData";
+            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/importMetaData?userName=" + UserName + "&userId="+ Userid;
             using (var client = new HttpClient())
             {
                 var response = await client.PostAsync(url, data);
@@ -2049,7 +2098,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             //fills a hashtable with key = wtg and value = location_master_id from table : Wind Location Master
             //gets equipmentID from equipmentName in Wind Location Master
             DataTable dTable = new DataTable();
-            //var url = "http://localhost:23835/api/DGR/GetWindLocationMaster";
             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindLocationMaster";
             var result = string.Empty;
             WebRequest request = WebRequest.Create(url);
@@ -2066,7 +2114,8 @@ namespace DGRA_V1.Areas.admin.Controllers
 
             foreach (DataRow dr in dTable.Rows)
             {
-                equipmentId.Add((string)dr["wtg"], Convert.ToInt32(dr["location_master_id"]));
+                int convert = (int)Convert.ToInt64(dr["location_master_id"]);//D
+                equipmentId.Add((string)dr["wtg"], convert);
             }
         }
         public void masterHashtable_BDNameToBDId()
@@ -2075,7 +2124,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             //gets breakdownId from breakdownName in BDType
 
             DataTable dTable = new DataTable();
-            //var url = "http://localhost:23835/api/DGR/GetBDType";
             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetBDType";
             var result = string.Empty;
             WebRequest request = WebRequest.Create(url);
@@ -2092,7 +2140,8 @@ namespace DGRA_V1.Areas.admin.Controllers
 
             foreach (DataRow dr in dTable.Rows)
             {
-                breakdownType.Add((string)dr["bd_type_name"], Convert.ToInt32(dr["bd_type_id"]));
+                int convert = (int)Convert.ToInt64(dr["bd_type_id"]);//D
+                breakdownType.Add((string)dr["bd_type_name"], convert);
             }
         }
         public void masterHashtable_SiteName_To_SiteId()
@@ -2105,12 +2154,10 @@ namespace DGRA_V1.Areas.admin.Controllers
             var url = "";
             if (importData[0] == "Solar")
             {
-                //url = "http://localhost:23835/api/DGR/GetSolarSiteMaster";
                 url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarSiteMaster";
             }
             else if (importData[0] == "Wind")
             {
-                //url = "http://localhost:23835/api/DGR/GetWindSiteMaster";
                 url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindSiteMaster";
             }
             var result = string.Empty;
@@ -2130,14 +2177,16 @@ namespace DGRA_V1.Areas.admin.Controllers
             {
                 foreach (DataRow dr in dTable.Rows)
                 {
-                    siteNameId.Add((string)dr["site"], Convert.ToInt32(dr["site_master_solar_id"]));
+                    int convert = (int)Convert.ToInt64(dr["site_master_solar_id"]);//D
+                    siteNameId.Add((string)dr["site"], convert);
                 }
             }
             else if (importData[0] == "Wind")
             {
                 foreach (DataRow dr in dTable.Rows)
                 {
-                    siteNameId.Add((string)dr["site"], Convert.ToInt32(dr["site_master_id"]));
+                    int convert = (int)Convert.ToInt64(dr["site_master_id"]);//D
+                    siteNameId.Add((string)dr["site"], convert);
                 }
             }
         }
@@ -2149,8 +2198,15 @@ namespace DGRA_V1.Areas.admin.Controllers
 
             siteName.Clear();
             DataTable dTable = new DataTable();
-            //var url = "http://localhost:23835/api/DGR/GetWindSiteMaster";
-            var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindSiteMaster";
+            var url = "";
+            if (importData[0] == "Solar")
+            {
+                url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarSiteMaster";
+            }
+            else if (importData[0] == "Wind")
+            {
+                url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindSiteMaster";
+            }
             var result = string.Empty;
             WebRequest request = WebRequest.Create(url);
 
@@ -2163,10 +2219,22 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 dTable = JsonConvert.DeserializeObject<DataTable>(result);
             }
-
-            foreach (DataRow dr in dTable.Rows)
+            if (importData[0] == "Solar")
             {
-                siteName.Add(Convert.ToInt32(dr["site_master_id"]), Convert.ToString(dr["site"]));
+                foreach (DataRow dr in dTable.Rows)
+                {
+                    int convert = (int)Convert.ToInt64(dr["site_master_solar_id"]);//D
+
+                    siteName.Add(convert, (string)dr["site"]);
+                }
+            }
+            else if (importData[0] == "Wind")
+            {
+                foreach (DataRow dr in dTable.Rows)
+                {
+                    int convert = (int)Convert.ToInt64(dr["site_master_id"]);//D
+                    siteName.Add(convert, (string)dr["site"]);
+                }
             }
         }
         public void masterHashtable_WtgToSiteId()
@@ -2191,7 +2259,8 @@ namespace DGRA_V1.Areas.admin.Controllers
 
             foreach (DataRow dr in dTable.Rows)
             {
-                eqSiteId.Add((string)dr["wtg"], Convert.ToInt32(dr["site_master_id"]));
+                int convert = (int)Convert.ToInt64(dr["site_master_id"]);//D
+                eqSiteId.Add((string)dr["wtg"], convert);
             }
         }
         private async Task<bool> UploadFileToImportedFileFolder(IFormFile ufile)
@@ -2278,12 +2347,12 @@ namespace DGRA_V1.Areas.admin.Controllers
             string status;
             status = "DGRImport";
 
-      
+
             var dataGeneration = new StringContent(genJson, Encoding.UTF8, "application/json");
             var urlGeneration = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindUploadingFileGeneration?batchId=" + batchId + "";
-            status = "API"+ urlGeneration;
+            status = "API" + urlGeneration;
             //ErrorLog(urlGeneration);
-           // ErrorLog(breakJson);
+            // ErrorLog(breakJson);
             using (var client = new HttpClient())
             {
                 var response = await client.PostAsync(urlGeneration, dataGeneration);
@@ -2300,8 +2369,8 @@ namespace DGRA_V1.Areas.admin.Controllers
 
             var dataBreakdown = new StringContent(breakJson, Encoding.UTF8, "application/json");
             var urlBreakdown = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindUploadingFileBreakDown?batchId=" + batchId + "";
-           // ErrorLog(urlGeneration);
-           // ErrorLog(breakJson);
+            // ErrorLog(urlGeneration);
+            // ErrorLog(breakJson);
             using (var client = new HttpClient())
             {
                 var response = await client.PostAsync(urlBreakdown, dataBreakdown);
@@ -2329,6 +2398,72 @@ namespace DGRA_V1.Areas.admin.Controllers
                 m_ErrorLog.SetError("File Row " + rowNumber + " ,Invalid Site - Site record was not found in master records");
             }
             return response;
+        }
+        public bool importDateValidation(DateTime importDate)
+        {
+            bool invalidDate = false;
+            DateTime today = DateTime.Now;
+            TimeSpan dayDiff = today - importDate;
+            int dayOfWeek = (int)today.DayOfWeek;
+            //for DayOfWeek function 
+            //if file-date is of previous day and today is from Tuesday-Friday
+            if (dayDiff.Days == 1 && dayOfWeek > 1 && dayOfWeek < 6)
+            {
+                // file date is correct
+                invalidDate = false;
+            }
+            //if today is Monday and file-date is of day-before-yesterday or yesterday
+            else if (dayOfWeek == 1 && dayDiff.Days > 0 && dayDiff.Days <= 2)
+            {
+                invalidDate = false;
+            }
+            else
+            {
+                //Pending : log to error log file
+                invalidDate = true;
+            }
+            return invalidDate;
+        }
+        public bool uniformSiteValidation(long rowNo, int siteId, string wtg)
+        {
+            bool invalidSiteUniformity = false;
+            if (rowNo == 1)
+            {
+                previousSite = siteId;
+                if (fileSheets.Contains("Uploading_File_Generation") && importData[0] == "Wind")
+                {
+                    if (siteId == 0)
+                    { 
+                        m_ErrorLog.SetError(",Row Number : "+rowNo+ "Invalid Site Id: "+siteId+" due to invalid wtg: "+wtg);
+                    }
+                }
+                else
+                {
+
+                    if (windSiteUserAccess.Contains(siteId))
+                    {
+                        //add error log : user has access to site
+                        m_ErrorLog.SetInformation(", User has access to site : " + siteName[siteId]);
+                    }
+                    else
+                    {
+                        //add error log : user does not have access to site
+                        m_ErrorLog.SetError(", User does not have access to site : " + siteName[siteId]);
+                        invalidSiteUniformity = true;
+                    }
+                }
+                //valdiate if the user has access to this site
+                //Collection of site for upload access
+                //Check if this siteid is in the above collection of sites accessible to the user
+                //Get Site name should be in csv file
+            }
+            if (previousSite != siteId)
+            {
+                //pending log error in csv
+                m_ErrorLog.SetError(", Site entry on row: " + rowNo + " is not the same as in other rows");
+                invalidSiteUniformity = true;
+            }
+            return invalidSiteUniformity;
         }
     }
 }

@@ -37,11 +37,11 @@ namespace DGRAPIs.Controllers
         }
         [Route("GetWindDailyGenSummary")]
         [HttpGet]
-        public async Task<IActionResult> GetWindDailyGenSummary(string fromDate, string ToDate)
+        public async Task<IActionResult> GetWindDailyGenSummary(string site, string fromDate, string ToDate)
         {
             try
             {
-                var data = await _dgrBs.GetWindDailyGenSummary(fromDate, ToDate);
+                var data = await _dgrBs.GetWindDailyGenSummary(site, fromDate, ToDate);
                 return Ok(data);
 
             }
@@ -199,11 +199,12 @@ namespace DGRAPIs.Controllers
        // [Route("GetWindDashboardDataByLastDay/{startDate}/{endDate}/{FY}/{sites}/{date}")]
         [Route("GetWindDashboardDataByLastDay")]
         [HttpGet]
-        public async Task<IActionResult> GetWindDashboardDataByLastDay(string startDate, string endDate, string FY, string sites,string date)
-        {
+        //public async Task<IActionResult> GetWindDashboardDataByLastDay(string startDate, string endDate, string FY, string sites,string date)
+             public async Task<IActionResult> GetWindDashboardDataByLastDay(string FY, string sites, string date)
+            {
             try
             {
-                var data = await _dgrBs.GetWindDashboardDataByLastDay(startDate, endDate, FY, sites, date);
+                var data = await _dgrBs.GetWindDashboardDataByLastDay(FY, sites, date);
                 return Ok(data);
 
             }
@@ -270,11 +271,11 @@ namespace DGRAPIs.Controllers
         //[Route("GetSolarDashboardDataByLastDay/{startDate}/{endDate}/{FY}/{sites}/{date}")]
         [Route("GetSolarDashboardDataByLastDay")]
         [HttpGet]
-        public async Task<IActionResult> GetSolarDashboardDataByLastDay(string startDate, string endDate, string FY, string sites, string date)
+        public async Task<IActionResult> GetSolarDashboardDataByLastDay(string FY, string sites, string date)
         {
             try
             {
-                var data = await _dgrBs.GetSolarDashboardDataByLastDay(startDate, endDate, FY, sites, date);
+                var data = await _dgrBs.GetSolarDashboardDataByLastDay(FY, sites, date);
                 return Ok(data);
 
             }
@@ -361,6 +362,22 @@ namespace DGRAPIs.Controllers
             try
             {
                 var data = await _dgrBs.GetSolarDailyGenSummary();
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("GetSolarDailyGenSummary1")]
+        [HttpGet]
+        public async Task<IActionResult> GetSolarDailyGenSummary1(string site, string fromDate, string ToDate)
+        {
+            try
+            {
+                var data = await _dgrBs.GetSolarDailyGenSummary1(site, fromDate, ToDate);
                 return Ok(data);
 
             }
@@ -561,9 +578,41 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        /*[Route("GetWindPerformanceReportSiteWise_3")]
+        [HttpGet]
+        public async Task<IActionResult> GetWindPerformanceReportSiteWise_3(string fromDate, string toDate, string site)
+        {
+            try
+            {
+                var data = await _dgrBs.GetWindPerformanceReportSiteWise_3(fromDate, toDate, site);
+                return Ok(data);
 
-         //[Route("GetWindPerformanceReportSiteWise/{fy}/{fromDate}/{toDate}")]
-         [Route("GetWindPerformanceReportSiteWise")]
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("GetWindPerformanceReportSiteWise_4")]
+        [HttpGet]
+        public async Task<IActionResult> GetWindPerformanceReportSiteWise_4(string fromDate, string toDate, string site)
+        {
+            try
+            {
+                var data = await _dgrBs.GetWindPerformanceReportSiteWise_4(fromDate, toDate, site);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }*/
+
+        //[Route("GetWindPerformanceReportSiteWise/{fy}/{fromDate}/{toDate}")]
+        [Route("GetWindPerformanceReportSiteWise")]
         [HttpGet]
         public async Task<IActionResult> GetWindPerformanceReportSiteWise(string fy, string fromDate, string todate)
         {
@@ -947,11 +996,11 @@ namespace DGRAPIs.Controllers
 
         [Route("importMetaData")]
         [HttpPost]
-        public async Task<IActionResult> importMetaData(ImportBatch meta)
+        public async Task<IActionResult> importMetaData(ImportBatch meta, string userName, int userId)
         {
             try
             {
-                var data = await _dgrBs.importMetaData(meta);
+                var data = await _dgrBs.importMetaData(meta, userName, userId);
                 return Ok(data);
 
             }
@@ -1188,12 +1237,12 @@ namespace DGRAPIs.Controllers
         //[Route("GetWindDailyTargetKPI/{fromDate}/{todate}")]
         [Route("GetWindDailyTargetKPI")]
         [HttpGet]
-        public async Task<IActionResult> GetWindDailyTargetKPI(string fromDate, string todate)
+        public async Task<IActionResult> GetWindDailyTargetKPI(string site, string fromDate, string todate)
         {
 
             try
             {
-                var data = await _dgrBs.GetWindDailyTargetKPI(fromDate, todate);
+                var data = await _dgrBs.GetWindDailyTargetKPI(site, fromDate, todate);
                 return Ok(data);
 
             }
@@ -1206,11 +1255,11 @@ namespace DGRAPIs.Controllers
         }
         [Route("GetSolarDailyTargetKPI")]
         [HttpGet]
-        public async Task<IActionResult> GetSolarDailyTargetKPI(string fromDate, string toDate)
+        public async Task<IActionResult> GetSolarDailyTargetKPI(string fromDate, string toDate, string site)
         {
             try
             {
-                var data = await _dgrBs.GetSolarDailyTargetKPI(fromDate, toDate);
+                var data = await _dgrBs.GetSolarDailyTargetKPI(fromDate, toDate, site);
                 return Ok(data);
 
             }
@@ -1223,11 +1272,11 @@ namespace DGRAPIs.Controllers
         //[Route("GetWindMonthlyTargetKPI/{fy}/{month}")
         [Route("GetWindMonthlyTargetKPI")]
         [HttpGet]
-        public async Task<IActionResult> GetWindMonthlyTargetKPI(string fy, string month)
+        public async Task<IActionResult> GetWindMonthlyTargetKPI(string site, string fy, string month)
         {
             try
             {
-                var data = await _dgrBs.GetWindMonthlyTargetKPI(fy, month);
+                var data = await _dgrBs.GetWindMonthlyTargetKPI(site, fy, month);
                 return Ok(data);
 
             }
@@ -1239,11 +1288,11 @@ namespace DGRAPIs.Controllers
         }
         [Route("GetSolarMonthlyTargetKPI")]
         [HttpGet]
-        public async Task<IActionResult> GetSolarMonthlyTargetKPI(string fy, string month)
+        public async Task<IActionResult> GetSolarMonthlyTargetKPI(string fy, string month, string site)
         {
          try
                 {
-                    var data = await _dgrBs.GetSolarMonthlyTargetKPI(fy, month);
+                    var data = await _dgrBs.GetSolarMonthlyTargetKPI(fy, month, site);
                     return Ok(data);
 
              }
@@ -1256,11 +1305,11 @@ namespace DGRAPIs.Controllers
         //[Route("GetWindMonthlyLineLoss/{fy}/{month}")]
         [Route("GetWindMonthlyLineLoss")]
         [HttpGet]
-        public async Task<IActionResult> GetWindMonthlyLineLoss(string fy, string month)
+        public async Task<IActionResult> GetWindMonthlyLineLoss(string site, string fy, string month)
         {
             try
             {
-                var data = await _dgrBs.GetWindMonthlyLineLoss(fy, month);
+                var data = await _dgrBs.GetWindMonthlyLineLoss(site, fy, month);
                 return Ok(data);
 
             }
@@ -1272,11 +1321,11 @@ namespace DGRAPIs.Controllers
         }
         [Route("GetSolarMonthlyLineLoss")]
         [HttpGet]
-        public async Task<IActionResult> GetSolarMonthlyLineLoss(string fy, string month)
+        public async Task<IActionResult> GetSolarMonthlyLineLoss(string fy, string month, string site)
         {
             try
             {
-                var data = await _dgrBs.GetSolarMonthlyLineLoss(fy, month);
+                var data = await _dgrBs.GetSolarMonthlyLineLoss(fy, month, site);
                 return Ok(data);
 
             }
@@ -1289,11 +1338,11 @@ namespace DGRAPIs.Controllers
         //[Route("GetWindMonthlyJMR/{fy}/{month}")]
         [Route("GetWindMonthlyJMR")]
         [HttpGet]
-        public async Task<IActionResult> GetWindMonthlyJMR(string fy, string month)
+        public async Task<IActionResult> GetWindMonthlyJMR(string site, string fy, string month)
         {
             try
             {
-                var data = await _dgrBs.GetWindMonthlyJMR(fy, month);
+                var data = await _dgrBs.GetWindMonthlyJMR(site, fy, month);
                 return Ok(data);
 
             }
@@ -1305,11 +1354,11 @@ namespace DGRAPIs.Controllers
         }
         [Route("GetSolarMonthlyJMR")]
         [HttpGet]
-        public async Task<IActionResult> GetSolarMonthlyJMR(string fy, string month)
+        public async Task<IActionResult> GetSolarMonthlyJMR(string fy, string month, string site)
         {
             try
             {
-                var data = await _dgrBs.GetSolarMonthlyJMR(fy, month);
+                var data = await _dgrBs.GetSolarMonthlyJMR(fy, month, site);
                 return Ok(data);
 
             }
@@ -1369,7 +1418,7 @@ namespace DGRAPIs.Controllers
         //[Route("GetWindDailyloadShedding/{site}/{fromDate}/{toDate}")]
         [Route("GetWindDailyloadShedding")]
         [HttpGet]
-        public async Task<IActionResult>GetWindDailyloadShedding(int site, string fromDate, string toDate)
+        public async Task<IActionResult>GetWindDailyloadShedding(string site, string fromDate, string toDate)
         {
             try
             {
@@ -1605,12 +1654,12 @@ namespace DGRAPIs.Controllers
 
         [Route("GetImportBatches")]
         [HttpGet]
-        public async Task<IActionResult> GetImportBatches(string importFromDate, string importToDate, int siteId, int importType, int status)
+        public async Task<IActionResult> GetImportBatches(string importFromDate, string importToDate, string siteId, int importType, int status,int userid)
         {
             {
                 try
                 {
-                    var data = await _dgrBs.GetImportBatches(importFromDate, importToDate, siteId, importType, status);
+                    var data = await _dgrBs.GetImportBatches(importFromDate, importToDate, siteId, importType, status, userid);
                     return Ok(data);
 
                 }
@@ -1731,7 +1780,7 @@ namespace DGRAPIs.Controllers
         }
         [Route("GetWTGList")]
         [HttpGet]
-        public async Task<IActionResult> GetWTGList(int siteid)
+        public async Task<IActionResult> GetWTGList(string siteid)
         {
             {
                 try

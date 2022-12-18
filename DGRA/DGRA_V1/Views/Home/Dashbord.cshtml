@@ -85,7 +85,7 @@
                     </div>
                     <div class="col-sm-1"></div>
                     <div class="col-sm-2 text-center">
-                        <button type="button" class="btn btn-block btn-primary" onclick="" style=" width: 6rem;">Search</button>
+                        <button type="button" class="btn btn-block btn-primary" onclick="GetReport();" style=" width: 6rem;">Search</button>
                     </div>
 
                 </div>
@@ -109,19 +109,19 @@
                                             <span style="font-size:14px">Last Day Energy</span><br>
                                             <span style="font-size:15px" id="lastday_enrgy"><b> 0</b></span>
                                             <span style="font-size:12px">MWh</span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px" id="lastday_enrgy_var">(0 %)</span><br>
                                         </td>
                                         <td>
                                             <span style="font-size:14px">MTD Energy</span><br>
                                             <span style="font-size:15px" id="manthly_enrgy"><b>0</b></span>
                                             <span style="font-size:12px">GWh</span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px" id="manthly_enrgy_var">(0 %)</span><br>
                                         </td>
                                         <td>
                                             <span style="font-size:14px">YTD Energy</span><br>
                                             <span style="font-size:15px"  id="yearly_enrgy"><b>0</b></span>
                                             <span style="font-size:12px">GWh</span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px" id="yearly_enrgy_var">(0 %)</span><br>
                                         </td>
                                     </tr>
                                     <tr>
@@ -129,19 +129,19 @@
                                             <span style="font-size:14px">Last Day Wind Speed</span><br>
                                             <span style="font-size:15px" id="lastday_wspeed"><b>0</b></span>
                                             <span style="font-size:12px">m/s</span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px"  id="lastday_wspeed_var">(%)</span><br>
                                         </td>
                                         <td>
                                             <span style="font-size:14px">MTD Wind Speed</span><br>
                                             <span style="font-size:15px" id="monthly_wspeed"><b>0</b></span>
                                             <span style="font-size:12px">m/s</span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px"  id="monthly_wspeed_var">(0 %)</span><br>
                                         </td>
                                         <td>
                                             <span style="font-size:14px">YTD Wind Speed</span><br>
-                                            <span style="font-size:15px"  id="yearly_wspeed"><b>0</b></span>
+                                            <span style="font-size:15px" id="yearly_wspeed"><b>0</b></span>
                                             <span style="font-size:12px">m/s</span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px" id="yearly_wspeed_var">(0 %)</span><br>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -168,20 +168,20 @@
                                             <span style="font-size:14px">Last Day Energy </span><br>
                                             <span style="font-size:15px" id="lastday_solar_enrgy"><b>0</b></span>
                                             <span style="font-size:12px">MWh</span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px" id="lastday_solar_enrgy_var">(0 %)</span><br>
 
                                         </td>
                                         <td>
                                             <span style="font-size:14px">MTD Energy </span><br>
                                             <span style="font-size:15px" id="monthly_solar_enrgy"><b>0</b></span>
                                             <span style="font-size:12px">GWh</span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px" id="monthly_solar_enrgy_var">(0 %)</span><br>
                                         </td>
                                         <td>
                                             <span style="font-size:14px">YTD Energy </span><br>
                                             <span style="font-size:15px" id="yearly_solar_enrgy"><b>0</b></span>
                                             <span style="font-size:12px">GWh</span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px" id="yearly_solar_enrgy_var">(0 %)</span><br>
                                         </td>
                                     </tr>
 
@@ -190,20 +190,20 @@
                                             <span style="font-size:14px">Last Day IR</span><br>
                                             <span style="font-size:15px"  id="lastday_ir"><b>0</b></span>
                                             <span style="font-size:12px">kWh/m<sup>2</sup></span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px" id="lastday_ir_var">(0 %)</span><br>
 
                                         </td>
                                         <td>
                                             <span style="font-size:14px">MTD IR </span><br>
                                             <span style="font-size:15px"  id="monthly_ir"><b>0</b></span>
                                             <span style="font-size:12px">kWh/m<sup>2</sup></span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px"  id="monthly_ir_var">(0 %)</span><br>
                                         </td>
                                         <td>
                                             <span style="font-size:14px">YTD IR </span><br>
                                             <span style="font-size:15px" id="yearly_ir"><b>0</b></span>
                                             <span style="font-size:12px">kWh/m<sup>2</sup></span><br>
-                                            <span style="font-size:12px">(%)</span><br>
+                                            <span style="font-size:12px" id="yearly_ir_var">(0 %)</span><br>
 
                                         </td>
                                     </tr>
@@ -224,13 +224,13 @@
                         <div class="form-group row">
                             <div class="col-sm-6">
                                 <div class="custom-control custom-radio ">
-                                    <input class="custom-control-input" type="radio" id="customRadio1" name="customRadio">
-                                    <label for="customRadio1" class="custom-control-label">Last 10 Days</label>
+                                    <input class="custom-control-input" type="radio" id="customRadio1" name="customRadio" onclick="chartSelection(1)" checked >
+                                    <label for="customRadio1" class="custom-control-label" >Last 10 Days</label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="custom-control custom-radio ">
-                                    <input class="custom-control-input" type="radio" id="customRadio2" name="customRadio" checked>
+                                    <input class="custom-control-input" type="radio" id="customRadio2" name="customRadio" onclick="chartSelection(2)" >
                                     <label for="customRadio2" class="custom-control-label">Monthly</label>
                                 </div>
                             </div>
@@ -263,6 +263,7 @@
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 <script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/dist/js/comman.js"></script>
 <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
 <script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
 
@@ -272,95 +273,26 @@
 <script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
 
 <script type="text/javascript">
+    var chartTitle = "";
+    var fyear = "";
+    var fdate = "";
+    var monthdate = "";
+    var month = "";
+    //var tendays = "";
     window.onload = function () {
         getYear();
         getWindSite();
         getSolarSite();
        
-        new Chart(document.getElementById("energy_wind"), {
-            type: 'bar',
-            data: {
-                labels: ["April", "May", "June", "July","August","September","October","November","December","January","February","March"],
-                datasets: [{
-                    label: "Target Wind",
-                    type: "line",
-                    borderColor: "#86C466",
-                    data: [408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                    fill: false
-                }, {
-                    label: "Actual Wind",
-                    type: "line",
-                    borderColor: "#FFCA5A",
-                    data: [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
-                    fill: false
-                }, {
-                    label: "Target Energy",
-                    type: "bar",
-                    backgroundColor: "#77CAE7",
-                    data: [408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                }, {
-                    label: "Actual Energy",
-                    type: "bar",
-                    backgroundColor: "#31576D",
-                    backgroundColorHover: "#3e95cd",
-                    data: [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
-                }
-                ]
-            },
-            options: {
-                title: {
-                    display: true,
-                    text: 'Monthly'
-                },
-                legend: {
-                    display: true,
-                    position:"bottom"
-                }
-            }
-        });
-
-        new Chart(document.getElementById("energy_solar"), {
-            type: 'bar',
-            data: {
-                labels: ["April", "May", "June", "July", "August", "September", "October", "November", "December", "January", "February", "March"],
-                datasets: [{
-                    label: "Target IR",
-                    type: "line",
-                    borderColor: "#86C466",
-                    data: [408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                    fill: false
-                }, {
-                    label: "Actual IR",
-                    type: "line",
-                    borderColor: "#FFCA5A",
-                    data: [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
-                    fill: false
-                }, {
-                    label: "Target Energy",
-                    type: "bar",
-                    backgroundColor: "#77CAE7",
-                    data: [408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                }, {
-                    label: "Actual Energy",
-                    type: "bar",
-                    backgroundColor: "#31576D",
-                    backgroundColorHover: "#3e95cd",
-                    data: [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
-                }
-                ]
-            },
-            options: {
-                title: {
-                    display: true,
-                    text: 'Monthly'
-                },
-                legend: {
-                    display: true,
-                    position: "bottom"
-                }
-            }
-        });
-    }
+        var today = new Date();
+        fyear = getFinancialYear(today);
+        fdate = getFinancialYearDate(fyear);
+        monthdate = GetMonthDate(today);
+        month = today.getMonth() + 1;
+        
+       tendays = GetLastTendays();
+       
+     }
 
     function getYear() {
         $.ajax({
@@ -374,7 +306,7 @@
                 var options = "";
                 options += '<option value="">Select Financial Year</option>';
                 for (var i = 0; i < result.length; i++) {
-                    if (result[i].financial_year == "2022-23") {
+                    if (result[i].financial_year == fyear) {
                         options += '<option value="' + result[i].financial_year + '" selected>' + result[i].financial_year + '</option>';
                     }
                     else {
@@ -403,18 +335,21 @@
                     wind_total_mw += result[i].total_mw;
                     options += '<option value="' + result[i].site_master_id + '">' + result[i].site + '</option>';
                 }
-                $("#wind_site").html(options);  
+                $("#wind_site").html(options);
                 $('#wind_site').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder":"Select Wind Site(s)",
                 });
-               
+
                 $('#wind_site').multipleSelect("setSelects", site_ids.split(","));
                 document.getElementById("total_mw").innerHTML = "(" + wind_total_mw.toFixed(0) + " MW)";
                 GetWindDataByLastDay();
-                GetWindDataByCurrentMonth();
-                GetWindDataByYearly();
-                GetWindChartData();
+                //GetWindDataByCurrentMonth();
+                //GetWindDataByYearly();
+                //if ($('#customRadio1').is(':checked')) {
+                chartSelection(1);
+               
+               // }
             }
         });
     }
@@ -429,7 +364,7 @@
             success: function (result, status, xhr) {
                // console.log(result);
                 var options = "";
-              
+
                 for (var i = 0; i < result.length; i++) {
                     solar_total_mw += result[i].ac_capacity;
                     options += '<option value="' + result[i].site_master_solar_id + '">' + result[i].site + '</option>';
@@ -441,15 +376,22 @@
                 });
                 $('#solar_site').multipleSelect("setSelects", site_ids.split(","));
                 document.getElementById("total_ac_mw").innerHTML = "(" + solar_total_mw.toFixed(0) + " MW)";
-               // GetSolarDataByLastDay();
+                GetSolarDataByLastDay();
                // GetSolarDataByCurrentMonth();
-               // GetSolarDataByYearly();
+                //GetSolarDataByYearly();
+                chartSelection(1);
+               
             }
         });
     }
+
+    function GetReport() {
+        GetWindDataByLastDay();
+        GetSolarDataByLastDay();
+    }
     // Wind call
     function GetWindDataByLastDay() {
-       
+
         let site = "";
          $('select#wind_site option:selected').each(function () {
             site += $(this).val() + ",";
@@ -457,124 +399,184 @@
 
          });
         site = site != "" ? site.slice(0, -1) : site;
-        var startDate="2022-04-01";
-        var endDate = "2023-03-31";
-        var FY = "2022-23";
-        
-        var date = "2022-12-11";
+        var FY = $('select#fy option:selected').val();
+        var date = GetPreviousDate();
+        //console.log("PeviousDate" + date);
         $.ajax({
             type: "GET",
-            url: "/Dashboard/GetWindDashboardDataByLastDay?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + site + "&date=" + date,
+            url: '@Url.Action("GetWindDashboardDataByLastDay", "Dashboard")' + '?FY=' + FY + '&sites=' + site + '&date=' + date,
+            //url: "/Dashboard/GetWindDashboardDataByLastDay?FY=" + FY + "&sites=" + site + "&date=" + date,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
               // console.log(result);
-
-                document.getElementById("lastday_enrgy").innerHTML = "<b>" + ((result[0].jmrkwh) / 1000).toFixed(1)+"</b>";
-                document.getElementById("lastday_wspeed").innerHTML = "<b>" + result[0].wind.toFixed(1) + "</b>";
-
-            }
-        });
-    }
-   
-    function GetWindChartData() {
-        let site = "";
-        $('select#wind_site option:selected').each(function () {
-            site += $(this).val() + ",";
-            // console.log($(this).val());
-
-        });
-        site = site != "" ? site.slice(0, -1) : site;
-
-        var startDate = "2022-12-05";
-        var endDate = "2022-12-15";
-        var FY = "2022-23";
-        var taget_wind = [];
-        var actual_wind = [];
-        var target_energy = [];
-        var actual_energy = [];
-        $.ajax({
-            type: "GET",
-            url: "/Dashboard/GetWindGraphData?startDate" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + site,
-            contentType: "application/json; charset=utf-8",
-            //data: '{"countryname":"' + selcountry + '"}',
-            datatype: "html",
-            success: function (result, status, xhr) {
-                console.log(result)
                 if (result.length > 0) {
-                    for (var w = 0; w < result.length; w++) {
-                        //var date = 
-                        taget_wind.push(result[w].tarwind.toFixed(2));
-                        actual_wind.push(result[w].wind.toFixed(2));
-                        target_energy.push(result[w].tarkwh.toFixed(2));
-                        actual_energy.push(result[w].jmrkwh.toFixed(2));
-
+                    var wind_lastday_energy = 0;
+                    var wind_lastday_energy_target = 0;
+                    var wind_lastday_wspeed = 0;
+                    var wind_lastday_wspeed_target = 0;
+                    var wcnt = 1;
+                    var lastVariant_energy = 0;
+                    var lastVariant_wspeed = 0;
+                    for (var i = 0; i < result.length; i++) {
+                        wind_lastday_energy += result[i].jmrkwh;
+                        wind_lastday_wspeed += result[i].wind;
+                        wind_lastday_energy_target += result[i].tarkwh;
+                        wind_lastday_wspeed_target += result[i].tarwind;
+                        wcnt++;
                     }
+                    if (wind_lastday_energy_target != 0) {
+                        lastVariant_energy = ((wind_lastday_energy - wind_lastday_energy_target) / wind_lastday_energy_target) / 100;
+                    }
+                    if (wind_lastday_wspeed_target != 0) {
+                        lastVariant_wspeed = ((wind_lastday_wspeed - wind_lastday_wspeed_target) / wind_lastday_wspeed_target) / 100;
+                    }
+                    document.getElementById("lastday_enrgy").innerHTML = "<b>" + (wind_lastday_energy / 1000).toFixed(1) + "</b>";
+                    document.getElementById("lastday_wspeed").innerHTML = "<b>" + (wind_lastday_wspeed / wcnt).toFixed(1) + "</b>";
+
+                    document.getElementById("lastday_enrgy_var").innerHTML = "(" + lastVariant_energy.toFixed(1) + " %)";
+                    document.getElementById("lastday_wspeed_var").innerHTML = "(" + lastVariant_wspeed.toFixed(1) + " %)";
                 }
+                else {
+                    document.getElementById("lastday_enrgy").innerHTML = "<b>0.0</b>";
+                    document.getElementById("lastday_wspeed").innerHTML = "<b>0.0</b>";
 
+                    document.getElementById("lastday_enrgy_var").innerHTML = "(0 %)";
+                    document.getElementById("lastday_wspeed_var").innerHTML = "(0 %)";
 
+                }
+                GetWindDataByCurrentMonth();
+                
             }
         });
-        console.log("Taget :" + taget_wind);
-        console.log("actual_wind :" + actual_wind);
-        console.log("target_energy :" + target_energy);
-        console.log("actual_energy :" + actual_energy);
     }
+
+
     function GetWindDataByCurrentMonth() {
+
         let site = "";
         $('select#wind_site option:selected').each(function () {
             site += $(this).val() + ",";
-            //console.log($(this).val());
 
         });
         site = site != "" ? site.slice(0, -1) : site;
-        var startDate = "2022-12-01";
-        var endDate = "2022-12-31";
-        var FY = "2022-23";
-        var month = "12";
+        var startDate = monthdate.startdate;
+        var endDate = monthdate.enddate;
+        var FY = $('select#fy option:selected').val();
+
+       // var month = month;
         $.ajax({
             type: "GET",
-            url: "/Dashboard/GetWindDashboardDataByCurrentMonth?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + site + "&month=" + month,
+            url: '@Url.Action("GetWindDashboardDataByCurrentMonth", "Dashboard")' + '?startDate=' + startDate + '&endDate=' + endDate + '&FY=' + FY + '&sites=' + site + '&month=' + month,
+            //url: "/Dashboard/GetWindDashboardDataByCurrentMonth?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + site + "&month=" + month,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
+                if (result.length > 0) {
+                    var wind_monthly_energy = 0;
+                    var wind_monthly_energy_target = 0;
+                    var wind_monthly_wspeed = 0;
+                    var wind_monthly_wspeed_target = 0;
+                    var monthly_var_energy = 0;
+                    var monthly_var_wspeed = 0;
+                    var wcnt = 1;
+                    for (var i = 0; i < result.length; i++) {
+                        wind_monthly_energy += result[i].jmrkwh;
+                        wind_monthly_wspeed += result[i].wind;
+                        wind_monthly_energy_target += result[i].tarkwh;
+                        wind_monthly_wspeed_target += result[i].tarwind;
+                        wcnt++;
+                    }
+                    if (wind_monthly_energy_target != 0) {
+                        monthly_var_energy = ((wind_monthly_energy - wind_monthly_energy_target) / wind_monthly_energy_target) / 100;
+                    }
+                    if (wind_monthly_wspeed_target != 0) {
+                        monthly_var_wspeed = ((wind_monthly_wspeed - wind_monthly_wspeed_target) / wind_monthly_wspeed_target) / 100;
+                    }
+                    document.getElementById("manthly_enrgy").innerHTML = "<b>" + (wind_monthly_energy / 10000).toFixed(1) + "</b>";
+                    document.getElementById("monthly_wspeed").innerHTML = "<b>" + (wind_monthly_wspeed / wcnt).toFixed(1) + "</b>";
 
-                document.getElementById("manthly_enrgy").innerHTML = "<b>" + ((result[0].jmrkwh) / 10000).toFixed(1) + "</b>";
-                document.getElementById("monthly_wspeed").innerHTML = "<b>" + result[0].wind.toFixed(1) + "</b>";
+                    document.getElementById("manthly_enrgy_var").innerHTML = "(" + monthly_var_energy.toFixed(1) + " %)";
+                    document.getElementById("monthly_wspeed_var").innerHTML = "(" + monthly_var_wspeed.toFixed(1) + " %)";
+                }
+                else {
+                    document.getElementById("manthly_enrgy").innerHTML = "<b>0.0</b>";
+                    document.getElementById("monthly_wspeed").innerHTML = "<b>0.0</b>";
 
+                    document.getElementById("manthly_enrgy_var").innerHTML = "(0 %)";
+                    document.getElementById("monthly_wspeed_var").innerHTML = "(0 %)";
+                }
+                GetWindDataByYearly();
             }
         });
     }
-    
+
     function GetWindDataByYearly() {
         let site = "";
         $('select#wind_site option:selected').each(function () {
             site += $(this).val() + ",";
-            //console.log($(this).val());
 
         });
         site = site != "" ? site.slice(0, -1) : site;
-        var startDate = "2022-04-01";
-        var endDate = "2023-03-31";
-        var FY = "2022-23";
-       
+        var startDate = fdate.startdate;
+        var endDate = fdate.enddate;
+        var FY = $('select#fy option:selected').val();
+
         $.ajax({
             type: "GET",
-            url: "/Dashboard/GetWindDashboardDataByYearly?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + site,
+            //url: "/Dashboard/GetWindDashboardDataByYearly?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + site,
+            url: '@Url.Action("GetWindDashboardDataByYearly", "Dashboard")' + '?startDate=' + startDate + '&endDate=' + endDate + '&FY=' + FY + '&sites=' + site,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
-                //console.log(result);
-                document.getElementById("yearly_enrgy").innerHTML = "<b>" + ((result[0].jmrkwh) / 10000).toFixed(1) + "</b>";
-                document.getElementById("yearly_wspeed").innerHTML = "<b>" + result[0].wind.toFixed(1) + "</b>";
+                if (result.length > 0) {
+                    var wind_yearly_energy = 0;
+                    var wind_yearly_wspeed = 0;
+                    var wind_yearly_energy_target = 0;
+                    var wind_yearly_wspeed_target = 0;
 
+                    var yearly_var_energy = 0;
+                    var yearly_var_wspeed = 0;
+                    var wcnt = 1;
+                    for (var i = 0; i < result.length; i++) {
+                        wind_yearly_energy += result[i].jmrkwh;
+                        wind_yearly_wspeed += result[i].wind;
+                        wind_yearly_energy_target += result[i].tarkwh;
+                        wind_yearly_wspeed_target += result[i].tarwind;
+
+                        wcnt++;
+                    }
+                    if (wind_yearly_energy_target != 0) {
+                        yearly_var_energy = ((wind_yearly_energy - wind_yearly_energy_target) / wind_yearly_energy_target) / 100;
+                    }
+                    if (wind_yearly_wspeed_target != 0) {
+                        yearly_var_wspeed = ((wind_yearly_wspeed - wind_yearly_wspeed_target) / wind_yearly_wspeed_target) / 100;
+                    }
+                    //console.log(result);
+                    document.getElementById("yearly_enrgy").innerHTML = "<b>" + (wind_yearly_energy / 10000).toFixed(1) + "</b>";
+                    document.getElementById("yearly_wspeed").innerHTML = "<b>" + (wind_yearly_wspeed / wcnt).toFixed(1) + "</b>";
+
+                    document.getElementById("yearly_enrgy_var").innerHTML = "(" + yearly_var_energy.toFixed(1) + " %)";
+                    document.getElementById("yearly_wspeed_var").innerHTML = "(" + yearly_var_wspeed.toFixed(1) + " %)";
+                }
+                else {
+                    document.getElementById("yearly_enrgy").innerHTML = "<b>0.0</b>";
+                    document.getElementById("yearly_wspeed").innerHTML = "<b>0.0</b>";
+
+                    document.getElementById("yearly_enrgy_var").innerHTML = "(0 %)";
+                    document.getElementById("yearly_wspeed_var").innerHTML = "(0 %)";
+                }
+               
+                
             }
         });
     }
-    
+
+
+   
     // Solar call
     function GetSolarDataByLastDay() {
         let solar_site = "";
@@ -584,14 +586,13 @@
 
         });
         solar_site = solar_site != "" ? solar_site.slice(0, -1) : solar_site;
-        var startDate = "2022-04-01";
-        var endDate = "2022-04-30";
-        var FY = "2022-23";
-       
-        var date = "2022-04-01";
+
+        var FY = $('select#fy option:selected').val();
+        var date = GetPreviousDate();
         $.ajax({
             type: "GET",
-            url: "/Dashboard/GetSolarDashboardDataByLastDay?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + solar_site + "&date=" + date,
+           // url: "/Dashboard/GetSolarDashboardDataByLastDay?FY=" + FY + "&sites=" + solar_site + "&date=" + date,
+            url: '@Url.Action("GetSolarDashboardDataByLastDay", "Dashboard")' + '?FY=' + FY + '&sites=' + solar_site + '&date=' + date,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -599,57 +600,59 @@
                 if (result.length > 0) {
                     var lastday_energy = 0;
                     var lastday_ir = 0;
+                    var lastday_energy_tar = 0;
+                    var lastday_ir_tar = 0;
+                    var lastday_var_energy = 0;
+                    var lastday_var_ir = 0;
                     var cnt = 1;
                     for (var i = 0; i < result.length; i++) {
                         lastday_energy += result[i].jmrkwh;
                         lastday_ir += result[i].ir;
+                        lastday_energy_tar += result[i].tarkwh;
+                        lastday_ir_tar += result[i].tarir;
+
                         cnt++;
                     }
-                   
+                    if (lastday_energy_tar != 0) {
+                        lastday_var_energy = ((lastday_energy - lastday_energy_tar) / lastday_energy_tar) / 100;
+                    }
+                    if (lastday_ir_tar != 0) {
+                        lastday_var_ir = ((lastday_ir - lastday_ir_tar) / lastday_ir_tar) / 100;
+                    }
                     document.getElementById("lastday_solar_enrgy").innerHTML = "<b>" + ((lastday_energy) / 1000).toFixed(1) + "</b>";
-                    document.getElementById("lastday_ir").innerHTML = "<b>" + (lastday_ir/cnt).toFixed(1) + "</b>";
-
+                    document.getElementById("lastday_ir").innerHTML = "<b>" + (lastday_ir / cnt).toFixed(1) + "</b>";
+                    document.getElementById("lastday_solar_enrgy_var").innerHTML = "(" + lastday_var_energy.toFixed(1) + " %)";
+                    document.getElementById("lastday_ir_var").innerHTML = "(" + lastday_var_ir.toFixed(1) + " %)";
+                }
+                else {
+                    document.getElementById("lastday_solar_enrgy").innerHTML = "<b>0.0</b>";
+                    document.getElementById("lastday_ir").innerHTML = "<b>0.0</b>";
+                    document.getElementById("lastday_solar_enrgy_var").innerHTML = "(0 %)";
+                    document.getElementById("lastday_ir_var").innerHTML = "(0 %)";
                 }
 
-
+                GetSolarDataByCurrentMonth();
             }
         });
     }
-   /* function GetSolarData() {
-        var startDate = "2022-04-01";
-        var endDate = "2020-04-30";
-        var FY = "2022-23";
-        var sites = "";
-        $.ajax({
-            type: "GET",
-            url: "/Dashboard/GetSolarDashboardData?startDate" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + sites,
-            contentType: "application/json; charset=utf-8",
-            //data: '{"countryname":"' + selcountry + '"}',
-            datatype: "html",
-            success: function (result, status, xhr) {
-                console.log(result);
 
-
-            }
-        });
-    }*/
     function GetSolarDataByCurrentMonth() {
 
         let solar_site = "";
         $('select#solar_site option:selected').each(function () {
             solar_site += $(this).val() + ",";
-            //console.log($(this).val());
 
         });
         solar_site = solar_site != "" ? solar_site.slice(0, -1) : solar_site;
-        var startDate = "2022-04-01";
-        var endDate = "2022-04-30";
-        var FY = "2022-23";
-       
-        var month = "4";
+
+        var startDate = monthdate.startdate;
+        var endDate = monthdate.enddate;
+        var FY = $('select#fy option:selected').val();
+
         $.ajax({
             type: "GET",
-            url: "/Dashboard/GetSolarDashboardDataByCurrentMonth?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + solar_site + "&month=" + month,
+            //url: "/Dashboard/GetSolarDashboardDataByCurrentMonth?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + solar_site + "&month=" + month,
+            url: '@Url.Action("GetSolarDashboardDataByCurrentMonth", "Dashboard")' + '?startDate=' + startDate + '&endDate=' + endDate + '&FY=' + FY + '&sites=' + solar_site + '&month=' + month,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -657,22 +660,41 @@
                 if (result.length > 0) {
                     var monthly_energy = 0;
                     var monthly_ir = 0;
+                    var monthly_energy_tar = 0;
+                    var monthly_ir_tar = 0;
+                    var monthly_var_energy = 0;
+                    var monthly_var_ir = 0;
                     var cnt = 1;
                     for (var i = 0; i < result.length; i++) {
                         monthly_energy += result[i].jmrkwh;
                         monthly_ir += result[i].ir;
+                        monthly_energy_tar += result[i].tarkwh;
+                        monthly_ir_tar += result[i].tarir;
                         cnt++;
+                    }
+                    if (monthly_energy_tar != 0) {
+                        monthly_var_energy = ((monthly_energy - monthly_energy_tar) / monthly_energy_tar) / 100;
+                    }
+                    if (monthly_ir_tar != 0) {
+                        monthly_var_ir = ((monthly_ir - monthly_ir_tar) / monthly_ir_tar) / 100;
                     }
 
                     document.getElementById("monthly_solar_enrgy").innerHTML = "<b>" + ((monthly_energy) / 10000).toFixed(1) + "</b>";
                     document.getElementById("monthly_ir").innerHTML = "<b>" + (monthly_ir / cnt).toFixed(1) + "</b>";
-
+                    document.getElementById("monthly_solar_enrgy_var").innerHTML = "(" + monthly_var_energy.toFixed(1) + " %)";
+                    document.getElementById("monthly_ir_var").innerHTML = "(" + monthly_var_ir.toFixed(1) + " %)";
                 }
-
+                else {
+                    document.getElementById("monthly_solar_enrgy").innerHTML = "<b>0.0</b>";
+                    document.getElementById("monthly_ir").innerHTML = "<b>0.0</b>";
+                    document.getElementById("monthly_solar_enrgy_var").innerHTML = "(0 %)";
+                    document.getElementById("monthly_ir_var").innerHTML = "(0 %)";
+                }
+                GetSolarDataByYearly();
             }
         });
     }
-  
+
     function GetSolarDataByYearly() {
         let solar_site = "";
         $('select#solar_site option:selected').each(function () {
@@ -681,12 +703,14 @@
 
         });
         solar_site = solar_site != "" ? solar_site.slice(0, -1) : solar_site;
-        var startDate = "2022-04-01";
-        var endDate = "2022-04-30";
-        var FY = "2022-23";
+        var startDate = monthdate.startdate;
+        var endDate = monthdate.enddate;
+        var FY = $('select#fy option:selected').val();
+
         $.ajax({
             type: "GET",
-            url: "/Dashboard/GetSolarDashboardDataByYearly?startDate=" + startDate + "&endDate=" + endDate + "&FY" + FY + "&sites=" + solar_site,
+            url: '@Url.Action("GetSolarDashboardDataByYearly", "Dashboard")' + '?startDate=' + startDate + '&endDate=' + endDate + '&FY=' + FY + '&sites=' + solar_site,
+           //url: "/Dashboard/GetSolarDashboardDataByYearly?startDate=" + startDate + "&endDate=" + endDate + "&FY" + FY + "&sites=" + solar_site,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -694,18 +718,221 @@
                 if (result.length > 0) {
                     var yearly_energy = 0;
                     var yeary_ir = 0;
+                    var yearly_energy_tar = 0;
+                    var yeary_ir_tar = 0;
+                    var yearly_var_energy = 0;
+                    var yearly_var_ir = 0;
                     var cnt = 1;
                     for (var i = 0; i < result.length; i++) {
                         yearly_energy += result[i].jmrkwh;
                         yeary_ir += result[i].ir;
+                        yearly_energy_tar += result[i].tarkwh;
+                        yeary_ir_tar += result[i].tarir;
                         cnt++;
                     }
-
+                    if (yearly_energy_tar != 0) {
+                        yearly_var_energy = ((yearly_energy - yearly_energy_tar) / yearly_energy_tar) / 100;
+                    }
+                    if (yeary_ir_tar != 0) {
+                        yearly_var_ir = ((yeary_ir - yeary_ir_tar) / yeary_ir_tar) / 100;
+                    }
                     document.getElementById("yearly_solar_enrgy").innerHTML = "<b>" + ((yearly_energy) / 10000).toFixed(1) + "</b>";
                     document.getElementById("yearly_ir").innerHTML = "<b>" + (yeary_ir / cnt).toFixed(1) + "</b>";
-
+                    document.getElementById("yearly_solar_enrgy_var").innerHTML = "(" + yearly_var_energy.toFixed(1) + " %)";
+                    document.getElementById("yearly_ir_var").innerHTML = "(" + yearly_var_ir.toFixed(1) + " %)";
+                }
+                else {
+                    document.getElementById("yearly_solar_enrgy").innerHTML = "<b>0.0</b>";
+                    document.getElementById("yearly_ir").innerHTML = "<b>0.0</b>";
+                    document.getElementById("yearly_solar_enrgy_var").innerHTML = "(0 %)";
+                    document.getElementById("yearly_ir_var").innerHTML = "(0 %)";
                 }
 
+            }
+        });
+    }
+    // chart 
+    function chartSelection(type) {
+        if (type == 1) {
+            chartTitle = "Last 10 Days";
+            GetWindChartData(tendays, chartTitle);
+            GetSolarData(tendays, chartTitle);
+        }
+        if (type==2) {
+            chartTitle = "Monthly";
+            GetWindChartData(monthdate, chartTitle);
+            GetSolarData(monthdate, chartTitle);
+        }
+    }
+
+    function GetWindChartData(date_arr,title) {
+        let site = "";
+        $('select#wind_site option:selected').each(function () {
+            site += $(this).val() + ",";
+            // console.log($(this).val());
+
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+        console.log(date_arr);
+        var startDate = date_arr.startdate;
+        var endDate = date_arr.enddate;
+        var FY = $('select#fy option:selected').val();
+        var taget_wind = [];
+        var actual_wind = [];
+        var target_energy = [];
+        var actual_energy = [];
+        var datelebels = [];
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetWindGraphData?startDate" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + site,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result)
+                if (result.length > 0) {
+                    for (var w = 0; w < result.length; w++) {
+                        var formattedDate = moment(result[w].date, 'YYYY-MM-DD').format('DD-MM-YYYY');
+                        datelebels.push(formattedDate)
+                        taget_wind.push(result[w].tarwind.toFixed(2));
+                        actual_wind.push(result[w].wind.toFixed(2));
+                        target_energy.push(result[w].tarkwh.toFixed(2));
+                        actual_energy.push(result[w].jmrkwh.toFixed(2));
+
+                    }
+                }
+
+                windChart(title,datelebels, taget_wind, actual_wind, target_energy, actual_energy);
+            }
+        });
+
+    }
+    function windChart(title,datelebels, taget_wind, actual_wind, target_energy, actual_energy) {
+        new Chart(document.getElementById("energy_wind"), {
+            type: 'bar',
+            data: {
+                labels: datelebels,
+                datasets: [{
+                    label: "Target Wind",
+                    type: "line",
+                    borderColor: "#86C466",
+                    data: taget_wind,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                    fill: false
+                }, {
+                    label: "Actual Wind",
+                    type: "line",
+                    borderColor: "#FFCA5A",
+                    data: actual_wind,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
+                    fill: false
+                }, {
+                    label: "Target Energy",
+                    type: "bar",
+                    backgroundColor: "#77CAE7",
+                    data: target_energy,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                }, {
+                    label: "Actual Energy",
+                    type: "bar",
+                    backgroundColor: "#31576D",
+                    backgroundColorHover: "#3e95cd",
+                    data: actual_energy,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                }
+                ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: title
+                },
+                legend: {
+                    display: true,
+                    position: "bottom"
+                }
+            }
+        });
+    }
+
+
+    function GetSolarData(date_arr, title) {
+        let solar_site = "";
+        $('select#solar_site option:selected').each(function () {
+            solar_site += $(this).val() + ",";
+
+        });
+       
+        solar_site = solar_site != "" ? solar_site.slice(0, -1) : solar_site;
+        var startDate = date_arr.startdate;
+        var endDate = date_arr.enddate;
+        var FY = $('select#fy option:selected').val();
+        var target_kwh = [];
+        var actual_kwh = [];
+        var target_ir = [];
+        var actual_ir = [];
+        var datelebels = [];
+        $.ajax({
+            type: "GET",
+            url: "/Dashboard/GetSolarDashboardData?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + solar_site,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result)
+               if (result.length > 0) {
+                    for (var s = 0; s < result.length; s++) {
+                        var formattedDate = moment(result[s].date, 'YYYY-MM-DD').format('DD-MM-YYYY');
+                        datelebels.push(formattedDate)
+                        target_kwh.push(result[s].inv_kwh.toFixed(2));
+                        actual_kwh.push(result[s].tarkwh.toFixed(2));
+                        target_ir.push(result[s].tarIR.toFixed(2));
+                        actual_ir.push(result[s].ir.toFixed(2));
+
+                    }
+                }
+
+                solarChart(title,datelebels, target_kwh, actual_kwh, target_ir, actual_ir);
+
+            }
+        });
+    }
+    function solarChart(title,datelebels, target_kwh, actual_kwh, target_ir, actual_ir) {
+        new Chart(document.getElementById("energy_solar"), {
+            type: 'bar',
+            data: {
+                labels: datelebels ,
+                datasets: [{
+                    label: "Target IR",
+                    type: "line",
+                    borderColor: "#86C466",
+                    data: target_ir,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                    fill: false
+                }, {
+                    label: "Actual IR",
+                    type: "line",
+                    borderColor: "#FFCA5A",
+                    data: actual_ir,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
+                    fill: false
+                }, {
+                    label: "Target Energy",
+                    type: "bar",
+                    backgroundColor: "#77CAE7",
+                    data: target_kwh,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                }, {
+                    label: "Actual Energy",
+                    type: "bar",
+                    backgroundColor: "#31576D",
+                    backgroundColorHover: "#3e95cd",
+                    data: actual_kwh,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                }
+                ]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: title
+                },
+                legend: {
+                    display: true,
+                    position: "bottom"
+                }
             }
         });
     }

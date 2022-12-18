@@ -21,7 +21,7 @@ namespace DGRA_V1.Models
         {
         }
         //Collection of message
-        private ArrayList messageArray = new ArrayList();
+        public ArrayList messageArray = new ArrayList();
         int errorCount;
 
         class cMessage
@@ -140,6 +140,19 @@ namespace DGRA_V1.Models
             sMessage = "Total errors <" + errorCount + ">";
 
 
+        }
+
+        public ArrayList errorLog()
+        {
+            string sMessage = "";
+            ArrayList messageList = new ArrayList();
+            foreach (cMessage msg in messageArray)
+            {
+                string indexMsg = msg.Get_Message();
+                sMessage = msg.Get_FormatedMessage(indexMsg);
+                messageList.Add(sMessage);
+            }
+            return messageList;
         }
     }
 

@@ -71,7 +71,7 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group row">
+                            <div class="custom-file form-group row">
                                 <input type="file" class="custom-file-input" id="customFile" name="Path">
                                 <label class="custom-file-label" for="customFile">Choose file</label>
                             </div>
@@ -80,6 +80,7 @@
                         <div class="col-md-2"><button type="button" class="btn btn-block btn-danger">Cancel</button></div>
                     </div>
                 </div>
+                
             </form>
             <div class="col-md-12">
                 <h3>Templates</h3>
@@ -103,36 +104,47 @@
                         <a href="../SampleFormat/WindSiteMaster.xlsx" download>SiteMaster.xlsx</a><br />
                     }
                 </div>
-                    <div class="col-md-4">
-                        @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
-                        <a href="../SampleFormat/Solar_DGR_Automation.xlsx" download>Solar_DGR_Automation.xlsx</a><br />
-                       
-                        @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
-                        {
-                            <a href="../SampleFormat/Solar_Daily_LoadShedding.xlsx" download>Solar_daily_load_Shedding.xlsx</a><br />
-                            <a href="../SampleFormat/Solar_daily_Target_KPI.xlsx" download>Solar_daily_Target_KPI.xlsx</a><br />
-                            <a href="../SampleFormat/SolarMonthlyTargetKPI.xlsx" download>Solar_Monthly_Target_KPI.xlsx</a><br />
-                            <a href="../SampleFormat/Solar_Monthly_JMR.xlsx" download>Solar_Monthly_JMR.xlsx</a><br />
-                            <a href="../SampleFormat/Solar_Monthly_Lineloss.xlsx" download>Solar_Monthly_Lineloss.xlsx</a><br />
-                        }
-                    </div>
-                    <div class="col-md-3">
+                <div class="col-md-4">
+                    @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
+                    <a href="../SampleFormat/Solar_DGR_Automation.xlsx" download>Solar_DGR_Automation.xlsx</a><br />
 
-                    </div>
+                    @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                    {
+                        <a href="../SampleFormat/Solar_Daily_LoadShedding.xlsx" download>Solar_daily_load_Shedding.xlsx</a><br />
+                        <a href="../SampleFormat/Solar_daily_Target_KPI.xlsx" download>Solar_daily_Target_KPI.xlsx</a><br />
+                        <a href="../SampleFormat/SolarMonthlyTargetKPI.xlsx" download>Solar_Monthly_Target_KPI.xlsx</a><br />
+                        <a href="../SampleFormat/Solar_Monthly_JMR.xlsx" download>Solar_Monthly_JMR.xlsx</a><br />
+                        <a href="../SampleFormat/Solar_Monthly_Lineloss.xlsx" download>Solar_Monthly_Lineloss.xlsx</a><br />
+                    }
                 </div>
+                <div class="col-md-3">
+
+                </div>
+            </div>
             <hr>
-                <div class="col-md-12 text-center">
-                    <br>You can download these templates and update data in that and upload.</br>
-                    <b>Note :</b> Please do not change the name of the tab name in the template file</p>
-                </div>
-                <div class="card-footer">
-
-                </div>
+            <div class="col-md-12 text-center">
+                <br>You can download these templates and update data in that and upload.</br>
+                <b>Note :</b> Please do not change the name of the tab name in the template file</p>
+            </div>
+            <div class="card-footer">
 
             </div>
+
+        </div>
 
 
     </section>
 
 </div>
+<script src="~/Content/theme/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- bs-custom-file-input -->
+<script src="~/Content/theme/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+
+
+<script>
+    $(function () {
+        bsCustomFileInput.init();
+    });</script>
 <!-- /.content-wrapper -->

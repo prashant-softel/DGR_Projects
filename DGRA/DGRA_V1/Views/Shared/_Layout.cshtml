@@ -719,8 +719,8 @@
 
                         <h4 class="modal-title">Notification</h4>
                     </div>
-                    <div class="modal-body">
-                        <p><div id="divnotification"></div></p>
+                    <div class="modal-body" style="max-height: 300px; overflow: hidden; overflow-y: inherit; word-wrap: break-word;">
+                        <p><div id="divnotification" ></div></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -770,12 +770,20 @@
     <script src="~/Content/theme/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
     <!--<script src="~/Content/theme/dist/js/pages/dashboard.js"></script>-->
     <script>
-    var notification = '@TempData["notification"]'
-    console.log(notification)
-    if (notification != "") {
-    $("#divnotification").text(notification);
-    $("#submitNotification").click();
-    }
+        var notification = '@TempData["notification"]';
+        console.log(notification);
+        if (notification != "") {
+            let text = notification;
+            const myArray = text.split(",");
+            var mydata = "";
+            for (var i = 0; i < myArray.length; i++) {
+                mydata += myArray[i] + "<br>";
+            }
+            console.log("Mydata" + mydata);
+            $("#divnotification").html(mydata);
+            $("#submitNotification").click();
+        }
+
 
 
     </script>

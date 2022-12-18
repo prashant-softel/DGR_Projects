@@ -328,13 +328,13 @@
                 //document.getElementById("reportsDaily").style.display = 'block';
                 document.getElementById("sitewisechart").style.display = 'none';
                 document.getElementById("spvwisechart").style.display = 'flex';
-                RevenueChart(leble, revenue_arr);
+               // RevenueChart(leble, revenue_arr);
             }
         });
 
 
     }
-    function RevenueChart(lebels, data)
+    /*function RevenueChart(lebels, data)
     {
         var ctx1 = $("#pieChart");
         //pie chart data
@@ -403,7 +403,7 @@
             maintainAspectRatio: false,
         });
 
-    }
+    }*/
    // -----------------------------------------------
 
     // Daily Gen Report Site WIse
@@ -550,15 +550,15 @@
                         tbl += '</tr>';
                     }
 
-                    Energy_Dataset.push({ type: 'bar', label: 'Target', data: target_energy, yAxix: 1, backgroundColor: '#77CAE7'},
-                        { type: 'bar', label: 'Actual', data: actual_energy, yAxix: 0, backgroundColor: '#31576D' },
-                        { type: 'line', label: '+ve', data: pas_energy_var, xAxix: 0, backgroundColor: '#86C466' },
-                        { type: 'line', label: '-ve', data: neg_energy_var, xAxix: 0, backgroundColor: '#EE403D' });
+                   // Energy_Dataset.push({ type: 'bar', label: 'Target', data: target_energy, yAxix: 1, backgroundColor: '#77CAE7'},
+                      //  { type: 'bar', label: 'Actual', data: actual_energy, yAxix: 0, backgroundColor: '#31576D' },
+                      //  { type: 'line', label: '+ve', data: pas_energy_var, xAxix: 0, backgroundColor: '#86C466' },
+                      //  { type: 'line', label: '-ve', data: neg_energy_var, xAxix: 0, backgroundColor: '#EE403D' });
 
-                    Wind_Dataset.push({ type: 'bar', label: 'Target', data: target_wind, yAxix: 1, backgroundColor: '#77CAE7' },
-                        { type: 'bar', label: 'Actual', data: actual_wind, yAxix: 0, backgroundColor: '#31576D' },
-                        { type: 'line', label: '+ve', data: pas_wind_var, xAxix: 0, backgroundColor: '#86C466' },
-                        { type: 'line', label: '-ve', data: neg_wind_var, xAxix: 0, backgroundColor: '#EE403D' });
+                   // Wind_Dataset.push({ type: 'bar', label: 'Target', data: target_wind, yAxix: 1, backgroundColor: '#77CAE7' },
+                     //   { type: 'bar', label: 'Actual', data: actual_wind, yAxix: 0, backgroundColor: '#31576D' },
+                     //   { type: 'line', label: '+ve', data: pas_wind_var, xAxix: 0, backgroundColor: '#86C466' },
+                     //   { type: 'line', label: '-ve', data: neg_wind_var, xAxix: 0, backgroundColor: '#EE403D' });
 
                 }
                 else {
@@ -582,14 +582,14 @@
                 $('#example2').removeClass('dataTable');
                // console.log(data_arr);
                // BarChart(Target_Energy_Dataset, Actual_Energy_Dataset, Energy_var_Dataset);
-                document.getElementById("sitewisechart").style.display = 'flex';
-                document.getElementById("spvwisechart").style.display = 'none';
-                EnergyBarChart(Energy_Dataset, Levels);
-                WindBarChart(Wind_Dataset, Levels);
+               // document.getElementById("sitewisechart").style.display = 'flex';
+                //document.getElementById("spvwisechart").style.display = 'none';
+                //EnergyBarChart(Energy_Dataset, Levels);
+                //WindBarChart(Wind_Dataset, Levels);
             }
         });
     }
-    function EnergyBarChart(data, Levels)
+   /* function EnergyBarChart(data, Levels)
     {
         console.log("Target", data);
 
@@ -617,24 +617,7 @@
                 pasition: 'bottom',
             })
 
-           /* var barChartCanvas1 = $('#wind_chart').get(0).getContext('2d')
-            var barChartData1 = $.extend(true, {}, areaChartData)
-            var temp2 = areaChartData.datasets[0]
-            var temp3 = areaChartData.datasets[1]
-            barChartData.datasets[0] = temp2
-            barChartData.datasets[1] = temp3
-            var barChartOptions1 = {
-                responsive: true,
-                maintainAspectRatio: false,
-                datasetFill: false
-            }
-
-            new Chart(barChartCanvas1, {
-                type: 'bar',
-                data: barChartData1,
-                options: barChartOptions1
-            })*/
-
+          
 
 
    }
@@ -670,6 +653,6 @@
 
 
 
-    }
+    }*/
 
 </script>

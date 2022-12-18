@@ -1,27 +1,42 @@
-﻿@*@model DGRA_V1.Models.DailyGenSummary*@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+
+@inject IHttpContextAccessor HttpContextAccessor
+
 @{
-    ViewData["Title"] = "Wind Gen Summery";
+    ViewData["Title"] = "Wind Gen Summary";
 }
+@{
+    string windSiteList = "";
+   
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    {
+        windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+    
+
+}
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
-
+<!-- Font Awesome -->
 <link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
-
+<!-- daterange picker -->
 <link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
-
+<!-- DataTables -->
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
-
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-
-    <section class="content-header">
-    </section>
-
-
     <section class="content">
-
 
         <div class="card">
             <div class="card-header">
@@ -31,8 +46,16 @@
             <div class="card-body">
 
                 <div class="row">
-                    <div class="col-md-2"></div>
-                    <div class="col-md-6">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Site : </label>
+                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
                         <div class="input-group row">
                             <label class="col-sm-3 col-form-label">Date Range : </label>
                             <div class="input-group-prepend">
@@ -46,7 +69,6 @@
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
-                    <div class="col-md-2"></div>
                 </div>
                 <br>
                 <hr>
@@ -59,11 +81,9 @@
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
-<!--<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="~/Content/theme/plugins/select2/js/select2.full.min.js"></script>
-<script src="~/Content/theme/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>-->
 <!--Date Range -->
 <script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
 <script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
 <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
 
@@ -76,6 +96,8 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
 <script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
 <script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
 
@@ -88,11 +110,43 @@
                 }
             });
     });
+    window.onload = function () {
+        var state = "";
+        var spv = "";
+        var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "POST",
+            //url: "/WindReport/GetSiteList",
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").html(options);
+                $('#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                });
+            }
 
-
+        });
+    }
 
     function getReport() {
 
+        //var site = $('select#site option:selected').val();
+        let site_id = "";
+
+        var site = $('select#site option:selected').each(function () {
+            site_id += $(this).val() + ",";
+           // console.log($(this).val());
+        });
+        site_id = site_id!= ""?site_id.slice(0, -1) : site_id;
+        console.log(site_id);
         var daterange = $('#daterange').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
@@ -101,7 +155,7 @@
 
         $.ajax({
             type: "GET",
-            url: '@Url.Action("WindGenView", "WindView")' + '?fromDate=' + fromDate + '&toDate=' + toDate,
+            url: '@Url.Action("WindGenView", "WindView")' + '?site='+ site_id + '&fromDate=' + fromDate + '&toDate=' + toDate,
             //url: "/WindView/WindGenView?fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
@@ -155,12 +209,12 @@
                         tbl += '<td  class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
                         tbl += '<td  class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
                         tbl += '<td  class="text-right">' + result[i].production_hrs.toFixed(2) + '</td>';
-                        tbl += '<td  class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss')+ '</td>';
-                        tbl += '<td  class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss')+ '</td>';
-                        tbl += '<td  class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss')+ '</td>';
-                        tbl += '<td  class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss')+ '</td>';
-                        tbl += '<td  class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss')+'</td>';
-                        tbl += '<td  class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss')+ '</td>';
+                        tbl += '<td  class="text-right">' + result[i].unschedule_hrs['totalHours'].toFixed(2)+ '</td>';
+                        tbl += '<td  class="text-right">' + result[i].schedule_hrs['totalHours'].toFixed(2)+ '</td>';
+                        tbl += '<td  class="text-right">' + result[i].others['totalHours'].toFixed(2)+ '</td>';
+                        tbl += '<td  class="text-right">' + result[i].igbdh['totalHours'].toFixed(2)+ '</td>';
+                        tbl += '<td  class="text-right">' + result[i].egbdh['totalHours'].toFixed(2)+'</td>';
+                        tbl += '<td  class="text-right">' + result[i].load_shedding['totalHours'].toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }

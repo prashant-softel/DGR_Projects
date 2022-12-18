@@ -36,24 +36,6 @@
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-
-    <section class="content-header">
-        <!-- <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-
-                </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Wind Daily Load Shedding</li>
-                    </ol>
-                </div>
-            </div>
-        </div>-->
-    </section>
-
-
     <section class="content">
 
 
@@ -83,7 +65,9 @@
                             <input type="text" class="form-control float-right" id="daterange" name="daterange">
                         </div>
                     </div>
-                    <div class="col-md-2"><button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button></div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
+                    </div>
                 </div>
                 <br>
                 <hr>
@@ -123,23 +107,22 @@
 
 
 <script type="text/javascript">
-$(document).ready(function () {
-    $('#daterange').daterangepicker(
-        {
-            locale: {
-                format: 'DD/MM/YYYY',
-            }
-        });
-});
-    
-window.onload = function () {
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+    window.onload = function () {
         var state = "";
         var spv = "";
-        localStorage.setItem("dataTableInitialize",false);
-        
+        var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         $.ajax({
             type: "POST",
-            url: '@Url.Action("GetSiteList", "WindReport")',
+            //url: "/WindReport/GetSiteList",
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
@@ -149,35 +132,50 @@ window.onload = function () {
                 }
                 $("#site").html(options);
                 $('#site').multipleSelect({
-                   "minimumCountSelected": 2,
-                   "placeholder":"Select Site(s)",
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
                 });
             }
+
         });
     }
 
     function getReport() {
-        var site = $('select#site option:selected').val();
+
+        //var site = $('select#site option:selected').val();
+        let site_id = "";
+
+        $('select#site option:selected').each(function () {
+            site_id += $(this).val() + ",";
+           // console.log($(this).val());
+        });
+        site_id = site_id!= ""?site_id.slice(0, -1) : site_id;
+        console.log(site_id);
         var daterange = $('#daterange').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        
+        // var fromDate = "2021-04-14";
+        //var toDate = "2021-04-20";
         $.ajax({
             type: "POST",
-            url: '@Url.Action("GetDailyLoadshedding", "WindView")' + '?site=' + site + '&fromDate=' + fromDate + '&toDate=' + toDate,
+           // url: "/WindView/GetDailyLoadshedding?site=" + site + "&fromDate=" + fromDate + "&toDate=" + toDate,
+            url: '@Url.Action("GetDailyLoadshedding", "WindView")' + '?site=' + site_id + '&fromDate=' + fromDate + '&toDate=' + toDate,
             contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
-                
+                console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
-                    tbl += '<thead class="tbl-head"><tr><th>Site</th><th style="width:100px">Date</th><th>Start Time</th><th>End Time</th><th>Total Time</th><th>Permissible Load (MW)</th><th>Generation loss in kWh due to Load shedding</th></tr></thead><tbody>';
-                    
+                tbl += '<thead class="tbl-head"><tr><th>Site</th><th style="width:100px">Date</th><th>Start Time</th><th>End Time</th><th>Total Time</th><th>Permissible Load (MW)</th><th>Generation loss in kWh due to Load shedding</th></tr></thead><tbody>';
+
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
+
+
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                        
+
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].site + '</td>';
                         tbl += '<td class="text-left">' + formattedDate + '</td>';
@@ -194,10 +192,11 @@ window.onload = function () {
                     tbl += '<tr><td colspan="7">No Data Present</td></tr>';
                 }
                 tbl += '</tbody></table>';
-                $("#DailyLoadShedding").html("").html(tbl);  
-                
+                $("#DailyLoadShedding").html("").html(tbl);
+
                 $('#example1').DataTable({
                     dom: 'Bfrtip',
+                    title: 'WindDailyLoadSheddingLog',
                     responsive: false,
                     lengthChange: false,
                     autoWidth: false,
@@ -207,7 +206,7 @@ window.onload = function () {
                     ordering: true,
                     info: true,
                     autoWidth: false,
-                    responsive: false,                        
+                    responsive: false,
                     buttons: [
                         'copy', 'excel', 'csv', 'colvis'
                     ]

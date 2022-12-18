@@ -20,4 +20,13 @@ namespace DGRAPIs.Models
         public double tarIR { get; set; }
 
     }
+    public class SolarDashboardData1
+    {
+        public string Date { get; set; }
+        public double IR { get; set; }
+        public double inv_kwh { get; set; }
+        public double tarkwh { get; set; }
+        public double tarIR { get; set; }
+
+    }
 }

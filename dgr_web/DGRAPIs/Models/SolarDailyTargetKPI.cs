@@ -8,7 +8,7 @@ namespace DGRAPIs.Models
     public class SolarDailyTargetKPI
     {
         public string FY { get; set; }
-        public string Date { get; set; }
+        public DateTime Date { get; set; }
         public string Sites { get; set; }
         public dynamic GHI { get; set; }
         public dynamic POA { get; set; }

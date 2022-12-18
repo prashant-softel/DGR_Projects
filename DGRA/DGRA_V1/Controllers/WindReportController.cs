@@ -124,10 +124,15 @@ namespace DGRA_V1.Controllers
         public async Task<IActionResult> GetSPVList(string state)
         {
             string line = "";
-           // state = "RJ";
+            string statedata = "";
+            if (state != "undefined" && state !=null)
+            {
+                statedata = state;
+            }
+          
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSPVList?state=" + state + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSPVList?state=" + statedata + "";
                // var url = "http://localhost:23835/api/DGR/GetSPVList?state=" + state + "";
                 WebRequest request = WebRequest.Create(url);
 
@@ -197,9 +202,9 @@ namespace DGRA_V1.Controllers
 
         }
         // Site List
-        public async Task<IActionResult> GetWTGList(int siteid)
+        public async Task<IActionResult> GetWTGList(string siteid)
         {
-           // siteid = 187;
+           
             string line = "";
             try
             {
@@ -562,6 +567,59 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
 
+        public async Task<IActionResult> GetMontlyOperation(string fy, string fromDate, string toDate, string site)
+        {
 
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
+                //var url = "http://localhost:23835/api/DGR/GetWindDailyBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" +country+ "&state=" +state+ "&spv=" +spv+ "&site=" +site+ "&wtg=" +wtg+"";
+                WebRequest request = WebRequest.Create(url);
+
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                        //  breakdown.list = JsonConvert.DeserializeObject<List<WindBreakdownReports>>(line);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
+        }
+        public async Task<IActionResult> GetYearlyOperation(string fy, string fromDate, string toDate, string site)
+        {
+
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
+                //var url = "http://localhost:23835/api/DGR/GetWindDailyBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" +country+ "&state=" +state+ "&spv=" +spv+ "&site=" +site+ "&wtg=" +wtg+"";
+                WebRequest request = WebRequest.Create(url);
+
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                        //  breakdown.list = JsonConvert.DeserializeObject<List<WindBreakdownReports>>(line);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
+        }
     }
 }

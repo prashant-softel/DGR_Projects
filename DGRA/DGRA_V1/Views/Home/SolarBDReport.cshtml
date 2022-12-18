@@ -1,4 +1,7 @@
-﻿@model DGRA_V1.Models.CountryList
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+
 @{
     ViewData["Title"] = "Solar Approval";
 }
@@ -8,17 +11,23 @@
     }
 </script>-->
 <!-- Content Wrapper. Contains page content -->
-
-<link href="~/Content/theme/plugins/fontawesome-free/css/all.css" rel="stylesheet" />.
-<link ref="@(Url.Content("~/Content/theme/lugins/datatables-bs4/css/dataTables.bootstrap4.min.css"))" rel="stylesheet">
-
-<!--<link rel="stylesheet" href="~/Content/theme/lugins/datatables-bs4/css/dataTables.bootstrap4.min.css">-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+
+<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
 
     <section class="content-header">
-        <div class="container-fluid">
+        <!--<div class="container-fluid">
             <div class="row mb-2">
                 <div class="col-sm-6">
 
@@ -30,7 +39,7 @@
                     </ol>
                 </div>
             </div>
-        </div>
+        </div>-->
     </section>
 
 
@@ -288,13 +297,22 @@
 </div>
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<!--<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/Content/theme/plugins/select2/js/select2.full.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>-->
+<!--Date Range -->
 <script src="~/Content/theme/plugins/moment/moment.min.js"></script>
 <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js"></script>
 <script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
 
 <script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
 <!--Datatable -->
 <script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js"></script>
 <script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
 <script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
 <script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>

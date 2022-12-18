@@ -1,7 +1,28 @@
-﻿@model DGRA_V1.Models.DailyGenSummary
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@model DGRA_V1.Models.DailyGenSummary
+
 @{
     ViewData["Title"] = "Solar Gen Summary";
 }
+@{
+    string solarSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+    {
+        solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+
+}
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
@@ -11,10 +32,10 @@
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
-
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
 
-<style>
+@*<style>
     .tbodydata {
         font-size: 12px;
     }
@@ -23,41 +44,27 @@
         font-size: 12px;
         font-weight: bold;
     }
-</style>
+</style>*@
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-
-    <section class="content-header">
-        @*<div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Solar Gen Summary</li>
-                        </ol>
-                    </div>
-                </div>
-            </div>*@
-    </section>
-
     <section class="content">
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title text-center">Solar Generation Summary</h3>
-                @*<div class="card-tools">
-                        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                            <i class="fas fa-minus"></i>
-                        </button>
-                    </div>*@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-2"></div>
-                    <div class="col-md-6">
+                    <div class="col-md-5">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Site : </label>
+                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
                         <div class="input-group row">
                             <label class="col-sm-3 col-form-label">Date Range : </label>
                             <div class="input-group-prepend">
@@ -71,103 +78,214 @@
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
-                    <div class="col-md-2"></div>
                 </div>
                 <br>
                 <hr>
-                <div id="DailyGenView" style="overflow-x: auto;"></div>
+                <div id="DailyGenView" style="overflow-x: auto;" class="DailyGenView"></div>
             </div>
-
-            <!--<table class="table table-bordered table-responsive table-hover">
-                <tr>
-                    <th>Date</th>
-                    <th>State</th>
-                    <th>Site</th>
-                    <th>WTG</th>
-                    <th>Wind Speed</th>
-                    <th>KWH</th>
-                    <th>MA Contractual</th>
-                    <th>MA Actual</th>
-                    <th>IGA</th>
-                    <th>EGA</th>
-                    <th>PLF</th>
-                    <th>Grid hrs</th>
-                    <th>Lull hrs</th>
-                    <th>Production hrs</th>
-                    <th>Unschedule hrs</th>
-                    <th>Schedule hrs</th>
-                    <th>Others</th>
-                    <th>IGBDH</th>
-                    <th>EGBDH</th>
-                    <th>Load Shedding</th>
-
-                </tr>
-               @*@foreach (var item in Model.list)
-                {
-                    <tr>
-                        <td>@item.date</td>
-                        <td>@item.state</td>
-                        <td>@item.site</td>
-                        <td>@item.wtg</td>
-                        <td>@item.wind_speed</td>
-                        <td>@item.kwh</td>
-                        <td>@item.ma_contractual</td>
-                        <td>@item.ma_actual</td>
-                        <td>@item.iga</td>
-                        <td>@item.ega</td>
-                        <td>@item.plf</td>
-                        <td>@item.grid_hrs</td>
-                        <td>@item.lull_hrs</td>
-                        <td>@item.production_hrs</td>
-                        <td>@item.unschedule_hrs</td>
-                        <td>@item.schedule_hrs</td>
-                        <td>@item.others</td>
-                        <td>@item.igbdh</td>
-                        <td>@item.egbdh</td>
-                        <td>@item.load_shedding</td>
-                    </tr>
-                }*@
-
-            </table>-->
-
-            <div class="card-footer">
-                Footer
-            </div>
-
         </div>
-
-
     </section>
 
 </div>
+<!-- /.content-wrapper -->
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
-<!--<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="~/Content/theme/plugins/select2/js/select2.full.min.js"></script>
-<script src="~/Content/theme/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>-->
 <!--Date Range -->
 <script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
 <script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
 <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
-
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<!-- DataTables  & Plugins -->
-<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js"></script>
-<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js" defer></script>
-<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 
+
+<!-- DataTables  & Plugins -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+
+@*------------------------------------------------------------------------------------------------------------------------------------------------*@
 <script type="text/javascript">
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+    window.onload = function () {
+        var state = "";
+        var spv = "";
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "POST",
+            //url: "/WindReport/GetSiteList",
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").html(options);
+                $('#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                });
+            }
+
+        });
+    }
+
+    function getReport() {
+
+        let site_id = "";
+        var site = $('select#site option:selected').each(function () {
+            site_id += $(this).val() + ",";
+        });
+        site_id = site_id!= ""?site_id.slice(0, -1) : site_id;
+        console.log(site_id);
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("SolarGenView", "SolarView")' + '?site='+ site_id + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            //url: "/WindView/WindGenView?fromDate=" + fromDate + "&toDate=" + toDate,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                
+                console.log(result);
+                var tbl = '<table id="example1" class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<td class="theaddata" style="width:10%">Date</td>';
+                tbl += '<td class="theaddata" style="width:4%">State</td>';
+                tbl += '<td class="theaddata" style="width:6%">Site</td>';
+                tbl += '<td class="theaddata" style="width:5%">Location Name</td>';
+                tbl += '<td class="theaddata" style="width:5%">GHI</th>';
+                tbl += '<td class="theaddata" style="width:8%">POA</td>';
+                tbl += '<td class="theaddata" style="width:8%">Expected kWh</td>';
+                tbl += '<td class="theaddata" style="width:4%">INV kWh</td>';
+                tbl += '<td class="theaddata" style="width:4%">Plant kWh</td>';
+                tbl += '<td class="theaddata" style="width:4%">INV PR</td>';
+                tbl += '<td class="theaddata" style="width:6%">Plant PR</td>';
+                tbl += '<td class="theaddata" style="width:6%">MA</td>';
+                tbl += '<td class="theaddata" style="width:6%">IGA</td>';
+                tbl += '<td class="theaddata" style="width:5%">EGA</td>';
+                tbl += '<td class="theaddata" style="width:5%">INV PLF AC</td>';
+                tbl += '<td class="theaddata"style="width:6%">INV PLF DC</td>';
+                tbl += '<td class="theaddata" style="width:5%">PI</td>';
+                tbl += '<td class="theaddata" style="width:5%">Production Hours</td>';
+                tbl += '<td class="theaddata" style="width:5%">Lull Hours BD</td>';
+                tbl += '<td class="theaddata" style="width:5%">USMH BS</td>';
+                tbl += '<td class="theaddata" style="width:5%">SMH BD</td>';
+                tbl += '<td class="theaddata" style="width:5%">Others Hours BD</td>';
+                tbl += '<td class="theaddata" style="width:5%">IGBDH BD</td>';
+                tbl += '<td class="theaddata" style="width:5%">EGBDH BD</td>';
+                tbl += '<td class="theaddata" style="width:5%">Load Shedding BD</td>';
+                tbl += '<td class="theaddata" style="width:5%">Total BD Hours</td>';
+                tbl += '<td class="theaddata" style="width:5%">USMH</td>';
+                tbl += '<td class="theaddata" style="width:5%">SMH</td>';
+                tbl += '<td class="theaddata" style="width:5%">OH</td>';
+                tbl += '<td class="theaddata" style="width:5%">IGBDH</td>';
+                tbl += '<td class="theaddata" style="width:5%">EGBDH</td>';
+                tbl += '<td class="theaddata" style="width:5%">Load Shedding</td>';
+                tbl += '<td class="theaddata" style="width:5%">Total Losses</td>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+
+                        //var tempDate = new Date(result[i].date);
+                        //var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
+                        var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="tbodydata">' + formattedDate + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].state + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].site + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].location_name + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].poa.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].inv_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].plant_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].inv_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].plant_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].ma.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].inv_plf_ac.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].inv_plf_dc.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].pi + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].prod_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].lull_hrs_bd + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].usmh_bs.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].smh_bd + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].oh_bd + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].igbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].egbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].load_shedding_bd + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].total_bd_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].usmh.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].smh + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].oh + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].load_shedding + '</td>';
+                        tbl += '<td class="tbodydata">' + result[i].total_losses.toFixed(2) + '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+
+                    // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+               // $("#DailyGenView").html(tbl);
+                $("#DailyGenView").html("").html(tbl);
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    responsive: false,
+                    buttons: [
+                        'copy', 'excel', 'csv', 'colvis'
+                    ]
+                });
+                $('#example1').removeClass('dataTable');
+
+            }
+        });
+    }
+
+
+
+</script>
+
+@*SolarScript*@
+
+<!--<script type="text/javascript">
     $(document).ready(function () {
         $('#daterange').daterangepicker(
             {
@@ -278,5 +396,131 @@
     });
 
 
-</script>
+</script>-->
+
+
+@*------------------------------------------------------------------------------------------------------------------------------------------------*@
+
+
+<!--<!-- Content Wrapper. Contains page content -->
+<!--<div class="content-wrapper">
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Solar Generation Summary</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-2"></div>
+                    <div class="col-md-6">
+                        <div class="input-group row">
+                            <label class="col-sm-3 col-form-label">Date Range : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
+                    </div>
+                    <div class="col-md-2"></div>
+                </div>
+                <br>
+                <hr>
+                <div id="DailyGenView" style="overflow-x: auto;"></div>
+            </div>-->
+
+            <!--<table class="table table-bordered table-responsive table-hover">
+                <tr>
+                    <th>Date</th>
+                    <th>State</th>
+                    <th>Site</th>
+                    <th>WTG</th>
+                    <th>Wind Speed</th>
+                    <th>KWH</th>
+                    <th>MA Contractual</th>
+                    <th>MA Actual</th>
+                    <th>IGA</th>
+                    <th>EGA</th>
+                    <th>PLF</th>
+                    <th>Grid hrs</th>
+                    <th>Lull hrs</th>
+                    <th>Production hrs</th>
+                    <th>Unschedule hrs</th>
+                    <th>Schedule hrs</th>
+                    <th>Others</th>
+                    <th>IGBDH</th>
+                    <th>EGBDH</th>
+                    <th>Load Shedding</th>
+
+                </tr>-->
+               @*@foreach (var item in Model.list)
+                {
+                    <tr>
+                        <td>@item.date</td>
+                        <td>@item.state</td>
+                        <td>@item.site</td>
+                        <td>@item.wtg</td>
+                        <td>@item.wind_speed</td>
+                        <td>@item.kwh</td>
+                        <td>@item.ma_contractual</td>
+                        <td>@item.ma_actual</td>
+                        <td>@item.iga</td>
+                        <td>@item.ega</td>
+                        <td>@item.plf</td>
+                        <td>@item.grid_hrs</td>
+                        <td>@item.lull_hrs</td>
+                        <td>@item.production_hrs</td>
+                        <td>@item.unschedule_hrs</td>
+                        <td>@item.schedule_hrs</td>
+                        <td>@item.others</td>
+                        <td>@item.igbdh</td>
+                        <td>@item.egbdh</td>
+                        <td>@item.load_shedding</td>
+                    </tr>
+                }*@
+
+            </table>-->
+
+            <!--<div class="card-footer">
+                Footer
+            </div>
+
+        </div>
+
+
+    </section>
+
+</div>
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>-->
+
+<!--<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/Content/theme/plugins/select2/js/select2.full.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>-->
+<!--Date Range -->
+<!--<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>-->
+<!-- DataTables  & Plugins -->
+<!--<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>-->
+
+
 

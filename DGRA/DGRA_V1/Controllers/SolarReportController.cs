@@ -134,7 +134,7 @@ namespace DGRA_V1.Controllers
 
         }
         // Site List
-        public async Task<IActionResult> GetSiteList(string state, string spv)
+        public async Task<IActionResult> GetSiteList(string state, string spv, string sitelist)
         {
             string line = "";
             string spvdata = "";
@@ -158,7 +158,7 @@ namespace DGRA_V1.Controllers
 
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarSiteList?state=" + statedata + "&spvdata=" + spvdata;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarSiteList?state=" + statedata + "&spvdata=" + spvdata + "&site=" + sitelist;
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
