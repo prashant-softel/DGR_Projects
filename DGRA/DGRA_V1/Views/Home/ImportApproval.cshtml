@@ -31,7 +31,20 @@
 @*<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">*@
 <link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
-
+<style>
+    table th {
+        padding: 0.5rem !important;
+        font-size: 15px !important;
+    }
+    table td {
+        padding: 0.2rem !important;
+        font-size: 15px !important;
+    }
+    .dataTables_filter {
+        margin-top: -2.6% !important; 
+    }
+    
+    </style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
 
@@ -122,7 +135,7 @@
                 <br>
                 @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                 {
-                    <hr>
+                   
                     <div class="row" id="approvebtn" style="display:none">
                         <div class="col-md-2"><button type="button" class="btn btn-block btn-success" onclick="DataApproved(1)">Approved</button></div>
                         <div class="col-md-2"><button type="button" class="btn btn-block btn-danger" onclick="DataApproved(2)">Reject</button></div>
@@ -305,7 +318,7 @@
                         }
                         // console.log(status);
                         tbl += '<tr>';
-                        tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style="margin-left: 0rem;" ' + isDisable + '></td>';
+                        tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style="margin-left:0.5rem;    margin-top: -6px;" ' + isDisable + '></td>';
                         tbl += '<td>' + result[i].site_name + '</td>';
                         tbl += '<td>' + formattedDate + '</td>';
                        // tbl += '<td>' + arr2[5] + '</td>';
@@ -341,8 +354,8 @@
                         tbl += '<td>' + approval_name + '</td>';
                         tbl += '<td>' + formattedDate2 + '</td>';
                         tbl += '<td>' + rejected_name + '</td>';
-                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl">G</a></div>';
-                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" >B</a></div>';
+                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem">G</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >B</a></div>';
                         //enter filenames paths
                        // tbl += '<div style="width: 25%;float: left;"><a href="C:\LogFile\\'+ result[i].log_filename +'" title=" View Log File" class="btn  btn-info" download>F</a></div>';
                        // tbl += '<div style="width: 25%;float: left;"><a href="C:\ImportedFile\"' + result[i].file_name + '" title=" View Imported File" class="btn  btn-info" download>L</a></div>';
@@ -382,15 +395,15 @@
                         },
                         'colvis'
                     ]
-                   /* "buttons": [
-                        'copy', 'excel', 'csv', 'colvis'
-                    ]*/
-                });
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });//.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $("dataTables_filter").css("margin-top", "-35px");
-
+                $('#example1').removeClass('dataTable');
 
                 // dt - button buttons - excel buttons - html5
                // btn btn - secondary buttons - copy buttons - html5

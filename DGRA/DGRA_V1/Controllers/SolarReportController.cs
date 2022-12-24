@@ -266,13 +266,13 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
 
-        public async Task<IActionResult> GetLocationMaster()
+        public async Task<IActionResult> GetLocationMaster(string site)
         {
 
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarLocationMaster";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarLocationMasterBySite?site=" + site;
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
@@ -317,35 +317,29 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
 
-        // Wind Views
-        /*public async  Task<IActionResult> WindGenView( string fromDate ,string ToDate)
+        public async Task<IActionResult> GetSolarPRReportSiteWise(string fy, string fromDate, string toDate)
         {
-            string status = "";
-            DailyGenSummary dailyGen = new DailyGenSummary();
-            fromDate = "2022-08-10";
-            ToDate = "2022-08-30";
+            string line = "";
             try
             {
-                var url= "http://localhost:23835/api/DGR/GetWindDailyGenSummary?fromDate=" + fromDate + "&ToDate=" + ToDate+"";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarPerformanceReportBySiteWise?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "";
                 WebRequest request = WebRequest.Create(url);
+
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
                 {
                     Stream receiveStream = response.GetResponseStream();
                     using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
                     {
-                        string line = readStream.ReadToEnd().Trim();
-                            dailyGen.list = JsonConvert.DeserializeObject<List< DailyGenSummary>>(line);
-                        return View(dailyGen);
+                        line = readStream.ReadToEnd().Trim();
+                        //  breakdown.list = JsonConvert.DeserializeObject<List<WindBreakdownReports>>(line);
                     }
                 }
             }
             catch (Exception ex)
             {
-                TempData["notification"] = "invalid  !";
+                TempData["notification"] = "Data Not Presents !";
             }
-
-            // return RedirectToAction("WindGenView", "Home");
-            return View(dailyGen);
-        }*/
+            return Content(line, "application/json");
+        }
     }
 }

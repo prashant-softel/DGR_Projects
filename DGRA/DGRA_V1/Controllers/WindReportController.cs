@@ -341,14 +341,14 @@ namespace DGRA_V1.Controllers
         }
 
         //Monthly Gen WTG WIse
-        public async Task<IActionResult> GetWindMonthlyGenerationReportWTGWise(string fromDate, string month, string country, string state, string spv, string site, string wtg, string reportType)
+        public async Task<IActionResult> GetWindMonthlyGenerationReportWTGWise(string fy, string month, string country, string state, string spv, string site, string wtg, string reportType)
         {
 
 
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindMonthlyGenerationReport?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindMonthlyGenerationReport?fy=" + fy + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType + "";
 
                 WebRequest request = WebRequest.Create(url);
 
@@ -371,14 +371,14 @@ namespace DGRA_V1.Controllers
         }
 
         //Monthly Gen SIteWIse
-        public async Task<IActionResult> GetWindMonthlyGenerationReportSiteWise(string fromDate, string month, string country, string state, string spv, string site, string wtg, string reportType)
+        public async Task<IActionResult> GetWindMonthlyGenerationReportSiteWise(string fy, string month, string country, string state, string spv, string site, string wtg, string reportType)
         {
 
 
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindMonthlyYearlyGenSummaryReport2?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindMonthlyYearlyGenSummaryReport2?fy=" + fy + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "";
 
                 WebRequest request = WebRequest.Create(url);
 
@@ -539,13 +539,40 @@ namespace DGRA_V1.Controllers
             }
             return Content(line, "application/json");
         }
-        public async Task<IActionResult> GetWeeklyOperation(string fy, string fromDate, string toDate,string site)
+        public async Task<IActionResult> GetOperationHeadData(string site)
         {
 
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site="+ site + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetOperationHeadData?site="+ site + "";
+                
+                WebRequest request = WebRequest.Create(url);
+
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                        //  breakdown.list = JsonConvert.DeserializeObject<List<WindBreakdownReports>>(line);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
+        }
+        public async Task<IActionResult> GetWeeklyOperation(string fy, string fromDate, string toDate, string site)
+        {
+
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
                 //var url = "http://localhost:23835/api/DGR/GetWindDailyBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" +country+ "&state=" +state+ "&spv=" +spv+ "&site=" +site+ "&wtg=" +wtg+"";
                 WebRequest request = WebRequest.Create(url);
 

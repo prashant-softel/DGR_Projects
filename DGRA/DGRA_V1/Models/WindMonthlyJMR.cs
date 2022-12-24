@@ -15,42 +15,20 @@ namespace DGRA_V1.Models
         public string jmrDate { get; set; }
         public string jmrMonth { get; set; }
         public string jmrYear { get; set; }
-        public decimal lineLossPercent { get; set; }
-        public string rkvhPercent { get; set; }
-        public decimal controllerKwhInv { get; set; }
-        public decimal scheduledUnitsKwh { get; set; }
-        public decimal exportKwh { get; set; }
-        public decimal importKwh { get; set; }
-        public decimal netExportKwh { get; set; }
-        public decimal exportKvah { get; set; }
-        public decimal importKvah { get; set; }
-        public decimal exportKvarhLag { get; set; }
-        public decimal importKvarhLag { get; set; }
-        public decimal exportKvarhLead { get; set; }
-        public decimal importKvarhLead { get; set; }
-        public decimal lineLoss { get; set; }
-        //public int monthly_jmr_id { get; set; }
-        //public string FY { get; set; }
-        //public string Site { get; set; }
-        //public string Plant_Section { get; set; }
-        //public dynamic Controller_KWH_INV { get; set; }
-        //public dynamic Scheduled_Units_kWh { get; set; }
-        //public dynamic Export_kWh { get; set; }
-        //public dynamic Import_kWh { get; set; }
-        //public dynamic Net_Export_kWh { get; set; }
-        //public dynamic Export_kVAh { get; set; }
-
-        //public dynamic Import_kVAh { get; set; }
-        //public dynamic Export_kVArh_lag { get; set; }
-        //public dynamic Import_kVArh_lag { get; set; }
-        //public dynamic Export_kVArh_lead { get; set; }
-        //public dynamic Import_kVArh_lead { get; set; }
-        //public dynamic JMR_date { get; set; }
-        //public dynamic JMR_Month { get; set; }
-        //public dynamic JMR_Year { get; set; }
-        //public dynamic LineLoss { get; set; }
-        //public dynamic Line_Loss_percentage { get; set; }
-        //public dynamic RKVH_percentage { get; set; }
+        public dynamic lineLossPercent { get; set; }
+        public dynamic rkvhPercent { get; set; }
+        public dynamic controllerKwhInv { get; set; }
+        public dynamic scheduledUnitsKwh { get; set; }
+        public dynamic exportKwh { get; set; }
+        public dynamic importKwh { get; set; }
+        public dynamic netExportKwh { get; set; }
+        public dynamic exportKvah { get; set; }
+        public dynamic importKvah { get; set; }
+        public dynamic exportKvarhLag { get; set; }
+        public dynamic importKvarhLag { get; set; }
+        public dynamic exportKvarhLead { get; set; }
+        public dynamic importKvarhLead { get; set; }
+        public dynamic lineLoss { get; set; }
     }
     public class WindMonthlyJMR1
     {

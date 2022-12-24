@@ -23,19 +23,6 @@
 <div class="content-wrapper">
 
     <section class="content-header">
-        <!-- <div class="container-fluid">
-         <div class="row mb-2">
-             <div class="col-sm-6">
-
-             </div>
-             <div class="col-sm-6">
-                 <ol class="breadcrumb float-sm-right">
-                     <li class="breadcrumb-item"><a href="#">Home</a></li>
-                     <li class="breadcrumb-item active">Wind Site Master</li>
-                 </ol>
-             </div>
-         </div>
-     </div>-->
     </section>
 
 
@@ -44,21 +31,15 @@
             <div class="card-header">
                 <h3 class="card-title  text-center">Wind Site Master</h3>
 
-                <!--<div class="card-tools">
-        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-            <i class="fas fa-minus"></i>
-        </button>
-
-    </div>-->
             </div>
             <div class="card-body">
                 <div id="siteData" style="overflow-x: auto;" class="siteData"></div>
                 <div id="DailyTargetKPIView" style="overflow-x: auto;" class="DailyTargetKPIView"></div>
             </div>
         </div>
-   
 
-     
+
+
     </section>
 
 </div>
@@ -70,19 +51,15 @@
 
 <script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
 <!--Datatable -->
+<!-- DataTables  & Plugins -->
 <script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
 <script type="text/javascript">
 
     window.onload = function () {
@@ -103,7 +80,7 @@
             var tbl = '<table id="example1"  class="table table-bordered table-striped dataTable dtr-inline">';
             tbl += '<thead class="tbl-head"><tr>';
             tbl += '<th>Country</th>';
-            tbl += '<th>Site</th>';
+            tbl += '<th style="width: 11%;">Site</th>';
             tbl += '<th>SPV</th>';
             tbl += '<th>State</th>';
             tbl += '<th>Model</th>';
@@ -141,19 +118,44 @@
                 // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
             }
             tbl += '</table>';
-            $("#siteData").html(tbl);
-            $.noConflict();
+           // $("#siteData").html(tbl);
+            $("#siteData").html("").html(tbl);
+            $.fn.DataTable.ext.pager.numbers_length = 6;
             $('#example1').DataTable({
-                "responsive": true, "lengthChange": false, "autoWidth": false,
-                "buttons": ["csv", "excel","colvis"],
-                "paging": true,
-                "lengthChange": false,
-                "searching": true,
-                "ordering": true,
-                "info": true,
-                "autoWidth": false,
-                "responsive": true,
+                dom: 'Bfrtip',
+                responsive: true,
+                lengthChange: true,
+                autoWidth: true,
+                paging: true,
+                lengthChange: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                responsive: true,
+                
+                buttons: [
+                    {
+                        extend: 'excel',
+                        title: 'Wind Site Master',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        title: 'Wind Site Master',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    'colvis'
+                ]
             }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $(".dt-buttons").addClass('btn-group flex-wrap');
+            $(".dt-buttons > button").addClass('btn btn-secondary');
+            $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+
             $('#example1').removeClass('dataTable');
         }
     });

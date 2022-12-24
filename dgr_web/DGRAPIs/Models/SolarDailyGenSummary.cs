@@ -10,8 +10,9 @@ namespace DGRAPIs.Models
         public int daily_gen_summary_solar_id { get; set; }
         public string state { get; set; }
         public string site { get; set; }
-        public DateTime date { get; set; }
+        public string date { get; set; }
         public string location_name { get; set; }
+        public int total_strings { get; set; }
         public double ghi { get; set; }
         public double poa { get; set; }
         public double expected_kwh { get; set; }

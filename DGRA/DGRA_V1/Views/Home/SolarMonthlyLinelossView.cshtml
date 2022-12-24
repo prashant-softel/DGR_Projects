@@ -47,8 +47,8 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
                                 </select>
                             </div>
                         </div>
@@ -57,8 +57,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Financial Year : </label>
-                                <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                <label class="col-sm-2 col-form-label text-left">FY : </label>
+                                <select class="form-control  col-sm-10" id="fy" name="fy" value="">
                                     <option value="">Select Financial Year</option>
                                 </select>
                             </div>
@@ -68,8 +68,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Month : </label>
-                                <select class="form-control  col-sm-8" id="month" name="month" value="">
+                                <label class="col-sm-3 col-form-label text-left">Month : </label>
+                                <select class="form-control  col-sm-9" id="month" name="month" value="">
                                     <option value="">Select Month</option>
                                     <option value="Jan">January</option>
                                     <option value="Feb">February</option>
@@ -91,10 +91,12 @@
                         <!-- select -->
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
+                    <div class="col-sm-1"></div>
                 </div>
+
+                <hr>
+                <div id="MontlyLonelossView"></div>
             </div>
-            <hr>
-            <div id="MontlyLonelossView"></div>
         </div>
     </section>
 </div>
@@ -188,10 +190,10 @@
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].fy + '</td>';
-                        tbl += '<td>' + result[i].sites + '</td>';
-                        tbl += '<td>' + result[i].month + '</td>';
-                        tbl += '<td>' + result[i].lineLoss + '</td>';
+                        tbl += '<td class="text-left">' + result[i].fy + '</td>';
+                        tbl += '<td class="text-left">' + result[i].sites + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-right" >' + result[i].lineLoss.toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }
@@ -216,9 +218,28 @@
                     autoWidth: false,
                     responsive: false,
                     buttons: [
-                        'copy', 'excel', 'csv', 'colvis'
+                        {
+                            extend: 'excel',
+                            title: 'Solar Monthly Line Loss',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Monthly Line Loss',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
                     ]
                 });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+
+                $('#example1').removeClass('dataTable');
             }
         });
     }

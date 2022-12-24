@@ -105,23 +105,22 @@ namespace DGRA_V1.Models
             if (wtgFlag == true || greaterStopTo == true || lastStopTo == true || totalStop == true )
             {
                 //|| sumOfBDHours == true
-                m_ErrorLog.SetError(",File Row (" + rowNumber + ") had error(s) ");
 
                 if (wtgFlag == true)
                 {
-                    m_ErrorLog.SetError(",Invalid - Equipment record does not exist : ");
+                    m_ErrorLog.SetError(",File Row [" + rowNumber + "] Invalid - Equipment record does not exist : ");
                 }
                 if (greaterStopTo == true)
                 {
-                    m_ErrorLog.SetError(",Stop-To Time is lower than Stop-From: ");
+                    m_ErrorLog.SetError(",File Row [" + rowNumber + "] Stop-To Time is lower than Stop-From: ");
                 }
                 if (lastStopTo == true)
                 {
-                    m_ErrorLog.SetError(",Invalid  Stop-To timing:");
+                    m_ErrorLog.SetError(",File Row [" + rowNumber + "] Invalid  Stop-To timing:");
                 }
                 if (totalStop == true)
                 {
-                    m_ErrorLog.SetError(",Breakdown Hours are exceeding 24 hours:");
+                    m_ErrorLog.SetError(",File Row [" + rowNumber + "] Breakdown Hours are exceeding 24 hours:");
                 }
                 //if (sumOfBDHours == true)
                 //{
@@ -135,7 +134,7 @@ namespace DGRA_V1.Models
             }
         }
 
-        public bool validateGenData(long rowNumber, string verifyDate, string verifyWTG, decimal verifyWSpeed, decimal verifyKWh, decimal operatingHrs, decimal productionHrs, decimal gridHrs)
+        public bool validateGenData(long rowNumber, string verifyDate, string verifyWTG, double verifyWSpeed, double verifyKWh, double operatingHrs, double productionHrs, double gridHrs)
         {
             //Here flags are error flags which are assigned true if the validation condition is not satisfied
             bool dateFlag = false;
@@ -149,31 +148,41 @@ namespace DGRA_V1.Models
             if (!(verifyDate == checker))
             {
                 dateFlag = true;
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Invalid Date Format : " + verifyDate);
             }
 
             //2)WTG Validation CodeBlock
             if (!(m_DeviceCollection.ContainsKey(verifyWTG)))
             {
                 wtgFlag = true;
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Equipment name("+ verifyWTG + ") record does not exist " );
             }
 
             //3)windSpeed Validation CodeBlock
             if (!(verifyWSpeed > 0))
             {
                 wSpeedFlag = true;
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Wind speed cannot be zero or negative: " + verifyWSpeed);
             }
 
             //4)KWh Validation CodeBlock
             string emptyVal = Convert.ToString(verifyKWh);
-            if ((verifyKWh < 0) || (string.IsNullOrEmpty(emptyVal)))
+            if (verifyKWh < 0)
             {
                 kwhFlag = true;
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> KWH cannot be negative: " + verifyKWh);
+            }
+            else if (string.IsNullOrEmpty(emptyVal))
+            {
+                kwhFlag = true;
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> KWH cannot be blank: " + verifyKWh);
             }
             else if (verifyKWh == 0)
             {
                 if (!(operatingHrs == 0) || !(productionHrs == 0))
                 {
                     kwhFlag = true;
+                    m_ErrorLog.SetError(",File Row <" + rowNumber + "> If KWH is zero then Generation/Production hours should be zero: " + verifyKWh);
                 }
             }
 
@@ -181,33 +190,13 @@ namespace DGRA_V1.Models
             if (!(gridHrs >= productionHrs))
             {
                 gridHrsFlag = true;
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Grid Hours should be greater than or equal to production hours: " + gridHrs);
+
             }
 
             //*Overall Error Status*
             if (dateFlag == true || wtgFlag == true || wSpeedFlag == true || kwhFlag == true || gridHrsFlag == true)
             {
-                m_ErrorLog.SetError(",File Row (" + rowNumber + ") had error(s) ");
-
-                if (dateFlag == true)
-                {
-                    m_ErrorLog.SetError(",Invalid Date Entry : " + verifyDate);
-                }
-                if (wtgFlag == true)
-                {
-                    m_ErrorLog.SetError(",Invalid  Equipment Name(WTG) : " + verifyWTG);
-                }
-                if (wSpeedFlag == true)
-                {
-                    m_ErrorLog.SetError(",Invalid Wind Speed : " + verifyWSpeed);
-                }
-                if (kwhFlag == true)
-                {
-                    m_ErrorLog.SetError(",Invalid KWH : " + verifyKWh);
-                }
-                if (gridHrsFlag == true)
-                {
-                    m_ErrorLog.SetError(",Invalid Grid Hours : " + gridHrs);
-                }
                 return true;
             }
             else

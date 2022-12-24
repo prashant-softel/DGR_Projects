@@ -422,8 +422,8 @@ h6, .h6 {
 }
 
 hr {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom:0.5rem;
   border: 0;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
@@ -4397,7 +4397,7 @@ input[type="button"].btn-block {
   align-items: center;
   -ms-flex-pack: justify;
   justify-content: space-between;
-  padding: 0.5rem 0.5rem;
+  padding: 0.2rem 0.2rem;
 }
 
 .navbar .container,
@@ -11863,7 +11863,7 @@ body:not(.layout-fixed) .main-sidebar .sidebar {
 }
 
 .content-header {
-  padding: 5px 0.5rem;
+  padding: 2px 0.5rem;
 }
 
 .text-sm .content-header {
@@ -28755,7 +28755,7 @@ html.maximized-card {
 .card-header {
   background-color: transparent;
   border-bottom: 1px solid rgba(0, 0, 0, 0.125);
-  padding: 0.75rem 1.25rem;
+  padding: 0.55rem 1.25rem;
   position: relative;
   border-top-left-radius: 0.25rem;
   border-top-right-radius: 0.25rem;
@@ -53025,7 +53025,7 @@ a.text-muted:hover {
     color: #77CAE7;
 }
 .bg-darkblue {
-    background-color: #31576D;;
+    background-color: #31576D;
 }
 .card-header {
     background-color: #77CAE7 ;
@@ -53054,6 +53054,37 @@ a.text-muted:hover {
 .ms-offscreen {
     padding: 0;
 }
+.table th, .table td {
+    vertical-align: middle !important;
+}
+.dataTables_filter {
+    margin-top: -2.6% !important;
+}
 
+table th {
+    padding: 0.5rem !important;
+    font-size: 15px !important;
+}
 
+table td {
+    padding: 0.2rem !important;
+    font-size: 15px !important;
+}
+/*DataTable Pagination CSS*/
+.paginate_button {
+    border: 1px solid gray;
+    padding: 6px 15px;
+    border-radius: 0.1rem;
+    color: unset;
+}
+
+div.dataTables_wrapper div.dataTables_paginate {
+    margin-right: 1rem;
+    margin-top: -1.2rem;
+    padding-bottom: 2rem;
+}
+
+.current {
+    color: #007bff ;
+}
 /*# sourceMappingURL=adminlte.css.map */

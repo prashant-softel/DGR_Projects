@@ -7,7 +7,7 @@
 }
 @{
     string windSiteList = "";
-   
+
     var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
 
 }
@@ -18,7 +18,7 @@
     {
         windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
     }
-    
+
 
 }
 
@@ -70,7 +70,7 @@
                             <div class="row">
                                 <label class="col-sm-4 col-form-label text-right">Site : </label>
                                 <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
-                                    </select>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -95,10 +95,10 @@
                                 <label class="col-sm-4 col-form-label text-right">Month : </label>
                                 <select class="form-control  col-sm-8" id="month" name="month" value="">
                                     @*@foreach (var item in Model)
-                        {
-                           <option value="@item.">@item.name</option>
+                                        {
+                                           <option value="@item.">@item.name</option>
 
-                        }*@
+                                        }*@
                                     <option value="">Select Month</option>
                                     <option value="Jan">January</option>
                                     <option value="Feb">February</option>
@@ -117,22 +117,17 @@
                         </div>
                     </div>
                     <div class="col-md-1">
-                       
+
                     </div>
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
                 </div>
-
-            </div>
+            
             <hr>
             <div id="MontlyLonelossView" style="overflow-x: auto;" class="MontlyLonelossView"></div>
         </div>
-
-
-
-
-    </section>
+</section>
 
 </div>
 <!-- /.content-wrapper -->
@@ -150,19 +145,16 @@
 
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- DataTables  & Plugins -->
-<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js"></script>
-<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js" defer></script>
-<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+
 <script type="text/javascript">
 
     window.onload = function () {
@@ -231,7 +223,7 @@
                 tbl += '<th>FY</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Month</th>';
-                tbl += '<th>Line Losses(%)</th>';
+                tbl += '<th style="width: 150px;">Line Losses(%)</th>';
                 tbl += '</tr></thead>';
 
                 if (result.length > 0) {
@@ -249,8 +241,9 @@
                     //tbl += '<tr><th colspan="4" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
-                $("#MontlyLonelossView").html(tbl);
-                $.noConflict();
+               // $("#MontlyLonelossView").html(tbl);
+                $("#MontlyLonelossView").html("").html(tbl);
+                $.fn.DataTable.ext.pager.numbers_length = 6;
                 $('#example1').DataTable({
                     dom: 'Bfrtip',
                     responsive: false,
@@ -264,10 +257,28 @@
                     autoWidth: false,
                     responsive: false,
                     buttons: [
-                        'copy', 'excel', 'colvis'
+                        {
+                            extend: 'excel',
+                            title: 'Wind Monthly Lineloss View',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Wind Monthly Lineloss View',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
                     ]
                 });
-	             $('#example1').removeClass('dataTable');
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+
+                $('#example1').removeClass('dataTable');
             }
         });
     }

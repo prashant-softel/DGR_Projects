@@ -11,6 +11,8 @@ namespace DGRAPIs.Models
         public string Month { get; set; }
         public string Sites { get; set; }
         public int Site_Id { get; set; }
+        public int month_no { get; set; }
+        public int year { get; set; }
         public dynamic GHI { get; set; }
         public dynamic POA { get; set; }
         public dynamic kWh { get; set; }

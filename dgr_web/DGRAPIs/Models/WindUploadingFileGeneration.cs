@@ -14,11 +14,11 @@ namespace DGRAPIs.Models
         public string date { get; set; }
         public string wtg { get; set; }
         public int wtg_id{ get; set; }
-        public decimal wind_speed { get; set; }
-        public decimal grid_hrs { get; set; }
-        public decimal operating_hrs { get; set; }
-        public decimal lull_hrs { get; set; }
-        public decimal kwh { get; set; }
+        public dynamic wind_speed { get; set; }
+        public dynamic grid_hrs { get; set; }
+        public dynamic operating_hrs { get; set; }
+        public dynamic lull_hrs { get; set; }
+        public dynamic kwh { get; set; }
 
     }
     public class WindUploadingFilegeneration1

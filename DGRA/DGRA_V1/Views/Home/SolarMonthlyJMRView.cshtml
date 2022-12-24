@@ -43,8 +43,8 @@
                     <div class="col-md-3">
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
                                 </select>
                             </div>
                         </div>
@@ -53,8 +53,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Financial Year : </label>
-                                <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                <label class="col-sm-2 col-form-label text-left">FY : </label>
+                                <select class="form-control  col-sm-10" id="fy" name="fy" value="">
                                     <option value="">Select Financial Year</option>
                                 </select>
                             </div>
@@ -64,8 +64,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Month : </label>
-                                <select class="form-control  col-sm-8" id="month" name="month" value="">
+                                <label class="col-sm-3 col-form-label text-left">Month : </label>
+                                <select class="form-control  col-sm-9" id="month" name="month" value="">
                                     <option value="">Select Month</option>
                                     <option value="January">January</option>
                                     <option value="February">February</option>
@@ -87,6 +87,7 @@
                         <!-- select -->
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
+                    <div class="col-sm-1"></div>
                 </div>
                 <hr>
                 <div id="MontlyJMRView" style="overflow-x: auto;"></div>
@@ -110,6 +111,7 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
 <script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
 
 <script type="text/javascript">
 
@@ -172,12 +174,12 @@
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
-                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline" style="width:200%">';
                 tbl += '<thead  class="tbl-head"><tr>';
-                tbl += '<th>FY</th>';
-                tbl += '<th>Site</th>';
+                tbl += '<th style="width: 4%;">FY</th>';
+                tbl += '<th style="width: 6%;">Site</th>';
                 tbl += '<th>Plant Selection</th>';
-                tbl += '<th>Controller KWH/INV KWH</th>';
+                tbl += '<th>Controller (kWh/INV)</th>';
                 tbl += '<th>Scheduled Units (kWh)</th>';
                 tbl += '<th>Export kWh</th>';
                 tbl += '<th>Import kWh</th>';
@@ -199,28 +201,29 @@
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         var tempDate = new Date(result[i].jmR_date);
-                        var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
+                        var formattedDate = moment(result[i].jmR_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                       // var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].fy + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].plant_Section + '</td>';
-                        tbl += '<td>' + result[i].controller_KWH_INV + '</td>';
-                        tbl += '<td>' + result[i].scheduled_Units_kWh + '</td>';
-                        tbl += '<td>' + result[i].export_kWh + '</td>';
-                        tbl += '<td>' + result[i].import_kWh + '</td>';
-                        tbl += '<td>' + result[i].net_Export_kWh + '</td>';
-                        tbl += '<td>' + result[i].export_kVAh + '</td>';
-                        tbl += '<td>' + result[i].import_kVAh + '</td>';
-                        tbl += '<td>' + result[i].export_kVArh_lag + '</td>';
-                        tbl += '<td>' + result[i].import_kVArh_lag + '</td>';
-                        tbl += '<td>' + result[i].export_kVArh_lead + '</td>';
-                        tbl += '<td>' + result[i].import_kVArh_lead + '</td>';
-                        tbl += '<td>' + formattedDate + '</td>';
-                        tbl += '<td>' + result[i].jmR_Month + '</td>';
-                        tbl += '<td>' + result[i].jmR_Year + '</td>';
-                        tbl += '<td>' + result[i].lineLoss + '</td>';
-                        tbl += '<td>' + result[i].line_Loss_percentage.toFixed(2) + '</td>';
-                        tbl += '<td>' + result[i].rkvH_percentage + '</td>';
+                        tbl += '<td class="text-left">' + result[i].fy + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].plant_Section + '</td>';
+                        tbl += '<td class="text-right">' + result[i].controller_KWH_INV.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].scheduled_Units_kWh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].export_kWh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].import_kWh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].net_Export_kWh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].export_kVAh.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].import_kVAh.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].export_kVArh_lag.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].import_kVArh_lag.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].export_kVArh_lead.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].import_kVArh_lead.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].jmR_Month + '</td>';
+                        tbl += '<td class="text-left">' + result[i].jmR_Year + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].lineLoss.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].line_Loss_percentage + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].rkvH_percentage + '</td>';
                         tbl += '</tr>';
                     }
                 }
@@ -243,9 +246,28 @@
                     autoWidth: false,
                     responsive: false,
                     buttons: [
-                        'copy', 'excel', 'csv', 'colvis'
+                        {
+                            extend: 'excel',
+                            title: 'Solar Monthly JMR',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Monthly JMR',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
                     ]
                 });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+
+                $('#example1').removeClass('dataTable');
             }
         });
     }

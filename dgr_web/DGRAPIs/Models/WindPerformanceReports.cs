@@ -28,4 +28,11 @@ namespace DGRAPIs.Models
         public double act_ega { get; set; }
          
     }
+    public class WindOpertionalHead
+    {
+        
+        public float spv_count { get; set; }
+        public double capacity { get; set; }
+
+    }
 }

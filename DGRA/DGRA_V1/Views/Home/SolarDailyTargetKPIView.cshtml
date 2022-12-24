@@ -43,11 +43,11 @@
             <div class="card-body">
                 <div class="row">
                     @*<div class="col-md-2"></div>*@
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
                                 </select>
                             </div>
                         </div>
@@ -66,9 +66,9 @@
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
-                    @*<div class="col-md-2"></div>*@
+                  <div class="col-md-3"></div>
                 </div>
-                <br>
+                
                 <hr>
                 <div id="DailyTargetKPIView" style="overflow-x: auto;" class="DailyTargetKPIView"></div>
             </div>
@@ -135,6 +135,12 @@
     
     function getReport() {
 
+        let site_id = "";
+        var site = $('select#site option:selected').each(function () {
+            site_id += $(this).val() + ",";
+        });
+        site_id = site_id != "" ? site_id.slice(0, -1) : site_id;
+        console.log(site_id);
         var daterange = $('#daterange').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
@@ -143,7 +149,7 @@
 
         $.ajax({
             type: "GET",
-            url: '@Url.Action("SolarDailyTargetKPIView", "SolarView")' + '?fromDate=' + fromDate +'&toDate=' + toDate,
+            url: '@Url.Action("SolarDailyTargetKPIView", "SolarView")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&site=' + site_id,
            // url: "/SolarView/SolarDailyTargetKPIView?fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
@@ -152,17 +158,17 @@
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<td>FY</td>';
-                tbl += '<td>Date</td>';
-                tbl += '<td>Site</td>';
-                tbl += '<td>GHI (KWH / M2)</td>';
-                tbl += '<td>POA (KWH / M2)</td>';
-                tbl += '<td>KWH(in MU)</th>';
-                tbl += '<td>MA</td>';
-                tbl += '<td>IGA</td>';
-                tbl += '<td>EGA</td>';
-                tbl += '<td>PR</td>';
-                tbl += '<td>PLF</td>';
+                tbl += '<th>FY</th>';
+                tbl += '<th>Date</th>';
+                tbl += '<th style="width:15%">Site</th>';
+                tbl += '<th style="width:10%">GHI (KWH / M2)</th>';
+                tbl += '<th style="width:10%">POA (KWH / M2)</th>';
+                tbl += '<th style="width:10%">KWH(in MU)</th>';
+                tbl += '<th>MA (%)</th>';
+                tbl += '<th>IGA (%)</th>';
+                tbl += '<th>EGA (%)</th>';
+                tbl += '<th>PR (%)</th>';
+                tbl += '<th>PLF (%)</th>';
 
                 tbl += '</tr></thead>';
 
@@ -173,18 +179,17 @@
                         //var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].fy + '</td>';
-                        tbl += '<td>' + formattedDate + '</td>';
-                        tbl += '<td>' + result[i].sites + '</td>';
-                        tbl += '<td>' + result[i].ghi + '</td>';
-                        tbl += '<td>' + result[i].poa + '</td>';
-                        tbl += '<td>' + result[i].kWh + '</td>';
-                        tbl += '<td>' + result[i].ma + '</td>';
-                        tbl += '<td>' + result[i].iga+ '</td>';
-                        tbl += '<td>' + result[i].ega + '</td>';
-                        tbl += '<td>' + result[i].pr + '</td>';
-                        tbl += '<td>' + result[i].plf + '</td>';
-
+                        tbl += '<td class="text-left">' + result[i].fy + '</td>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].sites + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].kWh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2)+ '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }
@@ -193,21 +198,42 @@
                     // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
-                $("#DailyTargetKPIView").html(tbl);
-                 $.noConflict();
+                $("#DailyTargetKPIView").html("").html(tbl);
                 $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-                    "paging": true,
-                    "lengthChange": false,
-                    "searching": true,
-                    "ordering": true,
-                    "info": true,
-                    "autoWidth": false,
-                    "responsive": true,
-                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                    dom: 'Bfrtip',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    responsive: false,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Daily Target KPI',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Daily Target KPI',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
 
-
+                $('#example1').removeClass('dataTable');
             }
         });
     }

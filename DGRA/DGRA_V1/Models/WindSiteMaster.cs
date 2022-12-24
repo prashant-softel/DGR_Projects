@@ -14,6 +14,6 @@
         public double tarrif { get; set; }
         public double gbi { get; set; }
         public double total_tarrif { get; set; }
-        public dynamic ll_compensation { get; set; }
+        public double ll_compensation { get; set; }
     }
 }

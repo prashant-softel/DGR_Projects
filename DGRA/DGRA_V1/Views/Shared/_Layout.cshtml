@@ -284,19 +284,19 @@
             </ul>
         </li>*@
 
-                        @* <li class="nav-item">
-            <a href="#" class="nav-link">
-                <i class="nav-icon fas fa-copy"></i>
-                <p>
-                    Solar Views
-                    <i class="fas fa-angle-left right"></i>
-                </p>
-            </a>
-            @for (int i = 0; i < @usermodel.access_list.Count; i++)
+                    <li class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-copy"></i>
+                            <p>
+                                Solar Views
+                                <i class="fas fa-angle-left right"></i>
+                            </p>
+                        </a>
+                        @* @for (int i = 0; i < @usermodel.access_list.Count; i++)
             {
                 if (@usermodel.access_list[i].page_type == 1 && @usermodel.access_list[i].site_type == 2)
                 {
-                    <ul class="nav nav-treeview">
+                             <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a href="~/@usermodel.access_list[i].controller_name/@usermodel.access_list[i].action_url" class="nav-link">
                                 <i class="far  nav-icon"></i>
@@ -307,45 +307,64 @@
                 }
             }
         </li>*@
-                        @*<li class="nav-item">
-                    <a href="~/Home/SolarDailyLoadSheddingView" class="nav-link">
-                        <i class="far nav-icon"></i>
-                        <p>Daily Load Shedding</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="~/Home/SolarDailyTargetKPIView" class="nav-link">
-                        <i class="far nav-icon"></i>
-                        <p>Daily Target KPI</p>
-                    </a>
-                </li>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="~/Home/SolarGenView" class="nav-link">
+                                <i class="far nav-icon"></i>
+                                <p>Generation Summary </p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Home/SolarDailyLoadSheddingView" class="nav-link">
+                                <i class="far nav-icon"></i>
+                                <p>Daily Load Shedding</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Home/SolarDailyTargetKPIView" class="nav-link">
+                                <i class="far nav-icon"></i>
+                                <p>Daily Target KPI</p>
+                            </a>
+                        </li>
 
-                <li class="nav-item">
-                    <a href="~/Home/SolarMonthlyTargetKPIView" class="nav-link">
-                        <i class="far nav-icon"></i>
-                        <p>Monthly Target KPI</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="~/Home/SolarMonthlyLinelossView" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Monthly LineLoss</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="~/Home/SolarMonthlyJMRView" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Monthly JMR</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="~/Home/SolarAcDcCapacityView" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>AC DC Capacity</p>
-                    </a>
-                </li>
-            </ul>
-        </li>*@
+                        <li class="nav-item">
+                            <a href="~/Home/SolarMonthlyTargetKPIView" class="nav-link">
+                                <i class="far nav-icon"></i>
+                                <p>Monthly Target KPI</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Home/SolarMonthlyLinelossView" class="nav-link">
+                                <i class="far  nav-icon"></i>
+                                <p>Monthly LineLoss</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Home/SolarMonthlyJMRView" class="nav-link">
+                                <i class="far  nav-icon"></i>
+                                <p>Monthly JMR</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Home/SolarAcDcCapacityView" class="nav-link">
+                                <i class="far  nav-icon"></i>
+                                <p>AC DC Capacity</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Home/SolarGHIPOA1MinView" class="nav-link">
+                                <i class="far  nav-icon"></i>
+                                <p>1 Min GHI & POA</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="~/Home/SolarGHIPOA15MinView" class="nav-link">
+                                <i class="far  nav-icon"></i>
+                                <p>15 Min GHI & POA</p>
+                            </a>
+                        </li>
+                    </ul>
+                    </li>
                         @*<li class="nav-item">
             <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-copy"></i>
@@ -400,7 +419,7 @@
                 </li>
             </ul>
         </li>*@
-                        <li class="nav-item">
+<li class="nav-item">
                             <a href="#" class="nav-link">
                                 <i class="nav-icon fas fa-book"></i>
                                 <p>
@@ -424,16 +443,16 @@
                                 }
                             }
                         </li>
-                        @* <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-book"></i>
-                                <p>
-                                    Solar Reports
-                                    <i class="fas fa-angle-left right"></i>
+<li class="nav-item">
+    <a href="#" class="nav-link">
+        <i class="nav-icon fas fa-book"></i>
+        <p>
+            Solar Reports
+            <i class="fas fa-angle-left right"></i>
 
-                                </p>
-                            </a>
-                           @for (int i = 0; i < @usermodel.access_list.Count; i++)
+        </p>
+    </a>
+    @*  @for (int i = 0; i < @usermodel.access_list.Count; i++)
             {
                 if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 2)
                 {
@@ -448,22 +467,21 @@
                 }
             }
         </li>*@
-                        @*<ul class="nav nav-treeview">
-                @if (!@TempData["role"].Equals("User"))
-                {
+    <ul class="nav nav-treeview">
+               
                     <li class="nav-item">
-                        <a href="@Url.Action("WindSiteMaster", "Home")" class="nav-link">
+                        <a href="@Url.Action("SolarSiteMaster", "Home")" class="nav-link">
                             <i class="far  nav-icon"></i>
-                            <p>Wind Site Master</p>
+                            <p>Solar Site Master</p>
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a href="@Url.Action("WindLocationMaster", "Home")" class="nav-link">
+                        <a href="@Url.Action("SolarLocationMaster", "Home")" class="nav-link">
                             <i class="far  nav-icon"></i>
-                            <p>Wind Location Master</p>
+                            <p>Solar Location Master</p>
                         </a>
                     </li>
-                }
+               
                 <li class="nav-item">
                     <a href="@Url.Action("WindGenReport", "Home")" class="nav-link">
                         <i class="far  nav-icon"></i>
@@ -471,29 +489,29 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="@Url.Action("WindBDReport", "Home")" class="nav-link">
+                    <a href="@Url.Action("SolarBDReport", "Home")" class="nav-link">
                         <i class="far  nav-icon"></i>
                         <p>Breakdown Reports</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="@Url.Action("WindPRReport", "Home")" class="nav-link">
+                    <a href="@Url.Action("SolarPRReport", "Home")" class="nav-link">
                         <i class="far  nav-icon"></i>
                         <p>Performance Reports</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="@Url.Action("WindWeeklyPRReports", "Home")" class="nav-link">
+                    <a href="@Url.Action("SolarWeeklyPRReports", "Home")" class="nav-link">
                         <i class="far  nav-icon"></i>
                         <p>Weekly PR Reports</p>
                     </a>
                 </li>
 
             </ul>
-        </li>*@
-                        @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
-                        {
-                            <li class="nav-item">
+        </li>
+    @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+    {
+<li class="nav-item">
                                 <a href="#" class="nav-link">
                                     <i class="nav-icon fas fa-server"></i>
                                     <p>

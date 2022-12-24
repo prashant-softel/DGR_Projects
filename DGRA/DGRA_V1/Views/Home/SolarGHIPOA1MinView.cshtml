@@ -1,9 +1,10 @@
 ﻿@using Newtonsoft.Json;
 @using Microsoft.AspNetCore.Http;
 @inject IHttpContextAccessor HttpContextAccessor
-@model DGRA_V1.Models.MonthList
+@model DGRA_V1.Models.DailyGenSummary
+
 @{
-    ViewData["Title"] = "Solar Monthly Target KPI";
+    ViewData["Title"] = "GHI POA 1Min";
 }
 @{
     string solarSiteList = "";
@@ -18,6 +19,8 @@
     {
         solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
     }
+
+
 }
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -31,13 +34,24 @@
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+
+@*<style>
+    .tbodydata {
+        font-size: 12px;
+    }
+
+    .theaddata {
+        font-size: 12px;
+        font-weight: bold;
+    }
+</style>*@
+
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <section class="content">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Solar Monthly Target KPI</h3>
-
+                <h3 class="card-title text-center">Solar GHI & POA 1 Minute </h3>
             </div>
             <div class="card-body">
                 <div class="row">
@@ -50,72 +64,43 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-3">
-                        <!-- select -->
-                        <div class="form-group">
-                            <div class="row">
-                                <label class="col-sm-2 col-form-label text-left">FY : </label>
-                                <select class="form-control  col-sm-10" id="fy" name="fy" value="">
-                                    <option value="">Select Financial Year</option>
-                                    <!--<option value="2020-21">2020-21</option>
-                    <option value="2021-22">2021-22</option>
-                    <option value="2022-23">2022-23</option>-->
-                                </select>
+                    <div class="col-md-4">
+                        <div class="input-group row">
+                            <label class="col-sm-3 col-form-label">Date Range : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
                             </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
                         </div>
                     </div>
-                    <div class="col-sm-3">
-                        <!-- select -->
-                        <div class="form-group">
-                            <div class="row">
-                                <label class="col-sm-3 col-form-label text-left">Month : </label>
-                                <select class="form-control  col-sm-9" id="month" name="month" value="">
-                                    @*@foreach (var item in Model)
-                        {
-                           <option value="@item.">@item.name</option>
-                        }*@
-                                    <option value="">Select Month</option>
-                                    <option value="Jan">January</option>
-                                    <option value="Feb">February</option>
-                                    <option value="Mar">March</option>
-                                    <option value="Apr">April</option>
-                                    <option value="May">May</option>
-                                    <option value="Jun">June</option>
-                                    <option value="Jul">July</option>
-                                    <option value="Aug">August</option>
-                                    <option value="Sep">September</option>
-                                    <option value="Oct">October</option>
-                                    <option value="Nov">November</option>
-                                    <option value="Dec">December</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-sm-2">
-                        <!-- select -->
+                    <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
-                    <div class="col-sm-1"></div>
-
-                    </div>
-
-                    <hr>
-                    <div id="MontlyKPIView"></div>
+                    <div class="col-md-3"></div>
                 </div>
+               
+                <hr>
+                <div id="DailyGenView" style="overflow-x: auto;" class="DailyGenView"></div>
+            </div>
+        </div>
     </section>
-</div>
 
+</div>
 <!-- /.content-wrapper -->
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
 <!--Date Range -->
 <script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
 <script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
 <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 
 
-@*Data Tables*@
+<!-- DataTables  & Plugins -->
 <script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
 <script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
 <script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
@@ -125,12 +110,17 @@
 <script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
 <script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
-<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
 
-<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+@*------------------------------------------------------------------------------------------------------------------------------------------------*@
 <script type="text/javascript">
-
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
     window.onload = function () {
         var state = "";
         var spv = "";
@@ -155,22 +145,6 @@
             }
 
         });
-        $.ajax({
-            type: "GET",
-            //url: "/SolarReport/GetFinancialYear",
-             url: '@Url.Action("GetFinancialYear", "SolarReport")',
-            contentType: "application/json; charset=utf-8",
-            //data: '{"countryname":"' + selcountry + '"}',
-            datatype: "html",
-            success: function (result, status, xhr) {
-                var options = "";
-                options += '<option value="">Select Financial Year</option>';
-                for (var i = 0; i < result.length; i++) {
-                    options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
-                }
-                $("#fy").html(options);
-            }
-        });
     }
 
     function getReport() {
@@ -179,58 +153,73 @@
         var site = $('select#site option:selected').each(function () {
             site_id += $(this).val() + ",";
         });
-        site_id = site_id != "" ? site_id.slice(0, -1) : site_id;
-        console.log(site_id);
-        var year = $('select#fy option:selected').val();
-        var month = $('select#month option:selected').val();
-        // var year = "2021-22";
-        //var month = "Apr";
+        site_id = site_id!= ""?site_id.slice(0, -1) : site_id;
+        //console.log(site_id);
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+
         $.ajax({
             type: "GET",
-            //url: "/SolarView/SolarMonthlyTargetKPIView?year=" + year + "&month=" + month,
-            url: '@Url.Action("SolarMonthlyTargetKPIView", "SolarView")' + '?year=' + year + '&month=' + month + '&site=' + site_id,
+            url: '@Url.Action("SolarGhi_Poa_1Min", "SolarView")' + '?site='+ site_id + '&fromDate=' + fromDate + '&toDate=' + toDate,
             contentType: "application/json; charset=utf-8",
-            //data: '{"countryname":"' + selcountry + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
-                console.log(result);
-                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
+               
+                var tbl = '<table id="example1" class="table table-bordered table-striped" style="width: 120%;">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th>FY</th>';
-                tbl += '<th>Month</th>';
-                tbl += '<th style="width: 12%;">Site</th>';
-                tbl += '<th>GHI (KWh/m<sup>2</sup>)</th>';
-                tbl += '<th>POA (KWh/m<sup>2</sup>)</th>';
-                tbl += '<th>KWH (in MU)</th>';
-                tbl += '<th>MA (%)</th>';
-                tbl += '<th>IGA (%)</th>';
-                tbl += '<th>EGA (%)</th>';
-                tbl += '<th>PR (%)</th>';
-                tbl += '<th>PLF (%)</th>';
+                tbl += '<th style="width: 12%;">Date Time</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>GHI 1</th>';
+                tbl += '<th>GHI 2</th>';
+                tbl += '<th>POA 1</th>';
+                tbl += '<th>POA 2</th>';
+                tbl += '<th>POA 3</th>';
+                tbl += '<th>POA 4</th>';
+                tbl += '<th>POA 5</th>';
+                tbl += '<th>POA 6</th>';
+                tbl += '<th>POA 7</th>';
+                tbl += '<th>AVG GHI</th>';
+                tbl += '<th>AVG POA</th>';
+                tbl += '<th>Amb Temp </th>';
+                tbl += '<th>Mod Temp</th>';
+               
                 tbl += '</tr></thead>';
-
+                
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
+                      
+                        var formattedDate = moment(result[i].date_time, 'YYYY-MM-DD hh:mm:ss ').format('DD-MM-YYYY HH:mm:ss');
                         tbl += '<tr>';
-                        tbl += '<td class="text-left">' + result[i].fy + '</td>';
-                        tbl += '<td class="text-left">' + result[i].month + '</td>';
-                        tbl += '<td class="text-left">' + result[i].sites + '</td>';
-                        tbl += '<td class="text-right">' + result[i].ghi.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].poa.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].kWh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].ma.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].pr.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].plf.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td  class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].ghi_1.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].ghi_2.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_1.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_2.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_3.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_4.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_5.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_6.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_7.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].avg_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].avg_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].amb_temp.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].mod_temp.toFixed(2) + '</td>';
+                       
                         tbl += '</tr>';
+                        console.log("counter :" + i + "> DateTime :" + formattedDate + "Main date  :" + result[i].date_time);
                     }
                 }
                 else {
-                    tbl += '<tr><th colspan="9" style="text-align:center">Data Not Available <th></tr>';
+
+                    // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
-                $("#MontlyKPIView").html(tbl);
+               // $("#DailyGenView").html(tbl);
+                $("#DailyGenView").html("").html(tbl);
                 $('#example1').DataTable({
                     dom: 'Bfrtip',
                     responsive: false,
@@ -246,14 +235,14 @@
                     buttons: [
                         {
                             extend: 'excel',
-                            title: 'Solar Monthly Target KPI',
+                            title: 'Solar GHI & POA 1Minute',
                             exportOptions: {
                                 columns: ':visible'
                             }
                         },
                         {
                             extend: 'csv',
-                            title: 'Solar Monthly Target KPI',
+                            title: 'Solar GHI & POA 1Minute',
                             exportOptions: {
                                 columns: ':visible'
                             }
@@ -269,4 +258,11 @@
             }
         });
     }
+
+
+
 </script>
+
+
+
+

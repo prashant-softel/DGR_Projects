@@ -9,18 +9,37 @@ namespace DGRAPIs.Models
     {
         public dynamic date_time { get; set; }
         public int site_id { get; set; }
-        public decimal ghi_1 { get; set; }
-        public decimal ghi_2 { get; set; }
-        public decimal poa_1 { get; set; }
-        public decimal poa_2 { get; set; }
-        public decimal poa_3 { get; set; }
-        public decimal poa_4 { get; set; }
-        public decimal poa_5 { get; set; }
-        public decimal poa_6 { get; set; }
-        public decimal poa_7 { get; set; }
-        public decimal avg_ghi { get; set; }
-        public decimal avg_poa { get; set; }
-        public decimal amb_temp { get; set; }
-        public decimal mod_temp { get; set; }
+        public dynamic ghi_1 { get; set; }
+        public dynamic ghi_2 { get; set; }
+        public dynamic poa_1 { get; set; }
+        public dynamic poa_2 { get; set; }
+        public dynamic poa_3 { get; set; }
+        public dynamic poa_4 { get; set; }
+        public dynamic poa_5 { get; set; }
+        public dynamic poa_6 { get; set; }
+        public dynamic poa_7 { get; set; }
+        public double avg_ghi { get; set; }
+        public double avg_poa { get; set; }
+        public dynamic amb_temp { get; set; }
+        public dynamic mod_temp { get; set; }
+    }
+    public class SolarUploadingPyranoMeter1Min_1
+    {
+        public DateTime date_time { get; set; }
+        public int site_id { get; set; }
+        public string site { get; set; }
+        public dynamic ghi_1 { get; set; }
+        public dynamic ghi_2 { get; set; }
+        public dynamic poa_1 { get; set; }
+        public dynamic poa_2 { get; set; }
+        public dynamic poa_3 { get; set; }
+        public dynamic poa_4 { get; set; }
+        public dynamic poa_5 { get; set; }
+        public dynamic poa_6 { get; set; }
+        public dynamic poa_7 { get; set; }
+        public double avg_ghi { get; set; }
+        public double avg_poa { get; set; }
+        public dynamic amb_temp { get; set; }
+        public dynamic mod_temp { get; set; }
     }
 }

@@ -472,6 +472,16 @@ namespace DGRA_V1.Controllers
 		
             return View();
         }
+        public IActionResult SolarGHIPOA1MinView()
+        {
+
+            return View();
+        }
+        public IActionResult SolarGHIPOA15MinView()
+        {
+
+            return View();
+        }
         // Report Routs
         public IActionResult SolarGenReport()
         {
@@ -495,7 +505,12 @@ namespace DGRA_V1.Controllers
         }
         public IActionResult SolarPRReport()
         {
-		
+
+            return View();
+        }
+        public IActionResult SolarWeeklyPRReports()
+        {
+
             return View();
         }
         public ActionResult WindUserDetails(string id)

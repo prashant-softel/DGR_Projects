@@ -243,11 +243,11 @@
                 <div class="row">
                     <div class="col-sm-6">
 
-                        <canvas id="energy_wind" style="min-height: 400px; height: 400px; max-height: 400px; max-width: 100%;"></canvas>
+                        <canvas id="energy_wind" style="min-height: 400px; height: 400px; max-height: 400px; max-width: 100%; width: 560px;"></canvas>
                     </div>
                     <div class="col-sm-6">
 
-                        <canvas id="energy_solar" style="min-height: 400px; height: 400px; max-height: 400px; max-width: 100%;"></canvas>
+                        <canvas id="energy_solar" style="min-height: 400px; height: 400px; max-height: 400px; max-width: 100%; width: 560px;"></canvas>
                     </div>
                 </div>
 
@@ -286,7 +286,10 @@
        
         var today = new Date();
         fyear = getFinancialYear(today);
+
+       
         fdate = getFinancialYearDate(fyear);
+        console.log(fdate);
         monthdate = GetMonthDate(today);
         month = today.getMonth() + 1;
         
@@ -462,7 +465,7 @@
         });
         site = site != "" ? site.slice(0, -1) : site;
         var startDate = monthdate.startdate;
-        var endDate = monthdate.enddate;
+        var endDate = GetPreviousDate();//monthdate.enddate;
         var FY = $('select#fy option:selected').val();
 
        // var month = month;
@@ -481,7 +484,7 @@
                     var wind_monthly_wspeed_target = 0;
                     var monthly_var_energy = 0;
                     var monthly_var_wspeed = 0;
-                    var wcnt = 1;
+                    var wcnt = 0;
                     for (var i = 0; i < result.length; i++) {
                         wind_monthly_energy += result[i].jmrkwh;
                         wind_monthly_wspeed += result[i].wind;
@@ -489,13 +492,15 @@
                         wind_monthly_wspeed_target += result[i].tarwind;
                         wcnt++;
                     }
+                    console.log(wind_monthly_wspeed);
+                    console.log(wcnt);
                     if (wind_monthly_energy_target != 0) {
-                        monthly_var_energy = ((wind_monthly_energy - wind_monthly_energy_target) / wind_monthly_energy_target) / 100;
+                        monthly_var_energy = ((wind_monthly_energy - wind_monthly_energy_target) / wind_monthly_energy_target)*100;
                     }
                     if (wind_monthly_wspeed_target != 0) {
-                        monthly_var_wspeed = ((wind_monthly_wspeed - wind_monthly_wspeed_target) / wind_monthly_wspeed_target) / 100;
+                        monthly_var_wspeed = ((wind_monthly_wspeed - wind_monthly_wspeed_target) / wind_monthly_wspeed_target)* 100;
                     }
-                    document.getElementById("manthly_enrgy").innerHTML = "<b>" + (wind_monthly_energy / 10000).toFixed(1) + "</b>";
+                    document.getElementById("manthly_enrgy").innerHTML = "<b>" + (wind_monthly_energy / 1000000).toFixed(1) + "</b>";
                     document.getElementById("monthly_wspeed").innerHTML = "<b>" + (wind_monthly_wspeed / wcnt).toFixed(1) + "</b>";
 
                     document.getElementById("manthly_enrgy_var").innerHTML = "(" + monthly_var_energy.toFixed(1) + " %)";
@@ -521,7 +526,7 @@
         });
         site = site != "" ? site.slice(0, -1) : site;
         var startDate = fdate.startdate;
-        var endDate = fdate.enddate;
+        var endDate = GetPreviousDate();//fdate.enddate;
         var FY = $('select#fy option:selected').val();
 
         $.ajax({
@@ -540,7 +545,7 @@
 
                     var yearly_var_energy = 0;
                     var yearly_var_wspeed = 0;
-                    var wcnt = 1;
+                    var wcnt = 0;
                     for (var i = 0; i < result.length; i++) {
                         wind_yearly_energy += result[i].jmrkwh;
                         wind_yearly_wspeed += result[i].wind;
@@ -550,13 +555,13 @@
                         wcnt++;
                     }
                     if (wind_yearly_energy_target != 0) {
-                        yearly_var_energy = ((wind_yearly_energy - wind_yearly_energy_target) / wind_yearly_energy_target) / 100;
+                        yearly_var_energy = ((wind_yearly_energy - wind_yearly_energy_target) / wind_yearly_energy_target) * 100;
                     }
                     if (wind_yearly_wspeed_target != 0) {
-                        yearly_var_wspeed = ((wind_yearly_wspeed - wind_yearly_wspeed_target) / wind_yearly_wspeed_target) / 100;
+                        yearly_var_wspeed = ((wind_yearly_wspeed - wind_yearly_wspeed_target) / wind_yearly_wspeed_target) * 100;
                     }
                     //console.log(result);
-                    document.getElementById("yearly_enrgy").innerHTML = "<b>" + (wind_yearly_energy / 10000).toFixed(1) + "</b>";
+                    document.getElementById("yearly_enrgy").innerHTML = "<b>" + (wind_yearly_energy / 1000000).toFixed(1) + "</b>";
                     document.getElementById("yearly_wspeed").innerHTML = "<b>" + (wind_yearly_wspeed / wcnt).toFixed(1) + "</b>";
 
                     document.getElementById("yearly_enrgy_var").innerHTML = "(" + yearly_var_energy.toFixed(1) + " %)";
@@ -679,7 +684,7 @@
                         monthly_var_ir = ((monthly_ir - monthly_ir_tar) / monthly_ir_tar) / 100;
                     }
 
-                    document.getElementById("monthly_solar_enrgy").innerHTML = "<b>" + ((monthly_energy) / 10000).toFixed(1) + "</b>";
+                    document.getElementById("monthly_solar_enrgy").innerHTML = "<b>" + ((monthly_energy) / 1000000).toFixed(1) + "</b>";
                     document.getElementById("monthly_ir").innerHTML = "<b>" + (monthly_ir / cnt).toFixed(1) + "</b>";
                     document.getElementById("monthly_solar_enrgy_var").innerHTML = "(" + monthly_var_energy.toFixed(1) + " %)";
                     document.getElementById("monthly_ir_var").innerHTML = "(" + monthly_var_ir.toFixed(1) + " %)";
@@ -736,7 +741,7 @@
                     if (yeary_ir_tar != 0) {
                         yearly_var_ir = ((yeary_ir - yeary_ir_tar) / yeary_ir_tar) / 100;
                     }
-                    document.getElementById("yearly_solar_enrgy").innerHTML = "<b>" + ((yearly_energy) / 10000).toFixed(1) + "</b>";
+                    document.getElementById("yearly_solar_enrgy").innerHTML = "<b>" + ((yearly_energy) / 1000000).toFixed(1) + "</b>";
                     document.getElementById("yearly_ir").innerHTML = "<b>" + (yeary_ir / cnt).toFixed(1) + "</b>";
                     document.getElementById("yearly_solar_enrgy_var").innerHTML = "(" + yearly_var_energy.toFixed(1) + " %)";
                     document.getElementById("yearly_ir_var").innerHTML = "(" + yearly_var_ir.toFixed(1) + " %)";
@@ -791,13 +796,29 @@
             success: function (result, status, xhr) {
                 console.log(result)
                 if (result.length > 0) {
+                    let previous = "";
                     for (var w = 0; w < result.length; w++) {
+
                         var formattedDate = moment(result[w].date, 'YYYY-MM-DD').format('DD-MM-YYYY');
-                        datelebels.push(formattedDate)
+                        if (title == "Monthly") {
+                            var oneDate = moment(formattedDate, 'DD-MM-YYYY');
+                            var monthName = oneDate.format('MMMM');
+                            
+                            if (monthName != previous) {
+                                datelebels.push(monthName);
+                                previous = monthName;
+                            }
+                           
+                        }
+                        else {
+                            datelebels.push(formattedDate);
+                        }
+                        
+                        
                         taget_wind.push(result[w].tarwind.toFixed(2));
                         actual_wind.push(result[w].wind.toFixed(2));
-                        target_energy.push(result[w].tarkwh.toFixed(2));
-                        actual_energy.push(result[w].jmrkwh.toFixed(2));
+                        target_energy.push((result[w].tarkwh/1000000).toFixed(2));
+                        actual_energy.push((result[w].jmrkwh/1000000).toFixed(2));
 
                     }
                 }
@@ -813,32 +834,69 @@
             data: {
                 labels: datelebels,
                 datasets: [{
-                    label: "Target Wind",
-                    type: "line",
-                    borderColor: "#86C466",
-                    data: taget_wind,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                    fill: false
-                }, {
+                    
                     label: "Actual Wind",
                     type: "line",
                     borderColor: "#FFCA5A",
                     data: actual_wind,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
-                    fill: false
+                    fill: false,
+                    yAxisID: 'wind',
                 }, {
-                    label: "Target Energy",
-                    type: "bar",
-                    backgroundColor: "#77CAE7",
-                    data: target_energy,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                }, {
-                    label: "Actual Energy",
-                    type: "bar",
-                    backgroundColor: "#31576D",
-                    backgroundColorHover: "#3e95cd",
-                    data: actual_energy,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
-                }
+                   
+                    label: "Target Wind",
+                    type: "line",
+                    borderColor: "#86C466",
+                    data: taget_wind,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                    fill: false,
+                    yAxisID: 'wind',
+
+                    },
+                    {
+
+                        label: "Target Energy",
+                        type: "bar",
+                        backgroundColor: "#77CAE7",
+                        data: target_energy,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                        yAxisID: 'energy',
+                    }, {
+
+
+                        label: "Actual Energy",
+                        type: "bar",
+                        backgroundColor: "#31576D",
+                        backgroundColorHover: "#3e95cd",
+                        data: actual_energy,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                        yAxisID: 'energy',
+                    }
                 ]
             },
             options: {
+                scales: {
+
+                    yAxes: [{
+                        id: 'energy',
+                        //type: 'linear',
+                        position: 'left',
+                        scaleLabel: {
+                            display: true,
+                            labelString: "Energy(MWh)",
+                            padding: 10,
+                            //fontColor: "#FFCA5A"
+                           
+                        }
+                     }, {
+                        id: 'wind',
+                        //type: 'linear',
+                        position: 'right',
+                        scaleLabel: {
+                            display: true,
+                            labelString: "Wind(m/s)",
+                            padding: 10,
+                            //fontColor: "#86C466"
+                           
+                        }
+                    }]
+                },
                 title: {
                     display: true,
                     text: title
@@ -846,8 +904,10 @@
                 legend: {
                     display: true,
                     position: "bottom"
-                }
+                },
+
             }
+
         });
     }
 
@@ -899,32 +959,63 @@
             data: {
                 labels: datelebels ,
                 datasets: [{
-                    label: "Target IR",
-                    type: "line",
-                    borderColor: "#86C466",
-                    data: target_ir,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                    fill: false
-                }, {
-                    label: "Actual IR",
-                    type: "line",
-                    borderColor: "#FFCA5A",
-                    data: actual_ir,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
-                    fill: false
-                }, {
                     label: "Target Energy",
                     type: "bar",
                     backgroundColor: "#77CAE7",
                     data: target_kwh,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                    yAxisID: 'energy',
                 }, {
                     label: "Actual Energy",
                     type: "bar",
                     backgroundColor: "#31576D",
                     backgroundColorHover: "#3e95cd",
                     data: actual_kwh,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
-                }
+                    yAxisID: 'energy',
+                    },
+                    {
+                        label: "Target IR",
+                        type: "line",
+                        borderColor: "#86C466",
+                        data: target_ir,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                        fill: false,
+                        yAxisID: 'ir',
+                    }, {
+                        label: "Actual IR",
+                        type: "line",
+                        borderColor: "#FFCA5A",
+                        data: actual_ir,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
+                        fill: false,
+                        yAxisID: 'ir',
+                    }
                 ]
             },
             options: {
+                scales: {
+
+                    yAxes: [{
+                        id: 'energy',
+                        //type: 'linear',
+                        position: 'left',
+                        scaleLabel: {
+                            display: true,
+                            labelString: "Energy(MWh)",
+                            padding: 10,
+                            //fontColor: "#FFCA5A"
+
+                        }
+                    }, {
+                        id: 'ir',
+                        //type: 'linear',
+                        position: 'right',
+                        scaleLabel: {
+                            display: true,
+                            labelString: "IR(kWh/m<sup>2</sup>)",
+                            padding: 10,
+                            //fontColor: "#86C466"
+
+                        }
+                    }]
+                },
                 title: {
                     display: true,
                     text: title

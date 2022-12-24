@@ -13,11 +13,7 @@ namespace DGRAPIs.Models
         public string startTime { get; set; }
         public string endTime { get; set; }
         public string totalTime { get; set; }
-        public string permLoad { get; set; }
-        public string genShedding { get; set; }
-
-
-
-
+        public dynamic permLoad { get; set; }
+        public dynamic genShedding { get; set; }
     }
 }

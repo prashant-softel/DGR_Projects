@@ -5,6 +5,7 @@
         public string FY { get; set; }
         public string Date { get; set; }
         public string Sites { get; set; }
+        public int site_id { get; set; }
         public dynamic GHI { get; set; }
         public dynamic POA { get; set; }
         public dynamic kWh { get; set; }

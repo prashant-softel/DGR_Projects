@@ -14,12 +14,12 @@ namespace DGRA_V1.Models
         public int year { get; set; }
         public int site_id { get; set; }
         public string site { get; set; }
-            public decimal windSpeed { get; set; }
-            public decimal kwh { get; set; }
-            public string ma { get; set; }
-            public string iga { get; set; }
-            public string ega { get; set; }
-            public string plf { get; set; }
-        }
+        public decimal windSpeed { get; set; }
+        public decimal kwh { get; set; }
+        public dynamic ma { get; set; }
+        public dynamic iga { get; set; }
+        public dynamic ega { get; set; }
+        public dynamic plf { get; set; }
+    }
 
     }

@@ -54,7 +54,7 @@ namespace DGRA_V1.Models
             }
         }
 
-        public bool validateGenerationData(long rowNumber, string verifyEq, decimal verifyPowerA, decimal verifyPowerB)
+        public bool validateGenerationData(long rowNumber, string verifyEq, double verifyPowerA, double verifyPowerB)
         {
             //Here flags are error flags which are assigned true if the validation condition is not satisfied
             bool todayFlag = false;

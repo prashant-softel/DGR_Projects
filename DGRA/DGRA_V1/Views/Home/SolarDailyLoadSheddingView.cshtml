@@ -45,16 +45,16 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
                                 </select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="input-group row">
                             <label class="col-sm-3 col-form-label">Date Range : </label>
                             <div class="input-group-prepend">
@@ -66,8 +66,9 @@
                         </div>
                     </div>
                     <div class="col-md-2"><button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button></div>
+                    <div class="col-md-3"></div>
                 </div>
-                <br>
+               
                 <hr>
                 <div id="DailyLoadShedding" style="overflow-x: auto;" class="DailyLoadShedding"></div>
             </div>
@@ -81,7 +82,7 @@
 <script src="~/Content/theme/plugins/moment/moment.min.js"></script>
 <script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
 <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
-https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
 
 @*Data Tables*@
 <script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -157,7 +158,7 @@ https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.colVis.min.j
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th>Site</th>';
+                tbl += '<th style="width: 12%;">Site</th>';
                 tbl += '<th>Date</th>';
                 tbl += '<th>Start Time</th>';
                 tbl += '<th>End Time</th>';
@@ -171,13 +172,13 @@ https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.colVis.min.j
 
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + formattedDate + '</td>';
-                        tbl += '<td>' + result[i].start_Time + '</td>';
-                        tbl += '<td>' + result[i].end_Time + '</td>';
-                        tbl += '<td>' + result[i].total_Time + '</td>';
-                        tbl += '<td>' + result[i].permissible_Load_MW + '</td>';
-                        tbl += '<td>' + result[i].gen_loss_kWh + '</td>';
+                        tbl += '<td class="text-left" >' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].start_Time + '</td>';
+                        tbl += '<td class="text-left">' + result[i].end_Time + '</td>';
+                        tbl += '<td class="text-left">' + result[i].total_Time + '</td>';
+                        tbl += '<td class="text-right">' + result[i].permissible_Load_MW+ '</td>';
+                        tbl += '<td class="text-right">' + result[i].gen_loss_kWh + '</td>';
                         tbl += '</tr>';
                     }
                 }
@@ -200,9 +201,28 @@ https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.colVis.min.j
                     autoWidth: false,
                     responsive: false,
                     buttons: [
-                        'copy', 'excel', 'csv', 'colvis'
+                        {
+                            extend: 'excel',
+                            title: 'Solar Daily Load Shedding',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Daily Load Shedding',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
                     ]
                 });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+
+                $('#example1').removeClass('dataTable');
             }
         });
     }

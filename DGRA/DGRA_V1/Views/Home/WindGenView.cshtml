@@ -46,16 +46,16 @@
             <div class="card-body">
 
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
                                 </select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="input-group row">
                             <label class="col-sm-3 col-form-label">Date Range : </label>
                             <div class="input-group-prepend">
@@ -69,12 +69,13 @@
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
-                </div>
-                <br>
-                <hr>
+                    <div class="col-md-3"></div>
+                    </div>
 
-                <div id="DailyGenView" style="overflow-x: auto;" class="DailyGenView"></div>
-            </div>
+                    <hr>
+
+                    <div id="DailyGenView" style="overflow-y: hidden;" class="DailyGenView"></div>
+                </div>
     </section>
 
 </div>
@@ -162,20 +163,20 @@
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result); //table
-                var tbl = '<table id="example1" class="table table-bordered table-striped">';
+                var tbl = '<table id="example1" class="table table-bordered table-striped" style="width: 150%;">';
                 tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<th style="width:150px">Date</th>';
                 tbl += '<th>State</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>WTG</th>';
-                tbl += '<th>Wind(m/s)</th>';
+                tbl += '<th>Wind (m/s)</th>';
                 tbl += '<th>kWh</th>';
                 tbl += '<th>Feeder</th>';
-                tbl += '<th>MA%(ACT)</th>';
-                tbl += '<th>MA%(CON)</th>';
-                tbl += '<th>IGA%</th>';
-                tbl += '<th>EGA%</th>';
-                tbl += '<th>PLF%</th>';
+                tbl += '<th>MA ACT (%)</th>';
+                tbl += '<th>MA CON (%)</th>';
+                tbl += '<th>IGA (%)</th>';
+                tbl += '<th>EGA (%)</th>';
+                tbl += '<th>PLF (%)</th>';
                 tbl += '<th>Grid_hrs</th>';
                 tbl += '<th>Lull_hrs</th>';
                 tbl += '<th>Pro_hrs</th>';
@@ -190,11 +191,10 @@
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
 
-                        //var tempDate = new Date(result[i].date);
-                        //var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
+                        
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td  class="text-left" style="width:200px">' + formattedDate + '</td>';
+                        tbl += '<td  class="text-left" >' + formattedDate + '</td>';
                         tbl += '<td  class="text-left">' + result[i].state + '</td>';
                         tbl += '<td  class="text-left">' + result[i].site + '</td>';
                         tbl += '<td  class="text-left">' + result[i].wtg + '</td>';
@@ -220,11 +220,12 @@
                 }
                 else {
 
-                    // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
+                    
                 }
                 tbl += '</table>';
                // $("#DailyGenView").html(tbl);
                 $("#DailyGenView").html("").html(tbl);
+                $.fn.DataTable.ext.pager.numbers_length = 6;
                 $('#example1').DataTable({
                     dom: 'Bfrtip',
                     responsive: false,
@@ -237,10 +238,29 @@
                     info: true,
                     autoWidth: false,
                     responsive: false,
+                    //pagingType: 'full_numbers',
                     buttons: [
-                        'copy', 'excel', 'csv', 'colvis'
+                        {
+                            extend: 'excel',
+                            title: 'Wind Generation View',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Wind Generation View',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
                     ]
-                });
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+               
                 $('#example1').removeClass('dataTable');
 
             }

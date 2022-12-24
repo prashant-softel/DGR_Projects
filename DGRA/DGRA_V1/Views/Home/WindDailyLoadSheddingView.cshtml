@@ -45,16 +45,16 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-md-5">
+                    <div class="col-md-3">
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                <label class="col-sm-2 col-form-label text-right">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
                                 </select>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <div class="input-group row">
                             <label class="col-sm-3 col-form-label">Date Range : </label>
                             <div class="input-group-prepend">
@@ -68,15 +68,14 @@
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
-                </div>
-                <br>
-                <hr>
-                <div id="DailyLoadShedding" style="overflow-x: auto;" class="DailyLoadShedding"></div>
-            </div>
+                    <div class="col-md-3"></div>
+                    </div>
 
-            <div class="card-footer">
-                Footer
-            </div>
+                    <hr>
+                    <div id="DailyLoadShedding" style="overflow-x: auto;" class="DailyLoadShedding"></div>
+                </div>
+
+           
         </div>
 
 
@@ -156,8 +155,7 @@
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        // var fromDate = "2021-04-14";
-        //var toDate = "2021-04-20";
+       
         $.ajax({
             type: "POST",
            // url: "/WindView/GetDailyLoadshedding?site=" + site + "&fromDate=" + fromDate + "&toDate=" + toDate,
@@ -193,7 +191,7 @@
                 }
                 tbl += '</tbody></table>';
                 $("#DailyLoadShedding").html("").html(tbl);
-
+                $.fn.DataTable.ext.pager.numbers_length = 6;
                 $('#example1').DataTable({
                     dom: 'Bfrtip',
                     title: 'WindDailyLoadSheddingLog',
@@ -208,9 +206,28 @@
                     autoWidth: false,
                     responsive: false,
                     buttons: [
-                        'copy', 'excel', 'csv', 'colvis'
+                        {
+                            extend: 'excel',
+                            title: 'Wind Daily Load Shedding View',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Wind Daily Load Shedding View',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
                     ]
                 });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+
+                $('#example1').removeClass('dataTable');
             }
         });
     }

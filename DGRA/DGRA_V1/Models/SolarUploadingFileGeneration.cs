@@ -13,8 +13,8 @@ namespace DGRA_V1.Models
         public string site { get; set; }
         public int site_id{ get; set; }
         public string inverter { get; set; }
-        public decimal inv_act { get; set; }
-        public decimal plant_act { get; set; }
-        public decimal pi { get; set; }
+        public dynamic inv_act { get; set; }
+        public dynamic plant_act { get; set; }
+        public dynamic pi { get; set; }
     }
 }

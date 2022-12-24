@@ -369,12 +369,6 @@ C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\DGRAPIs.runtimecon
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\DGRAPIs.runtimeconfig.dev.json
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\DGRAPIs.pdb
 C:\Sujit\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.genruntimeconfig.cache
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.csproj.AssemblyReference.cache
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.GeneratedMSBuildEditorConfig.editorconfig
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.AssemblyInfoInputs.cache
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.AssemblyInfo.cs
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.csproj.CoreCompileInputs.cache
-G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.MvcApplicationPartsAssemblyInfo.cache
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\appsettings.Development.json
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\appsettings.json
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\DGRAPIs.exe
@@ -406,6 +400,12 @@ G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\S
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\System.Runtime.CompilerServices.Unsafe.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\System.Security.Cryptography.ProtectedData.dll
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\bin\Debug\netcoreapp3.1\runtimes\win\lib\netstandard2.0\System.Security.Cryptography.ProtectedData.dll
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.csproj.AssemblyReference.cache
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.GeneratedMSBuildEditorConfig.editorconfig
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.AssemblyInfoInputs.cache
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.AssemblyInfo.cs
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.csproj.CoreCompileInputs.cache
+G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\DGRAPIs.MvcApplicationPartsAssemblyInfo.cache
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\staticwebassets\DGRAPIs.StaticWebAssets.Manifest.cache
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\staticwebassets\DGRAPIs.StaticWebAssets.xml
 G:\solarproject\Finalcode\DGR_Projects\dgr_web\DGRAPIs\obj\Debug\netcoreapp3.1\scopedcss\bundle\DGRAPIs.styles.css
