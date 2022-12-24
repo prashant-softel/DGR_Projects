@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DGRA_V1.Models
+﻿namespace DGRA_V1.Models
 {
     public class SolarUploadingPyranoMeter15Min
     {

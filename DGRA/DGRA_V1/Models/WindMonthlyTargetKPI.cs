@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace DGRA_V1.Models
 {
-   
-        public class WindMonthlyTargetKPI
-        {
-            public string fy { get; set; }
-            public string month { get; set; }
-            public int month_no { get; set; }
+
+    public class WindMonthlyTargetKPI
+    {
+        public string fy { get; set; }
+        public string month { get; set; }
+        public int month_no { get; set; }
         public int year { get; set; }
         public int site_id { get; set; }
         public string site { get; set; }
@@ -22,4 +22,4 @@ namespace DGRA_V1.Models
         public dynamic plf { get; set; }
     }
 
-    }
+}

@@ -45,7 +45,6 @@ namespace DGRA_V1.Models
                 return m_sMessage;
             }
 
-
             public string Get_FormatedMessage(string sMessage)
             {
                 switch (m_messageType)
@@ -62,7 +61,6 @@ namespace DGRA_V1.Models
                 }
                 return sMessage;
             }
-
 
             public cMessage(cMessage.messageType mtype, string sMessage)
             {
