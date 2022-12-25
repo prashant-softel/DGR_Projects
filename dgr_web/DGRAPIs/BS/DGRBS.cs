@@ -130,7 +130,7 @@ namespace DGRAPIs.BS
 		Task<List<BDType>> GetBDType();
         Task<List<WindUploadingFilegeneration1>> GetImportGenData(int importId);
         Task<List<WindUploadingFileBreakDown1>> GetBrekdownImportData(int importId);
-        Task<int> importMetaData(ImportBatch meta,string userName,int userId);
+        Task<int> importMetaData(ImportBatch meta, string userName, int userId);
         Task<List<WindOpertionalHead>> GetOperationHeadData(string site);
         //Task<WindOpertionalHead> GetOperationHeadData(string site);
     }

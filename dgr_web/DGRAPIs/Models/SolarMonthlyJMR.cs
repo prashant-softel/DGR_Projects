@@ -7,6 +7,7 @@ namespace DGRAPIs.Models
 {
     public class SolarMonthlyJMR
     {
+        public int monthly_jmr_solar_id { get; set; }
         public string FY { get; set; }
         public string Site { get; set; }
         public int site_id { get; set; }
@@ -24,7 +25,8 @@ namespace DGRAPIs.Models
         public dynamic Import_kVArh_lead { get; set; }
         public dynamic JMR_date { get; set; }
         public dynamic JMR_Month { get; set; }
-        public dynamic JMR_Year { get; set; }
+        public int JMR_Month_no { get; set; }
+        public int JMR_Year { get; set; }
         public dynamic LineLoss { get; set; }
         public dynamic Line_Loss_percentage { get; set; }
         public dynamic RKVH_percentage { get; set; }

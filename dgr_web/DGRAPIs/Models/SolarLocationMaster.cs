@@ -23,7 +23,6 @@ namespace DGRAPIs.Models
         public double total_string_voltage { get; set; }
         public double modules_quantity { get; set; }
         public double wp { get; set; }
-
         public double capacity { get; set; }
         public string module_make { get; set; }
         public string module_model_no { get; set; }

@@ -1,16 +1,11 @@
 ﻿using DGRAPIs.Helper;
 using DGRAPIs.Models;
+using Microsoft.AspNetCore.DataProtection.KeyManagement;
+using Org.BouncyCastle.Utilities.Collections;
 using System;
-using System.Web;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DGRAPIs.Helper;
-using DGRAPIs.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System.Data;
+using System.Threading.Tasks;
 namespace DGRAPIs.Repositories
 {
 
@@ -2031,12 +2026,10 @@ remarks as bd_remarks,action as action_taken
         internal async Task<int> InsertDailyTargetKPI(List<WindDailyTargetKPI> set)
         {
             //pending : add activity log
-
             //check for existing records with date and site reference to delete existing records before inserting fresh data
             string delqry = "delete from daily_target_kpi where";
             string qry = "insert into daily_target_kpi (fy, date, site, site_id, wind_speed, kwh, ma, iga, ega, plf) values ";
             string values = "";
-
             foreach (var unit in set)
             {
                 values += "('" + unit.FY + "','" + unit.Date + "','" + unit.Site + "','" + unit.site_id + "','" + unit.WindSpeed + "','" + unit.kWh + "','" + unit.MA + "','" + unit.IGA + "','" + unit.EGA + "','" + unit.PLF + "'),";
@@ -2046,50 +2039,46 @@ remarks as bd_remarks,action as action_taken
             qry += values;
             await Context.ExecuteNonQry<int>(delqry.Substring(0, (delqry.Length - 2)) + ";").ConfigureAwait(false);
             return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-
-            //string delqry = "";
-            //for (int i = 0; i < windDailyTargetKPI.Count; i++)
-            //{
-
-            //    string dates = Convert.ToDateTime(unit.Date).ToString("yyyy-MM-dd");
-
-            //    delqry += "delete from daily_target_kpi where fy='" + windDailyTargetKPI[i].FY + "' and date='" + dates + "' and site='" + windDailyTargetKPI[i].Site + "' ;";
-            //}
-            //await Context.ExecuteNonQry<int>(delqry).ConfigureAwait(false);
-
-            //string qry = "";
-            //for (int i = 0; i < windDailyTargetKPI.Count; i++)
-            //{
-
-            //    string dates = Convert.ToDateTime(windDailyTargetKPI[i].Date).ToString("yyyy-MM-dd");
-            //    string ma = Convert.ToString(windDailyTargetKPI[i].MA);
-            //    string iga = Convert.ToString(windDailyTargetKPI[i].IGA);
-            //    string ega = Convert.ToString(windDailyTargetKPI[i].EGA);
-            //    string plf = Convert.ToString(windDailyTargetKPI[i].PLF);
-
-            //    qry += "insert into daily_target_kpi (fy,date,site,wind_speed,kwh,ma,iga,ega,plf) values ('" + windDailyTargetKPI[i].FY + "','" + dates + "','" + windDailyTargetKPI[i].Site + "','" + windDailyTargetKPI[i].WindSpeed + "','" + windDailyTargetKPI[i].kWh + "','" + ma.TrimEnd('%') + "','" + iga.TrimEnd('%') + "','" + ega.TrimEnd('%') + "','" + plf.TrimEnd('%') + "');";
-            //}
-            //return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
-
         }
 
         internal async Task<int> InsertMonthlyTargetKPI(List<WindMonthlyTargetKPI> set)
         {
             //pending : add log activity
             //pending : delete existing data and insert fresh data 
-            string delqry = "delete from monthly_target_kpi where";
-            string qry = " insert into monthly_target_kpi (fy, month, month_no, year, site,site_id, wind_speed, kwh, ma, iga, ega, plf) values";
-            string values = "";
-
+            //string delqry = "delete from monthly_target_kpi where";
+            string fetchQry = "select monthly_target_kpi_id, site_id, year, month_no from monthly_target_kpi;";
+            List<WindMonthlyTargetKPI> tableData = new List<WindMonthlyTargetKPI>();
+            tableData = await Context.GetData<WindMonthlyTargetKPI>(fetchQry).ConfigureAwait(false);
+            WindMonthlyTargetKPI existingRecord = new WindMonthlyTargetKPI();
+            int val = 0;
+            string qry = "insert into monthly_target_kpi (fy, month, month_no, year, site,site_id, wind_speed, kwh, ma, iga, ega, plf) values";
+            string updateQry = "INSERT INTO monthly_target_kpi(monthly_target_kpi_id, wind_speed, kwh, ma, iga, ega, plf) VALUES";
+            string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
-                values += "('" + unit.fy + "','" + unit.month + "','" + unit.month_no + "','" + unit.year + "','" + unit.site + "','" + unit.site_id + "','" + unit.windSpeed + "','" + unit.kwh + "','" + unit.ma + "','" + unit.iga + "','" + unit.ega + "','" + unit.plf + "'),";
-                delqry += " (site_id = " + unit.site_id + " and year = " + unit.year + " and month = '" + unit.month + "') or";
+                existingRecord = tableData.Find(tSite => tSite.site_id.Equals(unit.site_id) && tSite.year.Equals(unit.year) && tSite.month_no.Equals(unit.month_no));
+                if (existingRecord == null)
+                {
+                    insertValues += "('" + unit.fy + "','" + unit.month + "','" + unit.month_no + "','" + unit.year + "','" + unit.site + "','" + unit.site_id + "','" + unit.windSpeed + "','" + unit.kwh + "','" + unit.ma + "','" + unit.iga + "','" + unit.ega + "','" + unit.plf + "'),";
+                }
+                else
+                {
+                    //delqry += " (site_id = " + unit.site_id + " and year = " + unit.year + " and month = '" + unit.month + "') or";
+                    updateValues += "(" + existingRecord.monthly_target_kpi_id + ",'" + unit.windSpeed + "','" + unit.kwh + "','" + unit.ma + "','" + unit.iga + "','" + unit.ega + "','" + unit.plf + "'),";
+                }
             }
-            qry += values;
-            string mysqry = delqry.Substring(0, (delqry.Length - 2)) + ";";
-            await Context.ExecuteNonQry<int>(mysqry).ConfigureAwait(false);
-            return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE monthly_target_kpi_id = VALUES(monthly_target_kpi_id), wind_speed = VALUES(wind_speed), kwh = VALUES(kwh), ma = VALUES(ma), iga = VALUES(iga), ega = VALUES(ega), plf = VALUES(plf);";
+            if (!(string.IsNullOrEmpty(insertValues)))
+            {
+                val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            }
+            if (!(string.IsNullOrEmpty(updateValues)))
+            {
+                val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
+            }
+            return val;
         }
 
 
@@ -2098,58 +2087,35 @@ remarks as bd_remarks,action as action_taken
             //pending : add log activity
             //pending : if record exists update it then call the CalculateAndUpdatePLFandKWHAfterLineLoss 
             //fetching table data
-            string fetchQry = "select monthly_uploading_line_losses_id, fy, site, site_id, month, month_no as month_number, year,line_loss as lineLoss from monthly_uploading_line_losses ;";
+            string fetchQry = "select monthly_uploading_line_losses_id, site_id, year, month_no from monthly_uploading_line_losses;";
             List<WindMonthlyUploadingLineLosses> tableData = new List<WindMonthlyUploadingLineLosses>();
             tableData = await Context.GetData<WindMonthlyUploadingLineLosses>(fetchQry).ConfigureAwait(false);
             WindMonthlyUploadingLineLosses existingRecord = new WindMonthlyUploadingLineLosses();
-
             int val = 0;
-            string updateQry = "";
+            string updateQry = "INSERT INTO monthly_uploading_line_losses(monthly_uploading_line_losses_id, line_loss) VALUES";
             string qry = " insert into monthly_uploading_line_losses (fy, site, site_id, month, month_no, year, line_loss) values";
-            string values = "";
+            string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
                 //checking if excel sheet row already exists as a record in db table and storing matching entries in an object
-                // int update = 1;
-                //try {
                 existingRecord = tableData.Find(tSite => tSite.site_id.Equals(unit.site_id) && tSite.year.Equals(unit.year) && tSite.month_no.Equals(unit.month_no));
-                /* }
-                 catch (Exception)
-                 {
-                     update = 0;
-                 }*/
-
-                //if (string.IsNullOrEmpty(existingRecord.site))
-                /*if(update == 0)
+                if (existingRecord == null)
                 {
-                   // values += "('" + unit.fy + "','" + unit.site + "','" + unit.site_id + "','" + unit.month + "','" + unit.month_number + "','" + unit.year + "','" + unit.lineLoss + "'),";
+                    insertValues += "('" + unit.fy + "','" + unit.site + "','" + unit.site_id + "','" + unit.month + "','" + unit.month_no + "','" + unit.year + "','" + unit.lineLoss + "'),";
                 }
                 else
-                {*/
-                //if match is found
-                try
                 {
-                    updateQry += "update monthly_uploading_line_losses set line_loss = " + unit.lineLoss + " where monthly_uploading_line_losses_id = " + existingRecord.monthly_uploading_line_losses_id + ";";
-                    //await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
+                    updateValues += "(" + existingRecord.monthly_uploading_line_losses_id + ",'" + unit.lineLoss + "'),";
                 }
-                catch (Exception)
-                {
-                    values += "('" + unit.fy + "','" + unit.site + "','" + unit.site_id + "','" + unit.month + "','" + unit.month_no + "','" + unit.year + "','" + unit.lineLoss + "'),";
-                }
-
             }
-            qry += values;
-            //if (values != "")
-            //{
-            //    qry += values;
-            //    return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-            //}
-
-            if (!(string.IsNullOrEmpty(values)))
+            qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE monthly_uploading_line_losses_id = VALUES(monthly_uploading_line_losses_id), line_loss = VALUES(line_loss);";
+            if (!(string.IsNullOrEmpty(insertValues)))
             {
                 val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
             }
-            if (!(string.IsNullOrEmpty(updateQry)))
+            if (!(string.IsNullOrEmpty(updateValues)))
             {
                 val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
             }
@@ -2159,23 +2125,42 @@ remarks as bd_remarks,action as action_taken
 
         internal async Task<int> InsertWindJMR(List<WindMonthlyJMR> set)
         {
-            //pending : add activity log
-            //delete existing records with reference to site_id, month and year
-            string delqry = "delete from monthly_jmr where ";
+            ////pending : add activity log
+            ////delete existing records with reference to site_id, month and year
 
-            //inserting new client data into wind:monthly_jmr
-            string qry = " insert into monthly_jmr (FY, Site, site_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, JMR_Month, JMR_Year, LineLoss, Line_Loss_percentage, RKVH_percentage) values";
-            string values = "";
+            string fetchQry = "select monthly_jmr_id, site_id as siteId, JMR_Year as jmrYear, JMR_Month_no as jmrMonth_no from monthly_jmr;";
+            List<WindMonthlyJMR> tableData = new List<WindMonthlyJMR>();
+            tableData = await Context.GetData<WindMonthlyJMR>(fetchQry).ConfigureAwait(false);
+            WindMonthlyJMR existingRecord = new WindMonthlyJMR();
+            int val = 0;
+            string qry = "insert into monthly_jmr (FY, Site, site_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, JMR_Month, JMR_Month_no, JMR_Year, LineLoss, Line_Loss_percentage, RKVH_percentage) values";
+            string updateQry = "INSERT INTO monthly_jmr(monthly_jmr_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, LineLoss, Line_Loss_percentage, RKVH_percentage) VALUES";
+            string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
-                //values are now recording site_id
-                values += "('" + unit.fy + "','" + unit.site + "','" + unit.siteId + "','" + unit.plantSection + "','" + unit.controllerKwhInv + "','" + unit.scheduledUnitsKwh + "','" + unit.exportKwh + "','" + unit.importKwh + "','" + unit.netExportKwh + "','" + unit.exportKvah + "','" + unit.importKvah + "','" + unit.exportKvarhLag + "','" + unit.importKvarhLag + "','" + unit.exportKvarhLead + "', '" + unit.importKvarhLead + "', '" + unit.jmrDate + "', '" + unit.jmrMonth + "', '" + unit.jmrYear + "', '" + unit.lineLoss + "', '" + unit.lineLossPercent + "', '" + unit.rkvhPercent + "'),";
-
-                delqry += " JMR_date = '" + unit.jmrDate + "' and JMR_Month = '" + unit.jmrMonth + "' and JMR_Year = " + unit.jmrYear + " and site_id = " + unit.siteId + " or";
+                existingRecord = tableData.Find(tSite => tSite.siteId.Equals(unit.siteId) && tSite.jmrYear.Equals(unit.jmrYear) && tSite.jmrMonth_no.Equals(unit.jmrMonth_no));
+                if (existingRecord == null)
+                {
+                    insertValues += "('" + unit.fy + "','" + unit.site + "','" + unit.siteId + "','" + unit.plantSection + "','" + unit.controllerKwhInv + "','" + unit.scheduledUnitsKwh + "','" + unit.exportKwh + "','" + unit.importKwh + "','" + unit.netExportKwh + "','" + unit.exportKvah + "','" + unit.importKvah + "','" + unit.exportKvarhLag + "','" + unit.importKvarhLag + "','" + unit.exportKvarhLead + "', '" + unit.importKvarhLead + "', '" + unit.jmrDate + "','" + unit.jmrMonth + "','" + unit.jmrMonth_no + "', '" + unit.jmrYear + "', '" + unit.lineLoss + "', '" + unit.lineLossPercent + "', '" + unit.rkvhPercent + "'),";
+                }
+                else
+                {
+                    updateValues += "(" + existingRecord.monthly_jmr_id + ",'" + unit.plantSection + "','" + unit.controllerKwhInv + "','" + unit.scheduledUnitsKwh + "','" + unit.exportKwh + "','" + unit.importKwh + "','" + unit.netExportKwh + "','" + unit.exportKvah + "','" + unit.importKvah + "','" + unit.exportKvarhLag + "','" + unit.importKvarhLag + "','" + unit.exportKvarhLead + "','" + unit.importKvarhLead + "','" + unit.jmrDate + "','" + unit.lineLoss + "','" + unit.lineLossPercent + "','" + unit.rkvhPercent + "'),";
+                }
             }
-            qry += values;
-            await Context.ExecuteNonQry<int>(delqry.Substring(0, (delqry.Length - 2)) + ";").ConfigureAwait(false);
-            return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE monthly_jmr_id = VALUES(monthly_jmr_id), Plant_Section = VALUES(Plant_Section), Controller_KWH_INV = VALUES(Controller_KWH_INV), Scheduled_Units_kWh = VALUES(Scheduled_Units_kWh), Export_kWh = VALUES(Export_kWh), Import_kWh = VALUES(Import_kWh), Net_Export_kWh = VALUES(Net_Export_kWh), Export_kVAh = VALUES(Export_kVAh), Import_kVAh = VALUES(Import_kVAh), Export_kVArh_lag = VALUES(Export_kVArh_lag), Import_kVArh_lag = VALUES(Import_kVArh_lag), Export_kVArh_lead = VALUES(Export_kVArh_lead), Import_kVArh_lead = VALUES(Import_kVArh_lead), JMR_date = VALUES(JMR_date), LineLoss = VALUES(LineLoss), Line_Loss_percentage = VALUES(Line_Loss_percentage), RKVH_percentage = VALUES(RKVH_percentage);";
+
+            if (!(string.IsNullOrEmpty(insertValues)))
+            {
+                val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            }
+            if (!(string.IsNullOrEmpty(updateValues)))
+            {
+                val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
+            }
+            return val;
         }
 
         internal async Task<int> InsertWindDailyLoadShedding(List<WindDailyLoadShedding> set)
@@ -2218,90 +2203,90 @@ remarks as bd_remarks,action as action_taken
         internal async Task<int> InsertSolarDailyTargetKPI(List<SolarDailyTargetKPI> set)
         {
             //check for existing records with date and site reference to delete existing records before inserting fresh data
-            string delqry = "delete from daily_target_kpi_solar where";
+            string delQry = "delete from daily_target_kpi_solar where";
             string qry = "insert into daily_target_kpi_solar (fy, date, sites, site_id, ghi, poa, gen_nos, ma, iga, ega, pr, plf) values ";
-            string values = "";
+            string insertValues = "";
 
             foreach (var unit in set)
             {
-                values += "('" + unit.FY + "','" + unit.Date + "','" + unit.Sites + "','" + unit.site_id + "','" + unit.GHI + "','" + unit.POA + "','" + unit.kWh + "','" + unit.MA + "','" + unit.IGA + "','" + unit.EGA + "','" + unit.PR + "','" + unit.PLF + "'),";
+                insertValues += "('" + unit.FY + "','" + unit.Date + "','" + unit.Sites + "','" + unit.site_id + "','" + unit.GHI + "','" + unit.POA + "','" + unit.kWh + "','" + unit.MA + "','" + unit.IGA + "','" + unit.EGA + "','" + unit.PR + "','" + unit.PLF + "'),";
 
-                delqry += " sites= '" + unit.Sites + "' and date = '" + unit.Date + "' and fy = '" + unit.FY + "' or";
+                delQry += " sites= '" + unit.Sites + "' and date = '" + unit.Date + "' and fy = '" + unit.FY + "' or";
             }
-            qry += values;
-            await Context.ExecuteNonQry<int>(delqry.Substring(0, (delqry.Length - 2)) + ";").ConfigureAwait(false);
+            qry += insertValues;
+            await Context.ExecuteNonQry<int>(delQry.Substring(0, (delQry.Length - 2)) + ";").ConfigureAwait(false);
             return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
 
         }
         internal async Task<int> InsertSolarMonthlyTargetKPI(List<SolarMonthlyTargetKPI> set)
         {
-            //string qry = " insert into monthly_target_kpi_solar (fy, month, sites, site_id, ghi, poa, gen_nos, ma, iga, ega, pr, plf) values";
-            //string values = "";
-
-            //foreach (var unit in set)
-            //{
-            //    values += "('" + unit.FY + "','" + unit.Month + "','" + unit.Sites + "','" + unit.Site_Id + "','" + unit.GHI + "','" + unit.POA + "','" + unit.kWh + "','" + unit.MA + "','" + unit.IGA + "','" + unit.EGA + "','" + unit.PR + "','" + unit.PLF + "'),";
-            //}
-            //qry += values;
-
-            //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-
-            string delqry = "delete from monthly_target_kpi_solar where";
-            string qry = " insert into monthly_target_kpi_solar (fy, month, month_no, year, sites, site_id, ghi, poa, gen_nos, ma, iga, ega, pr, plf) values";
-            string values = "";
-
+            string fetchQry = "select monthly_target_kpi_solar_id, site_id, year, month_no from monthly_target_kpi_solar";
+            List<SolarMonthlyTargetKPI> tableData = new List<SolarMonthlyTargetKPI>();
+            tableData = await Context.GetData<SolarMonthlyTargetKPI>(fetchQry).ConfigureAwait(false);
+            SolarMonthlyTargetKPI existingRecord = new SolarMonthlyTargetKPI();
+            int val = 0;
+            string updateQry = "insert into monthly_target_kpi_solar (monthly_target_kpi_solar_id, ghi, poa, gen_nos, ma, iga, ega, pr, plf) values";
+            string qry = "insert into monthly_target_kpi_solar (fy, month, month_no, year, sites, site_id, ghi, poa, gen_nos, ma, iga, ega, pr, plf) values";
+            string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
-                values += "('" + unit.FY + "','" + unit.Month + "','" + unit.month_no + "','" + unit.year + "','" + unit.Sites + "','" + unit.Site_Id + "','" + unit.GHI + "','" + unit.POA + "','" + unit.kWh + "','" + unit.MA + "','" + unit.IGA + "','" + unit.EGA + "','" + unit.PR + "','" + unit.PLF + "'),";
-                delqry += " (site_id = " + unit.Site_Id + " and year = " + unit.year + " and month_no = '" + unit.month_no + "') or";
+                existingRecord = tableData.Find(tSite => (tSite.Site_Id == unit.Site_Id && tSite.year == unit.year && tSite.month_no == unit.month_no));
+                if (existingRecord == null)
+                {
+                    insertValues += "('" + unit.FY + "','" + unit.Month + "','" + unit.month_no + "','" + unit.year + "','" + unit.Sites + "','" + unit.Site_Id + "','" + unit.GHI + "','" + unit.POA + "','" + unit.kWh + "','" + unit.MA + "','" + unit.IGA + "','" + unit.EGA + "','" + unit.PR + "','" + unit.PLF + "'),";
+                }
+                else
+                {
+                    updateValues += "(" + existingRecord.monthly_target_kpi_solar_id + ",'" + unit.GHI + "','" + unit.POA + "','" + unit.kWh + "','" + unit.MA + "','" + unit.IGA + "','" + unit.EGA + "','" + unit.PR + "','" + unit.PLF + "'),";
+                }
             }
-            qry += values;
-            string mysqry = delqry.Substring(0, (delqry.Length - 2)) + ";";
-            await Context.ExecuteNonQry<int>(mysqry).ConfigureAwait(false);
-            return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE monthly_target_kpi_solar_id = VALUES(monthly_target_kpi_solar_id), ghi = VALUES(ghi), poa = VALUES(poa), gen_nos = VALUES(gen_nos), ma = VALUES(ma), iga = VALUES(iga), ega = VALUES(ega), pr = VALUES(pr), plf = VALUES(plf);";
+            if (!(string.IsNullOrEmpty(insertValues)))
+            {
+                val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            }
+            if (!(string.IsNullOrEmpty(updateValues)))
+            {
+                val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
+            }
+            return val;
         }
 
         internal async Task<int> InsertSolarMonthlyUploadingLineLosses(List<SolarMonthlyUploadingLineLosses> set)
         {
-            //string qry = " insert into monthly_line_loss_solar (fy, site, site_id, month, lineloss) values";
-            //string values = "";
-
-            //foreach (var unit in set)
-            //{
-            //    values += "('" + unit.FY + "','" + unit.Sites + "','" + unit.Site_Id + "','" + unit.Month + "','" + unit.LineLoss + "'),";
-            //}
-            //qry += values;
-            //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-
-            string fetchQry = "select monthly_line_loss_solar_id, fy, site as sites, site_id, month, month_no, year, LineLoss as lineLoss from monthly_line_loss_solar ;";
+            string fetchQry = "select monthly_line_loss_solar_id, site_id, year, month_no from monthly_line_loss_solar";
             List<SolarMonthlyUploadingLineLosses> tableData = new List<SolarMonthlyUploadingLineLosses>();
             tableData = await Context.GetData<SolarMonthlyUploadingLineLosses>(fetchQry).ConfigureAwait(false);
             SolarMonthlyUploadingLineLosses existingRecord = new SolarMonthlyUploadingLineLosses();
 
             int val = 0;
-            string updateQry = "";
+            string updateQry = "INSERT INTO monthly_line_loss_solar(monthly_line_loss_solar_id, LineLoss) VALUES";
             string qry = " insert into monthly_line_loss_solar (fy, site, site_id, month, month_no, year, LineLoss) values";
-            string values = "";
+            string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
                 //checking if excel sheet row already exists as a record in db table and storing matching entries in an object
                 existingRecord = tableData.Find(tSite => (tSite.Site_Id == unit.Site_Id && tSite.year == unit.year && tSite.month_no == unit.month_no));
                 if (existingRecord == null)
                 {
-                    values += "('" + unit.FY + "','" + unit.Sites + "','" + unit.Site_Id + "','" + unit.Month + "','" + unit.month_no + "','" + unit.year + "','" + unit.LineLoss + "'),";
+                    insertValues += "('" + unit.FY + "','" + unit.Sites + "','" + unit.Site_Id + "','" + unit.Month + "','" + unit.month_no + "','" + unit.year + "','" + unit.LineLoss + "'),";
                 }
                 else
                 {
-                    updateQry += "update monthly_line_loss_solar set LineLoss = " + unit.LineLoss + " where monthly_line_loss_solar_id = " + existingRecord.monthly_line_loss_solar_id + ";";
+                    updateValues += "(" + existingRecord.monthly_line_loss_solar_id + ",'" + unit.LineLoss + "'),";
                 }
 
             }
-            qry += values;
-            if (!(string.IsNullOrEmpty(values)))
+            qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE monthly_line_loss_solar_id = VALUES(monthly_line_loss_solar_id), LineLoss = VALUES(LineLoss);";
+            if (!(string.IsNullOrEmpty(insertValues)))
             {
                 val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
             }
-            if (!(string.IsNullOrEmpty(updateQry)))
+            if (!(string.IsNullOrEmpty(updateValues)))
             {
                 val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
             }
@@ -2310,30 +2295,45 @@ remarks as bd_remarks,action as action_taken
 
         internal async Task<int> InsertSolarJMR(List<SolarMonthlyJMR> set)
         {
-            //string qry = " insert into monthly_jmr_solar (FY, Site, site_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, JMR_Month, JMR_Year, LineLoss, Line_Loss_percentage, RKVH_percentage) values";
-            //string values = "";
-            //foreach (var unit in set)
-            //{
-            //    values += "('" + unit.FY + "','" + unit.Site + "','" + unit.site_id + "','" + unit.Plant_Section + "','" + unit.Controller_KWH_INV + "','" + unit.Scheduled_Units_kWh + "','" + unit.Export_kWh + "','" + unit.Import_kWh + "','" + unit.Net_Export_kWh + "','" + unit.Export_kVAh + "','" + unit.Import_kVAh + "','" + unit.Export_kVArh_lag + "','" + unit.Import_kVArh_lag + "','" + unit.Export_kVArh_lead + "','" + unit.Import_kVArh_lead + "','" + unit.JMR_date + "','" + unit.JMR_Month + "','" + unit.JMR_Year + "','" + unit.LineLoss + "','" + unit.Line_Loss_percentage + "','" + unit.RKVH_percentage + "'),";
-            //}
-            //qry += values;
-
-            //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-            string delqry = "delete from monthly_jmr_solar where ";
-
-            //inserting new client data into wind:monthly_jmr
+            //pending : add activity log
+            //prepared update query because existing queries cannot be deleted and orphan existing id-primaryKey entries
+            //grabs db site_master table data into local object list
+            string fetchQry = "select monthly_jmr_solar_id, site_id, JMR_Year, month_no as JMR_Month_no from monthly_jmr_solar";
+            List<SolarMonthlyJMR> tableData = await Context.GetData<SolarMonthlyJMR>(fetchQry).ConfigureAwait(false);
+            int val = 0;
+            //stores an existing record from the database which matches with a record in the client dataset
+            SolarMonthlyJMR existingRecord = new SolarMonthlyJMR();
+            string updateQry = "INSERT INTO monthly_jmr_solar(monthly_jmr_solar_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, LineLoss, Line_Loss_percentage, RKVH_percentage) VALUES";
             string qry = " insert into monthly_jmr_solar (FY, Site, site_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, JMR_Month, JMR_Year, LineLoss, Line_Loss_percentage, RKVH_percentage) values";
-            string values = "";
+            string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
-                //values are now recording site_id
-                values += "('" + unit.FY + "','" + unit.Site + "','" + unit.site_id + "','" + unit.Plant_Section + "','" + unit.Controller_KWH_INV + "','" + unit.Scheduled_Units_kWh + "','" + unit.Export_kWh + "','" + unit.Import_kWh + "','" + unit.Net_Export_kWh + "','" + unit.Export_kVAh + "','" + unit.Import_kVAh + "','" + unit.Export_kVArh_lag + "','" + unit.Import_kVArh_lag + "','" + unit.Export_kVArh_lead + "','" + unit.Import_kVArh_lead + "','" + unit.JMR_date + "','" + unit.JMR_Month + "','" + unit.JMR_Year + "','" + unit.LineLoss + "','" + unit.Line_Loss_percentage + "','" + unit.RKVH_percentage + "'),";
+                //checks if db table contains site record that matches a record in client dataset
+                existingRecord = tableData.Find(tSite => tSite.site_id.Equals(unit.site_id) && tSite.JMR_Year.Equals(unit.JMR_Year) && tSite.JMR_Month_no.Equals(unit.JMR_Month_no));
 
-                delqry += " JMR_date = '" + unit.JMR_date + "' and JMR_Month = '" + unit.JMR_Month + "' and JMR_Year = " + unit.JMR_Year + " and site_id = " + unit.site_id + " or";
+                if (existingRecord == null)
+                {
+                    insertValues += "('" + unit.FY + "','" + unit.Site + "','" + unit.site_id + "','" + unit.Plant_Section + "','" + unit.Controller_KWH_INV + "','" + unit.Scheduled_Units_kWh + "','" + unit.Export_kWh + "','" + unit.Import_kWh + "','" + unit.Net_Export_kWh + "','" + unit.Export_kVAh + "','" + unit.Import_kVAh + "','" + unit.Export_kVArh_lag + "','" + unit.Import_kVArh_lag + "','" + unit.Export_kVArh_lead + "','" + unit.Import_kVArh_lead + "','" + unit.JMR_date + "','" + unit.JMR_Month + "','" + unit.JMR_Year + "','" + unit.LineLoss + "','" + unit.Line_Loss_percentage + "','" + unit.RKVH_percentage + "'),";
+                }
+                else
+                {
+                    //if match is found
+                    updateValues += "(" + existingRecord.monthly_jmr_solar_id + ",'" + unit.Plant_Section + "','" + unit.Controller_KWH_INV + "','" + unit.Scheduled_Units_kWh + "','" + unit.Export_kWh + "','" + unit.Import_kWh + "','" + unit.Net_Export_kWh + "','" + unit.Export_kVAh + "','" + unit.Import_kVAh + "','" + unit.Export_kVArh_lag + "','" + unit.Import_kVArh_lag + "','" + unit.Export_kVArh_lead + "','" + unit.Import_kVArh_lead + "','" + unit.JMR_date + "','" + unit.LineLoss + "','" + unit.Line_Loss_percentage + "','" + unit.RKVH_percentage + "'),";
+                }
             }
-            qry += values;
-            await Context.ExecuteNonQry<int>(delqry.Substring(0, (delqry.Length - 2)) + ";").ConfigureAwait(false);
-            return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE monthly_jmr_solar_id = VALUES(monthly_jmr_solar_id), Plant_Section = VALUES(Plant_Section), Controller_KWH_INV = VALUES(Controller_KWH_INV), Scheduled_Units_kWh = VALUES(Scheduled_Units_kWh), Export_kWh = VALUES(Export_kWh), Import_kWh = VALUES(Import_kWh), Net_Export_kWh = VALUES(Net_Export_kWh), Export_kVAh = VALUES(Export_kVAh), Import_kVAh = VALUES(Import_kVAh), Export_kVArh_lag = VALUES(Export_kVArh_lag), Import_kVArh_lag = VALUES(Import_kVArh_lag), Export_kVArh_lead = VALUES(Export_kVArh_lead), Import_kVArh_lead = VALUES(Import_kVArh_lead), JMR_date = VALUES(JMR_date), LineLoss = VALUES(LineLoss), Line_Loss_percentage = VALUES(Line_Loss_percentage), RKVH_percentage = VALUES(RKVH_percentage);";
+
+            if (!(string.IsNullOrEmpty(insertValues)))
+            {
+                val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            }
+            if (!(string.IsNullOrEmpty(updateValues)))
+            {
+                val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
+            }
+            return val;
         }
 
         internal async Task<int> InsertSolarDailyLoadShedding(List<SolarDailyLoadShedding> set)
@@ -2357,46 +2357,36 @@ remarks as bd_remarks,action as action_taken
 
         internal async Task<int> InsertSolarInvAcDcCapacity(List<SolarInvAcDcCapacity> set)
         {
-            //string qry = " insert into solar_ac_dc_capacity (site, site_id, inverter, dc_capacity, ac_capacity) values";
-            //string values = "";
-            //foreach (var unit in set)
-            //{
-            //    values += "('" + unit.site + "','" + unit.site_id + "','" + unit.inverter + "','" + unit.dc_capacity + "','" + unit.ac_capacity + "'),";
-            //}
-            //qry += values;
-
-            //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-
-
             string fetchQry = "select capacity_id, inverter, site_id from solar_ac_dc_capacity ;";
             List<SolarInvAcDcCapacity> tableData = new List<SolarInvAcDcCapacity>();
             tableData = await Context.GetData<SolarInvAcDcCapacity>(fetchQry).ConfigureAwait(false);
             SolarInvAcDcCapacity existingRecord = new SolarInvAcDcCapacity();
-
             int val = 0;
-            string updateQry = "";
+            string updateQry = "INSERT INTO solar_ac_dc_capacity(capacity_id, dc_capacity, ac_capacity) VALUES";
             string qry = " insert into solar_ac_dc_capacity (site, site_id, inverter, dc_capacity, ac_capacity) values";
-            string values = "";
+            string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
                 //checking if excel sheet row already exists as a record in db table and storing matching entries in an object
                 existingRecord = tableData.Find(tSite => (tSite.site_id == unit.site_id && tSite.inverter == unit.inverter));
                 if (existingRecord == null)
                 {
-                    values += "('" + unit.site + "','" + unit.site_id + "','" + unit.inverter + "','" + unit.dc_capacity + "','" + unit.ac_capacity + "'),";
+                    insertValues += "('" + unit.site + "','" + unit.site_id + "','" + unit.inverter + "','" + unit.dc_capacity + "','" + unit.ac_capacity + "'),";
                 }
                 else
                 {
-                    updateQry += "update solar_ac_dc_capacity set dc_capacity = '" + unit.dc_capacity + "', ac_capacity =  '" + unit.ac_capacity + "' where capacity_id = " + existingRecord.capacity_id + ";";
+                    updateValues += "(" + existingRecord.capacity_id + ",'" + unit.dc_capacity + "','" + unit.ac_capacity + "'),";
                 }
 
             }
-            qry += values;
-            if (!(string.IsNullOrEmpty(values)))
+            qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE capacity_id = VALUES(capacity_id), dc_capacity = VALUES(dc_capacity), ac_capacity = VALUES(ac_capacity);";
+            if (!(string.IsNullOrEmpty(insertValues)))
             {
                 val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
             }
-            if (!(string.IsNullOrEmpty(updateQry)))
+            if (!(string.IsNullOrEmpty(updateValues)))
             {
                 val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
             }
@@ -2432,11 +2422,9 @@ remarks as bd_remarks,action as action_taken
         {
             string query = "";
             meta.importFilePath = meta.importFilePath.Replace("\\", "\\\\");
-            int import_by = 2;
-            string import_by_name = "Demo User";
 
             //query = "insert into import_log (file_name, import_type, log_filename) values ('" + meta.importFilePath + "','" + meta.importType + "','" + meta.importLogName + "');";
-            query = "insert into import_batches (file_name, import_type, log_filename,site_id,import_date,imported_by,import_by_name) values ('" + meta.importFilePath + "','" + meta.importType + "','" + meta.importLogName + "','" + meta.importSiteId + "',NOW(),'" + userId + "','" + userName + "');";
+            query = "insert into import_batches (file_name, import_type, log_filename, site_id, import_date, imported_by, import_by_name) values ('" + meta.importFilePath + "','" + meta.importType + "','" + meta.importLogName + "','" + meta.importSiteId + "',NOW(),'" + userId + "','" + userName + "');";
             return await Context.ExecuteNonQry<int>(query).ConfigureAwait(false);
         }
 
@@ -3500,14 +3488,15 @@ FROM daily_bd_loss_solar where   " + datefilter;
             //pending : add activity log
             //prepared update query because existing queries cannot be deleted and orphan existing site master ids
             //grabs db site_master table data into local object list
-            string fetchQry = "select * from site_master";
+            string fetchQry = "select site_master_id, site from site_master";
             List<WindSiteMaster> tableData = await Context.GetData<WindSiteMaster>(fetchQry).ConfigureAwait(false);
+            WindSiteMaster existingRecord = new WindSiteMaster();
             int val = 0;
             //stores an existing record from the database which matches with a record in the client dataset
-            WindSiteMaster existingRecord = new WindSiteMaster();
-            string updateQry = "";
+            string updateQry = "INSERT INTO site_master(site_master_id, capacity_mw, wtg, total_mw, tarrif, total_tarrif, gbi, ll_compensation) VALUES";
             string qry = "insert into site_master(country, site, spv, state, model, capacity_mw, wtg, total_mw, tarrif, total_tarrif, gbi, ll_compensation) values";
             string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
                 //checks if db table contains site record that matches a record in client dataset
@@ -3519,22 +3508,18 @@ FROM daily_bd_loss_solar where   " + datefilter;
                 else
                 {
                     //if match is found
-                    updateQry += "update site_master set capacity_mw = " + unit.capacity_mw + ", wtg = " + unit.wtg + ", total_mw = " + unit.total_mw + ", tarrif = " + unit.tarrif + " , total_tarrif = " + unit.total_tarrif + " , gbi = " + unit.gbi + ", ll_compensation = " + unit.ll_compensation + " where site_master_id = " + existingRecord.site_master_id + ";";
+                    updateValues += "(" + existingRecord.site_master_id + ",'" + unit.capacity_mw + "','" + unit.wtg + "','" + unit.total_mw + "','" + unit.tarrif + "','" + unit.total_tarrif + "','" + unit.gbi + "','" + unit.ll_compensation + "'),";
                 }
             }
             qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE site_master_id = VALUES(site_master_id), capacity_mw = VALUES(capacity_mw), wtg = VALUES(wtg), total_mw = VALUES(total_mw), tarrif = VALUES(tarrif), total_tarrif = VALUES(total_tarrif), gbi = VALUES(gbi), ll_compensation = VALUES(ll_compensation);";
             if (!(string.IsNullOrEmpty(insertValues)))
             {
                 val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
             }
-            if (!(string.IsNullOrEmpty(updateQry)))
+            if (!(string.IsNullOrEmpty(updateValues)))
             {
                 val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
-            }
-            else
-            {
-                val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
-                val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
             }
             return val;
         }
@@ -3568,38 +3553,36 @@ FROM daily_bd_loss_solar where   " + datefilter;
             //pending : add activity log
             //added logic where if site and wtg exists then update existing records
             //grabs db location_master table data into local object list
-            string fetchQry = "select * from location_master";
+            string fetchQry = "select wtg, location_master_id from location_master";
             List<WindLocationMaster> tableData = await Context.GetData<WindLocationMaster>(fetchQry).ConfigureAwait(false);
             int val = 0;
 
             //stores an existing record from the database which matches with a record in the client dataset
             WindLocationMaster existingRecord = new WindLocationMaster();
-            string updateQry = "";
-
+            string updateQry = "INSERT INTO location_master(location_master_id, feeder, max_kwh_day) VALUES";
+            string updateValues = "";
             // string qry = "insert into location_master(location_master_id, site_master_id, site, wtg, feeder, max_kwh_day) values";
             string qry = "insert into location_master(site_master_id, site, wtg, feeder, max_kwh_day) values";
             string insertValues = "";
             foreach (var unit in set)
             {
                 //checks if db table contains site record that matches a record in client dataset
-                existingRecord = tableData.Find(tableRecord => tableRecord.site.Equals(unit.site) && tableRecord.wtg.Equals(unit.wtg));
-                try
+                existingRecord = tableData.Find(tableRecord => tableRecord.wtg.Equals(unit.wtg));
+                if (existingRecord == null)
                 {
-                    updateQry += "update location_master set feeder = " + unit.feeder + " , max_kwh_day =  " + unit.max_kwh_day + "  where site_master_id = " + existingRecord.site_master_id + ";";
-                    //val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
-                    /*if (string.IsNullOrEmpty(existingRecord.site))
-                    {
-                        insertValues += "('" + unit.site_master_id + "','" + unit.site + "','" + unit.wtg + "','" + unit.feeder + "','" + unit.max_kwh_day + "'),";
-                    }*/
+                    insertValues += "('" + unit.site_master_id + "','" + unit.site + "','" + unit.wtg + "','" + unit.feeder + "','" + unit.max_kwh_day + "'),";
                 }
-                catch (Exception)
+                else
                 {
                     //if match is found
-                    insertValues += "('" + unit.site_master_id + "','" + unit.site + "','" + unit.wtg + "','" + unit.feeder + "','" + unit.max_kwh_day + "'),";
+                    updateValues = "(" + existingRecord.location_master_id + ",'" + unit.feeder + "','" + unit.max_kwh_day + "'),";
+                    //backup updater:
+                    //updateQry += "update location_master set feeder = " + unit.feeder + " , max_kwh_day =  " + unit.max_kwh_day + "  where location_master_id = " + existingRecord.location_master_id + ";";
 
                 }
             }
             qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE location_master_id = VALUES(location_master_id), feeder = VALUES(feeder), max_kwh_day = VALUES(max_kwh_day);";
             //if (!(string.IsNullOrEmpty(insertValues)))
             //{
             //    val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
@@ -3608,24 +3591,10 @@ FROM daily_bd_loss_solar where   " + datefilter;
             {
                 val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
             }
-            if (!(string.IsNullOrEmpty(updateQry)))
+            if (!(string.IsNullOrEmpty(updateValues)))
             {
                 val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
             }
-            else
-            {
-                val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
-                val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-            }
-            /*if (!(string.IsNullOrEmpty(updateQry)))
-            {
-                val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
-            }*/
-            //else
-            // {
-            // val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
-            //  val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-            //}
             return val;
         }
         internal async Task<List<WindMonthlyUploadingLineLosses>> GetWindMonthlyLineLoss(string site, string fy, string month)
@@ -3813,15 +3782,16 @@ FROM daily_bd_loss_solar where   " + datefilter;
             //grabs db location_master table data into local object list
             string fetchQry = "select location_master_solar_id, site_id, icr, inv, smb, string as strings from location_master_solar";
             List<SolarLocationMaster> tableData = await Context.GetData<SolarLocationMaster>(fetchQry).ConfigureAwait(false);
-            int val = 0;
 
             //stores an existing record from the database which matches with a record in the client dataset
             SolarLocationMaster existingRecord = new SolarLocationMaster();
-            string updateQry = "";
+            int val = 0;
+            string updateQry = "INSERT INTO location_master_solar(location_master_solar_id, string_configuration, total_string_current, total_string_voltage, modules_quantity, wp, capacity, module_make, module_model_no, module_type, string_inv_central_inv) VALUES";
 
             // string qry = "insert into location_master(location_master_id, site_master_id, site, wtg, feeder, max_kwh_day) values";
             string qry = "insert into location_master_solar(country, site, site_id, eg, ig, icr_inv, icr, inv, smb, string, string_configuration, total_string_current, total_string_voltage, modules_quantity, wp, capacity, module_make, module_model_no, module_type, string_inv_central_inv) values";
             string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
                 //checks if db table contains site record that matches a record in client dataset
@@ -3832,28 +3802,23 @@ FROM daily_bd_loss_solar where   " + datefilter;
                 }
                 else
                 {
-                    updateQry += "update location_master_solar set string_configuration = '" + unit.string_configuration + "', total_string_current = '" + unit.total_string_current + "', total_string_voltage = '" + unit.total_string_voltage + "', modules_quantity = '" + unit.modules_quantity + "', wp = '" + unit.wp + "', capacity = '" + unit.capacity + "', module_make = '" + unit.module_make + "', module_model_no = '" + unit.module_model_no + "', module_type = '" + unit.module_type + "', string_inv_central_inv = '" + unit.string_inv_central_inv + "' where location_master_solar_id = '" + existingRecord.location_master_solar_id + "';";
+                    //updateValues += "update location_master_solar set string_configuration = '" + unit.string_configuration + "', total_string_current = '" + unit.total_string_current + "', total_string_voltage = '" + unit.total_string_voltage + "', modules_quantity = '" + unit.modules_quantity + "', wp = '" + unit.wp + "', capacity = '" + unit.capacity + "', module_make = '" + unit.module_make + "', module_model_no = '" + unit.module_model_no + "', module_type = '" + unit.module_type + "', string_inv_central_inv = '" + unit.string_inv_central_inv + "' where location_master_solar_id = '" + existingRecord.location_master_solar_id + "';";
+
+                    updateValues += "(" + existingRecord.location_master_solar_id + ",'" + unit.string_configuration + "','" + unit.total_string_current + "','" + unit.total_string_voltage + "','" + unit.modules_quantity + "','" + unit.wp + "','" + unit.capacity + "','" + unit.module_make + "','" + unit.module_model_no + "','" + unit.module_type + "','" + unit.string_inv_central_inv + "'),";
                 }
             }
             qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE location_master_solar_id = VALUES(location_master_solar_id), string_configuration = VALUES(string_configuration), total_string_current = VALUES(total_string_current), total_string_voltage = VALUES(total_string_voltage), modules_quantity = VALUES(modules_quantity), wp = VALUES(wp), capacity = VALUES(capacity), module_make = VALUES(module_make), module_model_no = VALUES(module_model_no), module_type = VALUES(module_type), string_inv_central_inv = VALUES(string_inv_central_inv);";
+
+            //string updateQry = "INSERT INTO location_master_solar(location_master_solar_id, string_configuration, total_string_current, total_string_voltage, modules_quantity, wp, capacity, module_make, module_model_no, module_type, string_inv_central_inv) VALUES";
             if (!(string.IsNullOrEmpty(insertValues)))
             {
                 val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
             }
-            if (!(string.IsNullOrEmpty(updateQry)))
+            if (!(string.IsNullOrEmpty(updateValues)))
             {
                 val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
             }
-
-            /*if (!(string.IsNullOrEmpty(updateQry)))
-            {
-                val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
-            }*/
-            //else
-            // {
-            // val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
-            //  val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-            //}
             return val;
         }
         internal async Task<List<DailyGenSummary>> GetWindDailyGenSummaryPending(string date, string site)
@@ -3894,27 +3859,18 @@ FROM daily_bd_loss_solar where   " + datefilter;
         }
         internal async Task<int> InsertSolarSiteMaster(List<SolarSiteMaster> set)
         {
-            //    string qry = " insert into site_master_solar(country, site, spv, state, dc_capacity, ac_capacity, total_tarrif) values";
-            //    string values = "";
-
-            //    foreach (var unit in set)
-            //    {
-            //        values += "('" + unit.country + "','" + unit.site + "','" + unit.spv + "','" + unit.state + "','" + unit.dc_capacity + "','" + unit.ac_capacity + "','" + unit.total_tarrif + "'),";
-            //    }
-            //    qry += values;
-            //    return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-
             //pending : add activity log
             //prepared update query because existing queries cannot be deleted and orphan existing site master ids
             //grabs db site_master table data into local object list
-            string fetchQry = "select * from site_master_solar";
+            string fetchQry = "select site_master_solar_id, site from site_master_solar";
             List<SolarSiteMaster> tableData = await Context.GetData<SolarSiteMaster>(fetchQry).ConfigureAwait(false);
             int val = 0;
             //stores an existing record from the database which matches with a record in the client dataset
             SolarSiteMaster existingRecord = new SolarSiteMaster();
-            string updateQry = "";
+            string updateQry = "INSERT INTO site_master_solar(site_master_solar_id, dc_capacity, ac_capacity, total_tarrif) VALUES";
             string qry = "insert into site_master_solar(country, site, spv, state, dc_capacity, ac_capacity, total_tarrif) values";
             string insertValues = "";
+            string updateValues = "";
             foreach (var unit in set)
             {
                 //checks if db table contains site record that matches a record in client dataset
@@ -3926,15 +3882,19 @@ FROM daily_bd_loss_solar where   " + datefilter;
                 else
                 {
                     //if match is found
-                    updateQry += "update site_master_solar set dc_capacity = '" + unit.dc_capacity + "', ac_capacity = '" + unit.ac_capacity + "', total_tarrif = '" + unit.total_tarrif + "' where site_master_solar_id = '" + existingRecord.site_master_solar_id + "';";
+                    updateValues += "(" + existingRecord.site_master_solar_id + ",'" + unit.dc_capacity + "','" + unit.ac_capacity + "','" + unit.total_tarrif + "'),";
+
+                    //updateQry += "update site_master_solar set dc_capacity = '" + unit.dc_capacity + "', ac_capacity = '" + unit.ac_capacity + "', total_tarrif = '" + unit.total_tarrif + "' where site_master_solar_id = '" + existingRecord.site_master_solar_id + "';";
                 }
             }
             qry += insertValues;
+            updateQry += string.IsNullOrEmpty(updateValues) ? "" : updateValues.Substring(0, (updateValues.Length - 1)) + " ON DUPLICATE KEY UPDATE site_master_solar_id = VALUES(site_master_solar_id), dc_capacity = VALUES(dc_capacity), ac_capacity = VALUES(ac_capacity), total_tarrif = VALUES(total_tarrif);";
+
             if (!(string.IsNullOrEmpty(insertValues)))
             {
                 val = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
             }
-            if (!(string.IsNullOrEmpty(updateQry)))
+            if (!(string.IsNullOrEmpty(updateValues)))
             {
                 val = await Context.ExecuteNonQry<int>(updateQry).ConfigureAwait(false);
             }

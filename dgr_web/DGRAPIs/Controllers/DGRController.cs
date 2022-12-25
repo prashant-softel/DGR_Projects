@@ -455,7 +455,7 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-[Route("InsertSolarLocationMaster")]
+        [Route("InsertSolarLocationMaster")]
         [HttpPost]
         public async Task<IActionResult> InsertSolarLocationMaster(List<SolarLocationMaster> set)
         {
@@ -527,7 +527,7 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-		[Route("InsertSolarSiteMaster")]
+        [Route("InsertSolarSiteMaster")]
         [HttpPost]
         public async Task<IActionResult> InsertSolarSiteMaster(List<SolarSiteMaster> set)
         {
@@ -578,7 +578,7 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-		[Route("InsertWindSiteMaster")]
+        [Route("InsertWindSiteMaster")]
         [HttpPost]
         public async Task<IActionResult> InsertWindSiteMaster(List<WindSiteMaster> set)
         {
@@ -659,7 +659,7 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-		[Route("InsertWindLocationMaster")]
+        [Route("InsertWindLocationMaster")]
         [HttpPost]
         public async Task<IActionResult> InsertWindLocationMaster(List<WindLocationMaster> set)
         {

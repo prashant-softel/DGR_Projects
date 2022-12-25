@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DGRAPIs.Models
+﻿namespace DGRAPIs.Models
 {
     public class SolarMonthlyTargetKPI
     {
+        public int monthly_target_kpi_solar_id { get; set; }
         public string FY { get; set; }
         public string Month { get; set; }
         public string Sites { get; set; }

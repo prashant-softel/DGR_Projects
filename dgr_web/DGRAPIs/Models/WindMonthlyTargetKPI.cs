@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace DGRAPIs.Models
+﻿namespace DGRAPIs.Models
 {
     public class WindMonthlyTargetKPI
     {
-
-
+        public int monthly_target_kpi_id { get; set; }
         public string fy { get; set; }
         public string month { get; set; }
         public string site { get; set; }
