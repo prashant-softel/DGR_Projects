@@ -121,7 +121,8 @@ namespace DGRAPIs.BS
         Task<List<approvalObject>> GetImportBatches(string importFromDate, string importToDate, string siteId, int importType, int status,int userid);
         Task<int> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status);
         Task<int> SetRejectFlagForImportBatches(string dataId, int rejectedBy, string rejectByName, int status);
-        //Task<List<approvalObject>> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status);
+        Task<int> SetSolarApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status);
+        Task<int> SetSolarRejectFlagForImportBatches(string dataId, int rejectedBy, string rejectByName, int status);
         Task<List<CountryList>> GetCountryList();
         Task<List<StateList>> GetStateList(string country);
         Task<List<SPVList>> GetSPVList(string state);
@@ -1659,6 +1660,36 @@ namespace DGRAPIs.BS
                 using (var repos = new DGRRepository(getDB))
                 {
                     return await repos.SetRejectFlagForImportBatches(dataId, rejectedBy, rejectByName, status);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+        public async Task<int> SetSolarApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.SetSolarApprovalFlagForImportBatches(dataId, approvedBy, approvedByName, status);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+        public async Task<int> SetSolarRejectFlagForImportBatches(string dataId, int rejectedBy, string rejectByName, int status)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.SetSolarRejectFlagForImportBatches(dataId, rejectedBy, rejectByName, status);
                 }
             }
             catch (Exception ex)

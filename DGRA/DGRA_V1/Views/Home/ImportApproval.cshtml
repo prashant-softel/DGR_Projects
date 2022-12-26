@@ -7,6 +7,7 @@
 }
 @{
     string windUserSiteList = "";
+    string solarUserSiteList = "";
     var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
 
 }
@@ -18,6 +19,10 @@
         windUserSiteList += @usermodel.access_list[i].identity.ToString() + ",";
     }
 
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+    {
+        solarUserSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
 }
 
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -87,17 +92,27 @@
                         <div class="form-group">
                             <div class="row">
                                 <label class="col-sm-4 col-form-label text-right">Import Type : </label>
-                                <select class="form-control  col-sm-8" id="importType" name="importType" value="">
+                                <select class="form-control  col-sm-8" id="importType" name="importType" value="" onchange="getSiteList()">
+                                    <option value="0">Select Import Type</option>
+                                    <option value="1">Solar</option>
                                     <option value="2">Wind</option>
                                 </select>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
-                        <div class="form-group">
-                            <div class="row">
+                        <div class="form-group" id="multple_site" style="display:none;">
+                            <div class="row" >
                                 <label class="col-sm-4 col-form-label text-right">Site : </label>
                                 <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group"  id="normal_site" style="display:block;">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Site : </label>
+                                <select class="form-control  col-sm-8" id="site_n" name="site_n">
+                                    <option value="">Please Select Site</option>
                                 </select>
                             </div>
                         </div>
@@ -199,16 +214,6 @@
 
 <script type="text/javascript">
 
-    /* $(function () {
-
-            $('#chkveg').multiselect({
-                includeSelectAllOption: true
-            });
-
-        $('#btnget').click(function () {
-            alert($('#chkveg').val());
-            });
-        });*/
 
     $(document).ready(function () {
         $('#daterange').daterangepicker(
@@ -220,7 +225,50 @@
     });
 
     window.onload = function () {
-        var state = "";
+      @* var state = "";
+        var spv = "";
+         var site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "GET",
+
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").html(options);
+                $('#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Wind Site(s)",
+                });
+            }
+        });*@
+    }
+
+
+
+    function getSiteList() {
+        var importType = $('select#importType option:selected').val();
+        if (importType == 1) {
+            GetSolarSite();
+            document.getElementById("normal_site").style.display = 'none';
+            document.getElementById("multple_site").style.display = 'block';
+
+        }
+        else if (importType == 2) {
+            document.getElementById("normal_site").style.display = 'none';
+            document.getElementById("multple_site").style.display = 'block';
+            GetWindSite();
+        }
+    }
+    // Wind Site
+    function GetWindSite() {
+
+         var state = "";
         var spv = "";
          var site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
         $.ajax({
@@ -245,13 +293,47 @@
             }
         });
     }
+     // Solar Site
+    function GetSolarSite() {
+        var site_ids = "@Html.Raw(solarUserSiteList.TrimEnd(','))";
+        var solar_total_mw = 0;
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarSiteList", "Dashboard")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+               // console.log(result);
+                var options = "";
 
+                for (var i = 0; i < result.length; i++) {
+                    solar_total_mw += result[i].ac_capacity;
+                    options += '<option value="' + result[i].site_master_solar_id + '">' + result[i].site + '</option>';
+                }
+                $("#site").html(options);
+                $('#site').multipleSelect({
+                   "minimumCountSelected": 2,
+                   "placeholder":"Select Solar Site(s)",
+                });
+            }
+        });
+    }
     function getReport() {
-       // var site = $('select#site option:selected').val();
+        var importType = $('select#importType option:selected').val();
+        if (importType == 1) {
+            getSolarReport();
+
+        }
+        else if (importType == 2) {
+
+            getWindReport();
+        }
+    }
+    // WInd Import Reports
+    function getWindReport() {
         let site = "";
         $('select#site option:selected').each(function () {
             site += $(this).val() + ",";
-            // console.log($(this).val());
 
         });
         site = site != "" ? site.slice(0, -1) : site;
@@ -272,18 +354,14 @@
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetImportBatches", "WindView")' + '?importFromDate=' + fromDate + '&importToDate=' + toDate + '&siteId=' + site + '&importType=' + importType + '&status='+status,
-            //url: "/WindView/GetImportBatches?importFromDate=" + fromDate + "&importToDate=" + toDate + "&siteId=" + site + "&importType=" + importType + "&status=" + status,
             contentType: "application/json; charset=utf-8",
-            //data: '{"state":"' + val + '"}',
             datatype: "JSON",
             success: function (result, status, xhr) {
-                //console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
                 tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th style="width:100px">Import Date</th>';
-               // tbl += '<th>File Name</th>';
                 tbl += '<th>Impo. By</th>';
                 tbl += '<th>Status</th>';
                 tbl += '<th>App. Date</th>';
@@ -295,8 +373,6 @@
 
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
-                        //var arr2 = new Array();
-                        //arr2 = result[i].file_name.split("\\");
                         var formattedDate = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         var status = "";
                         var isDisable = "";
@@ -316,12 +392,10 @@
                             status = "Rejected";
                             isDisable = "disabled";
                         }
-                        // console.log(status);
                         tbl += '<tr>';
                         tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style="margin-left:0.5rem;    margin-top: -6px;" ' + isDisable + '></td>';
                         tbl += '<td>' + result[i].site_name + '</td>';
                         tbl += '<td>' + formattedDate + '</td>';
-                       // tbl += '<td>' + arr2[5] + '</td>';
                         tbl += '<td>' + result[i].import_by_name + '</td>';
                         tbl += '<td>' + status + '</td>';
                         if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
@@ -405,29 +479,171 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                 $('#example1').removeClass('dataTable');
 
-                // dt - button buttons - excel buttons - html5
-               // btn btn - secondary buttons - copy buttons - html5
-               // $("#LogData").html(tbl);
-                /*$.noConflict();
-                $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    "buttons": ["csv", "excel", "colvis"],
-                    "paging": true,
-                    "lengthChange": false,
-                    "searching": true,
-                    "ordering": true,
-                    "info": true,
-                    "autoWidth": false,
-                    "responsive": true,
-                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
                 document.getElementById("approvebtn").style.display = 'flex';
             }
         });
 
     }
 
+    // SOlar Import Report
+    function getSolarReport() {
+        let site = "";
+        $('select#site option:selected').each(function () {
+            site += $(this).val() + ",";
+
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+        if (site == "" || site == null) {
+            alert("Please select site ");
+            return false;
+        }
+
+        var status = $('select#status option:selected').val();
+        var importType = $('select#importType option:selected').val();
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetImportBatches", "SolarView")' + '?importFromDate=' + fromDate + '&importToDate=' + toDate + '&siteId=' + site + '&importType=' + importType + '&status='+status,
+            contentType: "application/json; charset=utf-8",
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th style="width:100px">Import Date</th>';
+                tbl += '<th>Impo. By</th>';
+                tbl += '<th>Status</th>';
+                tbl += '<th>App. Date</th>';
+                tbl += '<th>App. By</th>';
+                tbl += '<th>Rej Date</th>';
+                tbl += '<th>Rej. By</th>';
+                tbl += '<th>Action</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        var formattedDate = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        var status = "";
+                        var isDisable = "";
+                        if (result[i].is_approved == 0) {
+                            status = "Waiting for Approve";
+                            isDisable = "";
+                        }
+                        if (result[i].is_approved == 0 && result[i].imported_by == @HttpContextAccessor.HttpContext.Session.GetString("userid")) {
+                            status = "Waiting for Approve";
+                            isDisable = "disabled";
+                        }
+                        if (result[i].is_approved == 1) {
+                            status = "Approved";
+                            isDisable = "disabled";
+                        }
+                        if (result[i].is_approved == 2) {
+                            status = "Rejected";
+                            isDisable = "disabled";
+                        }
+                        tbl += '<tr>';
+                        tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style="margin-left:0.5rem;    margin-top: -6px;" ' + isDisable + '></td>';
+                        tbl += '<td>' + result[i].site_name + '</td>';
+                        tbl += '<td>' + formattedDate + '</td>';
+                        tbl += '<td>' + result[i].import_by_name + '</td>';
+                        tbl += '<td>' + status + '</td>';
+                        if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
+                            var formattedDate1 = '';
+                        }
+                        else {
+                            var formattedDate1 = moment(result[i].approval_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        }
+                        var approval_name = "";
+                        if (result[i].approved_by == 0) {
+                            approval_name = "";
+                        }
+                        else {
+                            approval_name = result[i].approved_by_name;
+                        }
+                        if (result[i].rejected_date == '0001-01-01T00:00:00' || result[i].rejected_date == null) {
+                            var formattedDate2 = '';
+                        }
+                        else {
+                            var formattedDate2 = moment(result[i].rejected_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        }
+                        var rejected_name = "";
+                        if (result[i].rejected_by == 0) {
+                            rejected_name = "";
+                        }
+                        else {
+                            rejected_name = result[i].rejected_by_name;
+                        }
+                        tbl += '<td>' + formattedDate1 + '</td>';
+                        tbl += '<td>' + approval_name + '</td>';
+                        tbl += '<td>' + formattedDate2 + '</td>';
+                        tbl += '<td>' + rejected_name + '</td>';
+                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem">G</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >B</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Pyranometer 1Min Data" class="btn  btn-info" onclick="ViewPY1Data(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >P1</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Pyranometer 15Min Data" class="btn  btn-info" onclick="ViewPY15Data(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >P15</a></div>';
+                        //enter filenames paths
+                       // tbl += '<div style="width: 25%;float: left;"><a href="C:\LogFile\\'+ result[i].log_filename +'" title=" View Log File" class="btn  btn-info" download>F</a></div>';
+                       // tbl += '<div style="width: 25%;float: left;"><a href="C:\ImportedFile\"' + result[i].file_name + '" title=" View Imported File" class="btn  btn-info" download>L</a></div>';
+                        tbl += '</td ></tr>';
+                    }
+                }
+                else {
+                    //tbl += '<tr><th colspan="7" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#LogData").html("").html(tbl);
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Import Approval',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Import Approval',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });//.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+                $('#example1').removeClass('dataTable');
+
+                document.getElementById("approvebtn").style.display = 'flex';
+            }
+        });
+
+    }
+
+    //   Approved Data
     function DataApproved(actionType) {
-       // alert(actionType);
         var values = '';
         $.each($("input[class='form-check-input']:checked"), function () {
             if (values == '') {
@@ -445,22 +661,32 @@
         var approved_by_name = "@HttpContextAccessor.HttpContext.Session.GetString("DisplayName")";
 
         var uri = "";
-        if (actionType == 1) {
+        var importType = $('select#importType option:selected').val();
+
+        if (importType == 2 && actionType == 1) {
             var Approvestatus = 1;
             uri= '@Url.Action("DataApproved", "WindView")' + '?data=' + values + '&approvedBy=' + approved_by + '&approvedByName=' + approved_by_name + '&status=' + Approvestatus + '&actionType=' + actionType
 
         }
-        if (actionType == 2) {
+        if (importType == 2 && actionType == 2) {
             var Rejectstatus = 2;
             uri= '@Url.Action("DataReject", "WindView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
 
         }
-       // alert(uri);
+        if (importType == 1 && actionType == 1) {
+            var Approvestatus = 1;
+            uri= '@Url.Action("DataApproved", "SolarView")' + '?data=' + values + '&approvedBy=' + approved_by + '&approvedByName=' + approved_by_name + '&status=' + Approvestatus + '&actionType=' + actionType
 
+        }
+        if (importType == 1 && actionType == 2) {
+            var Rejectstatus = 2;
+            uri= '@Url.Action("DataReject", "SolarView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
+
+        }
+      
         $.ajax({
             type: "POST",
-            url: uri, //"/WindView/DataApproved?data=" + values + "&approvedBy=" + approved_by + "&approvedByName=" + approved_by_name + "&status=" + status + "actionType" + actionType,
-
+            url: uri, 
             contentType: "application/json; charset=utf-8",
             success: function (result, status, xhr) {
                 if (result > 0) {

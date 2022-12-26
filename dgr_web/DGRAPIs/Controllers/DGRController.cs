@@ -1755,6 +1755,42 @@ namespace DGRAPIs.Controllers
                 }
             }
         }
+        [Route("SetSolarApprovalFlagForImportBatches")]
+        [HttpGet]
+        public async Task<IActionResult> SetSolarApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.SetSolarApprovalFlagForImportBatches(dataId, approvedBy, approvedByName, status);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("SetSolarRejectFlagForImportBatches")]
+        [HttpGet]
+        public async Task<IActionResult> SetSolarRejectFlagForImportBatches(string dataId, int rejectedBy, string rejectByName, int status)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.SetSolarRejectFlagForImportBatches(dataId, rejectedBy, rejectByName, status);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
         [Route("GetCountryList")]
         [HttpGet]
         public async Task<IActionResult> GetCountryList()

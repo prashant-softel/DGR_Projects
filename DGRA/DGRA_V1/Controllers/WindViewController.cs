@@ -236,8 +236,6 @@ namespace DGRA_V1.Controllers
         
         public async Task<IActionResult> DataApproved(string data, int approvedBy, string approvedByName, int status,int actionType)
         {
-            //var json = JsonConvert.SerializeObject(data);
-
             string line = "";
             try
             {
