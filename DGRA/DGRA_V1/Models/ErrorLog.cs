@@ -133,7 +133,6 @@ namespace DGRA_V1.Models
                 content.AppendLine(sMessage);
             }
             //csvPath = env.ContentRootPath + @"\FileLog\" + csvPath;
-             csvPath = @"C:\LogFile\" + csvPath; 
             File.AppendAllText(csvPath, Convert.ToString(content));
             sMessage = "Total errors <" + errorCount + ">";
 

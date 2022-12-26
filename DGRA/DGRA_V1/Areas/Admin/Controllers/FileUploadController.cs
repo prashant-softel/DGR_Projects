@@ -1,25 +1,24 @@
 ﻿
+using DGRA_V1.Common;
 using DGRA_V1.Models;
+using DGRA_V1.Repository.Interface;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using OfficeOpenXml;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using DGRA_V1.Common;
-using System.Net;
-using System.Collections;
-using DGRA_V1.Repository.Interface;
-using OfficeOpenXml;
-using System.ComponentModel;
-using System.Globalization;
 
 namespace DGRA_V1.Areas.admin.Controllers
 {
@@ -114,7 +113,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             //windSiteList = HttpContextAccessor.HttpContext.Session.GetString("UserAccess");
             siteUserRole = HttpContext.Session.GetString("role");
             DateTime today = DateTime.Now;
-            string csvFileName = file.FileName + "_" + today.ToString("dd-MM-yyyy") + "_" + today.ToString("hh-mm-ss") + ".csv";
+            string csvFileName = env.ContentRootPath +@"\LogFile\"+ file.FileName + "_" + today.ToString("dd-MM-yyyy") + "_" + today.ToString("hh-mm-ss") + ".csv";
             importData[0] = fileUploadType;
             importData[1] = csvFileName;
             OleDbConnection oconn = null;
@@ -128,13 +127,13 @@ namespace DGRA_V1.Areas.admin.Controllers
             {
                 try
                 {
-                    if (!Directory.Exists(@"\TempFile"))
+                    if (!Directory.Exists(env.ContentRootPath + @"\TempFile"))
                     {
-                        DirectoryInfo dinfo = Directory.CreateDirectory(@"\TempFile");
+                        DirectoryInfo dinfo = Directory.CreateDirectory(env.ContentRootPath + @"\TempFile");
                     }
                     else
                     {
-                        string[] filePaths = Directory.GetFiles(@"\TempFile");
+                        string[] filePaths = Directory.GetFiles(env.ContentRootPath + @"\TempFile");
                         if (filePaths.Length > 0)
                         {
                             foreach (String path in filePaths)
@@ -147,26 +146,14 @@ namespace DGRA_V1.Areas.admin.Controllers
                     {
                         try
                         {
-                            // file.SaveAs(Server.MapPath(@"~" + @"\TempFile\docupload.xlsx"));
-
-                            using (var stream = new FileStream(@"\TempFile\docupload.xlsx", FileMode.Create))
+                            using (var stream = new FileStream(env.ContentRootPath + @"\TempFile\docupload.xlsx", FileMode.Create))
                             {
                                 file.CopyTo(stream);
                             }
-
-                            // file.SaveAs(Server.MapPath(@"~" + @"\TempFile\docupload.xlsx"));
-                            // string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=" + Server.MapPath(@"~" + @"\TempFile\docupload.xlsx") + ";" + "Extended Properties=" + "\"" + "Excel 12.0;HDR=YES;" + "\"";
-                            //////////string connectionString = @"Provider=Microsoft.ACE.OLEDB.12.0;" + "Data Source=" +@"\TempFile\docupload.xlsx" + ";" + "Extended Properties=" + "\"" + "Excel 12.0;HDR=YES;" + "\"";
-                            //////////List<string> fileSheets = new List<string>();
-                            //////////oconn = new System.Data.OleDb.OleDbConnection(connectionString);
-                            //////////oconn.Open();
-                            //////////DataTable dt = null;
-                            //////////dt = oconn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, null);
-                            //////////oconn.Close();
                             DataTable dt = null;
 
-                            //string _filePath = @"C:\TempFile\docupload.xlsx";
-                           string _filePath = @"G:\TempFile\docupload.xlsx";
+                            //string _filePath = @"E:\TempFile\docupload.xlsx";
+                            string _filePath = env.ContentRootPath + @"\TempFile\docupload.xlsx";
                             dataSetMain = GetDataTableFromExcel(_filePath, true, ref fileSheets);
                             if (dataSetMain == null)
                             {
@@ -812,7 +799,6 @@ namespace DGRA_V1.Areas.admin.Controllers
                     foreach (var li in _worksheetList)
                     {
                         dt = new DataTable();
-
                         dt.TableName = li;
                         ExcelWorksheet workSheet = package.Workbook.Worksheets[li];
                         //add column header
@@ -835,6 +821,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     catch (Exception ex)
                                     {
                                         status = "Something went wrong : Exception Caught Debugging Required";
+                                        ex.GetType();
                                         //+ ex.ToString();
                                         //status = status.Substring(0, (status.IndexOf("Exception") + 8));
                                         m_ErrorLog.SetError("," + status);
@@ -2405,7 +2392,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             if (ufile != null && ufile.Length > 0)
             {
                 var fileName = Path.GetFileName(ufile.FileName);
-                var filePath = env.ContentRootPath + @"C:\ImportedFile\" + fileName;
+                var filePath = env.ContentRootPath + @"\ImportedFile\" + fileName;
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await ufile.CopyToAsync(fileStream);

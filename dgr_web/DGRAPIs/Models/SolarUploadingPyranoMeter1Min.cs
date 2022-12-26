@@ -1,4 +1,6 @@
-﻿namespace DGRAPIs.Models
+﻿using System;
+
+namespace DGRAPIs.Models
 {
     public class SolarUploadingPyranoMeter1Min
     {

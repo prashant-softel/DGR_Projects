@@ -718,7 +718,7 @@ namespace DGRAPIs.Controllers
 
         [Route("CalculateDailySolarKPI")]
         [HttpGet]
-        public async Task<IActionResult> CalculateDailySolarKPI(string site, string fromDate, string toDate, string logFileName)
+        public async Task<IActionResult> CalculateDailySolarKPI(string fromDate, string toDate, string site, string logFileName)
         {
             try
             {
