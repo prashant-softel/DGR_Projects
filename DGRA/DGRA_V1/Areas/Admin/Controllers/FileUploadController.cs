@@ -113,7 +113,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             //windSiteList = HttpContextAccessor.HttpContext.Session.GetString("UserAccess");
             siteUserRole = HttpContext.Session.GetString("role");
             DateTime today = DateTime.Now;
-            string csvFileName = env.ContentRootPath +@"\LogFile\"+ file.FileName + "_" + today.ToString("dd-MM-yyyy") + "_" + today.ToString("hh-mm-ss") + ".csv";
+            string csvFileName = env.ContentRootPath + @"\LogFile\" + file.FileName + "_" + today.ToString("dd-MM-yyyy") + "_" + today.ToString("hh-mm-ss") + ".csv";
             importData[0] = fileUploadType;
             importData[1] = csvFileName;
             OleDbConnection oconn = null;
@@ -710,7 +710,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     if (fileSheets.Contains("Uploading_File_Generation") || fileSheets.Contains("Uploading_File_Breakdown") || fileSheets.Contains("Uploading_PyranoMeter1Min") || fileSheets.Contains("Uploading_PyranoMeter15Min"))
                                     {
                                         //pending : instead check the  success flags
-                                        if (isGenValidationSuccess && isGenValidationSuccess && isPyro15ValidationSuccess && isPyro1ValidationSuccess)
+                                        if (isGenValidationSuccess && isBreakdownValidationSuccess && isPyro15ValidationSuccess && isPyro1ValidationSuccess)
                                         {
                                             await importMetaData(fileUploadType, file.FileName);
                                             statusCode = await dgrSolarImport(batchIdDGRAutomation);
