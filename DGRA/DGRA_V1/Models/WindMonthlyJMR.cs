@@ -14,7 +14,8 @@ namespace DGRA_V1.Models
         public string plantSection { get; set; }
         public string jmrDate { get; set; }
         public string jmrMonth { get; set; }
-        public string jmrYear { get; set; }
+        public int jmrMonth_no { get; set; }
+        public int jmrYear { get; set; }
         public dynamic lineLossPercent { get; set; }
         public dynamic rkvhPercent { get; set; }
         public dynamic controllerKwhInv { get; set; }
