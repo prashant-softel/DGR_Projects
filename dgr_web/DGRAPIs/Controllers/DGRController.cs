@@ -728,7 +728,6 @@ namespace DGRAPIs.Controllers
             }
             catch (Exception ex)
             {
-
                 return BadRequest(ex.Message);
             }
         }
@@ -746,7 +745,21 @@ namespace DGRAPIs.Controllers
             }
             catch (Exception ex)
             {
+                return BadRequest(ex.Message);
+            }
+        }
 
+        [Route("GetWindMajorBreakdown")]
+        [HttpGet]
+        public async Task<IActionResult> GetWindMajorBreakdown(string fromDate, string toDate)
+        {
+            try
+            {
+                var data = await _dgrBs.GetWindMajorBreakdown(fromDate, toDate);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
                 return BadRequest(ex.Message);
             }
         }

@@ -686,7 +686,7 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT
             List<SolarLocationMaster> _SolarLocationMaster = new List<SolarLocationMaster>();
             _SolarLocationMaster = await Context.GetData<SolarLocationMaster>(qry).ConfigureAwait(false);
             return _SolarLocationMaster;
-           // return await Context.GetData<SolarLocationMaster>("Select location_master_solar_id,country,site,eg,ig,icr_inv,icr,inv,smb,string as strings,string_configuration,total_string_current,total_string_voltage,modules_quantity,wp,capacity,module_make,module_model_no,    module_type from location_master_solar where site IN (" + site + ")").ConfigureAwait(false);
+            // return await Context.GetData<SolarLocationMaster>("Select location_master_solar_id,country,site,eg,ig,icr_inv,icr,inv,smb,string as strings,string_configuration,total_string_current,total_string_voltage,modules_quantity,wp,capacity,module_make,module_model_no,    module_type from location_master_solar where site IN (" + site + ")").ConfigureAwait(false);
 
         }
         internal async Task<List<SolarLocationMaster>> GetSolarLocationMaster()
@@ -4591,7 +4591,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLoss(int site_id, string fromDate, string toDate, double capacity_mw)
         {
             //add column called kwh_afterlineloss and plf_afterlineloss in dailygensummary and uploadgentable
-            double lineLoss = await GetLineLoss(site_id, fromDate,1);
+            double lineLoss = await GetLineLoss(site_id, fromDate, 1);
             bool bIsGenSummary = false;
             /*string qry = "SELECT * from daily_gen_summary where site_id = " + site_id + " and date>='"+fromDate+"' and date<='"+toDate+"'";
             try
@@ -4974,7 +4974,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         }
         internal async Task<bool> CalculateDailySolarKPI(string site, string fromDate, string toDate, string logFileName)
         {
-            string filter = "date >= '" + fromDate + "'  and date<= '" + toDate + "' and site_id=" + site;
+            string filter = "date >= '" + fromDate + "'  and date<= '" + toDate + "' and site_id = " + site;
 
             bool response = false;
 
@@ -5911,8 +5911,15 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 return true;
             return false;
         }
-        
 
+        //MajorBreakdown api: 
+        public async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate)
+        {
+            string fetchQry = "SELECT * FROM `uploading_file_breakdown` where date >= '" + fromDate + "' and date <= '" + toDate + "'; ";
+            List<WindUploadingFileBreakDown> majorBreakdownData = new List<WindUploadingFileBreakDown>();
+            majorBreakdownData = await Context.GetData<WindUploadingFileBreakDown>(fetchQry).ConfigureAwait(false);
+            return majorBreakdownData;
+        }
         internal class ViewerStatsFormat
         {
         }
