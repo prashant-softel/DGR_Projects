@@ -53,7 +53,7 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-2 col-form-label text-left">FY : </label>
+                                <label class="col-sm-2 col-form-label text-right">FY : </label>
                                 <select class="form-control  col-sm-10" id="fy" name="fy" value="">
                                     <option value="">Select Financial Year</option>
                                 </select>
@@ -64,7 +64,7 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-3 col-form-label text-left">Month : </label>
+                                <label class="col-sm-3 col-form-label text-right">Month : </label>
                                 <select class="form-control  col-sm-9" id="month" name="month" value="">
                                     <option value="">Select Month</option>
                                     <option value="January">January</option>
@@ -194,8 +194,8 @@
                 tbl += '<th>JMR Month</th>';
                 tbl += '<th>JMR Year</th>';
                 tbl += '<th>Line Loss</th>';
-                tbl += '<th>Line Loss %</th>';
-                tbl += '<th>RKVH %</th>';
+                tbl += '<th>Line Loss (%)</th>';
+                tbl += '<th>RKVH (%)</th>';
                 tbl += '</tr></thead>';
 
                 if (result.length > 0) {
