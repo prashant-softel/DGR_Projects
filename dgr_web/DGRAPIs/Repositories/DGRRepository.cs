@@ -1,7 +1,5 @@
 ﻿using DGRAPIs.Helper;
 using DGRAPIs.Models;
-using Microsoft.AspNetCore.DataProtection.KeyManagement;
-using Org.BouncyCastle.Utilities.Collections;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -3488,7 +3486,7 @@ FROM daily_bd_loss_solar where   " + datefilter;
             //pending : add activity log
             //prepared update query because existing queries cannot be deleted and orphan existing site master ids
             //grabs db site_master table data into local object list
-            string fetchQry = "select site_master_id, site from site_master";
+            string fetchQry = "select site_master_id, UPPER(site) from site_master";
             List<WindSiteMaster> tableData = await Context.GetData<WindSiteMaster>(fetchQry).ConfigureAwait(false);
             WindSiteMaster existingRecord = new WindSiteMaster();
             int val = 0;
@@ -3500,7 +3498,7 @@ FROM daily_bd_loss_solar where   " + datefilter;
             foreach (var unit in set)
             {
                 //checks if db table contains site record that matches a record in client dataset
-                existingRecord = tableData.Find(tableRecord => tableRecord.site.Equals(unit.site));
+                existingRecord = tableData.Find(tableRecord => tableRecord.site.Equals(unit.site.ToUpper()));
                 if (existingRecord == null)
                 {
                     insertValues += "('" + unit.country + "','" + unit.site + "','" + unit.spv + "','" + unit.state + "','" + unit.model + "','" + unit.capacity_mw + "','" + unit.wtg + "','" + unit.total_mw + "','" + unit.tarrif + "','" + unit.total_tarrif + "','" + unit.gbi + "','" + unit.ll_compensation + "'),";
@@ -3553,7 +3551,7 @@ FROM daily_bd_loss_solar where   " + datefilter;
             //pending : add activity log
             //added logic where if site and wtg exists then update existing records
             //grabs db location_master table data into local object list
-            string fetchQry = "select wtg, location_master_id from location_master";
+            string fetchQry = "select UPPER(wtg), location_master_id from location_master";
             List<WindLocationMaster> tableData = await Context.GetData<WindLocationMaster>(fetchQry).ConfigureAwait(false);
             int val = 0;
 
@@ -3567,7 +3565,7 @@ FROM daily_bd_loss_solar where   " + datefilter;
             foreach (var unit in set)
             {
                 //checks if db table contains site record that matches a record in client dataset
-                existingRecord = tableData.Find(tableRecord => tableRecord.wtg.Equals(unit.wtg));
+                existingRecord = tableData.Find(tableRecord => tableRecord.wtg.Equals(unit.wtg.ToUpper()));
                 if (existingRecord == null)
                 {
                     insertValues += "('" + unit.site_master_id + "','" + unit.site + "','" + unit.wtg + "','" + unit.feeder + "','" + unit.max_kwh_day + "'),";
