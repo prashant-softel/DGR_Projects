@@ -583,8 +583,8 @@
                         tbl += '<td>' + approval_name + '</td>';
                         tbl += '<td>' + formattedDate2 + '</td>';
                         tbl += '<td>' + rejected_name + '</td>';
-                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem">G</a></div>';
-                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >B</a></div>';
+                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewSolarGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem">G</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewSolarBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >B</a></div>';
                         tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Pyranometer 1Min Data" class="btn  btn-info" onclick="ViewPY1Data(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >P1</a></div>';
                         tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Pyranometer 15Min Data" class="btn  btn-info" onclick="ViewPY15Data(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >P15</a></div>';
                         //enter filenames paths
@@ -683,10 +683,10 @@
             uri= '@Url.Action("DataReject", "SolarView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
 
         }
-      
+
         $.ajax({
             type: "POST",
-            url: uri, 
+            url: uri,
             contentType: "application/json; charset=utf-8",
             success: function (result, status, xhr) {
                 if (result > 0) {
@@ -711,9 +711,7 @@
     function ViewGenData(importlogId) {
         $.ajax({
             type: "POST",
-            //url: "/WindView/GetGenerationImportData?importId=" + importlogId,
             url: '@Url.Action("GetGenerationImportData", "WindView")' + '?importId=' + importlogId,
-            // url: "/WindView/DataApproved",
             contentType: "application/json; charset=utf-8",
             success: function (result1, status, xhr) {
                 console.log(result1);
@@ -806,21 +804,9 @@
 
                 }
                 tbl1 += '</table>';
-                document.getElementById("title").innerHTML = "Generation View";
+                document.getElementById("title").innerHTML = "Wind Generation View";
                 $("#importedData").html(tbl1);
-                /*$.noConflict();
-                $('#example1').DataTable({
-                    "responsive": true, "lengthChange": false, "autoWidth": false,
-                    //"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-                    "paging": true,
-                    "lengthChange": false,
-                    "searching": true,
-                    "ordering": true,
-                    "info": true,
-                    "autoWidth": false,
-                    "responsive": true,
-                });*///.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-                //}
+
             }
         });
     }
@@ -869,7 +855,305 @@
 
                 }
                 tbl2 += '</table>';
-                document.getElementById("title").innerHTML = "Breakdown View";
+                document.getElementById("title").innerHTML = "Wind Breakdown View";
+                $("#importedData").html(tbl2);
+            }
+        });
+    }
+
+    function ViewSolarGenData(importlogId) {
+    $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSolarGenerationImportData", "SolarView")' + '?importId=' + importlogId,
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl1 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:230%">';
+                tbl1 += '<thead class="tbl-head"><tr>';
+                tbl1 += '<th style="font-size: 12px;width:5%;">Date</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;width:5%; ">Site</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Location Name</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">GHI</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">POA</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Exp kWh</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Inv kWh</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Plant kWh</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Inv PR (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Plant PR (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">MA (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">IGA (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">EGA (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Inv Plf AC (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">PI</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Prod_hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Lull_hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">USMH BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">SMH BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Oth_hrs BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">IGBDH BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">EGBDH BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Load She.BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Total BD Hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">USMH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">SMH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">OH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">IGBDH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">EGBDH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Load She.</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Total Losses</th>';
+
+                tbl1 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1);
+                    for (var j = 0; j < result1.length; j++) {
+                        //debugger;
+                        //console.log("Un Array :"+result1[j]);
+                        let unsch_hrs = 0;
+                        let sch_hrs = 0;
+                        let other = 0;
+                        let igbdh = 0;
+                        let egbdh = 0;
+                        let load_shedding = 0;
+
+
+                        var formattedDate = moment(result1[j].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl1 += '<tr>';
+                        tbl1 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inverter + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].expected_kwh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inv_act.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].plant_act.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inv_pr.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].plant_pr.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ma.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].iga.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ega.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inv_plf_ac.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].pi + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].prod_hrs.toFixed(2)+ '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].lull_hrs_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].usmh_bd.toFixed(2)+ '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].smh_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].oh_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].igbdh_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].egbdh_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].load_shedding_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_bd_hrs.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].usmh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].smh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].oh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].igbdh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].egbdh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].load_shedding.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_losses.toFixed(2) + '</td>';
+                        tbl1 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl1 += '</table>';
+                document.getElementById("title").innerHTML = "Solar Generation View";
+                $("#importedData").html(tbl1);
+
+            }
+        });
+    }
+    function ViewSolarBreakdownData(importlogId) {
+        $.ajax({
+            type: "POST",
+            //url: "/WindView/GetBrekdownImportData?importId=" + importlogId,
+             url: '@Url.Action("GetSolarBrekdownImportData", "SolarView")' + '?importId=' + importlogId,
+            // url: "/WindView/DataApproved",
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl2 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:150%">';
+                tbl2 += '<thead class="tbl-head"><tr>';
+                tbl2 += '<th style="font-size: 12px;">Date</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Site</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">ICR</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Inverter</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">SMB</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">String</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">BD Type</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Start To</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Total Stop</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Ext/Int BD</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">IGBD</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Remarks</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Action Taken</th>';
+
+                tbl2 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1.length);
+                    for (var j = 0; j < result1.length; j++) {
+                        //console.log("Inside For Loop");
+                        var formattedDate = moment(result1[j].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl2 += '<tr>';
+                        tbl2 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].icr + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inv + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].smb + '</td>';
+                        tbl2 += '<td style="font-size: 12px; text-align: center;">' + result1[j].strings + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].from_bd['hours'] + ':' + result1[j].from_bd['minutes'] + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].to_bd['hours'] + ':' + result1[j].to_bd['minutes'] + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_bd['hours'] + ':' + result1[j].total_bd['minutes'] + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ext_int_bd + '</td>';
+                        tbl2 += '<td style="font-size: 12px;">' + result1[j].igbd + '</td>';
+                        tbl2 += '<td style="font-size: 12px;">' + result1[j].bd_remarks + '</td>';
+                        tbl2 += '<td style="font-size: 12px;">' + result1[j].action_taken + '</td>';
+                        tbl2 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl2 += '</table>';
+                document.getElementById("title").innerHTML = "Solar Breakdown View";
+                $("#importedData").html(tbl2);
+            }
+        });
+    }
+
+    function ViewPY1Data(importlogId) {
+        $.ajax({
+            type: "POST",
+            //url: "/WindView/GetBrekdownImportData?importId=" + importlogId,
+             url: '@Url.Action("GetSolarP1ImportData", "SolarView")' + '?importId=' + importlogId,
+            // url: "/WindView/DataApproved",
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl2 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:150%">';
+                tbl2 += '<thead class="tbl-head"><tr>';
+                tbl2 += '<th style="font-size: 12px;">Date Time</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Site</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">GHI 1</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">GHI 2</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 1</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 2</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 3</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 4</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 5</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 6</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 7</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">AVG GHI</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">AVG POA</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Amb Temp</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Mod Temp</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Weather Type</th>';
+
+                tbl2 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1.length);
+                    for (var j = 0; j < result1.length; j++) {
+                        //console.log("Inside For Loop");
+                        var formattedDate = moment(result1[j].date_time, 'YYYY-MM-DD hh:mm:ss ').format('DD-MM-YYYY HH:mm:ss');
+                        tbl2 += '<tr>';
+                        tbl2 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi_1.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi_2.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_1.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_2.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_3.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_4.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_5.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_6.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_7.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].avg_ghi.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].avg_poa.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].amb_temp.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].mod_temp.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].weather_type + '</td>';
+                       
+                        tbl2 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl2 += '</table>';
+                document.getElementById("title").innerHTML = "Solar Pyranometer 1Min View";
+                $("#importedData").html(tbl2);
+            }
+        });
+    }
+    function ViewPY15Data(importlogId) {
+        $.ajax({
+            type: "POST",
+            //url: "/WindView/GetBrekdownImportData?importId=" + importlogId,
+             url: '@Url.Action("GetSolarP15ImportData", "SolarView")' + '?importId=' + importlogId,
+            // url: "/WindView/DataApproved",
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl2 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:150%">';
+                tbl2 += '<thead class="tbl-head"><tr>';
+                tbl2 += '<th style="font-size: 12px;">Date Time</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Site</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">GHI 1</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">GHI 2</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 1</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 2</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 3</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 4</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 5</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 6</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 7</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">AVG GHI</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">AVG POA</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Amb Temp</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Mod Temp</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Weather Type</th>';
+
+                tbl2 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1.length);
+                    for (var j = 0; j < result1.length; j++) {
+                        var formattedDate = moment(result1[j].date_time, 'YYYY-MM-DD hh:mm:ss ').format('DD-MM-YYYY HH:mm:ss');
+                        tbl2 += '<tr>';
+                        tbl2 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi_1.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi_2.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_1.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_2.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_3.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_4.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_5.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_6.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_7.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].avg_ghi.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].avg_poa.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].amb_temp.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].mod_temp.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].weather_type + '</td>';
+                        tbl2 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl2 += '</table>';
+                document.getElementById("title").innerHTML = "Solar Pyranometer 15Min View";;
                 $("#importedData").html(tbl2);
             }
         });

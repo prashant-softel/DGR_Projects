@@ -41,5 +41,6 @@ namespace DGRAPIs.Models
         public dynamic avg_poa { get; set; }
         public dynamic amb_temp { get; set; }
         public dynamic mod_temp { get; set; }
+        public string weather_type { get; set; }
     }
 }

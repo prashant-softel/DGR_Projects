@@ -337,6 +337,22 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Route("GetSolarDailyGenerationReport")]
+        [HttpGet]
+        public async Task<IActionResult> GetSolarDailyGenerationReport(string fromDate, string toDate, string country, string state, string spv, string site, string inv, string reportType)
+        {
+            try
+            {
+                var data = await _dgrBs.GetSolarDailyGenerationReport(fromDate, toDate, country, state, spv, site, inv, reportType);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
 
         //[Route("GetWindDailyBreakdownReport/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{wtg}")]
         [Route("GetWindDailyBreakdownReport")]
@@ -455,7 +471,25 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-[Route("InsertSolarLocationMaster")]
+
+        [Route("GetSolarDailyGenSummaryReport2")]
+        [HttpGet]
+        public async Task<IActionResult> GetSolarDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inv, string month)
+        {
+            try
+            {
+                var data = await _dgrBs.GetSolarDailyGenSummaryReport2(fromDate, toDate, country, state, spv, site, inv, month);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("InsertSolarLocationMaster")]
         [HttpPost]
         public async Task<IActionResult> InsertSolarLocationMaster(List<SolarLocationMaster> set)
         {
@@ -694,13 +728,13 @@ namespace DGRAPIs.Controllers
         }
 
 
-        [Route("GetSolarDailyBreakdownReport/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}")]
+        [Route("GetSolarDailyBreakdownReport")]
         [HttpGet]
-        public async Task<IActionResult> GetSolarDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site)
+        public async Task<IActionResult> GetSolarDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site, string inv)
         {
             try
             {
-                var data = await _dgrBs.GetSolarDailyBreakdownReport(fromDate, toDate, country, state, spv, site);
+                var data = await _dgrBs.GetSolarDailyBreakdownReport(fromDate, toDate, country, state, spv, site, inv);
                 return Ok(data);
 
             }
@@ -1110,13 +1144,31 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("GetSolarDailyGenSummaryReport2/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{inverter}/{month}")]
+
+        [Route("GetSolarMonthlyGenSummaryReport1")]
         [HttpGet]
-        public async Task<IActionResult> GetSolarDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
+        public async Task<IActionResult> GetSolarMonthlyGenSummaryReport1(string fy, string month, string country, string state, string spv, string site, string inverter)
         {
             try
             {
-                var data = await _dgrBs.GetSolarDailyGenSummaryReport2(fromDate, toDate, country, state, spv, site, inverter, month);
+                var data = await _dgrBs.GetSolarMonthlyGenSummaryReport1(fy, month, country, state, spv, site, inverter);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [Route("GetSolarMonthlyGenSummaryReport2")]
+        [HttpGet]
+        public async Task<IActionResult> GetSolarMonthlyGenSummaryReport2(string fy, string month, string country, string state, string spv, string site, string inverter)
+        {
+            try
+            {
+                var data = await _dgrBs.GetSolarMonthlyGenSummaryReport2(fy, month, country, state, spv, site, inverter);
                 return Ok(data);
 
             }
@@ -1128,42 +1180,7 @@ namespace DGRAPIs.Controllers
         }
 
 
-        [Route("GetSolarMonthlyGenSummaryReport1/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{inverter}/{month}")]
-        [HttpGet]
-        public async Task<IActionResult> GetSolarMonthlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
-        {
-            try
-            {
-                var data = await _dgrBs.GetSolarMonthlyGenSummaryReport1(fromDate, toDate, country, state, spv, site, inverter, month);
-                return Ok(data);
-
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(ex.Message);
-            }
-        }
-
-        [Route("GetSolarMonthlyGenSummaryReport2/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{inverter}/{month}")]
-        [HttpGet]
-        public async Task<IActionResult> GetSolarMonthlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
-        {
-            try
-            {
-                var data = await _dgrBs.GetSolarMonthlyGenSummaryReport2(fromDate, toDate, country, state, spv, site, inverter, month);
-                return Ok(data);
-
-            }
-            catch (Exception ex)
-            {
-
-                return BadRequest(ex.Message);
-            }
-        }
-
-
-        [Route("GetSolarYearlyGenSummaryReport1/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{inverter}/{month}")]
+        [Route("GetSolarYearlyGenSummaryReport1")]
         [HttpGet]
         public async Task<IActionResult> GetSolarYearlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
         {
@@ -1180,7 +1197,7 @@ namespace DGRAPIs.Controllers
             }
         }
 
-        [Route("GetSolarYearlyGenSummaryReport2/{fromDate}/{toDate}/{country}/{state}/{spv}/{site}/{inverter}/{month}")]
+        [Route("GetSolarYearlyGenSummaryReport2")]
         [HttpGet]
         public async Task<IActionResult> GetSolarYearlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
         {
@@ -1827,6 +1844,24 @@ namespace DGRAPIs.Controllers
                 }
             }
         }
+        [Route("GetStateListSolar")]
+        [HttpGet]
+        public async Task<IActionResult> GetStateListSolar(string country)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetStateListSolar(country);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
         [Route("GetSPVList")]
         [HttpGet]
         public async Task<IActionResult> GetSPVList(string state)
@@ -1835,6 +1870,24 @@ namespace DGRAPIs.Controllers
                 try
                 {
                     var data = await _dgrBs.GetSPVList(state);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetSPVSolarList")]
+        [HttpGet]
+        public async Task<IActionResult> GetSPVSolarList(string state)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetSPVListSolar(state);
                     return Ok(data);
 
                 }
@@ -1863,6 +1916,24 @@ namespace DGRAPIs.Controllers
                 }
             }
         }
+        [Route("GetSiteListSolar")]
+        [HttpGet]
+        public async Task<IActionResult> GetSiteListSolar(string state, string spvdata, string site)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetSiteListSolar(state, spvdata, site);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
         [Route("GetWTGList")]
         [HttpGet]
         public async Task<IActionResult> GetWTGList(string siteid)
@@ -1871,6 +1942,24 @@ namespace DGRAPIs.Controllers
                 try
                 {
                     var data = await _dgrBs.GetWTGList(siteid);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetInvList")]
+        [HttpGet]
+        public async Task<IActionResult> GetInvList(string siteid, string state, string spv)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetInvList(siteid,  state, spv);
                     return Ok(data);
 
                 }
@@ -1908,6 +1997,79 @@ namespace DGRAPIs.Controllers
                 try
                 {
                     var data = await _dgrBs.GetBrekdownImportData(importId);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        // Get Solar Generation imported Data
+        [Route("GetSolarImportGenData")]
+        [HttpGet]
+        public async Task<IActionResult> GetSolarImportGenData(int importId)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetSolarImportGenData(importId);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetSolarBrekdownImportData")]
+        [HttpGet]
+        public async Task<IActionResult> GetSolarBrekdownImportData(int importId)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetSolarBrekdownImportData(importId);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetSolarP1ImportData")]
+        [HttpGet]
+        public async Task<IActionResult> GetSolarP1ImportData(int importId)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetSolarP1ImportData(importId);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetSolarP15ImportData")]
+        [HttpGet]
+        public async Task<IActionResult> GetSolarP15ImportData(int importId)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetSolarP15ImportData(importId);
                     return Ok(data);
 
                 }

@@ -651,7 +651,7 @@
         solar_site = solar_site != "" ? solar_site.slice(0, -1) : solar_site;
 
         var startDate = monthdate.startdate;
-        var endDate = monthdate.enddate;
+        var endDate = GetPreviousDate();
         var FY = $('select#fy option:selected').val();
 
         $.ajax({
@@ -695,9 +695,10 @@
                     document.getElementById("monthly_solar_enrgy_var").innerHTML = "(0 %)";
                     document.getElementById("monthly_ir_var").innerHTML = "(0 %)";
                 }
-                GetSolarDataByYearly();
+               
             }
         });
+        GetSolarDataByYearly();
     }
 
     function GetSolarDataByYearly() {
@@ -708,8 +709,8 @@
 
         });
         solar_site = solar_site != "" ? solar_site.slice(0, -1) : solar_site;
-        var startDate = monthdate.startdate;
-        var endDate = monthdate.enddate;
+        var startDate = fdate.startdate;
+        var endDate = GetPreviousDate();
         var FY = $('select#fy option:selected').val();
 
         $.ajax({

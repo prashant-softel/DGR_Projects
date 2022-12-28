@@ -1,16 +1,38 @@
-﻿@using Newtonsoft.Json;
+﻿
+@using Newtonsoft.Json;
 @using Microsoft.AspNetCore.Http;
 @inject IHttpContextAccessor HttpContextAccessor
-
+@model DGRA_V1.Models.CountryList
+@{
+    ViewData["Title"] = "Wind Generation Reports";
+}
 @{
     ViewData["Title"] = "Solar Approval";
 }
-<!--<script>
-    window.onload = function () {
-        alert("caal");
+
+<!--<link rel="stylesheet" href="/path/to/cdn/bootstrap.min.css" />
+<script src="/path/to/cdn/jquery.min.js"></script>
+<script src="/path/to/cdn/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">-->
+<!-- Font Awesome -->
+<!--<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">-->
+<!-- daterange picker -->
+<!--<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">-->
+<!-- DataTables -->
+<!--<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
     }
-</script>-->
-<!-- Content Wrapper. Contains page content -->
+</style>-->
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
@@ -19,9 +41,20 @@
 <!-- DataTables -->
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
-<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+@*<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">*@
 <link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    table th {
+        padding: 0.5rem !important;
+        font-size: 15px !important;
+    }
+
+    table td {
+        padding: 0.2rem !important;
+        font-size: 15px !important;
+    }
+</style>
 
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
@@ -48,16 +81,9 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Solar Approval</h3>
+                <h3 class="card-title text-center">Solar Breakdown Report</h3>
 
-                <div class="card-tools" style="float:right">
-                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
-                        <i class="fas fa-minus"></i>
-                    </button>
-                    <!--<button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
-                        <i class="fas fa-times"></i>
-                    </button>-->
-                </div>
+
             </div>
             <div class="card-body">
                 <!--<div class="row">
@@ -142,35 +168,14 @@
 
                 <div class="row">
                     <div class="col-sm-4">
-                        <!-- select -->
-                        <div class="form-group row">
-                            <label for="date" class="col-sm-4 col-form-label text-right">From Date : </label>
-                            <div class="col-8">
-                                <div class="input-group date" id="datepicker" style="width: 105%; margin-left: -3%;">
-                                    <input type="text" class="form-control" id="fromDate" name="fromDate" />
-                                    <span class="input-group-append">
-                                        <span class="input-group-text bg-light d-block">
-                                            <i class="fa fa-calendar"></i>
-                                        </span>
-                                    </span>
-                                </div>
+                        <div class="input-group " style="margin-left: -5px; width: 104%;">
+                            <label class="col-sm-4 col-form-label text-right">Date : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
                             </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <!-- select -->
-                        <div class="form-group row">
-                            <label for="date" class="col-sm-4 col-form-label text-right">To Date : </label>
-                            <div class="col-8">
-                                <div class="input-group date" id="datepicker" style="width: 105%; margin-left: -3%;">
-                                    <input type="text" class="form-control" id="toDate" name="toDate" />
-                                    <span class="input-group-append">
-                                        <span class="input-group-text bg-light d-block">
-                                            <i class="fa fa-calendar"></i>
-                                        </span>
-                                    </span>
-                                </div>
-                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
                         </div>
                     </div>
                     <div class="col-sm-4">
@@ -187,6 +192,15 @@
                             </div>
                         </div>
                     </div>
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">State : </label>
+                                <select class="form-control  col-sm-8" id="state" name="state[]" value="" onchange="GetSPV()" multiple></select>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
 
@@ -195,20 +209,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">State : </label>
-                                <select class="form-control  col-sm-8" id="state" name="state" value="" onchange="GetSPV(this.value);">
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-sm-4">
-                        <!-- select -->
-                        <div class="form-group">
-                            <div class="row">
                                 <label class="col-sm-4 col-form-label text-right">SPV : </label>
-                                <select class="form-control  col-sm-8" id="spv" name="spv" value="" onchange="getSite()">
-                                    <option value="">Select SPV</option>
-                                </select>
+                                <select class="form-control  col-sm-8" id="spv" name="spv[]" value="" onchange="GetSite()" multiple></select>
                             </div>
                         </div>
                     </div>
@@ -217,26 +219,22 @@
                         <div class="form-group">
                             <div class="row">
                                 <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site" value="" onchange="GetWTG(this.value)">
+                                <select class="form-control  col-sm-8" id="site" name="site[]" value="" onchange="GetInverter()" multiple>
                                 </select>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="row">
                     <div class="col-sm-4">
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">WTG : </label>
-                                <select class="form-control  col-sm-8" id="wtg" name="wtg">
-                                    <option value="">Select WTG</option>
+                                <label class="col-sm-4 col-form-label text-right">Inverter: </label>
+                                <select class="form-control  col-sm-8" id="inv" name="inv[]" multiple>
                                 </select>
                             </div>
                         </div>
                     </div>
                     <div class="col-sm-8"></div>
-
                 </div>
                 <div class="row">
                     <div class="col-sm-5 text-center"></div>
@@ -246,7 +244,7 @@
                     <div class="col-sm-5 text-center"></div>
                 </div>
                 <hr>
-                <div id="reports"></div>
+                <div id="bdreport" style="overflow-x: auto;" class="bdreport"></div>
                 <!--<table id="example1" class="table table-bordered table-striped">
                     <thead>
                         <tr>
@@ -285,9 +283,7 @@
 
             </div>
 
-            <!--<div class="card-footer">
-                Footer
-            </div>-->
+
 
         </div>
 
@@ -295,38 +291,40 @@
     </section>
 
 </div>
+
 <script src="~/Content/theme/plugins/jquery/jquery.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 
-<!--<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="~/Content/theme/plugins/select2/js/select2.full.min.js"></script>
-<script src="~/Content/theme/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>-->
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
 <!--Date Range -->
 <script src="~/Content/theme/plugins/moment/moment.min.js"></script>
-<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js"></script>
-<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
-<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
 <script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
 <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
 
 <script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
-<!--Datatable -->
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+
 <script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js"></script>
-<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
 
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
 <script type="text/javascript">
-
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
     window.onload = function () {
         var selcountry = $('select#country option:selected').val();
         $.ajax({
@@ -338,14 +336,17 @@
             datatype: "html",
             success: function (result, status, xhr) {
                 var options = "";
-                options += '<option value="">Select State</option>';
                 for (var i = 0; i < result.length; i++) {
                     options += '<option value="' + result[i].state + '">' + result[i].state + '</option>';
                 }
                 $("#state").html(options);
+                $('#state').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select State(s)",
+                });
             }
         });
-        //getSite();
+        GetSPV();
     }
     /*function GetCountry(val) {
         $.ajax({
@@ -365,29 +366,54 @@
         });
     }*/
 
-    function GetSPV(val) {
+    function GetSPV() {
+        let state = "";
+        $('select#state option:selected').each(function () {
+            state += "'" + $(this).val() + "',";
+           // console.log($(this).val());
+
+        });
+        state = state != "" ? state.slice(0, -1) : state;
+       // console.log(state);
         $.ajax({
             type: "GET",
             //url: "/SolarReport/GetSPVList?state=" + val,
-            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + val,
+
+            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
+                //console.log(result);
                 var options = "";
-                options += '<option value="">Select SPV</option>';
                 for (var j = 0; j < result.length; j++) {
                     options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
                 }
+                $("#spv").multipleSelect('destroy');
                 $("#spv").html(options);
+                $('#spv').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select SPV(s)",
+                });
             }
         });
-        getSite();
+        GetSite();
     }
-    function getSite() {
-        var state = $('select#state option:selected').val();
-        var spv = $('select#spv option:selected').val();
+    function GetSite() {
+        let state = "";
+        $('select#state option:selected').each(function () {
+            state += $(this).val() + ",";
+           // console.log($(this).val());
 
+        });
+        //console.log(state);
+        let spv = "";
+        $('select#spv option:selected').each(function () {
+            spv += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+        //console.log(spv);
         $.ajax({
             type: "POST",
             url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state + '&spv=' + spv,
@@ -396,60 +422,130 @@
             // data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
+                //console.log(result);
+
                 var options = "";
-                options += '<option value="">Select Site</option>';
                 for (var k = 0; k < result.length; k++) {
-                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
+                    options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
                 }
+                $("#site").multipleSelect('destroy');
                 $("#site").html(options);
+                $('#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                });
             }
         });
+        GetInverter();
     }
-    function GetWTG(siteid) {
+    function GetInverter() {
+        let state = "";
+        $('select#state option:selected').each(function () {
+            state += $(this).val() + ",";
+            //console.log($(this).val());
+
+        });
+        //console.log(state);
+        let spv = "";
+        $('select#spv option:selected').each(function () {
+            spv += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+       // console.log(spv);
+        let site = "";
+        $('select#site option:selected').each(function () {
+            site += $(this).val() + ",";
+            //console.log($(this).val());
+
+        });
+        //console.log(site);
+
         $.ajax({
             type: "GET",
             //url: "/SolarReport/GetWTGList?siteid=" + siteid,
-            url: '@Url.Action("GetWTGList", "SolarReport")' + '?siteid=' + siteid,
+
+            url: '@Url.Action("GetInvList", "SolarReport")' + '?siteid=' + site + '&state=' + state + '&spv=' + spv,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
+               // console.log(result);
                 var options = "";
-                options += '<option value="">Select WTG</option>';
-                for (var k = 0; k < result.length; k++) {
-                    options += '<option value="' + result[k].wtg + '">' + result[k].wtg + '</option>';
+                for (var k = result.length-1; k >=0 ; k--) {
+                    options += '<option value="' + result[k].icr_inv + '">' + result[k].icr_inv + '</option>';
                 }
-                $("#wtg").html(options);
+                $("#inv").multipleSelect('destroy');
+                $("#inv").html(options);
+                $('#inv').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Inverter(s)",
+                });
             }
         });
     }
 
     function GetBreakdownReport() {
-        var fromDate = "2022-10-18";
-        var toDate = "2022-10-20";
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var country = $('select#country option:selected').val();
-        var state = $('select#state option:selected').val();
-        var spv = $('select#spv option:selected').val();
-        var site = $('select#site option:selected').val();
-        var wtg = $('select#wtg option:selected').val();
+
+        let state = "";
+        $('select#state option:selected').each(function () {
+            state += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+        //console.log(state);
+
+        let spv = "";
+        $('select#spv option:selected').each(function () {
+            spv += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+        //console.log(spv);
+
+        let site = "";
+        $('select#site option:selected').each(function () {
+            site += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+       // console.log(site);
+
+        let inv = "";
+        $('select#inv option:selected').each(function () {
+            inv += $(this).val() + ",";
+            //console.log($(this).val());
+
+        });
+        //console.log(inv);
+
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetSolarBreakdownReport", "SolarReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg,
+            url: '@Url.Action("GetSolarBreakdownReport", "SolarReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&inv=' + inv,
             //url: "/SolarReport/GetSolarBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
             contentType: "application/json; charset=utf-8",
             // data: '{"fromDate":"' + fromDate + '","toDate":"' + toDate + '","country":"' + country + '","state":"' + state + '","spv":"' + spv + '","site":"' + site + '","wtg":"' + wtg+'" }',
             datatype: "JSON",
             success: function (result, status, xhr) {
-                //console.log(result);
-                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
-                tbl += '<thead><tr>';
+                console.log(result);
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline" style="width: 132%;">';
+                tbl += '<thead  class="tbl-head"><tr>';
                 tbl += '<th>Date</th>';
                 tbl += '<th>Country</th>';
                 tbl += '<th>State</th>';
                 tbl += '<th>SPV</th>';
                 tbl += '<th>Site</th>';
-                tbl += '<th>WTG</th>';
                 tbl += '<th>BD Type</th>';
+                tbl += '<th>ICR</th>';
+                tbl += '<th>INV</th>';
+                tbl += '<th>SMB</th>';
+                tbl += '<th>Strings</th>';
                 tbl += '<th>Start From</th>';
                 tbl += '<th>Stop To</th>';
                 tbl += '<th>Total Stop</th>';
@@ -460,19 +556,21 @@
                 if (result.length > 0) {
                     console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {
-                        console.log(result[i].date);
                         tbl += '<tr>';
                         tbl += '<td>' + result[i].date + '</td>';
                         tbl += '<td>' + result[i].country + '</td>';
-                        tbl += '<td>' + result[i].site + '</td>';
+                        tbl += '<td>' + result[i].state + '</td>';
                         tbl += '<td>' + result[i].spv + '</td>';
                         tbl += '<td>' + result[i].site + '</td>';
-                        tbl += '<td>' + result[i].wtg + '</td>';
-                        tbl += '<td>' + result[i].bd_type_name + '</td>';
-                        tbl += '<td>' + result[i].stop_from + '</td>';
-                        tbl += '<td>' + result[i].stop_to + '</td>';
-                        tbl += '<td>' + result[i].total_stop + '</td>';
-                        tbl += '<td>' + result[i].error_description + '</td>';
+                        tbl += '<td>' + result[i].bd_type + '</td>';
+                        tbl += '<td>' + result[i].icr + '</td>';
+                        tbl += '<td>' + result[i].inv + '</td>';
+                        tbl += '<td>' + result[i].smb + '</td>';
+                        tbl += '<td>' + result[i].strings + '</td>';
+                        tbl += '<td>' + result[i].from_bd['hours'] + ':' + result[i].from_bd['minutes']+ '</td>';
+                        tbl += '<td>' + result[i].to_bd['hours'] + ':' + result[i].to_bd['minutes']+ '</td>';
+                        tbl += '<td>' + result[i].total_stop['hours'] + ':' + result[i].total_stop['minutes']+ '</td>';
+                        tbl += '<td>' + result[i].bd_remarks + '</td>';
                         tbl += '<td>' + result[i].action_taken + '</td>';
                         tbl += '</tr>';
                     }
@@ -482,28 +580,48 @@
                     tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
-                $("#reports").html(tbl);
+                $("#bdreport").html("").html(tbl);
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Breakdown Reports',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Breakdown Reports',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+                $('#example1').removeClass('dataTable');
+
             }
         });
 
     }
 
-</script>
-<script>
-    $(function () {
-        $.noConflict();
-        $("#example1").DataTable({
-            "responsive": true, "lengthChange": false, "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"]
-        }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
-        $('#example2').DataTable({
-            "paging": true,
-            "lengthChange": false,
-            "searching": false,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-            "responsive": true,
-        });
-    });
 </script>

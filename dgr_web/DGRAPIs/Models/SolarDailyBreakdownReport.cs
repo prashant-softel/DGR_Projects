@@ -18,8 +18,8 @@ namespace DGRAPIs.Models
         public string inv { get; set; }
         public string smb { get; set; }
         public string strings { get; set; }
-        public string from_bd { get; set; }
-        public string to_bd { get; set; }
+        public dynamic from_bd { get; set; }
+        public dynamic to_bd { get; set; }
         public dynamic total_stop { get; set; }
         public string bd_remarks { get; set; }
         public string action_taken { get; set; }

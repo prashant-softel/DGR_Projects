@@ -587,40 +587,53 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT
         internal async Task<List<SolarDashboardData>> GetSolarDashboardDataByCurrentMonth(string startDate, string endDate, string FY, string sites, string month)
         {
 
-            string filter = "(t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') and month(t1.date)=" + month + " ";
-            /* if (!string.IsNullOrEmpty(sites) && sites != "All")
-             {
-                 string[] siteSplit = sites.Split("~");
-                 if (siteSplit.Length > 0)
-                 {
-                     string sitesnames = "";
-                     for (int i = 0; i < siteSplit.Length; i++)
-                     {
-                         if (!string.IsNullOrEmpty(siteSplit[i]))
-                         {
-                             sitesnames += "'" + siteSplit[i] + "',";
-                         }
-                     }
-                     sitesnames = sitesnames.TrimEnd(',');
-                     filter += " and t1.site in(" + sitesnames + ")";
-                 }
-
-             }*/
+            string filter = " (t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') and month(t1.date)=" + month + " ";
+            //string filter = " (t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') and month(t1.date)=month('" +startDate +"') ";
+            string filter1 = " and (t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') ";
             if (!string.IsNullOrEmpty(sites))
             {
-                filter += " and t1.site_id in(" + sites + ")";
-
+                filter += " and t1.site_id in(" + sites + ") ";
+                filter1 += " and t2.site_id in(" + sites + ") ";
             }
 
-            string qry = @" select t1.date,month(t1.date)as month,t1.site,sum(inv_kwh) as inv_kwh,avg(t1.poa) as IR,
+            string qry1 = "create or replace view temp_view as select t1.date,t1.site_id, site, t1.poa, gen_nos from daily_target_kpi_solar t1, daily_gen_summary_solar t2 where t1.date = t2.date and t1.sites = t2.site"
+                + filter1 + " group by t1.date, t2.site_id;";
+            try
+            {
+                await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                string msg = ex.Message;
+            }
+            string qry2 = "select site, site_id, sum(gen_nos) as tarkwh, avg(poa) as tarIR from temp_view group by site, month(date);";
+            List<SolarDashboardData> _SolarDashboardData2 = new List<SolarDashboardData>();
+            _SolarDashboardData2 = await Context.GetData<SolarDashboardData>(qry2).ConfigureAwait(false);
+
+
+
+            string qry3 = @" select t1.date,month(t1.date)as month,t1.site,sum(inv_kwh) as inv_kwh,avg(t1.poa) as IR,
 replace(t2.lineloss,'%','')as line_loss,sum(inv_kwh)-(sum(inv_kwh) * replace(t2.LineLoss,'%','') /100) as jmrkwh,
 (t3.gen_nos*1000000) as tarkwh, avg(t3.poa) as tarIR from daily_gen_summary_solar t1 
-left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT(t1.date, '%b') and t2.fy='" + FY + "' left join daily_target_kpi_solar t3 on t3.sites=t1.site and t3.date=t1.date  where   " + filter + "  group by t1.Site,month(t1.date) order by t1.date desc ";
+left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month_no=month(t1.date) and t2.fy='" + FY + "' left join daily_target_kpi_solar t3 on t3.sites=t1.site and t3.date=t1.date  where   " + filter + "  group by t1.Site,month(t1.date) order by t1.date desc ";
 
             // t3 on t3.sites=t1.site and t3.date=t1.date  where t1.approve_status=" + approve_status + " and " + filter + "  group by t1.Site,month(t1.date) order by t1.date desc ";
 
+            List<SolarDashboardData> _SolarDashboardData = new List<SolarDashboardData>();
+            _SolarDashboardData = await Context.GetData<SolarDashboardData>(qry3).ConfigureAwait(false);
 
-            return await Context.GetData<SolarDashboardData>(qry).ConfigureAwait(false);
+            foreach (SolarDashboardData _solarData in _SolarDashboardData)
+            {
+                foreach (SolarDashboardData _solarData2 in _SolarDashboardData2)
+                {
+                    if (_solarData.Site == _solarData2.Site)
+                    {
+                        _solarData.tarkwh = _solarData2.tarkwh * 1000000;
+                        _solarData.tarIR = _solarData2.tarIR;
+                    }
+                }
+            }
+            return _SolarDashboardData;
 
 
         }
@@ -628,39 +641,62 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT
         internal async Task<List<SolarDashboardData>> GetSolarDashboardDataByYearly(string startDate, string endDate, string FY, string sites)
         {
 
-            string filter = "(t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') ";
-            /* if (!string.IsNullOrEmpty(sites) && sites != "All")
-             {
-                 string[] siteSplit = sites.Split("~");
-                 if (siteSplit.Length > 0)
-                 {
-                     string sitesnames = "";
-                     for (int i = 0; i < siteSplit.Length; i++)
-                     {
-                         if (!string.IsNullOrEmpty(siteSplit[i]))
-                         {
-                             sitesnames += "'" + siteSplit[i] + "',";
-                         }
-                     }
-                     sitesnames = sitesnames.TrimEnd(',');
-                     filter += " and t1.site in(" + sitesnames + ")";
-                 }
-
-             }*/
+            string[] datebuild = startDate.Split("-");
+            startDate = datebuild[2] + "-" + datebuild[1] + "-" + datebuild[0];
+            string filter = "(t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "')  ";
+            string filter1 = " and (t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "')  ";
             if (!string.IsNullOrEmpty(sites))
             {
                 filter += " and t1.site_id in(" + sites + ")";
+                filter1 += " and t2.site_id in(" + sites + ")";
 
             }
-            string qry = @" select t1.date,month(t1.date)as month,t1.site,sum(inv_kwh) as inv_kwh,avg(t1.poa) as IR,
+            /*string qry = @" select t1.date,month(t1.date)as month,t1.site,sum(inv_kwh) as inv_kwh,avg(t1.poa) as IR,
 replace(t2.lineloss,'%','')as line_loss,sum(inv_kwh)-(sum(inv_kwh) * replace(t2.LineLoss,'%','') /100) as jmrkwh,
 (t3.gen_nos*1000000) as tarkwh, avg(t3.poa) as tarIR from daily_gen_summary_solar t1 
-left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT(t1.date, '%b') and t2.fy='" + FY + "' left join daily_target_kpi_solar t3 on t3.sites=t1.site and t3.date=t1.date  where  " + filter + "  group by t1.Site,month(t1.date),year(t1.date)  order by t1.date desc ";
+left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT(t1.date, '%b') and t2.fy='" + FY + "' left join daily_target_kpi_solar t3 on t3.sites=t1.site and t3.date=t1.date  where  " + filter + "  group by t1.Site,month(t1.date),year(t1.date)  order by t1.date desc "; */
+            //t3 on t3.sites=t1.site and t3.date=t1.date  where t1.approve_status=" + approve_status + " and " + filter + "  group by t1.Site,month(t1.date),year(t1.date)  order by t1.date desc ";
+
+            string qry1 = "create or replace view temp_view_year_solar as select t1.date, t2.site_id, t1.sites, t1.gen_nos, t1.poa from daily_target_kpi_solar t1," +
+                "daily_gen_summary_solar t2 where t1.date = t2.date and t1.sites = t2.site " + filter1 +
+              "group by t1.date, t2.site_id ";
+            try
+            {
+                await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                string ex = e.Message;
+            }
+            string qry2 = " select month(date) as month, sites as Site, sum(gen_nos) as tarkwh, avg(poa) as tarIR from temp_view_year_solar group by site_id, month(date), year(date); ";
+            List<SolarDashboardData> _SolarDashboardData2 = new List<SolarDashboardData>();
+            _SolarDashboardData2 = await Context.GetData<SolarDashboardData>(qry2).ConfigureAwait(false);
+
+            string qry = @"  select t1.date,month(t1.date)as month,t1.site,sum(inv_kwh) as inv_kwh,avg(t1.poa) as IR,
+replace(t2.lineloss,'%','')as line_loss,sum(inv_kwh)-(sum(inv_kwh) * replace(t2.LineLoss,'%','') /100) as jmrkwh,
+(t3.gen_nos*1000000) as tarkwh, avg(t3.poa) as tarIR from daily_gen_summary_solar t1 
+left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month_no=month(t1.date) and t2.fy='" + FY + "' " +
+            " left join daily_target_kpi_solar t3 on t3.sites=t1.site and t3.date=t1.date  where  " + filter +
+            " group by t1.Site,month(t1.date),year(t1.date)  order by t1.date desc ";
 
             //t3 on t3.sites=t1.site and t3.date=t1.date  where t1.approve_status=" + approve_status + " and " + filter + "  group by t1.Site,month(t1.date),year(t1.date)  order by t1.date desc ";
 
+            List<SolarDashboardData> _SolarDashboardData = new List<SolarDashboardData>();
+            _SolarDashboardData = await Context.GetData<SolarDashboardData>(qry).ConfigureAwait(false);
 
-            return await Context.GetData<SolarDashboardData>(qry).ConfigureAwait(false);
+            foreach (SolarDashboardData _solarData in _SolarDashboardData)
+            {
+                foreach (SolarDashboardData _solarData2 in _SolarDashboardData2)
+                {
+                    if (_solarData.Site == _solarData2.Site && _solarData.month == _solarData2.month)
+                    {
+                        _solarData.tarkwh = _solarData2.tarkwh * 1000000;
+                        _solarData.tarIR = _solarData2.tarIR;
+                    }
+                }
+            }
+
+            return _SolarDashboardData;
 
 
         }
@@ -803,8 +839,121 @@ where   " + filter;
 
              //where t1.approve_status="+approve_status+" and " + filter;
              return await Context.GetData<WindDailyGenReports>(qry).ConfigureAwait(false);*/
-
         }
+
+        internal async Task<List<SolarDailyGenReports>> GetSolarDailyGenerationReport(string fromDate, string toDate, string country, string state, string spv, string site, string inv, string reportType)
+        {
+
+            string filter = " (date >= '" + fromDate + "'  and date<= '" + toDate + "') ";
+            if (!string.IsNullOrEmpty(site))
+            {
+                filter += "and site_master_solar_id IN(" + site + ") ";
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(state))
+                {
+
+                    string[] siteSplit = state.Split(",");
+                    if (siteSplit.Length > 0)
+                    {
+                        string statenames = "";
+                        for (int i = 0; i < siteSplit.Length; i++)
+                        {
+                            if (!string.IsNullOrEmpty(siteSplit[i]))
+                            {
+                                statenames += "'" + siteSplit[i] + "',";
+                            }
+                        }
+                        statenames = statenames.TrimEnd(',');
+                        //filter += " and site in(" + sitesnames + ")";
+
+                        filter += " and t1.state IN(" + statenames + ") ";
+                    }
+
+                }
+                if (!string.IsNullOrEmpty(spv) && spv != "All")
+                {
+
+                    string[] spvSplit = spv.Split(",");
+                    if (spvSplit.Length > 0)
+                    {
+                        string spvnames = "";
+                        for (int i = 0; i < spvSplit.Length; i++)
+                        {
+                            if (!string.IsNullOrEmpty(spvSplit[i]))
+                            {
+                                spvnames += "'" + spvSplit[i] + "',";
+                            }
+                        }
+                        spvnames = spvnames.TrimEnd(',');
+                        //filter += " and site in(" + sitesnames + ")";
+
+                        filter += " and spv IN(" + spvnames + ") ";
+                        //filter += " where state='" + state + "' and spv='" + spv + "'";
+                    }
+
+                }
+
+            }
+            if (!string.IsNullOrEmpty(inv) && inv != "All")
+            {
+
+                string[] invSplit = inv.Split(",");
+                if (invSplit.Length > 0)
+                {
+                    string invnames = "";
+                    for (int i = 0; i < invSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(invSplit[i]))
+                        {
+                            invnames += "'" + invSplit[i] + "',";
+                        }
+                    }
+                    invnames = invnames.TrimEnd(',');
+                    //filter += " and site in(" + sitesnames + ")";
+
+                    filter += " and location_name IN(" + invnames + ") ";
+                    //filter += " where state='" + state + "' and spv='" + spv + "'";
+                }
+
+            }
+            if (reportType == "INV")
+            {
+                filter += " group by location_name ";
+            }
+            if (reportType == "Site")
+            {
+                filter += " group by t1.site ";
+            }
+            string qry = @"SELECT date,t2.country,t1.state,t2.spv,t1.site, t1.location_name as Inverter,
+                    dc_capacity, ac_capacity,
+                    ghi, poa, expected_kwh, inv_kwh, plant_kwh, inv_pr, plant_pr,
+                    inv_plf_ac as inv_plf, plant_plf_ac as plant_plf, ma as ma_actual ,iga,ega,prod_hrs,total_bd_hrs,usmh_bs,
+                    smh_bd, oh_bd, igbdh_bd, egbdh_bd, load_shedding_bd, total_bd_hrs, usmh, smh, oh, igbdh, egbdh,
+                    
+                    load_shedding, total_losses FROM daily_gen_summary_solar t1 left join
+                    site_master_solar t2 on t1.site_id = t2.site_master_solar_id
+                    where   " + filter;
+            List<SolarDailyGenReports> _windDailyGenReports = new List<SolarDailyGenReports>();
+            _windDailyGenReports = await Context.GetData<SolarDailyGenReports>(qry).ConfigureAwait(false);
+            return _windDailyGenReports;
+            /* string filter = "(t1.date >= '" + fromDate + "'  and t1.date<= '" + toDate + "')";
+
+             string qry = @"SELECT year(date)as year,month(date)as month,date,t2.country,t1.state,t2.spv,t1.site,t2.capacity_mw
+ ,t1.wtg,wind_speed,kwh,plf,ma_actual,ma_contractual,iga,ega,grid_hrs,lull_hrs
+ ,unschedule_hrs,schedule_hrs,others,igbdh,egbdh,load_shedding	 FROM daily_gen_summary t1 left join
+ site_master t2 on t1.site=t2.site 
+ where   " + filter;
+
+             //where t1.approve_status="+approve_status+" and " + filter;
+             return await Context.GetData<WindDailyGenReports>(qry).ConfigureAwait(false);*/
+        }
+
+
+
+
+
 
         internal async Task<List<WindDailyGenReports1>> GetWindDailyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month)
         {
@@ -1055,6 +1204,130 @@ where " + filter + " group by t1.date, t1.state, t2.spv, t1.site ";
             return await Context.GetData<WindDailyGenReports2>(qry).ConfigureAwait(false);
 
         }
+
+
+        internal async Task<List<SolarDailyGenReports2>> GetSolarDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inv, string month)
+        {
+            //sitewisewinddaily
+
+            string filter = " (date >= '" + fromDate + "'  and date<= '" + toDate + "') ";
+            if (!string.IsNullOrEmpty(state))
+            {
+
+                string[] siteSplit = state.Split(",");
+                if (siteSplit.Length > 0)
+                {
+                    string statenames = "";
+                    for (int i = 0; i < siteSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(siteSplit[i]))
+                        {
+                            statenames += "'" + siteSplit[i] + "',";
+                        }
+                    }
+                    statenames = statenames.TrimEnd(',');
+                    //filter += " and site in(" + sitesnames + ")";
+
+                    filter += " and t1.state IN(" + statenames + ") ";
+                }
+            }
+            if (!string.IsNullOrEmpty(spv) && spv != "All~")
+            {
+                string[] spvSplit = spv.Split(",");
+                if (spvSplit.Length > 0)
+                {
+                    string spvnames = "";
+                    for (int i = 0; i < spvSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(spvSplit[i]))
+                        {
+                            spvnames += "'" + spvSplit[i] + "',";
+                        }
+                    }
+                    spvnames = spvnames.TrimEnd(',');
+                    filter += " and spv IN(" + spvnames + ") ";
+                }
+            }
+            if (!string.IsNullOrEmpty(site) && site != "All~")
+            {
+                filter += " and site_master_solar_id in (" + site + ")";
+            }
+            if (!string.IsNullOrEmpty(inv) && inv != "All~")
+            {
+                string[] invSplit = inv.Split(",");
+                if (invSplit.Length > 0)
+                {
+                    string invnames = "";
+                    for (int i = 0; i < invSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(invSplit[i]))
+                        {
+                            invnames += "'" + invSplit[i] + "',";
+                        }
+                    }
+                    invnames = invnames.TrimEnd(',');
+                    filter += " and location_name IN(" + invnames + ") ";
+                }
+            }
+            if (!string.IsNullOrEmpty(month) && month != "All~")
+            {
+                string[] spmonth = month.Split("~");
+                filter += " and month(date) in (";
+                string months = "";
+                for (int i = 0; i < spmonth.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(spmonth[i].ToString()))
+                    {
+                        months += "" + spmonth[i].ToString() + ",";
+                    }
+                }
+                filter += months.TrimEnd(',') + ")";
+            }
+
+            string qry = @"SELECT year(date)as year,DATE_FORMAT(date,'%M') as month,date,t2.country,t1.state,t2.spv,t1.site,
+dc_capacity, ac_capacity,
+(sum(expected_kwh)/count(expected_kwh)) as expected_kwh,
+sum(ghi)/count(ghi) as ghi,
+sum(poa)/count(poa) as poa,
+sum(inv_kwh) as inv_kwh,
+sum(plant_kwh) as plant_kwh,
+sum(inv_pr)/count(inv_pr) as inv_pr,
+sum(plant_pr)/count(plant_pr) as plant_pr,
+(sum(inv_plf_ac)/count(inv_plf_ac))as inv_plf,
+(sum(plant_plf_ac)/count(plant_plf_ac))as plant_plf,
+(sum(ma)/count(*))as ma_actual,
+(sum(iga)/count(*))as iga,
+(sum(ega)/count(*))as ega,
+sum(prod_hrs)as prod_hrs,
+sum(lull_hrs_bd)as lull_hrs_bd,
+sum(usmh_bs)as usmh_bs,
+sum(smh_bd)as smh_bd,
+sum(oh_bd) as oh_bd,
+sum(igbdh_bd) as igbdh_bd,
+sum(egbdh_bd)as egbdh_bd,
+sum(load_shedding_bd)as load_shedding_bd,
+sum(total_bd_hrs)as total_bd_hrs,
+
+sum(usmh)as usmh,
+sum(smh)as smh,
+sum(oh)as oh,
+sum(igbdh)as igbdh,
+sum(egbdh)as egbdh,
+sum(load_shedding)as load_shedding,
+sum(total_losses)as total_losses FROM daily_gen_summary_solar t1 left join
+site_master_solar t2 on t1.site_id=t2.site_master_solar_id 
+where " + filter + " group by t1.date, t1.state, t2.spv, t1.site ";
+
+            //where  t1.approve_status="+approve_status+" and " + filter + " group by t1.date, t1.state, t2.spv, t1.site ";
+
+            return await Context.GetData<SolarDailyGenReports2>(qry).ConfigureAwait(false);
+
+        }
+
+
+
+
+
         //  GetWindMonthlyYearlyGenSummaryReport1 Function name Renamed
         internal async Task<List<WindDailyGenReports1>> GetWindMonthlyGenerationReport(string fy, string month, string country, string state, string spv, string site, string wtg, string reportType)
         {
@@ -1917,23 +2190,66 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
         public async Task<List<SolarSiteMaster>> GetSolarSiteData(string state, string spv, string site)
         {
             string filter = "";
-            filter += " where site_master_solar_id IN(" + site + ")";
-            if (!string.IsNullOrEmpty(state) && string.IsNullOrEmpty(spv))
+            if (!string.IsNullOrEmpty(site) || !string.IsNullOrEmpty(state) || !string.IsNullOrEmpty(spv))
             {
-                filter += " where state='" + state + "'";
+                filter += " where ";
             }
-            if (!string.IsNullOrEmpty(spv) && !string.IsNullOrEmpty(state))
+            if (!string.IsNullOrEmpty(site))
             {
-                filter += " where state='" + state + "' and spv='" + spv + "'";
+                filter += " site_master_solar_id IN(" + site + ")";
             }
 
+            if (!string.IsNullOrEmpty(state) && state != "All")
+            {
+
+                string[] siteSplit = state.Split(",");
+                if (siteSplit.Length > 0)
+                {
+                    string statenames = "";
+                    for (int i = 0; i < siteSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(siteSplit[i]))
+                        {
+                            statenames += "'" + siteSplit[i] + "',";
+                        }
+                    }
+                    statenames = statenames.TrimEnd(',');
+                    //filter += " and site in(" + sitesnames + ")";
+
+                    filter += " state IN(" + statenames + ")";
+                }
+
+            }
+            if (!string.IsNullOrEmpty(spv) && spv != "All")
+            {
+
+                string[] spvSplit = spv.Split(",");
+                if (spvSplit.Length > 0)
+                {
+                    string spvnames = "";
+                    for (int i = 0; i < spvSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(spvSplit[i]))
+                        {
+                            spvnames += "'" + spvSplit[i] + "',";
+                        }
+                    }
+                    spvnames = spvnames.TrimEnd(',');
+                    //filter += " and site in(" + sitesnames + ")";
+
+                    filter += " and spv IN(" + spvnames + ")";
+                    //filter += " where state='" + state + "' and spv='" + spv + "'";
+                }
+
+            }
             string query = "SELECT * FROM `site_master_solar`" + filter;
             List<SolarSiteMaster> _sitelist = new List<SolarSiteMaster>();
             _sitelist = await Context.GetData<SolarSiteMaster>(query).ConfigureAwait(false);
             return _sitelist;
 
+
         }
-        internal async Task<List<SolarDailyBreakdownReport>> GetSolarDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site)
+        internal async Task<List<SolarDailyBreakdownReport>> GetSolarDailyBreakdownReport(string fromDate, string toDate, string country, string state, string spv, string site, string inv)
         {
             string filter = "";
             int chkfilter = 0;
@@ -1942,27 +2258,28 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
                 filter += "(date >= '" + fromDate + "'  and date<= '" + toDate + "')";
                 chkfilter = 1;
             }
-            if (!string.IsNullOrEmpty(country) && country != "All~")
-            {
-                if (chkfilter == 1) { filter += " and "; }
-                string[] spcountry = country.Split("~");
-                filter += "t2.country in (";
-                string countrys = "";
-                for (int i = 0; i < spcountry.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
-                    {
-                        countrys += "'" + spcountry[i].ToString() + "',";
-                    }
-                }
-                filter += countrys.TrimEnd(',') + ")";
-                chkfilter = 1;
-            }
+            //if (!string.IsNullOrEmpty(country) && country != "All~")
+            //{
+            //    if (chkfilter == 1) { filter += " and "; }
+            //    //string[] spcountry = country.Split(",");
+            //    //filter += "t2.country in (";
+            //    //string countrys = "";
+            //    //for (int i = 0; i < spcountry.Length; i++)
+            //    //{
+            //    //    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
+            //    //    {
+            //    //        countrys += "'" + spcountry[i].ToString() + "',";
+            //    //    }
+            //    //}
+            //    //filter += countrys.TrimEnd(',') + ")";
+            //    filter += "t2.country = " + country;
+            //    chkfilter = 1;
+            //}
             if (!string.IsNullOrEmpty(state) && state != "All~")
             {
                 if (chkfilter == 1) { filter += " and "; }
                 // filter += "t1.state in (" + state + ")";
-                string[] spstate = state.Split("~");
+                string[] spstate = state.Split(",");
                 filter += "t2.state in (";
                 string states = "";
                 for (int i = 0; i < spstate.Length; i++)
@@ -1980,7 +2297,7 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
             {
                 if (chkfilter == 1) { filter += " and "; }
 
-                string[] spspv = spv.Split("~");
+                string[] spspv = spv.Split(",");
                 filter += "t2.spv in (";
                 string spvs = "";
                 for (int i = 0; i < spspv.Length; i++)
@@ -1998,14 +2315,14 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
             {
                 if (chkfilter == 1) { filter += " and "; }
 
-                string[] spsite = site.Split("~");
-                filter += "t2.site in (";
+                string[] spsite = site.Split(",");
+                filter += "t1.site_id in (";
                 string sites = "";
                 for (int i = 0; i < spsite.Length; i++)
                 {
                     if (!string.IsNullOrEmpty(spsite[i].ToString()))
                     {
-                        sites += "'" + spsite[i].ToString() + "',";
+                        sites += spsite[i].ToString() + ",";
                     }
                 }
                 filter += sites.TrimEnd(',') + ")";
@@ -2014,9 +2331,9 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
 
 
             string qry = @"SELECT date,t2.country,t2.state,t2.spv,t2.site,
-'' as breakdown,bd_type,icr,inv,smb,strings,stop_from as from_bd,stop_to as to_bd,total_stop,
-remarks as bd_remarks,action as action_taken
- FROM daily_bd_loss_solar t1 left join site_master_solar t2 on t2.site=t1.site ";
+bd_type,icr,inv,smb,strings, from_bd,to_bd,total_bd as total_stop,
+bd_remarks, action_taken
+ FROM uploading_file_breakdown_solar t1 left join site_master_solar t2 on t2.site_master_solar_id=t1.site_id ";
 
             //FROM daily_bd_loss_solar t1 left join site_master_solar t2 on t2.site=t1.site where t1.approve_status="+ approve_status;
 
@@ -2462,7 +2779,7 @@ remarks as bd_remarks,action as action_taken
 
         internal async Task<int> InsertSolarUploadingPyranoMeter1Min(List<SolarUploadingPyranoMeter1Min> set, int batchId)
         {
-            string delqry = "delete from uploading_pyranometer_1_min_solar where date_time = '" + set[0].date_time + "' and site_id='" + set[0].site_id + "';";
+            string delqry = "delete from uploading_pyranometer_1_min_solar where DATE(date_time) = '" + set[0].date_time + "' and site_id='" + set[0].site_id + "';";
             await Context.ExecuteNonQry<int>(delqry).ConfigureAwait(false);
             string qry = " insert into uploading_pyranometer_1_min_solar(site_id, date_time, ghi_1, ghi_2, poa_1, poa_2, poa_3, poa_4, poa_5, poa_6, poa_7, avg_ghi, avg_poa, amb_temp, mod_temp, import_batch_id) values";
             string values = "";
@@ -2476,7 +2793,7 @@ remarks as bd_remarks,action as action_taken
 
         internal async Task<int> InsertSolarUploadingPyranoMeter15Min(List<SolarUploadingPyranoMeter15Min> set, int batchId)
         {
-            string delqry = "delete from uploading_pyranometer_15_min_solar where date_time = '" + set[0].date_time + "' and site_id='" + set[0].site_id + "';";
+            string delqry = "delete from uploading_pyranometer_15_min_solar where DATE(date_time) = '" + set[0].date_time + "' and site_id='" + set[0].site_id + "';";
             await Context.ExecuteNonQry<int>(delqry).ConfigureAwait(false);
             string qry = " insert into uploading_pyranometer_15_min_solar(site_id, date_time, ghi_1, ghi_2, poa_1, poa_2, poa_3, poa_4, poa_5, poa_6, poa_7, avg_ghi, avg_poa, amb_temp, mod_temp, import_batch_id) values";
             string values = "";
@@ -2755,36 +3072,182 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name  " + filter + " grou
 
         }
 
-        internal async Task<List<SolarDailyGenReports2>> GetSolarDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
+//        internal async Task<List<SolarDailyGenReports2>> GetSolarDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
+//        {
+//            string filter = "";
+
+//            if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
+//            {
+//                filter += " and (date >= '" + fromDate + "'  and date<= '" + toDate + "')";
+
+//            }
+//            if (!string.IsNullOrEmpty(country) && country != "All~")
+//            {
+
+//                string[] spcountry = country.Split("~");
+//                filter += " and t2.country in (";
+//                string countrys = "";
+//                for (int i = 0; i < spcountry.Length; i++)
+//                {
+//                    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
+//                    {
+//                        countrys += "'" + spcountry[i].ToString() + "',";
+//                    }
+//                }
+//                filter += countrys.TrimEnd(',') + ")";
+
+//            }
+//            if (!string.IsNullOrEmpty(state) && state != "All~")
+//            {
+
+//                string[] spstate = state.Split("~");
+//                filter += " and t1.state in (";
+//                string states = "";
+//                for (int i = 0; i < spstate.Length; i++)
+//                {
+//                    if (!string.IsNullOrEmpty(spstate[i].ToString()))
+//                    {
+//                        states += "'" + spstate[i].ToString() + "',";
+//                    }
+//                }
+//                filter += states.TrimEnd(',') + ")";
+
+//            }
+//            if (!string.IsNullOrEmpty(spv) && spv != "All~")
+//            {
+
+//                string[] spspv = spv.Split("~");
+//                filter += " and t2.spv in (";
+//                string spvs = "";
+//                for (int i = 0; i < spspv.Length; i++)
+//                {
+//                    if (!string.IsNullOrEmpty(spspv[i].ToString()))
+//                    {
+//                        spvs += "'" + spspv[i].ToString() + "',";
+//                    }
+//                }
+//                filter += spvs.TrimEnd(',') + ")";
+
+//            }
+//            if (!string.IsNullOrEmpty(site) && site != "All~")
+//            {
+
+//                string[] spsite = site.Split("~");
+//                filter += " and t1.site in (";
+//                string sites = "";
+//                for (int i = 0; i < spsite.Length; i++)
+//                {
+//                    if (!string.IsNullOrEmpty(spsite[i].ToString()))
+//                    {
+//                        sites += "'" + spsite[i].ToString() + "',";
+//                    }
+//                }
+//                filter += sites.TrimEnd(',') + ")";
+
+//            }
+//            if (!string.IsNullOrEmpty(inverter) && inverter != "All~")
+//            {
+//                inverter = inverter.Replace('=', '/');
+//                string[] spinverter = inverter.Split("~");
+//                filter += " and t1.location_name in (";
+//                string inverters = "";
+//                for (int i = 0; i < spinverter.Length; i++)
+//                {
+//                    if (!string.IsNullOrEmpty(spinverter[i].ToString()))
+//                    {
+//                        inverters += "'" + spinverter[i].ToString() + "',";
+//                    }
+//                }
+//                filter += inverters.TrimEnd(',') + ")";
+//            }
+//            if (!string.IsNullOrEmpty(month) && month != "All~")
+//            {
+
+//                string[] spmonth = month.Split("~");
+//                filter += " and month(date) in (";
+//                string months = "";
+//                for (int i = 0; i < spmonth.Length; i++)
+//                {
+//                    if (!string.IsNullOrEmpty(spmonth[i].ToString()))
+//                    {
+//                        months += "" + spmonth[i].ToString() + ",";
+//                    }
+//                }
+//                filter += months.TrimEnd(',') + ")";
+//            }
+
+
+//            string qry = @"SELECT year(date)as year,month(date)as month,date,
+//t2.country,t1.state,t2.spv,t1.site,(t2.dc_capacity)as dc_capacity,
+//(t2.ac_capacity)as ac_capacity,(sum(ghi)/count(*))as ghi,(sum(poa)/count(*))as poa,sum(expected_kwh)as expected_kwh,
+//sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(*))as inv_pr,(sum(plant_pr)/count(*))as plant_pr,
+//inv_plf_ac as inv_plf,plant_plf_ac as plant_plf,
+//ma as ma_actual,ma as ma_contractual,
+//(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs,sum(usmh)as usmh,sum(smh)as smh,
+//sum(oh)as oh,sum(igbdh)as igbdh,sum(egbdh)as egbdh,
+//sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as total_losses
+// FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site=t1.site
+//where   t2.state=t1.state  " + filter + " group by date,t1.site ";
+
+//            //where t1.approve_status=" + approve_status + " and  t2.state=t1.state  " + filter + " group by date,t1.site ";
+
+//            return await Context.GetData<SolarDailyGenReports2>(qry).ConfigureAwait(false);
+
+//        }
+
+        internal async Task<List<SolarDailyGenReports1>> GetSolarMonthlyGenSummaryReport1(string fy, string month, string country, string state, string spv, string site, string inverter)
         {
             string filter = "";
-
-            if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
+            int chkfilter = 0;
+            if (!string.IsNullOrEmpty(month) && !string.IsNullOrEmpty(fy))
             {
-                filter += " and (date >= '" + fromDate + "'  and date<= '" + toDate + "')";
+                filter += " where (";
 
-            }
-            if (!string.IsNullOrEmpty(country) && country != "All~")
-            {
+                string[] spmonth = month.Split(",");
+                string months = "";
 
-                string[] spcountry = country.Split("~");
-                filter += " and t2.country in (";
-                string countrys = "";
-                for (int i = 0; i < spcountry.Length; i++)
+                for (int i = 0; i < spmonth.Length; i++)
                 {
-                    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
-                    {
-                        countrys += "'" + spcountry[i].ToString() + "',";
-                    }
+                    if (i > 0) filter += " or ";
+                    int monthno = Int32.Parse(spmonth[i]);
+                    string year = (Int32.Parse(fy) + 1).ToString();
+                    string Qyear = (monthno > 3) ? fy : year;
+                    filter += "( month(date) = " + spmonth[i] + " and year(date) = '" + Qyear + "' )";
                 }
-                filter += countrys.TrimEnd(',') + ")";
-
+                filter += ") ";
+                chkfilter = 1;
             }
+            else if (!string.IsNullOrEmpty(month))
+            {
+                filter += " where month(date) in ( " + month + " )";
+                chkfilter = 1;
+            }
+            else
+            {
+                filter += " where ((year(date) = '" + fy + "' and month(date)>3) || (year(date) = '"+ (Convert.ToInt32(fy)+1).ToString()  +"' and month(date)<4))";
+                chkfilter = 1;
+            }
+            //if (!string.IsNullOrEmpty(country) && country != "All~")
+            //{
+            //    if (chkfilter == 1) filter += " and ";
+            //    string[] spcountry = country.Split(",");
+            //    filter += " t2.country in (";
+            //    string countrys = "";
+            //    for (int i = 0; i < spcountry.Length; i++)
+            //    {
+            //        if (!string.IsNullOrEmpty(spcountry[i].ToString()))
+            //        {
+            //            countrys += "'" + spcountry[i].ToString() + "',";
+            //        }
+            //    }
+            //    filter += countrys.TrimEnd(',') + ")";
+            //    chkfilter = 1;
+            //}
             if (!string.IsNullOrEmpty(state) && state != "All~")
             {
-
-                string[] spstate = state.Split("~");
-                filter += " and t1.state in (";
+                if (chkfilter == 1) filter += " and ";
+                string[] spstate = state.Split(",");
+                filter += " t1.state in (";
                 string states = "";
                 for (int i = 0; i < spstate.Length; i++)
                 {
@@ -2798,9 +3261,9 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name  " + filter + " grou
             }
             if (!string.IsNullOrEmpty(spv) && spv != "All~")
             {
-
-                string[] spspv = spv.Split("~");
-                filter += " and t2.spv in (";
+                if (chkfilter == 1) filter += " and ";
+                string[] spspv = spv.Split(",");
+                filter += " t2.spv in (";
                 string spvs = "";
                 for (int i = 0; i < spspv.Length; i++)
                 {
@@ -2814,9 +3277,9 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name  " + filter + " grou
             }
             if (!string.IsNullOrEmpty(site) && site != "All~")
             {
-
-                string[] spsite = site.Split("~");
-                filter += " and t1.site in (";
+                if (chkfilter == 1) filter += " and ";
+                string[] spsite = site.Split(",");
+                filter += " site_master_solar_id in (";
                 string sites = "";
                 for (int i = 0; i < spsite.Length; i++)
                 {
@@ -2830,9 +3293,10 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name  " + filter + " grou
             }
             if (!string.IsNullOrEmpty(inverter) && inverter != "All~")
             {
+                if (chkfilter == 1) filter += " and ";
                 inverter = inverter.Replace('=', '/');
-                string[] spinverter = inverter.Split("~");
-                filter += " and t1.location_name in (";
+                string[] spinverter = inverter.Split(",");
+                filter += " t3.inverter in (";
                 string inverters = "";
                 for (int i = 0; i < spinverter.Length; i++)
                 {
@@ -2843,157 +3307,18 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name  " + filter + " grou
                 }
                 filter += inverters.TrimEnd(',') + ")";
             }
-            if (!string.IsNullOrEmpty(month) && month != "All~")
-            {
-
-                string[] spmonth = month.Split("~");
-                filter += " and month(date) in (";
-                string months = "";
-                for (int i = 0; i < spmonth.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spmonth[i].ToString()))
-                    {
-                        months += "" + spmonth[i].ToString() + ",";
-                    }
-                }
-                filter += months.TrimEnd(',') + ")";
-            }
-
-
-            string qry = @"SELECT year(date)as year,month(date)as month,date,
-t2.country,t1.state,t2.spv,t1.site,(t2.dc_capacity)as dc_capacity,
-(t2.ac_capacity)as ac_capacity,(sum(ghi)/count(*))as ghi,(sum(poa)/count(*))as poa,sum(expected_kwh)as expected_kwh,
-sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(*))as inv_pr,(sum(plant_pr)/count(*))as plant_pr,
-inv_plf_ac as inv_plf,plant_plf_ac as plant_plf,
-ma as ma_actual,ma as ma_contractual,
-(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs,sum(usmh)as usmh,sum(smh)as smh,
-sum(oh)as oh,sum(igbdh)as igbdh,sum(egbdh)as egbdh,
-sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as total_losses
- FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site=t1.site
-where   t2.state=t1.state  " + filter + " group by date,t1.site ";
-
-            //where t1.approve_status=" + approve_status + " and  t2.state=t1.state  " + filter + " group by date,t1.site ";
-
-            return await Context.GetData<SolarDailyGenReports2>(qry).ConfigureAwait(false);
-
-        }
-
-        internal async Task<List<SolarDailyGenReports1>> GetSolarMonthlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
-        {
-            string filter = "";
-
-            if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
-            {
-                filter += " and (date >= '" + fromDate + "'  and date<= '" + toDate + "')";
-
-            }
-            if (!string.IsNullOrEmpty(country) && country != "All~")
-            {
-
-                string[] spcountry = country.Split("~");
-                filter += " and t2.country in (";
-                string countrys = "";
-                for (int i = 0; i < spcountry.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
-                    {
-                        countrys += "'" + spcountry[i].ToString() + "',";
-                    }
-                }
-                filter += countrys.TrimEnd(',') + ")";
-
-            }
-            if (!string.IsNullOrEmpty(state) && state != "All~")
-            {
-
-                string[] spstate = state.Split("~");
-                filter += " and t1.state in (";
-                string states = "";
-                for (int i = 0; i < spstate.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spstate[i].ToString()))
-                    {
-                        states += "'" + spstate[i].ToString() + "',";
-                    }
-                }
-                filter += states.TrimEnd(',') + ")";
-
-            }
-            if (!string.IsNullOrEmpty(spv) && spv != "All~")
-            {
-
-                string[] spspv = spv.Split("~");
-                filter += " and t2.spv in (";
-                string spvs = "";
-                for (int i = 0; i < spspv.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spspv[i].ToString()))
-                    {
-                        spvs += "'" + spspv[i].ToString() + "',";
-                    }
-                }
-                filter += spvs.TrimEnd(',') + ")";
-
-            }
-            if (!string.IsNullOrEmpty(site) && site != "All~")
-            {
-
-                string[] spsite = site.Split("~");
-                filter += " and t1.site in (";
-                string sites = "";
-                for (int i = 0; i < spsite.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spsite[i].ToString()))
-                    {
-                        sites += "'" + spsite[i].ToString() + "',";
-                    }
-                }
-                filter += sites.TrimEnd(',') + ")";
-
-            }
-            if (!string.IsNullOrEmpty(inverter) && inverter != "All~")
-            {
-                inverter = inverter.Replace('=', '/');
-                string[] spinverter = inverter.Split("~");
-                filter += " and t1.location_name in (";
-                string inverters = "";
-                for (int i = 0; i < spinverter.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spinverter[i].ToString()))
-                    {
-                        inverters += "'" + spinverter[i].ToString() + "',";
-                    }
-                }
-                filter += inverters.TrimEnd(',') + ")";
-            }
-            if (!string.IsNullOrEmpty(month) && month != "All~")
-            {
-
-                string[] spmonth = month.Split("~");
-                filter += " and month(date) in (";
-                string months = "";
-                for (int i = 0; i < spmonth.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spmonth[i].ToString()))
-                    {
-                        months += "" + spmonth[i].ToString() + ",";
-                    }
-                }
-                filter += months.TrimEnd(',') + ")";
-            }
-
-            string qry = @"SELECT year(date)as year,month(date)as month,date,t2.country,t1.state,
+            string qry = @"SELECT year(date)as year,DATE_FORMAT(date,'%M') as month,t2.country,t1.state,
 t2.spv,t1.site,location_name as Inverter, (t3.dc_capacity)as dc_capacity,
 (t3.ac_capacity)as ac_capacity,
 (sum(ghi)/count(*))as ghi,(sum(poa)/count(*))as poa,sum(expected_kwh)as expected_kwh,
-sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(*)) as inv_pr,(sum(plant_pr)/count(*)) as plant_pr,
+sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(inv_pr)) as inv_pr,(sum(plant_pr)/count(plant_pr)) as plant_pr,
 inv_plf_ac as inv_plf,plant_plf_ac as plant_plf,
 ma as ma_actual,ma as ma_contractual,
-(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs,sum(usmh)as usmh,sum(smh)as smh,
+(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs, sum(total_bd_hrs) as total_bd_hrs,sum(usmh)as usmh,sum(smh)as smh,
 sum(oh)as oh,sum(igbdh)as igbdh,sum(egbdh)as egbdh,
 sum(load_shedding)as load_shedding,sum(total_losses)as total_losses
- FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site=t1.site   left join solar_ac_dc_capacity t3 on  t3.site=t1.site 
-where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group by t1.site,location_name ,month(date)";
+ FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site_master_solar_id=t1.site_id   left join solar_ac_dc_capacity t3 on  t3.site_id=t1.site_id 
+and t3.inverter=t1.location_name " + filter + " group by t1.site,location_name ,month(date)";
 
             //where t1.approve_status=" + approve_status + " and  t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group by t1.site,location_name ,month(date)";
 
@@ -3001,36 +3326,43 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group
 
         }
 
-        internal async Task<List<SolarDailyGenReports2>> GetSolarMonthlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
+        internal async Task<List<SolarDailyGenReports2>> GetSolarMonthlyGenSummaryReport2(string fy, string month, string country, string state, string spv, string site, string inverter)
         {
             string filter = "";
-
-            if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
+            int chkfilter = 0;
+            if (!string.IsNullOrEmpty(month) && !string.IsNullOrEmpty(fy))
             {
-                filter += " and (date >= '" + fromDate + "'  and date<= '" + toDate + "')";
+                filter += " where (";
 
-            }
-            if (!string.IsNullOrEmpty(country) && country != "All~")
-            {
+                string[] spmonth = month.Split(",");
+                string months = "";
 
-                string[] spcountry = country.Split("~");
-                filter += " and t2.country in (";
-                string countrys = "";
-                for (int i = 0; i < spcountry.Length; i++)
+                for (int i = 0; i < spmonth.Length; i++)
                 {
-                    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
-                    {
-                        countrys += "'" + spcountry[i].ToString() + "',";
-                    }
+                    if (i > 0) filter += " or ";
+                    int monthno = Int32.Parse(spmonth[i]);
+                    string year = (Int32.Parse(fy) + 1).ToString();
+                    string Qyear = (monthno > 3) ? fy : year;
+                    filter += "( month(date) = " + spmonth[i] + " and year(date) = '" + Qyear + "' )";
                 }
-                filter += countrys.TrimEnd(',') + ")";
-
+                filter += ") ";
+                chkfilter = 1;
+            }
+            else if (!string.IsNullOrEmpty(month))
+            {
+                filter += " where month(date) in ( " + month + " )";
+                chkfilter = 1;
+            }
+            else
+            {
+                filter += " where ((year(date) = '" + fy + "' and month(date)>3) || (year(date) = '" + (Convert.ToInt32(fy) + 1).ToString() + "' and month(date)<4))";
+                chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(state) && state != "All~")
             {
-
-                string[] spstate = state.Split("~");
-                filter += " and t1.state in (";
+                if (chkfilter == 1) filter += " and ";
+                string[] spstate = state.Split(",");
+                filter += " t1.state in (";
                 string states = "";
                 for (int i = 0; i < spstate.Length; i++)
                 {
@@ -3044,9 +3376,9 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group
             }
             if (!string.IsNullOrEmpty(spv) && spv != "All~")
             {
-
-                string[] spspv = spv.Split("~");
-                filter += " and t2.spv in (";
+                if (chkfilter == 1) filter += " and ";
+                string[] spspv = spv.Split(",");
+                filter += " t2.spv in (";
                 string spvs = "";
                 for (int i = 0; i < spspv.Length; i++)
                 {
@@ -3060,9 +3392,9 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group
             }
             if (!string.IsNullOrEmpty(site) && site != "All~")
             {
-
-                string[] spsite = site.Split("~");
-                filter += " and t1.site in (";
+                if (chkfilter == 1) filter += " and ";
+                string[] spsite = site.Split(",");
+                filter += " site_master_solar_id in (";
                 string sites = "";
                 for (int i = 0; i < spsite.Length; i++)
                 {
@@ -3076,9 +3408,10 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group
             }
             if (!string.IsNullOrEmpty(inverter) && inverter != "All~")
             {
+                if (chkfilter == 1) filter += " and ";
                 inverter = inverter.Replace('=', '/');
-                string[] spinverter = inverter.Split("~");
-                filter += " and t1.location_name in (";
+                string[] spinverter = inverter.Split(",");
+                filter += " t3.inverter in (";
                 string inverters = "";
                 for (int i = 0; i < spinverter.Length; i++)
                 {
@@ -3089,34 +3422,18 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group
                 }
                 filter += inverters.TrimEnd(',') + ")";
             }
-            if (!string.IsNullOrEmpty(month) && month != "All~")
-            {
 
-                string[] spmonth = month.Split("~");
-                filter += " and month(date) in (";
-                string months = "";
-                for (int i = 0; i < spmonth.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spmonth[i].ToString()))
-                    {
-                        months += "" + spmonth[i].ToString() + ",";
-                    }
-                }
-                filter += months.TrimEnd(',') + ")";
-            }
-
-
-            string qry = @"SELECT year(date)as year,month(date)as month,date,
+            string qry = @"SELECT year(date)as year,DATE_FORMAT(date,'%M') as month,
 t2.country,t1.state,t2.spv,t1.site,(t2.dc_capacity)as dc_capacity,
 (t2.ac_capacity)as ac_capacity,(sum(ghi)/count(*))as ghi,(sum(poa)/count(*))as poa,sum(expected_kwh)as expected_kwh,
-sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(*)) as inv_pr,(sum(plant_pr)/count(*)) as plant_pr,
+sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(inv_pr)) as inv_pr,(sum(plant_pr)/count(plant_pr)) as plant_pr,
 inv_plf_ac as inv_plf,plant_plf_ac as plant_plf,
 ma as ma_actual,ma as ma_contractual,
-(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs,sum(usmh)as usmh,sum(smh)as smh,
+(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as prod_hrs, sum(total_bd_hrs) as total_bd_hrs, sum(usmh)as usmh,sum(smh)as smh,
 sum(oh)as oh,sum(igbdh)as igbdh,sum(egbdh)as egbdh,
 sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as total_losses
- FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site=t1.site
-where   t2.state=t1.state  " + filter + " group by t1.site ,month(date)";
+ FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site_master_solar_id=t1.site_id
+" + filter + " group by t1.site ,month(date)";
 
             //where t1.approve_status=" + approve_status + " and t2.state=t1.state  " + filter + " group by t1.site ,month(date)";
 
@@ -3127,33 +3444,20 @@ where   t2.state=t1.state  " + filter + " group by t1.site ,month(date)";
         internal async Task<List<SolarDailyGenReports1>> GetSolarYearlyGenSummaryReport1(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
         {
             string filter = "";
-
+            int chkfilter = 0;
+            if (!string.IsNullOrEmpty(fromDate) || !string.IsNullOrEmpty(state) || !string.IsNullOrEmpty(spv) || !string.IsNullOrEmpty(site) || !string.IsNullOrEmpty(inverter))
+                filter += " where ";
             if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
             {
-                filter += " and (date >= '" + fromDate + "'  and date<= '" + toDate + "')";
-
-            }
-            if (!string.IsNullOrEmpty(country) && country != "All~")
-            {
-
-                string[] spcountry = country.Split("~");
-                filter += " and t2.country in (";
-                string countrys = "";
-                for (int i = 0; i < spcountry.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
-                    {
-                        countrys += "'" + spcountry[i].ToString() + "',";
-                    }
-                }
-                filter += countrys.TrimEnd(',') + ")";
-
+                filter += "(t1.date >= '" + fromDate + "'  and t1.date<= '" + toDate + "')";
+                chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(state) && state != "All~")
             {
-
-                string[] spstate = state.Split("~");
-                filter += " and t1.state in (";
+                if (chkfilter == 1) { filter += " and "; }
+                // filter += "t1.state in (" + state + ")";
+                string[] spstate = state.Split(",");
+                filter += "t1.state in (";
                 string states = "";
                 for (int i = 0; i < spstate.Length; i++)
                 {
@@ -3164,12 +3468,14 @@ where   t2.state=t1.state  " + filter + " group by t1.site ,month(date)";
                 }
                 filter += states.TrimEnd(',') + ")";
 
+                chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(spv) && spv != "All~")
             {
-
-                string[] spspv = spv.Split("~");
-                filter += " and t2.spv in (";
+                if (chkfilter == 1) { filter += " and "; }
+                // filter += "t2.spv in (" + spv + ")";
+                string[] spspv = spv.Split(",");
+                filter += "t2.spv in (";
                 string spvs = "";
                 for (int i = 0; i < spspv.Length; i++)
                 {
@@ -3180,43 +3486,47 @@ where   t2.state=t1.state  " + filter + " group by t1.site ,month(date)";
                 }
                 filter += spvs.TrimEnd(',') + ")";
 
+                chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(site) && site != "All~")
             {
-
-                string[] spsite = site.Split("~");
-                filter += " and t1.site in (";
+                if (chkfilter == 1) { filter += " and "; }
+                // filter += "t1.site in (" + site + ")";
+                string[] spsite = site.Split(",");
+                filter += "t1.site_id in (";
                 string sites = "";
                 for (int i = 0; i < spsite.Length; i++)
                 {
                     if (!string.IsNullOrEmpty(spsite[i].ToString()))
                     {
-                        sites += "'" + spsite[i].ToString() + "',";
+                        sites += spsite[i].ToString() + ",";
                     }
                 }
                 filter += sites.TrimEnd(',') + ")";
-
+                chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(inverter) && inverter != "All~")
             {
-                inverter = inverter.Replace('=', '/');
-                string[] spinverter = inverter.Split("~");
-                filter += " and t1.location_name in (";
-                string inverters = "";
-                for (int i = 0; i < spinverter.Length; i++)
+                if (chkfilter == 1) { filter += " and "; }
+                // filter += "t1.wtg in (" + wtg + ")";
+                string[] spinv = inverter.Split(",");
+                filter += " location_name in (";
+                string invs = "";
+                for (int i = 0; i < spinv.Length; i++)
                 {
-                    if (!string.IsNullOrEmpty(spinverter[i].ToString()))
+                    if (!string.IsNullOrEmpty(spinv[i].ToString()))
                     {
-                        inverters += "'" + spinverter[i].ToString() + "',";
+                        invs += "'" + spinv[i].ToString() + "',";
                     }
                 }
-                filter += inverters.TrimEnd(',') + ")";
+                filter += invs.TrimEnd(',') + ")";
             }
             if (!string.IsNullOrEmpty(month) && month != "All~")
             {
+                if (chkfilter == 1) { filter += " and "; }
 
                 string[] spmonth = month.Split("~");
-                filter += " and month(date) in (";
+                filter += "month(date) in (";
                 string months = "";
                 for (int i = 0; i < spmonth.Length; i++)
                 {
@@ -3228,18 +3538,18 @@ where   t2.state=t1.state  " + filter + " group by t1.site ,month(date)";
                 filter += months.TrimEnd(',') + ")";
             }
 
-            string qry = @"SELECT year(date)as year,month(date)as month,date,t2.country,t1.state,
+            string qry = @"SELECT year(date)as year,DATE_FORMAT(date,'%M') as month,date,t2.country,t1.state,
 t2.spv,t1.site,location_name as Inverter, (t3.dc_capacity)as dc_capacity,
 (t3.ac_capacity)as ac_capacity,
 (sum(ghi)/count(*))as ghi,(sum(poa)/count(*))as poa,sum(expected_kwh)as expected_kwh,
-sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(*)) as inv_pr,(sum(plant_pr)/count(*)) as plant_pr,
+sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(inv_pr)) as inv_pr,(sum(plant_pr)/count(plant_pr)) as plant_pr,
 inv_plf_ac as inv_plf,plant_plf_ac as plant_plf,
 ma as ma_actual,ma as ma_contractual,
-(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs,sum(usmh)as usmh,sum(smh)as smh,
+(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs, sum(total_bd_hrs) as total_bd_hrs, sum(usmh)as usmh,sum(smh)as smh,
 sum(oh)as oh,sum(igbdh)as igbdh,sum(egbdh)as egbdh,
 sum(load_shedding)as load_shedding,sum(total_losses)as total_losses
- FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site=t1.site  left join solar_ac_dc_capacity t3 on  t3.site=t1.site 
-where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group by t1.site,location_name ";
+ FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site_master_solar_id=t1.site_id  left join solar_ac_dc_capacity t3 on  t3.site_id=t1.site_id
+ and t3.inverter=t1.location_name " + filter + " group by t1.site,location_name ";
 
             //where t1.approve_status=" + approve_status + " and t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group by t1.site,location_name ";
 
@@ -3250,33 +3560,20 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group
         internal async Task<List<SolarDailyGenReports2>> GetSolarYearlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
         {
             string filter = "";
-
+            int chkfilter = 0;
+            if (!string.IsNullOrEmpty(fromDate) || !string.IsNullOrEmpty(state) || !string.IsNullOrEmpty(spv) || !string.IsNullOrEmpty(site) || !string.IsNullOrEmpty(inverter))
+                filter += " where ";
             if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
             {
-                filter += " and (date >= '" + fromDate + "'  and date<= '" + toDate + "')";
-
-            }
-            if (!string.IsNullOrEmpty(country) && country != "All~")
-            {
-
-                string[] spcountry = country.Split("~");
-                filter += " and t2.country in (";
-                string countrys = "";
-                for (int i = 0; i < spcountry.Length; i++)
-                {
-                    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
-                    {
-                        countrys += "'" + spcountry[i].ToString() + "',";
-                    }
-                }
-                filter += countrys.TrimEnd(',') + ")";
-
+                filter += "(t1.date >= '" + fromDate + "'  and t1.date<= '" + toDate + "')";
+                chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(state) && state != "All~")
             {
-
-                string[] spstate = state.Split("~");
-                filter += " and t1.state in (";
+                if (chkfilter == 1) { filter += " and "; }
+                // filter += "t1.state in (" + state + ")";
+                string[] spstate = state.Split(",");
+                filter += "t1.state in (";
                 string states = "";
                 for (int i = 0; i < spstate.Length; i++)
                 {
@@ -3287,12 +3584,14 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group
                 }
                 filter += states.TrimEnd(',') + ")";
 
+                chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(spv) && spv != "All~")
             {
-
-                string[] spspv = spv.Split("~");
-                filter += " and t2.spv in (";
+                if (chkfilter == 1) { filter += " and "; }
+                // filter += "t2.spv in (" + spv + ")";
+                string[] spspv = spv.Split(",");
+                filter += "t2.spv in (";
                 string spvs = "";
                 for (int i = 0; i < spspv.Length; i++)
                 {
@@ -3303,43 +3602,47 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group
                 }
                 filter += spvs.TrimEnd(',') + ")";
 
+                chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(site) && site != "All~")
             {
-
-                string[] spsite = site.Split("~");
-                filter += " and t1.site in (";
+                if (chkfilter == 1) { filter += " and "; }
+                // filter += "t1.site in (" + site + ")";
+                string[] spsite = site.Split(",");
+                filter += "t1.site_id in (";
                 string sites = "";
                 for (int i = 0; i < spsite.Length; i++)
                 {
                     if (!string.IsNullOrEmpty(spsite[i].ToString()))
                     {
-                        sites += "'" + spsite[i].ToString() + "',";
+                        sites += spsite[i].ToString() + ",";
                     }
                 }
                 filter += sites.TrimEnd(',') + ")";
-
+                chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(inverter) && inverter != "All~")
             {
-                inverter = inverter.Replace('=', '/');
-                string[] spinverter = inverter.Split("~");
-                filter += " and t1.location_name in (";
-                string inverters = "";
-                for (int i = 0; i < spinverter.Length; i++)
+                if (chkfilter == 1) { filter += " and "; }
+                // filter += "t1.wtg in (" + wtg + ")";
+                string[] spinv = inverter.Split(",");
+                filter += " location_name in (";
+                string invs = "";
+                for (int i = 0; i < spinv.Length; i++)
                 {
-                    if (!string.IsNullOrEmpty(spinverter[i].ToString()))
+                    if (!string.IsNullOrEmpty(spinv[i].ToString()))
                     {
-                        inverters += "'" + spinverter[i].ToString() + "',";
+                        invs += "'" + spinv[i].ToString() + "',";
                     }
                 }
-                filter += inverters.TrimEnd(',') + ")";
+                filter += invs.TrimEnd(',') + ")";
             }
             if (!string.IsNullOrEmpty(month) && month != "All~")
             {
+                if (chkfilter == 1) { filter += " and "; }
 
                 string[] spmonth = month.Split("~");
-                filter += " and month(date) in (";
+                filter += "month(date) in (";
                 string months = "";
                 for (int i = 0; i < spmonth.Length; i++)
                 {
@@ -3351,22 +3654,28 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name " + filter + " group
                 filter += months.TrimEnd(',') + ")";
             }
 
-
-            string qry = @"SELECT year(date)as year,month(date)as month,date,
+            string qry = @"SELECT year(date)as year,DATE_FORMAT(date,'%M') as month,date,
 t2.country,t1.state,t2.spv,t1.site,(t2.dc_capacity)as dc_capacity,
 (t2.ac_capacity)as ac_capacity,(sum(ghi)/count(*))as ghi,(sum(poa)/count(*))as poa,sum(expected_kwh)as expected_kwh,
-sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(*)) as inv_pr,(sum(plant_pr)/count(*)) as plant_pr,
+sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(inv_pr)) as inv_pr,(sum(plant_pr)/count(plant_pr)) as plant_pr,
 inv_plf_ac as inv_plf,plant_plf_ac as plant_plf,
 ma as ma_actual,ma as ma_contractual,
-(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs,sum(usmh)as usmh,sum(smh)as smh,
+(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as prod_hrs, sum(total_bd_hrs) as total_bd_hrs, sum(usmh)as usmh,sum(smh)as smh,
 sum(oh)as oh,sum(igbdh)as igbdh,sum(egbdh)as egbdh,
 sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as total_losses
- FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site=t1.site
-where  t2.state=t1.state  " + filter + " group by t1.site ";
+ FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site_master_solar_id=t1.site_id
+ " + filter + " group by t1.site_id ";
 
             //where t1.approve_status=" + approve_status + " and t2.state=t1.state  " + filter + " group by t1.site ";
-
-            return await Context.GetData<SolarDailyGenReports2>(qry).ConfigureAwait(false);
+            try
+            {
+                return await Context.GetData<SolarDailyGenReports2>(qry).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                string strEx = ex.ToString();
+                return new List<SolarDailyGenReports2>();
+            }
 
         }
 
@@ -4250,22 +4559,27 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
         internal async Task<int> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
         {
-
+            
             string qry = "select t1.*,t2.site,t2.country,t2.state,t3.feeder from uploading_file_generation as t1 left join site_master as t2 on t2.site_master_id=t1.site_id left join location_master as t3 on t3.site_master_id=t1.site_id where import_batch_id IN(" + dataId + ")";
 
             List<WindUploadingFilegeneration2> _importedData = new List<WindUploadingFilegeneration2>();
             _importedData = await Context.GetData<WindUploadingFilegeneration2>(qry).ConfigureAwait(false);
+
+            
 
             string qry1 = " insert into daily_gen_summary(state, site,site_id, date, wtg, wind_speed, kwh, kwh_afterlineloss, feeder, ma_contractual, ma_actual, iga, ega, plf,plf_afterlineloss,capacity_kw, grid_hrs, lull_hrs, production_hrs, unschedule_hrs, schedule_hrs, others, igbdh, egbdh, load_shedding, approve_status) values";
             string values = "";
 
             foreach (var unit in _importedData)
             {
+                
 
                 values += "('" + unit.state + "','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.wtg + "','" + unit.wind_speed + "','" + unit.kwh + "','" + unit.kwh_afterlineloss + "','" + unit.feeder + "','" + unit.ma_contractual + "','" + unit.ma_actual + "','" + unit.iga + "','" + unit.ega + "','" + unit.plf + "','" + unit.plf_afterlineloss + "','" + unit.capacity_kw + "','" + unit.grid_hrs + "','" + unit.lull_hrs + "','" + unit.operating_hrs + "','" + unit.unschedule_hrs + "','" + unit.schedule_hrs + "','" + unit.others + "','" + unit.igbdh + "','" + unit.egbdh + "','" + unit.load_shedding + "','1'),";
             }
 
             qry1 += values;
+            string qry3 = "delete from daily_gen_summary  where date='"+ _importedData[0].date + "' and site_id=" + _importedData[0].site_id + " ;";
+            await Context.ExecuteNonQry<int>(qry3).ConfigureAwait(false);
             int res = await Context.ExecuteNonQry<int>(qry1.Substring(0, (qry1.Length - 1)) + ";").ConfigureAwait(false);
             if (res > 0)
             {
@@ -4296,16 +4610,19 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             List<SolarUploadingFileGeneration2> _importedData = new List<SolarUploadingFileGeneration2>();
             _importedData = await Context.GetData<SolarUploadingFileGeneration2>(qry).ConfigureAwait(false);
 
-            string qry1 = " insert into daily_gen_summary_solar(state, site,site_id, date,location_name, ghi, poa, expected_kwh, inv_kwh, plant_kwh, inv_pr, plant_pr, ma, iga,ega,inv_plf_ac, inv_plf_dc, plant_plf_ac, plant_plf_dc, pi, prod_hrs, lull_hrs_bd, usmh_bs, smh_bd, oh_bd, igbdh_bd,egbdh_bd,load_shedding_bd,total_bd_hrs,usmh,smh,oh,igbdh,egbdh,load_shedding,total_losses,	approve_status) values";
+            string qry1 = " insert into daily_gen_summary_solar(state, site,site_id, date,location_name, ghi, poa, expected_kwh, inv_kwh, plant_kwh, inv_pr, plant_pr, ma, iga,ega,inv_plf_ac, inv_plf_dc, plant_plf_ac, plant_plf_dc, pi, prod_hrs, lull_hrs_bd, usmh_bs, smh_bd, oh_bd, igbdh_bd,egbdh_bd,load_shedding_bd,total_bd_hrs,usmh,smh,oh,igbdh,egbdh,load_shedding,total_losses,	approve_status,inv_kwh_afterloss,plant_kwh_afterloss,inv_plf_afterloss,plant_plf_afterloss) values";
             string values = "";
 
             foreach (var unit in _importedData)
             {
 
-                values += "('" + unit.state + "','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.inverter + "','" + unit.ghi + "','" + unit.poa + "','" + unit.expected_kwh + "','" + unit.inv_act + "','" + unit.plant_act + "','" + unit.inv_pr + "','" + unit.plant_pr + "','" + unit.ma + "','" + unit.iga + "','" + unit.ega + "','" + unit.inv_plf_ac+ "','" + unit.inv_plf_dc + "','" + unit.plant_plf_ac + "','" + unit.plant_plf_dc + "','" + unit.pi + "','" + unit.prod_hrs + "','" + unit.lull_hrs_bd + "','" + unit.usmh_bd + "','" + unit.smh_bd + "','" + unit.oh_bd+ "','" + unit.igbdh_bd + "','" + unit.egbdh_bd + "','" + unit.load_shedding_bd + "','" + unit.total_bd_hrs + "','" + unit.usmh + "','" + unit.smh + "','" + unit.oh + "','" + unit.igbdh + "','" + unit.egbdh + "','" + unit.load_shedding + "','" + unit.total_losses + "','1'),";
+                values += "('" + unit.state + "','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.inverter + "','" + unit.ghi + "','" + unit.poa + "','" + unit.expected_kwh + "','" + unit.inv_act + "','" + unit.plant_act + "','" + unit.inv_pr + "','" + unit.plant_pr + "','" + unit.ma + "','" + unit.iga + "','" + unit.ega + "','" + unit.inv_plf_ac+ "','" + unit.inv_plf_dc + "','" + unit.plant_plf_ac + "','" + unit.plant_plf_dc + "','" + unit.pi + "','" + unit.prod_hrs + "','" + unit.lull_hrs_bd + "','" + unit.usmh_bd + "','" + unit.smh_bd + "','" + unit.oh_bd+ "','" + unit.igbdh_bd + "','" + unit.egbdh_bd + "','" + unit.load_shedding_bd + "','" + unit.total_bd_hrs + "','" + unit.usmh + "','" + unit.smh + "','" + unit.oh + "','" + unit.igbdh + "','" + unit.egbdh + "','" + unit.load_shedding + "','" + unit.total_losses + "','1','" + unit.inv_act_afterloss + "','" + unit.plant_act_afterloss + "','" + unit.inv_plf_afterloss + "','" + unit.plant_plf_afterloss + "'),";
             }
 
             qry1 += values;
+            string qry3 = "delete from daily_gen_summary_solar  where date='" + _importedData[0].date + "' and site_id=" + _importedData[0].site_id + " ;";
+            await Context.ExecuteNonQry<int>(qry3).ConfigureAwait(false);
+
             int res = await Context.ExecuteNonQry<int>(qry1.Substring(0, (qry1.Length - 1)) + ";").ConfigureAwait(false);
             if (res > 0)
             {
@@ -4343,14 +4660,36 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             return _state;
 
         }
+        public async Task<List<StateList>> GetStateDataSolar(string country)
+        {
+
+            string query = "SELECT state FROM `site_master_solar` where country='" + country + "' group by state";
+            List<StateList> _state = new List<StateList>();
+            _state = await Context.GetData<StateList>(query).ConfigureAwait(false);
+            return _state;
+
+        }
         public async Task<List<SPVList>> GetSPVData(string state)
         {
             string filter = "";
-            if (!string.IsNullOrEmpty(state) && state != "All")
+            if (!string.IsNullOrEmpty(state))
             {
-                filter += " where state IN(" + state + ")";
+                filter += " where state in (" + state + ") group by spv";
             }
-            string query = "SELECT spv FROM `site_master` " + filter + " group by spv";
+            string query = "SELECT spv FROM `site_master` "+filter;
+            List<SPVList> _spvlist = new List<SPVList>();
+            _spvlist = await Context.GetData<SPVList>(query).ConfigureAwait(false);
+            return _spvlist;
+
+        }
+        public async Task<List<SPVList>> GetSPVDataSolar(string state)
+        {
+            string filter = "";
+            if (!string.IsNullOrEmpty(state))
+            {
+                filter += " where state in (" + state + ") group by spv";
+            }
+            string query = "SELECT spv FROM `site_master_solar` " + filter;
             List<SPVList> _spvlist = new List<SPVList>();
             _spvlist = await Context.GetData<SPVList>(query).ConfigureAwait(false);
             return _spvlist;
@@ -4411,21 +4750,77 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 }
 
             }
-
-            // if (!string.IsNullOrEmpty(state) && string.IsNullOrEmpty(spv))
-            //{
-            //  filter += " where state='" + state + "'";
-            //}
-            ///if (!string.IsNullOrEmpty(spv) && !string.IsNullOrEmpty(state))
-            //{
-            //   filter += " where state='" + state + "' and spv='" + spv+"'";
-            //}
-
-
             string query = "SELECT * FROM `site_master`" + filter;
             List<WindSiteMaster> _sitelist = new List<WindSiteMaster>();
             _sitelist = await Context.GetData<WindSiteMaster>(query).ConfigureAwait(false);
             return _sitelist;
+
+
+        }
+        public async Task<List<SolarSiteMaster>> GetSiteDataSolar(string state, string spv, string site)
+        {
+            string filter = "";
+            int chkfilter = 0;
+            if (!string.IsNullOrEmpty(site) || !string.IsNullOrEmpty(state) || !string.IsNullOrEmpty(spv))
+            {
+                filter += " where ";
+            }
+            if (!string.IsNullOrEmpty(site))
+            {
+                filter += " site_master_solar_id IN(" + site + ")";
+                chkfilter = 1;
+            }
+
+            if (!string.IsNullOrEmpty(state) && state != "All")
+            {
+                if (chkfilter == 1) filter += " and ";
+                string[] siteSplit = state.Split(",");
+                if (siteSplit.Length > 0)
+                {
+                    string statenames = "";
+                    for (int i = 0; i < siteSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(siteSplit[i]))
+                        {
+                            statenames += "'" + siteSplit[i] + "',";
+                        }
+                    }
+                    statenames = statenames.TrimEnd(',');
+                    //filter += " and site in(" + sitesnames + ")";
+
+                    filter += " state IN(" + statenames + ")";
+                }
+                chkfilter = 1;
+
+            }
+            if (!string.IsNullOrEmpty(spv) && spv != "All")
+            {
+                if (chkfilter == 1) filter += " and ";
+                string[] spvSplit = spv.Split(",");
+                if (spvSplit.Length > 0)
+                {
+                    string spvnames = "";
+                    for (int i = 0; i < spvSplit.Length; i++)
+                    {
+                        if (!string.IsNullOrEmpty(spvSplit[i]))
+                        {
+                            spvnames += "'" + spvSplit[i] + "',";
+                        }
+                    }
+                    spvnames = spvnames.TrimEnd(',');
+                    //filter += " and site in(" + sitesnames + ")";
+
+                    filter += " spv IN(" + spvnames + ")";
+                    //filter += " where state='" + state + "' and spv='" + spv + "'";
+                }
+                chkfilter = 1;
+
+            }
+            string query = "SELECT * FROM `site_master_solar` " + filter;
+            List<SolarSiteMaster> _sitelist = new List<SolarSiteMaster>();
+            _sitelist = await Context.GetData<SolarSiteMaster>(query).ConfigureAwait(false);
+            return _sitelist;
+
 
         }
         public async Task<List<WindLocationMaster>> GetWTGData(string siteid)
@@ -4436,10 +4831,63 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 filter += "where site_master_id in (" + siteid + ") ";
             }
             string query = "SELECT * FROM `location_master`" + filter;
-
-            // string query = "SELECT * FROM `location_master` where site_master_id IN("+ siteid + ")";
             List<WindLocationMaster> _locattionmasterDate = new List<WindLocationMaster>();
             _locattionmasterDate = await Context.GetData<WindLocationMaster>(query).ConfigureAwait(false);
+            return _locattionmasterDate;
+
+        }
+        public async Task<List<SolarLocationMaster>> GetInvData(string siteid, string state, string spv)
+        {
+            string filter = "";
+            int chkfilter = 0;
+            if (!string.IsNullOrEmpty(siteid))
+            {
+                siteid = siteid.TrimEnd(',');
+                filter += " where site_id in(" + siteid + ")";
+                chkfilter = 1;
+            }
+            if (!string.IsNullOrEmpty(state))
+            {
+                if (chkfilter == 1)
+                    filter += " and ";
+                else
+                    filter += " where ";
+
+                string[] stateSplit = state.Split(",");
+                string states = "";
+                for (int i = 0; i < stateSplit.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(stateSplit[i]))
+                    {
+                        states += "'" + stateSplit[i] + "',";
+                    }
+                }
+                states = states.TrimEnd(',');
+                filter += " state in(" + states + ")";
+                chkfilter = 1;
+            }
+            if (!string.IsNullOrEmpty(spv))
+            {
+                if(chkfilter == 1)
+                    filter += " and ";
+                else
+                    filter += " where ";
+
+                string[] spvSplit = spv.Split(",");
+                string spvs = "";
+                for (int i = 0; i < spvSplit.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(spvSplit[i]))
+                    {
+                        spvs += "'" + spvSplit[i] + "',";
+                    }
+                }
+                spvs = spvs.TrimEnd(',');
+                filter += " spv in(" + spvs + ")";
+            }
+            string query = "SELECT icr_inv FROM site_master_solar t1 left join location_master_solar on site_id " + filter + " group by icr_inv";
+            List<SolarLocationMaster> _locattionmasterDate = new List<SolarLocationMaster>();
+            _locattionmasterDate = await Context.GetData<SolarLocationMaster>(query).ConfigureAwait(false);
             return _locattionmasterDate;
 
         }
@@ -4463,6 +4911,48 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             return _importBreakdownData;
 
         }
+
+        public async Task<List<SolarUploadingFileGeneration2>> GetSolarImportGenData(int importId)
+        {
+            string query = "SELECT t1.*, t2.site FROM `uploading_file_generation_solar` as t1 join site_master_solar as t2 on t2.site_master_solar_id = t1.site_id where import_batch_id =" + importId + "";
+           
+            List<SolarUploadingFileGeneration2> _importSolarGenData = new List<SolarUploadingFileGeneration2>();
+            _importSolarGenData = await Context.GetData<SolarUploadingFileGeneration2>(query).ConfigureAwait(false);
+            return _importSolarGenData;
+
+        }
+        public async Task<List<SolarUploadingFileBreakDown1>> GetSolarBrekdownImportData(int importId)
+        {
+
+            string query = "SELECT t1.*,t3.bd_type_name FROM `uploading_file_breakdown_solar` as t1 left join site_master_solar as t2 on t2.site_master_solar_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id =" + importId + "";
+          //  string query = " SELECT t1.site_id,t1.date,t1.wtg,t1.stop_from,t1.stop_to,t1.total_stop,t1.error_description,t2.site,t3.bd_type_name FROM `uploading_file_breakdown` as t1 left join site_master as t2 on t2.site_master_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id = " + importId + "";
+            List<SolarUploadingFileBreakDown1> _importSolarBreakdownData = new List<SolarUploadingFileBreakDown1>();
+            _importSolarBreakdownData = await Context.GetData<SolarUploadingFileBreakDown1>(query).ConfigureAwait(false);
+            return _importSolarBreakdownData;
+
+        }
+        public async Task<List<SolarUploadingPyranoMeter1Min_1>> GetSolarP1ImportData(int importId)
+        {
+
+            //string query = "SELECT t1.*,t3.bd_type_name FROM `uploading_file_breakdown_solar` as t1 left join site_master_solar as t2 on //t2.site_master_solar_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id =" + importId + "";
+
+            string query = "Select t1.*,t2.site from uploading_pyranometer_1_min_solar as t1 left join `site_master_solar` as t2 on t2.site_master_solar_id = t1.site_id where import_batch_id=" + importId + "";
+            List<SolarUploadingPyranoMeter1Min_1> _importSolarP1Data = new List<SolarUploadingPyranoMeter1Min_1>();
+            _importSolarP1Data = await Context.GetData<SolarUploadingPyranoMeter1Min_1>(query).ConfigureAwait(false);
+            return _importSolarP1Data;
+
+        }
+        public async Task<List<SolarUploadingPyranoMeter15Min_1>> GetSolarP15ImportData(int importId)
+        {
+
+            //string query = "SELECT t1.*,t3.bd_type_name FROM `uploading_file_breakdown_solar` as t1 left join site_master_solar as t2 on /t2.site_master_solar_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id =" + importId + "";
+            string query = "Select t1.*,t2.site from uploading_pyranometer_15_min_solar as t1 left join `site_master_solar` as t2 on t2.site_master_solar_id = t1.site_id where import_batch_id=" + importId + "";
+            List<SolarUploadingPyranoMeter15Min_1> _importSolarP15Data = new List<SolarUploadingPyranoMeter15Min_1>();
+            _importSolarP15Data = await Context.GetData<SolarUploadingPyranoMeter15Min_1>(query).ConfigureAwait(false);
+            return _importSolarP15Data;
+
+        }
+
 
         public async Task<List<WindOpertionalHead>> GetOperationHeadData(string site)
         {
@@ -4850,12 +5340,18 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             int month = dt.Month;
             string tbl = "";
             //Wind
+            string col = "";
             if (type == 1)
+            {
                 tbl = "monthly_uploading_line_losses";
+                col = "line_loss";
+            }
             //Solar
-            else
+            else {
                 tbl = "monthly_line_loss_solar";
-            string qry = @"SELECT  fy, month_no, site, LineLoss as lineLoss FROM " + tbl + " where site_id = " + site_id + " and year = " + year + " and month_no = " + month;
+                col = "LineLoss";
+            }
+            string qry = @"SELECT  fy, month_no, site, "+col+" as lineLoss FROM " + tbl + " where site_id = " + site_id + " and year = " + year + " and month_no = " + month;
             List<WindMonthlyUploadingLineLosses> _WindMonthlyUploadingLineLosses = await Context.GetData<WindMonthlyUploadingLineLosses>(qry).ConfigureAwait(false);
 
             foreach (WindMonthlyUploadingLineLosses WindMonthlyLineLosses in _WindMonthlyUploadingLineLosses)
@@ -5509,11 +6005,11 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                                     }
                                 }
                             }
-                            else if (!string.IsNullOrEmpty(sBreakdown.igbd) && sBreakdown.igbd != "Nil")
+                            else if (!string.IsNullOrEmpty(sBreakdown.ext_bd) && sBreakdown.ext_bd != "Nil")
                             {
                                 foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                                 {
-                                    if (SolarDevice.ig == sBreakdown.igbd)
+                                    if (SolarDevice.ig == sBreakdown.ext_bd)
                                     {
                                         SolarDevice.IGBD_1 += Final_Time;
                                         SolarDevice.IGBD += Final_Time;
@@ -5523,6 +6019,20 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                                     }
                                 }
                             }
+                            //else if (!string.IsNullOrEmpty(sBreakdown.igbd) && sBreakdown.igbd != "Nil")
+                            //{
+                            //    foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
+                            //    {
+                            //        if (SolarDevice.ig == sBreakdown.igbd)
+                            //        {
+                            //            SolarDevice.IGBD_1 += Final_Time;
+                            //            SolarDevice.IGBD += Final_Time;
+
+
+                            //            SolarDevice.IGBD_lostPOA += poa;
+                            //        }
+                            //    }
+                            //}
                             else
                             {
                                 //pending : error handling
@@ -5979,41 +6489,64 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             return true;
 
         }
-        public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLossSolar(int site_id, string fromDate, string toDate, double capacity_kw)
+        public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLossSolar(int site_id, string fromDate, string toDate, double capacity_kw, bool Maintainance=false)
         {
             //add column called kwh_afterlineloss and plf_afterlineloss in dailygensummary and uploadgentable
             double lineLoss = await GetLineLoss(site_id, fromDate, 0);
-            bool bIsGenSummary = false;
-            string genSummaryCheck = "select site from daily_gen_summary_solar where site_id = " + site_id + " and date>='" + fromDate + "' and date<='" + toDate + "' ";
-            List<SolarDailyGenSummary> _SolarCount = await Context.GetData<SolarDailyGenSummary>(genSummaryCheck).ConfigureAwait(false);
-            if (_SolarCount.Count > 0)
-                bIsGenSummary = true;
-            int result = await getDB.ExecuteNonQry<int>(genSummaryCheck).ConfigureAwait(false);
-
             lineLoss = 1 - (lineLoss / 100);
-            return await CalculateAndUpdatePLFandKWHAfterLineLoss2Solar(site_id, fromDate, toDate, lineLoss, bIsGenSummary, capacity_kw);
+            return await CalculateAndUpdatePLFandKWHAfterLineLoss2Solar(site_id, fromDate, toDate, lineLoss, capacity_kw, Maintainance);
         }
-        public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLoss2Solar(int site_id, string fromDate, string toDate, double lineloss, bool bIsGenSummary, double capacity_kw)
+        public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLoss2Solar(int site_id, string fromDate, string toDate, double lineloss , double capacity_kw, bool Maintainance)
         {
             //Pending : Add information to log file
             string sLog = "PLF and KWH updated for site id =" + site_id + " fromDate=" + fromDate + " and toDate = " + toDate;
+            string myQuery = "";
             string tableName;
-            if (bIsGenSummary)
+            if (Maintainance)
             {
-                tableName = "daily_gen_summary_solar";  //Approved data
+                bool bIsGenSummary = false;
+
+                string genSummaryCheck = "select site from daily_gen_summary_solar where site_id = " + site_id + " and date>='" + fromDate + "' and date<='" + toDate + "' ";
+                List<SolarDailyGenSummary> _SolarCount = await Context.GetData<SolarDailyGenSummary>(genSummaryCheck).ConfigureAwait(false);
+                if (_SolarCount.Count > 0)
+                    bIsGenSummary = true;
+                if (bIsGenSummary)
+                {
+                    tableName = "daily_gen_summary_solar";  //Approved data
+                    myQuery = "Update " + tableName + " set " +
+                  " inv_kwh_afterloss = inv_kwh * " + lineloss + ", " +
+                   // " inv_plf_ac = (inv_kwh/(" + capacity_mw + ") * 100), " +
+                   "inv_plf_afterloss =  (inv_plf_ac*" + lineloss + ") " +
+                    ", plant_kwh_afterloss = plant_kwh * " + lineloss + ", " +
+                   "plant_plf_afterloss =  (plant_plf_ac *" + lineloss + ") " +
+                   " where date>='" + fromDate + "' and date<='" + toDate + "' and site_id=" + site_id;
+                }
+                else
+                {
+                    tableName = "uploading_file_generation_solar"; //unapproved data
+                    myQuery = "Update " + tableName + " set " +
+                  " inv_act_afterloss = inv_act * " + lineloss + ", " +
+                   // " inv_plf_ac = (inv_kwh/(" + capacity_mw + ") * 100), " +
+                   "inv_plf_afterloss =  (inv_plf_ac*" + lineloss + ") " +
+                    ", plant_act_afterloss = plant_act * " + lineloss + ", " +
+                   "plant_plf_afterloss =  (plant_plf_ac *" + lineloss + ") " +
+                   " where date>='" + fromDate + "' and date<='" + toDate + "' and site_id=" + site_id;
+                }
             }
             else
             {
-                tableName = "uploading_file_generation_solar"; //unapproved data
+                
+                    tableName = "uploading_file_generation_solar"; //unapproved data
+                    myQuery = "Update " + tableName + " set " +
+                  " inv_act_afterloss = inv_act * " + lineloss + ", " +
+                   // " inv_plf_ac = (inv_kwh/(" + capacity_mw + ") * 100), " +
+                   "inv_plf_afterloss =  (inv_plf_ac*" + lineloss + ") " +
+                    ", plant_act_afterloss = plant_act * " + lineloss + ", " +
+                   "plant_plf_afterloss =  (plant_plf_ac *" + lineloss + ") " +
+                   " where date>='" + fromDate + "' and date<='" + toDate + "' and site_id=" + site_id;
+               
             }
-
-            string myQuery = "Update " + tableName + " set " +
-               " inv_act_afterloss = inv_act * " + lineloss + ", " +
-                // " inv_plf_ac = (inv_kwh/(" + capacity_mw + ") * 100), " +
-                "inv_plf_afterloss =  (inv_plf_ac*" + lineloss + ") " +
-                 ", plant_act_afterloss = plant_act * " + lineloss + ", " +
-                "plant_plf_afterloss =  (plant_plf_ac *" + lineloss + ") " +
-                " where date>='" + fromDate + "' and date<='" + toDate + "' and site_id=" + site_id;
+            
             //int result = await Context.ExecuteNonQry<int>(myQuery.Substring(0, (myQuery.Length - 1)) + ";").ConfigureAwait(false);
             int result = await getDB.ExecuteNonQry<int>(myQuery).ConfigureAwait(false);
             if (result > 0)

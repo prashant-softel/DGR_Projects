@@ -31,6 +31,8 @@ namespace DGRA_V1.Areas.admin.Controllers
         private IWebHostEnvironment env;
         private static IHttpContextAccessor HttpContextAccessor;
         CultureInfo timeCulture = new CultureInfo("en-IN");
+       
+
         public FileUploadController(IDapperRepository idapperobj, IWebHostEnvironment obj, IHttpContextAccessor httpObj)
         {
             HttpContextAccessor = httpObj;
@@ -56,6 +58,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         ArrayList kpiArgs = new ArrayList();
         List<int> windSiteUserAccess = new List<int>();
         List<string> fileSheets = new List<string>();
+       
 
         //WindUploadingFileValidation m_ValidationObject;
         ErrorLog m_ErrorLog;
@@ -184,8 +187,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                             //////////oconn.Close();
                             DataTable dt = null;
 
-                            string _filePath = @"C:\TempFile\docupload.xlsx";
-                           // string _filePath = @"G:\TempFile\docupload.xlsx";
+                           // string _filePath = @"C:\TempFile\docupload.xlsx";
+                            string _filePath = @"G:\TempFile\docupload.xlsx";
                             //string _filePath = env.ContentRootPath + @"\TempFile\docupload.xlsx";
                             dataSetMain = GetDataTableFromExcel(_filePath, true, ref fileSheets);
                             if (dataSetMain == null)
@@ -722,6 +725,27 @@ namespace DGRA_V1.Areas.admin.Controllers
                                                     m_ErrorLog.SetInformation(",Wind KPI Calculations Updated Successfully:");
                                                     statusCode = (int)response.StatusCode;
                                                     status = "Successfully Uploaded";
+                                                    
+                                                    // Added Code auto approved if uploaded by admin
+                                                    string userName = HttpContext.Session.GetString("DisplayName");
+                                                    int userId = Convert.ToInt32(HttpContext.Session.GetString("userid"));
+                                                    siteUserRole = HttpContext.Session.GetString("role");
+                                                    if (siteUserRole == "Admin")
+                                                    {
+                                                        var url1 = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/SetApprovalFlagForImportBatches?dataId=" + batchIdDGRAutomation + "&approvedBy=" + userId + "&approvedByName=" + userName + "&status=1";
+                                                        using (var client1 = new HttpClient())
+                                                        {
+                                                            var response1 = await client1.GetAsync(url1);
+                                                            if (response1.IsSuccessStatusCode)
+                                                            {
+                                                                //status = "Successfully Data Approved";
+                                                            }
+                                                            else
+                                                            {
+                                                                //status = "Data Not Approved";
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                                 else
                                                 {
@@ -765,6 +789,27 @@ namespace DGRA_V1.Areas.admin.Controllers
                                                     m_ErrorLog.SetInformation(",SolarKPI Calculations Updated Successfully:");
                                                     statusCode = (int)response.StatusCode;
                                                     status = "Successfully Uploaded";
+
+                                                    // Added Code auto approved if uploaded by admin
+                                                    string userName = HttpContext.Session.GetString("DisplayName");
+                                                    int userId = Convert.ToInt32(HttpContext.Session.GetString("userid"));
+                                                    siteUserRole = HttpContext.Session.GetString("role");
+                                                    if (siteUserRole == "Admin")
+                                                    {
+                                                        var url1 = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/SetSolarApprovalFlagForImportBatches?dataId=" + batchIdDGRAutomation + "&approvedBy=" + userId + "&approvedByName=" + userName + "&status=1";
+                                                        using (var client1 = new HttpClient())
+                                                        {
+                                                            var response1 = await client1.GetAsync(url1);
+                                                            if (response1.IsSuccessStatusCode)
+                                                            {
+                                                                //status = "Successfully Data Approved";
+                                                            }
+                                                            else
+                                                            {
+                                                                //status = "Data Not Approved";
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                                 else
                                                 {

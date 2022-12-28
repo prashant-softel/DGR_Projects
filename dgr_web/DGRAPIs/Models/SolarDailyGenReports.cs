@@ -7,8 +7,8 @@ namespace DGRAPIs.Models
 {
     public class SolarDailyGenReports
     {
-        public long year { get; set; }
-        public long month { get; set; }
+        public int year { get; set; }
+        public string month { get; set; }
         public string date { get; set; }
         public string country { get; set; }
         public string state { get; set; }
@@ -29,30 +29,41 @@ namespace DGRAPIs.Models
 
         public double inv_pr { get; set; }
         public double plant_pr { get; set; }
-        public string inv_plf { get; set; }
-        public string plant_plf { get; set; }
+        public double inv_plf { get; set; }
+        public double plant_plf { get; set; }
 
 
-        public string ma_actual { get; set; }
+        public double ma_actual { get; set; }
 
-        public string ma_contractual { get; set; }
+        public double ma_contractual { get; set; }
 
         public double iga { get; set; }
         public double ega { get; set; }
-        public double gen_hrs { get; set; }
+        public double prod_hrs { get; set; }
         public double usmh { get; set; }
         public double smh { get; set; }
         public double oh { get; set; }
         public double igbdh { get; set; }
         public double egbdh { get; set; }
         public double load_shedding { get; set; }
+        public double lull_hrs { get; set; }
         public string tracker_losses { get; set; }
         public double total_losses { get; set; }
+
+
+        public double lull_hrs_bd { get; set; }
+        public double usmh_bs { get; set; }
+        public double smh_bd { get; set; }
+        public double oh_bd { get; set; }
+        public double igbdh_bd { get; set; }
+        public double egbdh_bd { get; set; }
+        public double load_shedding_bd { get; set; }
+        public double total_bd_hrs { get; set; }
     }
     public class SolarDailyGenReports1
     {
-        public long year { get; set; }
-        public long month { get; set; }
+        public int year { get; set; }
+        public string month { get; set; }
         public string date { get; set; }
         public string country { get; set; }
         public string state { get; set; }
@@ -90,15 +101,16 @@ namespace DGRAPIs.Models
         public double igbdh { get; set; }
         public double egbdh { get; set; }
         public double load_shedding { get; set; }
+        public double lull_hrs { get; set; }
         public string tracker_losses { get; set; }
         public double total_losses { get; set; }
-
+        public double total_bd_hrs { get; set; }
 
     }
     public class SolarDailyGenReports2
     {
         public long year { get; set; }
-        public long month { get; set; }
+        public string month { get; set; }
         public string date { get; set; }
         public string country { get; set; }
         public string state { get; set; }
@@ -129,15 +141,26 @@ namespace DGRAPIs.Models
 
         public double iga { get; set; }
         public double ega { get; set; }
-        public double gen_hrs { get; set; }
+        public double prod_hrs { get; set; }
         public double usmh { get; set; }
         public double smh { get; set; }
         public double oh { get; set; }
         public double igbdh { get; set; }
         public double egbdh { get; set; }
         public double load_shedding { get; set; }
+        public double lull_hrs { get; set; }
         public string tracker_losses { get; set; }
         public double total_losses { get; set; }
+
+
+        public double lull_hrs_bd { get; set; }
+        public double usmh_bs { get; set; }
+        public double smh_bd { get; set; }
+        public double oh_bd { get; set; }
+        public double igbdh_bd { get; set; }
+        public double egbdh_bd { get; set; }
+        public double load_shedding_bd { get; set; }
+        public double total_bd_hrs { get; set; }
 
 
     }
