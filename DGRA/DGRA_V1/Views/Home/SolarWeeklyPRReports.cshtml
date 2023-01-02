@@ -13,7 +13,7 @@
 @for (int i = 0; i < @usermodel.access_list.Count; i++)
 {
 
-    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
     {
         windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
     }
@@ -100,13 +100,13 @@
                                         <hr>
                                         <div class="row" id="wk_head" style="display:none">
                                             <div class="col-sm-5 text-center" id="wk_head_sec1">
-                                                
+
                                             </div>
                                             <div class="col-sm-3" id="wk_head_sec2">
-                                                
+
                                             </div>
                                             <div class="col-sm-4" id="wk_head_sec3">
-                                                
+
                                             </div>
                                         </div>
                                         <hr>
@@ -135,6 +135,12 @@
                                                 <canvas id="iga_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                                             </div>
                                         </div>
+                                        <hr>
+                                        <div class="card-header">
+                                              <h5 class="card-title text-center">Major Breakdown Reports</h5>
+                                        </div>
+                                        <div id="reportsMonthly" style="overflow-x: auto;" class="reportsMonthly"></div>
+
                                     </div>
                                     <div class="tab-pane fade" id="custom-tabs-two-pr" role="tabpanel" aria-labelledby="custom-tabs-two-pr-tab">
                                         <div class="row">
@@ -150,7 +156,7 @@
                                             </div>
                                             <div class="col-sm-4">
                                                 <div class="input-group " style="margin-left: -5px; width: 104%;">
-                                                    <label class="col-sm-4 col-form-label text-right">Date : </label>
+                                                    <label class="col-sm-2 col-form-label text-right">Date : </label>
                                                     <div class="input-group-prepend">
                                                         <span class="input-group-text">
                                                             <i class="far fa-calendar-alt"></i>
@@ -181,23 +187,23 @@
                                         </div>
                                         <hr>
                                         <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
-                                        <div class="row" id="sitewisechart" style="display:none">
+                                        <div class="row" id="sitewisechart" >
                                             <div class="chart col-sm-6 text-center">
                                                 <h5>Energy (MUs) </h5>
                                                 <canvas id="energy_chart_pr" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
                                             </div>
                                             <div class="chart col-sm-6 text-center">
-                                                <h5>Wind (m/s) </h5>
+                                                <h5>PR (%)</h5>
                                                 <canvas id="wind_chart_pr" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
                                             </div>
 
                                         </div>
-                                        <div class="row" id="spvwisechart" style="display:none">
-                                            <div class="col-sm-6 text-center">
-                                                <canvas id="pieChart" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="col-sm-6 text-center"></div>
-                                        </div>
+                                        <!--<div class="row" id="spvwisechart" style="display:none">
+        <div class="col-sm-6 text-center">
+            <canvas id="pieChart" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+        </div>-->
+                                        <div class="col-sm-6 text-center"></div>
+                                    </div>
                                     </div>
                                 </div>
 
@@ -235,8 +241,13 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
 <script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+
 <script src="~/Content/theme/plugins/chart.js/Chart.min.js"></script>
 <script src="~/Content/theme/dist/js/comman.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0-rc"></script>
+
 <script type="text/javascript">
     $(document).ready(function () {
         $('#daterange').daterangepicker(
@@ -261,10 +272,22 @@
     var var_mu_pos = [];
     var var_mu_neg = [];
 
-    var actual_wind = [];
-    var target_wind = [];
-    var var_wind_pos = [];
-    var var_wind_neg = [];
+    var actual_pr = [];
+    var target_pr = [];
+    var var_pr_pos = [];
+    var var_pr_neg = [];
+
+
+    var actual_ghi = [];
+    var target_ghi = [];
+    var var_ghi_pos = [];
+    var var_ghi_neg = [];
+
+
+    var actual_poa = [];
+    var target_poa = [];
+    var var_poa_pos = [];
+    var var_poa_neg = [];
 
     var actual_plf = [];
     var target_plf = [];
@@ -311,9 +334,21 @@
         var tar_energy_wk = 0;
         var act_energy_wk = 0;
         var energy_var_wk =0
-        var tar_wind_wk = 0;
-        var act_wind_wk = 0;
-        var wind_var_wk = 0;
+        var tar_pr_wk = 0;
+        var act_pr_wk = 0;
+        var pr_var_wk = 0;
+
+
+        var tar_ghi_wk = 0;
+        var act_ghi_wk = 0;
+        var pr_ghi_wk = 0;
+
+
+        var tar_poa_wk = 0;
+        var act_poa_wk = 0;
+        var pr_poa_wk = 0;
+
+
         var tar_plf_wk = 0;
         var act_plf_wk = 0;
         var plf_var_wk = 0;
@@ -336,12 +371,13 @@
 
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetWeeklyOperation", "WindReport")' + '?fy=' + fy + '&fromDate=' + fromDate + '&toDate=' + toDate + '&site=' + site_ids,
+            url: '@Url.Action("GetWeeklyOperation", "SolarReport")' + '?fy=' + fy + '&fromDate=' + fromDate + '&toDate=' + toDate + '&site=' + site_ids,
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
-                tar_energy_wk = result[0].tar_kwh_mu / 1000000;
-                act_energy_wk = result[0].act_jmr_kwh_mu;
+                console.log(result);
+                tar_energy_wk = result[0].tar_kwh_mu/1000000;
+                act_energy_wk = result[0].act_kwh_mu;
                 energy_var_wk = (act_energy_wk - tar_energy_wk) / tar_energy_wk;  // variant calculation for Energy MUS
                 let en_pasitive;
                 let en_negative;
@@ -360,26 +396,85 @@
                 var_mu_neg.push(en_negative);
 
                 // Start wind calculation
-                tar_wind_wk = result[0].tar_wind;
-                act_wind_wk = result[0].act_Wind;
-                wind_var_wk = (act_wind_wk - tar_wind_wk) / tar_wind_wk;
-                let w_positive;
-                let w_negative;
-                if (wind_var_wk < 0) {
-                    w_negative = wind_var_wk;
+                //tar_wind_wk = result[0].tar_wind;
+                //act_wind_wk = result[0].act_Wind;
+                //wind_var_wk = (act_wind_wk - tar_wind_wk) / tar_wind_wk;
+                //let w_positive;
+                //let w_negative;
+                //if (wind_var_wk < 0) {
+                //    w_negative = wind_var_wk;
+                //}
+                //else {
+                //    w_positive = wind_var_wk;
+                //}
+                ////Push WInd Weekly
+                //actual_wind.push(act_wind_wk.toFixed(2));
+                //target_wind.push(tar_wind_wk.toFixed(2));
+                //var_wind_pos.push(w_positive);
+                //var_wind_neg.push(w_negative);
+
+                //PR
+                tar_pr_wk = result[0].tar_pr;
+                act_pr_wk = result[0].act_pr;
+                pr_var_wk = (act_pr_wk - tar_pr_wk) / tar_pr_wk;
+                let pr_positive;
+                let pr_negative;
+                if (pr_var_wk < 0) {
+                    pr_negative = pr_var_wk;
                 }
                 else {
-                    w_positive = wind_var_wk;
+                    pr_positive = pr_var_wk;
                 }
-                //Push WInd Weekly
-                actual_wind.push(act_wind_wk.toFixed(2));
-                target_wind.push(tar_wind_wk.toFixed(2));
-                var_wind_pos.push(w_positive);
-                var_wind_neg.push(w_negative);
+
+                //Push PR Weekly
+
+                actual_pr.push(act_pr_wk.toFixed(2));
+                target_pr.push(tar_pr_wk.toFixed(2));
+                var_pr_pos.push(pr_positive);
+                var_pr_neg.push(pr_negative);
+
+                //GHI
+                tar_ghi_wk = result[0].tar_ghi;
+                act_ghi_wk = result[0].act_ghi;
+                ghi_var_wk = (act_ghi_wk - tar_ghi_wk) / tar_ghi_wk;
+                let ghi_positive;
+                let ghi_negative;
+                if (ghi_var_wk < 0) {
+                    ghi_negative = ghi_var_wk;
+                }
+                else {
+                    ghi_positive = ghi_var_wk;
+                }
+                //Push GHI Weekly
+
+                actual_ghi.push(act_ghi_wk.toFixed(2));
+                target_ghi.push(tar_ghi_wk.toFixed(2));
+                var_ghi_pos.push(ghi_positive);
+                var_ghi_neg.push(ghi_negative);
+
+                //POA
+                tar_poa_wk = result[0].tar_poa;
+                act_poa_wk = result[0].act_poa;
+                poa_var_wk = (act_poa_wk - tar_poa_wk) / tar_poa_wk;
+                let poa_positive;
+                let poa_negative;
+                if (poa_var_wk < 0) {
+                    poa_negative = poa_var_wk;
+                }
+                else {
+                    poa_positive = poa_var_wk;
+                }
+                //Push GHI Weekly
+
+                actual_poa.push(act_poa_wk.toFixed(2));
+                target_poa.push(tar_poa_wk.toFixed(2));
+                var_poa_pos.push(poa_positive);
+                var_poa_neg.push(poa_negative);
+
 
                 // PLF Calculations
                 tar_plf_wk = result[0].tar_plf;
-                act_plf_wk = result[0].act_plf/1000000;
+                act_plf_wk = result[0].act_plf;
                 plf_var_wk = (act_plf_wk - tar_plf_wk) / tar_plf_wk;
 
                 let plf_positive;
@@ -454,24 +549,36 @@
     }
 
     function GetOperationMonthlyPR() {
-        var tar_energy_mn = 0;
-        var act_energy_mn = 0;
-        var energy_var_mn = 0
-        var tar_wind_mn = 0;
-        var act_wind_mn = 0;
-        var wind_var_mn = 0;
-        var tar_plf_mn = 0;
-        var act_plf_mn = 0;
-        var plf_var_mn = 0;
-        var tar_ma_mn = 0;
-        var act_ma_mn = 0;
-        var ma_var_mn = 0;
-        var tar_iga_mn = 0;
-        var act_iga_mn = 0;
-        var iga_var_mn = 0;
-        var tar_ega_mn = 0;
-        var act_ega_mn = 0;
-        var ega_var_mn = 0;
+        var tar_energy_wk= 0;
+        var act_energy_wk = 0;
+        var energy_var_wk = 0
+        var tar_pr_wk = 0;
+        var act_pr_wk = 0;
+        var pr_var_wk = 0;
+
+
+        var tar_ghi_wk = 0;
+        var act_ghi_wk = 0;
+        var pr_ghi_wk = 0;
+
+
+        var tar_poa_wk = 0;
+        var act_poa_wk = 0;
+        var pr_poa_wk = 0;
+
+
+        var tar_plf_wk = 0;
+        var act_plf_wk = 0;
+        var plf_var_wk = 0;
+        var tar_ma_wk = 0;
+        var act_ma_wk = 0;
+        var ma_var_wk = 0;
+        var tar_iga_wk = 0;
+        var act_iga_wk = 0;
+        var iga_var_wk = 0;
+        var tar_ega_wk = 0;
+        var act_ega_wk = 0;
+        var ega_var_wk = 0;
 
         var daterange = $('#daterange').val();
         var arr1 = new Array();
@@ -485,114 +592,160 @@
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetMontlyOperation", "WindReport")' + '?fy=' + fy + '&fromDate=' + fromDate + '&toDate=' + toDate + '&site=' + site_ids,
+            url: '@Url.Action("GetMontlyOperation", "SolarReport")' + '?fy=' + fy + '&fromDate=' + fromDate + '&toDate=' + toDate + '&site=' + site_ids,
             //url: "/WindReport/GetMontlyOperation?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site_ids,
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
-               // Calculation Energy MU Monthly
-                tar_energy_mn = result[0].tar_kwh_mu/1000000;
-                act_energy_mn = result[0].act_jmr_kwh_mu;
-                energy_var_mn = (act_energy_mn - tar_energy_mn) / tar_energy_mn;
+                // Calculation Energy MU Monthly
+
+                console.log(result)
+                tar_energy_wk = result[0].tar_kwh_mu/1000000;
+                act_energy_wk = result[0].act_kwh_mu;
+                energy_var_wk = (act_energy_wk - tar_energy_wk) / tar_energy_wk;
                  let en_pasitive;
                  let en_negative;
-                if (energy_var_mn < 0) {
-                    en_negative = energy_var_mn;
+                if (energy_var_wk < 0) {
+                    en_negative = energy_var_wk;
                  }
                  else {
-                    en_pasitive = energy_var_mn;
+                    en_pasitive = energy_var_wk;
                 }
-                let cal_revenue_mn = (act_energy_mn - tar_energy_mn) * result[0].total_tarrif;
+                let cal_revenue_mn = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
                 revenue.push(cal_revenue_mn.toFixed(2));
                  // Push Energy MU Monthly
-                actual_mu.push(act_energy_mn.toFixed(2));
-                target_mu.push(tar_energy_mn.toFixed(2));
+
+                actual_mu.push(act_energy_wk.toFixed(2));
+                target_mu.push(tar_energy_wk.toFixed(2));
                 var_mu_pos.push(en_pasitive);
                 var_mu_neg.push(en_negative);
-                // Calcultioan wind Monthly
-                 tar_wind_mn = result[0].tar_wind;
-                 act_wind_mn = result[0].act_Wind;
-                 wind_var_mn = (act_wind_mn - tar_wind_mn) / tar_wind_mn;
-                 let w_positive;
-                 let w_negative;
-                if (wind_var_mn < 0) {
-                    w_negative = wind_var_mn;
-                 }
-                 else {
-                    w_positive = wind_var_mn;
-                }
-                // Push Wind Monthly
-                actual_wind.push(act_wind_mn.toFixed(2));
-                target_wind.push(tar_wind_mn.toFixed(2));
-                var_wind_pos.push(w_positive);
-                var_wind_neg.push(w_negative);
-                // Calculation Monthly PLF
-                 tar_plf_mn = result[0].tar_plf;
-                 act_plf_mn = result[0].act_plf/1000000;
-                 plf_var_mn = (act_plf_mn - tar_plf_mn) / tar_plf_mn;
 
-                 let plf_positive;
-                 let plf_negative;
-                 if (plf_var_mn < 0) {
-                     plf_negative = plf_var_mn;
-                 }
-                 else {
-                     plf_positive = plf_var_mn;
+
+                tar_pr_wk = result[0].tar_pr;
+                act_pr_wk = result[0].act_pr;
+                pr_var_wk = (act_pr_wk - tar_pr_wk) / tar_pr_wk;
+                let pr_positive;
+                let pr_negative;
+                if (pr_var_wk < 0) {
+                    pr_negative = pr_var_wk;
                 }
-                // Push Monthly PLF
-                actual_plf.push(act_plf_mn.toFixed(2));
-                target_plf.push(tar_plf_mn.toFixed(2));
+                else {
+                    pr_positive = pr_var_wk;
+                }
+
+                //Push PR Weekly
+
+                actual_pr.push(act_pr_wk.toFixed(2));
+                target_pr.push(tar_pr_wk.toFixed(2));
+                var_pr_pos.push(pr_positive);
+                var_pr_neg.push(pr_negative);
+
+                //GHI
+                tar_ghi_wk = result[0].tar_ghi;
+                act_ghi_wk = result[0].act_ghi;
+                ghi_var_wk = (act_ghi_wk - tar_ghi_wk) / tar_ghi_wk;
+                let ghi_positive;
+                let ghi_negative;
+                if (ghi_var_wk < 0) {
+                    ghi_negative = ghi_var_wk;
+                }
+                else {
+                    ghi_positive = ghi_var_wk;
+                }
+                //Push GHI Weekly
+
+                actual_ghi.push(act_ghi_wk.toFixed(2));
+                target_ghi.push(tar_ghi_wk.toFixed(2));
+                var_ghi_pos.push(ghi_positive);
+                var_ghi_neg.push(ghi_negative);
+
+                //POA
+                tar_poa_wk = result[0].tar_poa;
+                act_poa_wk = result[0].act_poa;
+                poa_var_wk = (act_poa_wk - tar_poa_wk) / tar_poa_wk;
+                let poa_positive;
+                let poa_negative;
+                if (poa_var_wk < 0) {
+                    poa_negative = poa_var_wk;
+                }
+                else {
+                    poa_positive = poa_var_wk;
+                }
+                //Push POA Weekly
+
+                actual_poa.push(act_poa_wk.toFixed(2));
+                target_poa.push(tar_poa_wk.toFixed(2));
+                var_poa_pos.push(poa_positive);
+                var_poa_neg.push(poa_negative);
+
+
+                // PLF Calculations
+                tar_plf_wk = result[0].tar_plf;
+                act_plf_wk = result[0].act_plf;
+                plf_var_wk = (act_plf_wk - tar_plf_wk) / tar_plf_wk;
+
+                let plf_positive;
+                let plf_negative;
+                if (plf_var_wk < 0) {
+                    plf_negative = plf_var_wk;
+                }
+                else {
+                    plf_positive = plf_var_wk;
+                }
+                //Push PLF Weekly
+                actual_plf.push(act_plf_wk.toFixed(2));
+                target_plf.push(tar_plf_wk.toFixed(2));
                 var_plf_pos.push(plf_positive);
                 var_plf_neg.push(plf_negative);
-                // Calculation Monthly MA
-                 tar_ma_mn = result[0].tar_ma;
-                 act_ma_mn = result[0].act_ma;
-                 ma_var_mn = (act_ma_mn - tar_ma_mn);
-                 let ma_positive;
-                 let ma_negative;
-                 if (ma_var_mn < 0) {
-                     ma_negative = ma_var_mn;
-                 }
-                 else {
-                     ma_positive = ma_var_mn;
-                 }
-                // Push Monthly MA
-                actual_ma.push(act_ma_mn.toFixed(2));
-                target_ma.push(tar_ma_mn.toFixed(2));
+                // MA Calcultion
+                tar_ma_wk = result[0].tar_ma;
+                act_ma_wk = result[0].act_ma;
+                ma_var_wk = (act_ma_wk - tar_ma_wk);
+                let ma_positive;
+                let ma_negative;
+                if (ma_var_wk < 0) {
+                    ma_negative = ma_var_wk;
+                }
+                else {
+                    ma_positive = ma_var_wk;
+                }
+                // Push Weekly MA
+                actual_ma.push(act_ma_wk.toFixed(2));
+                target_ma.push(tar_ma_wk.toFixed(2));
                 var_ma_pos.push(ma_positive);
                 var_ma_neg.push(ma_negative);
-                // Calculation Monthly IGA
-                tar_iga_mn = result[0].tar_iga;
-                 act_iga_mn = result[0].act_iga;
-                 iga_var_mn = (act_iga_mn - tar_iga_mn);
-                 let iga_positive;
-                 let iga_negative;
-                 if (iga_var_mn < 0) {
-                     iga_negative = iga_var_mn;
-                 }
-                 else {
-                     iga_positive = iga_var_mn;
+                //Calcultion IGA
+                tar_iga_wk = result[0].tar_iga;
+                act_iga_wk = result[0].act_iga;
+                iga_var_wk = (act_iga_wk - tar_iga_wk);
+                let iga_positive;
+                let iga_negative;
+                if (iga_var_wk < 0) {
+                    iga_negative = iga_var_wk;
                 }
-                //Push Monthly IGA
-                actual_iga.push(act_iga_mn.toFixed(2));
-                target_iga.push(tar_iga_mn.toFixed(2));
+                else {
+                    iga_positive = iga_var_wk;
+                }
+                // Push Weekly IGA
+                actual_iga.push(act_iga_wk.toFixed(2));
+                target_iga.push(tar_iga_wk.toFixed(2));
                 var_iga_pos.push(iga_positive);
                 var_iga_neg.push(iga_negative);
-                //Calculation EGA
-                 tar_ega_mn = result[0].tar_ega;
-                 act_ega_mn = result[0].act_ega;
-                 ega_var_mn = (act_ega_mn - tar_ega_mn);
-                 let ega_positive;
-                 let ega_negative;
-                 if (ega_var_mn < 0) {
-                     ega_negative = ega_var_mn;
-                 }
-                 else {
-                     ega_positive = ega_var_mn;
+                //EGA Calculation
+                tar_ega_wk = result[0].tar_ega;
+                act_ega_wk = result[0].act_ega;
+                ega_var_wk = (act_ega_wk - tar_ega_wk);
+                let ega_positive;
+                let ega_negative;
+                if (ega_var_wk < 0) {
+                    ega_negative = ega_var_wk;
                 }
-                //Push Monthly EGA Data
-                actual_ega.push(act_ega_mn.toFixed(2));
-                target_ega.push(tar_ega_mn.toFixed(2));
+                else {
+                    ega_positive = ega_var_wk;
+                }
+                // Push Weekly EGA
+                actual_ega.push(act_ega_wk.toFixed(2));
+                target_ega.push(tar_ega_wk.toFixed(2));
                 var_ega_pos.push(ega_positive);
                 var_ega_neg.push(ega_negative);
 
@@ -602,25 +755,36 @@
     }
     function GetOperationYearlyPR() {
 
-        var tar_energy_yr = 0;
-        var act_energy_yr = 0;
-        var energy_var_yr = 0
-        var tar_wind_yr = 0;
-        var act_wind_yr = 0;
-        var wind_var_yr = 0;
-        var tar_plf_yr = 0;
-        var act_plf_yr = 0;
-        var plf_var_yr = 0;
-        var tar_ma_yr = 0;
-        var act_ma_yr = 0;
-        var ma_var_yr = 0;
-        var tar_iga_yr = 0;
-        var act_iga_yr = 0;
-        var iga_var_yr = 0;
-        var tar_ega_yr = 0;
-        var act_ega_yr = 0;
-        var ega_var_yr = 0;
-        var yr_energy = [];
+        var tar_energy_wk = 0;
+        var act_energy_wk = 0;
+        var energy_var_wk = 0
+        var tar_pr_wk = 0;
+        var act_pr_wk = 0;
+        var pr_var_wk = 0;
+
+
+        var tar_ghi_wk = 0;
+        var act_ghi_wk = 0;
+        var pr_ghi_wk = 0;
+
+
+        var tar_poa_wk = 0;
+        var act_poa_wk = 0;
+        var pr_poa_wk = 0;
+
+
+        var tar_plf_wk = 0;
+        var act_plf_wk = 0;
+        var plf_var_wk = 0;
+        var tar_ma_wk = 0;
+        var act_ma_wk = 0;
+        var ma_var_wk = 0;
+        var tar_iga_wk = 0;
+        var act_iga_wk = 0;
+        var iga_var_wk = 0;
+        var tar_ega_wk = 0;
+        var act_ega_wk = 0;
+        var ega_var_wk = 0;
 
         var fy = $('select#fy option:selected').val();
         var FyDate = getFinancialYearDate(fy);
@@ -630,128 +794,176 @@
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetYearlyOperation", "WindReport")' + '?fy=' + fy + '&fromDate=' + fromDate + '&toDate=' + toDate + '&site=' + site_ids,
+            url: '@Url.Action("GetYearlyOperation", "SolarReport")' + '?fy=' + fy + '&fromDate=' + fromDate + '&toDate=' + toDate + '&site=' + site_ids,
             //url: "/WindReport/GetMontlyOperation?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site_ids,
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
+                console.log(result);
                 // Calcilation yearlyenergy
-                tar_energy_yr = result[0].tar_kwh_mu/1000000;
-                act_energy_yr = result[0].act_jmr_kwh_mu;
-                energy_var_yr = (act_energy_yr - tar_energy_yr) / tar_energy_yr;
+                tar_energy_wk = result[0].tar_kwh_mu/1000000;
+                act_energy_wk = result[0].act_kwh_mu;
+                energy_var_wk = (act_energy_wk - tar_energy_wk) / tar_energy_wk;
                  let en_pasitive;
                  let en_negative;
-                if (energy_var_yr < 0) {
-                    en_negative = energy_var_yr;
+                if (energy_var_wk < 0) {
+                    en_negative = energy_var_wk;
                  }
                  else {
-                    en_pasitive = energy_var_yr;
+                    en_pasitive = energy_var_wk;
                 }
 
-                let cal_revenue_yr = (act_energy_yr - tar_energy_yr) * result[0].total_tarrif;
+                let cal_revenue_yr = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
                 revenue.push(cal_revenue_yr.toFixed(2));
                 // Push MU Yearly data
-                actual_mu.push(act_energy_yr.toFixed(2));
-                target_mu.push(tar_energy_yr.toFixed(2));
+
+                actual_mu.push(act_energy_wk.toFixed(2));
+                target_mu.push(tar_energy_wk.toFixed(2));
                 var_mu_pos.push(en_pasitive);
                 var_mu_neg.push(en_negative);
 
                // Calaculation yealy wind
-                 tar_wind_yr = result[0].tar_wind;
-                 act_wind_yr = result[0].act_Wind;
-                 wind_var_yr = (act_wind_yr - tar_wind_yr) / tar_wind_yr;
-                 let w_positive;
-                 let w_negative;
-                if (wind_var_yr < 0) {
-                    w_negative = wind_var_yr;
-                 }
-                 else {
-                    w_positive = wind_var_yr;
-                }
-                // Push wind Yearly data
-                actual_wind.push(act_wind_yr.toFixed(2));
-                target_wind.push(tar_wind_yr.toFixed(2));
-                var_wind_pos.push(w_positive);
-                var_wind_neg.push(w_negative);
 
-                //calculation yearly plf
-                tar_plf_yr = result[0].tar_plf;
-                act_plf_yr = result[0].act_plf/1000000;
-                plf_var_yr = (act_plf_yr - tar_plf_yr) / tar_plf_yr;
+                tar_pr_wk = result[0].tar_pr;
+                act_pr_wk = result[0].act_pr;
+                pr_var_wk = (act_pr_wk - tar_pr_wk) / tar_pr_wk;
+                let pr_positive;
+                let pr_negative;
+                if (pr_var_wk < 0) {
+                    pr_negative = pr_var_wk;
+                }
+                else {
+                    pr_positive = pr_var_wk;
+                }
+
+                //Push PR Weekly
+
+                actual_pr.push(act_pr_wk.toFixed(2));
+                target_pr.push(tar_pr_wk.toFixed(2));
+                var_pr_pos.push(pr_positive);
+                var_pr_neg.push(pr_negative);
+
+                //GHI
+                tar_ghi_wk = result[0].tar_ghi;
+                act_ghi_wk = result[0].act_ghi;
+                ghi_var_wk = (act_ghi_wk - tar_ghi_wk) / tar_ghi_wk;
+                let ghi_positive;
+                let ghi_negative;
+                if (ghi_var_wk < 0) {
+                    ghi_negative = ghi_var_wk;
+                }
+                else {
+                    ghi_positive = ghi_var_wk;
+                }
+                //Push GHI Weekly
+
+                actual_ghi.push(act_ghi_wk.toFixed(2));
+                target_ghi.push(tar_ghi_wk.toFixed(2));
+                var_ghi_pos.push(ghi_positive);
+                var_ghi_neg.push(ghi_negative);
+
+                //POA
+                tar_poa_wk = result[0].tar_poa;
+                act_poa_wk = result[0].act_poa;
+                poa_var_wk = (act_poa_wk - tar_poa_wk) / tar_poa_wk;
+                let poa_positive;
+                let poa_negative;
+                if (poa_var_wk < 0) {
+                    poa_negative = poa_var_wk;
+                }
+                else {
+                    poa_positive = poa_var_wk;
+                }
+                //Push POA Weekly
+
+                actual_poa.push(act_poa_wk.toFixed(2));
+                target_poa.push(tar_poa_wk.toFixed(2));
+                var_poa_pos.push(poa_positive);
+                var_poa_neg.push(poa_negative);
+
+
+                // PLF Calculations
+                tar_plf_wk = result[0].tar_plf;
+                act_plf_wk = result[0].act_plf;
+                plf_var_wk = (act_plf_wk - tar_plf_wk) / tar_plf_wk;
+
                 let plf_positive;
                 let plf_negative;
-                if (plf_var_yr < 0) {
-                     plf_negative = plf_var_yr;
-                 }
-                 else {
-                     plf_positive = plf_var_yr;
+                if (plf_var_wk < 0) {
+                    plf_negative = plf_var_wk;
                 }
-                // Push PLF Yearly data
-                actual_plf.push(act_plf_yr.toFixed(2));
-                target_plf.push(tar_plf_yr.toFixed(2));
+                else {
+                    plf_positive = plf_var_wk;
+                }
+                //Push PLF Weekly
+                actual_plf.push(act_plf_wk.toFixed(2));
+                target_plf.push(tar_plf_wk.toFixed(2));
                 var_plf_pos.push(plf_positive);
                 var_plf_neg.push(plf_negative);
-                // calculation yearl ma
-                 tar_ma_yr = result[0].tar_ma;
-                 act_ma_yr = result[0].act_ma;
-                 ma_var_yr = (act_ma_yr - tar_ma_yr);
-                 let ma_positive;
-                 let ma_negative;
-                 if (ma_var_yr < 0) {
-                     ma_negative = ma_var_yr;
-                 }
-                 else {
-                     ma_positive = ma_var_yr;
+                // MA Calcultion
+                tar_ma_wk = result[0].tar_ma;
+                act_ma_wk = result[0].act_ma;
+                ma_var_wk = (act_ma_wk - tar_ma_wk);
+                let ma_positive;
+                let ma_negative;
+                if (ma_var_wk < 0) {
+                    ma_negative = ma_var_wk;
                 }
-                // Push MA Yearly data
-                actual_ma.push(act_ma_yr.toFixed(2));
-                target_ma.push(tar_ma_yr.toFixed(2));
+                else {
+                    ma_positive = ma_var_wk;
+                }
+                // Push Weekly MA
+                actual_ma.push(act_ma_wk.toFixed(2));
+                target_ma.push(tar_ma_wk.toFixed(2));
                 var_ma_pos.push(ma_positive);
                 var_ma_neg.push(ma_negative);
-                // calculation yearly iga
-                tar_iga_yr = result[0].tar_iga;
-                 act_iga_yr = result[0].act_iga;
-                 iga_var_yr = (act_iga_yr - tar_iga_yr);
-                 let iga_positive;
-                 let iga_negative;
-                 if (iga_var_yr < 0) {
-                     iga_negative = iga_var_yr;
-                 }
-                 else {
-                     iga_positive = iga_var_yr;
+                //Calcultion IGA
+                tar_iga_wk = result[0].tar_iga;
+                act_iga_wk = result[0].act_iga;
+                iga_var_wk = (act_iga_wk - tar_iga_wk);
+                let iga_positive;
+                let iga_negative;
+                if (iga_var_wk < 0) {
+                    iga_negative = iga_var_wk;
                 }
-                // Push IGA Yearly data
-                actual_iga.push(act_iga_yr.toFixed(2));
-                target_iga.push(tar_iga_yr.toFixed(2));
+                else {
+                    iga_positive = iga_var_wk;
+                }
+                // Push Weekly IGA
+                actual_iga.push(act_iga_wk.toFixed(2));
+                target_iga.push(tar_iga_wk.toFixed(2));
                 var_iga_pos.push(iga_positive);
                 var_iga_neg.push(iga_negative);
-                // calcultion yearly ega
-                 tar_ega_yr = result[0].tar_ega;
-                 act_ega_yr = result[0].act_ega;
-                 ega_var_yr = (act_ega_yr - tar_ega_yr);
-                 let ega_positive;
-                 let ega_negative;
-                 if (ega_var_yr < 0) {
-                     ega_negative = ega_var_yr;
-                 }
-                 else {
-                     ega_positive = ega_var_yr;
+                //EGA Calculation
+                tar_ega_wk = result[0].tar_ega;
+                act_ega_wk = result[0].act_ega;
+                ega_var_wk = (act_ega_wk - tar_ega_wk);
+                let ega_positive;
+                let ega_negative;
+                if (ega_var_wk < 0) {
+                    ega_negative = ega_var_wk;
                 }
-                // Push EGA Yearly data
-                actual_ega.push(act_ega_yr.toFixed(2));
-                target_ega.push(tar_ega_yr.toFixed(2));
+                else {
+                    ega_positive = ega_var_wk;
+                }
+                // Push Weekly EGA
+                actual_ega.push(act_ega_wk.toFixed(2));
+                target_ega.push(tar_ega_wk.toFixed(2));
                 var_ega_pos.push(ega_positive);
                 var_ega_neg.push(ega_negative);
 
+
                 // Call Cahrd Functions
-                chartEnergyMU(actual_mu, target_mu, var_mu_pos, var_mu_neg);
-                chartWindSpeed(actual_wind, target_wind, var_wind_pos, var_wind_neg);
+               chartEnergyMU(actual_mu, target_mu, var_mu_pos, var_mu_neg);
+                chartIR(actual_poa, target_poa, var_poa_pos, var_poa_neg);
                 PLF_chart(actual_plf, target_plf, var_plf_pos, var_plf_neg);
                 MA_chart(actual_ma, target_ma, var_ma_pos, var_ma_neg);
                 IGA_chart(actual_iga, target_iga, var_iga_pos, var_iga_neg);
                 EGA_chart(actual_ega, target_ega, var_ega_pos, var_ega_neg);
 
                 OperationalTable(actual_mu, revenue);
+
+                MajorBreakdown();
             }
         });
 
@@ -767,7 +979,7 @@
          $.ajax({
             type: "GET",
            // url: "/WindReport/GetSPVList?state=" + val,
-             url: '@Url.Action("GetOperationHeadData", "WindReport")' + '?site=' + wind_side,
+             url: '@Url.Action("GetOperationHeadData", "SolarReport")' + '?site=' + wind_side,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
              datatype: "html",
@@ -809,32 +1021,27 @@
         document.getElementById('wk_head').style.display = 'flex';
     }
     function chartEnergyMU(actual_mu, target_mu, var_mu_pos, var_mu_neg) {
+        let chartStatus = Chart.getChart("energy_mu_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("energy_mu_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK","MTD","YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_mu,
-                     yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_mu,
-                     yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_mu_neg,
                     fill: false,
-                    yAxisID: 'var',
+                        //yAxisID: 'var',
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
                 }, {
                     label: "(+ve)",
                     type: "line",
@@ -843,15 +1050,60 @@
                     backgroundColorHover: "#3e95cd",
                     data: var_mu_pos,
                     fill: false,
-                    yAxisID: 'var',
-                }
+                        //yAxisID: 'var',
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                    },
+                    {
+                        label: "Target",
+                        type: "bar",
+                        borderColor: "#77CAE7",
+                        backgroundColor: "#77CAE7",
+                        data: target_mu,
+                       // yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                    }, {
+                        label: "Actual",
+                        type: "bar",
+                        borderColor: "#31576D",
+                        backgroundColor: "#31576D",
+                        data: actual_mu,
+                        //yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                    },
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Energy(MUs)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
+                }
+            }
+            /*options: {
+                
                 scales: {
                     yAxes: [{
                         id: 'energy',
                         //type: 'linear',
+
                         position: 'left',
                         scaleLabel: {
                             display: true,
@@ -873,60 +1125,100 @@
                         }
                     }]
                 },
-                title: {
-                    display: true,
-                    text: "Energy(MUs)"
-                },
-                legend: {
-                    display: true,
-                    position: "bottom"
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Energy(MUs)"
+                    },
+                    
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
                 }
 
-
-            }
+            }*/
         });
     }
     //Wind Spped Chart
-    function chartWindSpeed(actual_wind, target_wind, var_wind_pos, var_wind_neg) {
+    function chartIR(actual_wind, target_wind, var_wind_pos, var_wind_neg) {
+        let chartStatus = Chart.getChart("wind_sp_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("wind_sp_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK", "MTD", "YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_wind,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_wind,
-                    yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_wind_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    //yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_wind_pos,
-                    fill: false,
-                    yAxisID: 'var',
-                }
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_wind_pos,
+                        fill: false,
+                        //yAxisID: 'var',
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_wind,
+                    yAxisID: 'energy',
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_wind,
+                        yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                } 
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Irradiance (kWh/m<sup>2</sup>)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
+                }
+            }
+            /*options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -952,59 +1244,99 @@
                         }
                     }]
                 },
-                title: {
-                    display: true,
-                    text: "Wind (m/s)"
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Irradiance"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
                 },
-                legend: {
-                    display: true,
-                    position: "bottom"
-                }
-            }
+               
+            }*/
         });
     }
-    
+
     //PLF Chart
     function PLF_chart(actual_plf, target_plf, var_plf_pos, var_plf_neg) {
+        let chartStatus = Chart.getChart("plf_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("plf_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK", "MTD", "YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_plf,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_plf,
-                    yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_plf_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    //yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_plf_pos,
-                    fill: false,
-                    yAxisID: 'var',
-                }
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_plf_pos,
+                        fill: false,
+                        //yAxisID: 'var',
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_plf,
+                   // yAxisID: 'energy',
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_plf,
+                       // yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                } 
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "PLF (%)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
+                }
+            }
+            /*options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -1030,58 +1362,98 @@
                         }
                     }]
                 },
-                title: {
-                    display: true,
-                    text: "PLF"
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "PLF"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
                 },
-                legend: {
-                    display: true,
-                    position: "bottom"
-                }
-            }
+                
+            }*/
         });
     }
     //MA  Chart
     function MA_chart(actual_ma, target_ma, var_ma_pos, var_ma_neg) {
+        let chartStatus = Chart.getChart("ma_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("ma_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK", "MTD", "YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_ma,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_ma,
-                    yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_ma_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    //yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_ma_pos,
-                    fill: false,
-                    yAxisID: 'var',
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_ma_pos,
+                        fill: false,
+                       // yAxisID: 'var',
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_ma,
+                   // yAxisID: 'energy',
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_ma,
+                       // yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
                 }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "MA (%)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
+                }
+            }
+           /* options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -1106,58 +1478,98 @@
                         }
                     }]
                 },
-                title: {
-                    display: true,
-                    text: "MA"
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "MA"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
                 },
-                legend: {
-                    display: true,
-                    position: "bottom"
-                }
-            }
+               
+            }*/
         });
     }
     //IGA  Chart
     function IGA_chart(actual_iga, target_iga, var_iga_pos, var_iga_neg) {
+        let chartStatus = Chart.getChart("iga_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("iga_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK", "MTD", "YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_iga,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_iga,
-                    yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_iga_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    //yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_iga_pos,
-                    fill: false,
-                    yAxisID: 'var',
-                }
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_iga_pos,
+                        fill: false,
+                       // yAxisID: 'var',
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_iga,
+                   // yAxisID: 'energy',
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_iga,
+                      //  yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                }, 
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "IGA (%)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
+                }
+            }
+            /*options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -1183,59 +1595,98 @@
                         }
                     }]
                 },
-                title: {
-                    display: true,
-                    text: "IGA"
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "IGA"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
                 },
-                legend: {
-                    display: true,
-                    position: "bottom"
-                }
-            }
+               
+            }*/
         });
     }
     //EGA  Chart
     function EGA_chart(actual_ega, target_ega, var_ega_pos, var_ega_neg) {
+        let chartStatus = Chart.getChart("ega_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("ega_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK", "MTD", "YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_ega,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_ega,
-                    
-                    yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_ega_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    //yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_ega_pos,
-                    fill: false,
-                    yAxisID: 'var',
-                }
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_ega_pos,
+                        fill: false,
+                        //yAxisID: 'var',
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_ega,
+                   // yAxisID: 'energy',
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_ega,
+                       // yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                } 
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "EGA (%)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
+                }
+            }
+            /*options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -1251,6 +1702,7 @@
                     }, {
                         id: 'var',
                         //type: 'linear',
+
                         position: 'right',
                         scaleLabel: {
                             display: true,
@@ -1261,18 +1713,107 @@
                         }
                     }]
                 },
-                title: {
-                    display: true,
-                    text: "EGA"
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "EGA"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
                 },
-                legend: {
-                    display: true,
-                    position: "bottom"
-                }
-            }
+               
+            }*/
         });
     }
    // -----------------------------------Weekly ---------------------//
+    function MajorBreakdown() {
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var fyear = $('select#fy option:selected').val();
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarMajorBreakdown", "SolarReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            //url: "/WindReport/GetWindPRReportSPVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<table id="example2"  class="table table-bordered table-striped" >';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>Date</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Location</th>';
+                tbl += '<th>Total Stop</th>';
+                tbl += '<th>Reason of Breakdown</th>';
+                tbl += '</tr></thead>';
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + result[i].date + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                         location_name = "Plant Shutdown";
+                        if (result[i].icr) {
+                            location_name = result[i].icr + "/" + result[i].inv;
+                        }
+                        tbl += '<td class="text-left">' + location_name + '</td>'
+                        tbl += '<td class="text-left">' + result[i].total_bd.totalSeconds/3600 + '</td>'
+                        tbl += '<td class="text-left">' + result[i].bd_remarks + '</td>'
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                    // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#reportsMonthly").html(tbl);
+                $.fn.DataTable.ext.pager.numbers_length = 6;
+                $('#example2').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'WTG Wise Monthly Generation Report',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'WTG Wise Monthly Generation Report',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $('#example2').removeClass('dataTable');
+            }
+        });
+    }
     function WeeklyPRReport() {
 
         var ReportType = $("input[name='weekly']:checked").val();
@@ -1287,20 +1828,32 @@
     }
 
     // Mothly Report WTG Wise
+
     function GetPerformanceBySPV() {
 
-       var daterange = $('#daterange1').val();
+        var daterange = $('#daterange1').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var fyear = $('select#fy1 option:selected').val();
-        var leble = [];
+
+        var actual_energy = [];
+        var target_energy = [];
+        var pas_energy_var = [];
+        var neg_energy_var = [];
+
+        var actual_pr = [];
+        var target_pr = [];
+        var pas_pr_var = [];
+        var neg_pr_var = [];
+        var Levels = [];
+
         var revenue_arr = [];
         var reporthead = "SPV Wise Reports";
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetWindPRReportSPVWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            url: '@Url.Action("GetSolarPRReportSPVWise", "SolarReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
             //url: "/WindReport/GetWindPRReportSPVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
 
@@ -1308,17 +1861,20 @@
             success: function (result, status, xhr) {
                 console.log(result);
                 //var tbl = '<div class="text-center"><h5>' + reporthead+'</h5></div>';
-                var tbl= '<table id="example1"  class="table table-bordered table-striped" style="width:150%">';
+
+                var tbl = '<table id="example2"  class="table table-bordered table-striped" style="width:150%">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th rowspan="2">SPV</th><th rowspan="2">Capacity (MW)</th>';
-                tbl += '<th colspan="3" class="text-center">JMR Gen nos.(MUs)</th><th>Revenue</th>';
-                tbl += '<th colspan="3" class="text-center">Wind Speed (m/s)</th><th colspan="3" class="text-center">PLF</th>';
-                tbl += '<th colspan="3" class="text-center">MA (Actual)</th><th colspan="3" class="text-center">IGA</th>';
-                tbl += '<th colspan="3" class="text-center">EGA</th></tr>';
-                //tbl += '<tr><th>&nbsp;</th>';
-               // tbl += '<th>(MW)</th>';
+                tbl += '<th rowspan="2">Site</th><th rowspan="2">SPV</th><th  rowspan="2">Capacity <br>(MW)</th>';
+                tbl += '<th colspan="3" class="text-center">Gen nos.(MUs)</th><th>Revenue</th>';
+                tbl += '<th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">GHI Vs POA Gain%</th>';
+                tbl += '<th colspan="3" class="text-center">PLF</th>';
+                tbl += '<th colspan="3" class="text-center">PR (%)</th>';
+                tbl += '<th colspan="3" class="text-center">MA Actual (%)</th><th colspan="3" class="text-center">IGA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr>';
+                // tbl += '<tr><th>&nbsp;</th>';
+
                 tbl += '<tr><th>Tar</th>';
-                tbl += '<th>Act</th>';
+                tbl += '<th>Act JMR</th>';
                 tbl += '<th>Var (%)</th>';
                 tbl += '<th>(MINR)</th>';
                 tbl += '<th>Tar</th>';
@@ -1337,25 +1893,48 @@
                 tbl += '<th>Act</th>';
                 tbl += '<th>Var (%)</th>';
 
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '</tr></thead>';
+
 
                 if (result.length > 0) {
                     console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {
-                        leble.push(result[i].spv);
+                        Levels.push(result[i].spv);
                         let revenue = 0;
                         let jmr_var = 0;
-                        let wind_var = 0;
                         let plf_var = 0;
                         let ma_act_var = 0;
                         let iga_var = 0;
                         let ega_var = 0;
                         revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
-                        if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
-                            jmr_var = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) / result[i].tar_kwh_mu) * 100;
+                        let ghi_var = 0;
+                        let poa_var = 0;
+                        let pr_var = 0;
+
+                        revenue = (result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif;
+                        if (result[i].act_kwh != 0 || result[i].tar_kwh != 0) {
+                            jmr_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
-                        if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
-                            wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
+                        if (result[i].act_pr != 0 || result[i].tar_pr != 0) {
+                            pr_var = ((result[i].act_pr - result[i].tar_pr) / result[i].tar_pr) * 100;
+                        }
+
+                        if (result[i].act_ghi != 0 || result[i].tar_ghi != 0) {
+                            ghi_var = ((result[i].act_ghi - result[i].tar_ghi) / result[i].tar_ghi) * 100;
+                        }
+                        if (result[i].act_poa != 0 || result[i].tar_poa != 0) {
+                            ghi_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
                         }
                         if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
                             plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
@@ -1369,30 +1948,72 @@
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
                             ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
+                        let pasitive;
+                        let negative;
+
+                        if (jmr_var < 0) {
+                            negative = jmr_var;
+                        }
+                        else {
+                            pasitive = jmr_var;
+                        }
+                        let pr_pasitive;
+                        let pr_negative;
+                        if (pr_var < 0) {
+                            pr_negative = pr_var;
+                        }
+                        else {
+                            pr_pasitive = pr_var;
+                        }
+
+
+                        console.log(result[i].tar_kwh);
+                        target_energy.push((result[i].tar_kwh).toFixed(2));
+                        actual_energy.push(result[i].act_kwh.toFixed(2));
+                        pas_energy_var.push(pasitive);
+                        neg_energy_var.push(negative);
+
+                        target_pr.push(result[i].tar_pr.toFixed(2));
+                        actual_pr.push(result[i].act_pr.toFixed(2));
+                        pas_pr_var.push(pr_pasitive);
+                        neg_pr_var.push(pr_negative);
+
                         revenue_arr.push(revenue.toFixed(2));
+
                         tbl += '<tr>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';
-                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].tar_kwh_mu.toFixed(2)+'</td>';
-                        tbl += '<td class="text-right">' + result[i].act_jmr_kwh_mu.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + jmr_var.toFixed(2)+'</td>';
-                        tbl += '<td class="text-right">' + revenue.toFixed(2)+'</td>';
-                        tbl += '<td class="text-right">' + result[i].tar_wind.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].act_Wind.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + wind_var.toFixed(2)+'</td>';
+                        //tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + jmr_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + revenue.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ghi_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + poa_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">-</td>';
                         tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + plf_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + ma_act_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + ma_act_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_iga.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_iga.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + iga_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + iga_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ega.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + ega_var.toFixed(2)+'</td>';
-
+                        tbl += '<td class="text-right">' + ega_var.toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }
@@ -1438,14 +2059,19 @@
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $('#example1').removeClass('dataTable');
                 //document.getElementById("reportsDaily").style.display = 'block';
-                document.getElementById("sitewisechart").style.display = 'none';
-                document.getElementById("spvwisechart").style.display = 'flex';
-                RevenueChart(leble, revenue_arr);
+               // document.getElementById("sitewisechart").style.display = 'none';
+                //document.getElementById("spvwisechart").style.display = 'flex';
+
+                EnergyBarChart(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels);
+                BarChart(target_pr, actual_pr, pas_pr_var, neg_pr_var, Levels, 'PR(%)');
+
+                //RevenueChart(leble, revenue_arr);
+
             }
         });
 
     }
-    function RevenueChart(lebels, data) {
+   /*function RevenueChart(lebels, data) {
         var ctx1 = $("#pieChart");
         //pie chart data
         var data1 = {
@@ -1513,7 +2139,7 @@
             maintainAspectRatio: false,
         });
 
-    }
+    }*/
     //------------------------------------
     // Mothly Report SIte Wise
     function GetPerformanceBySite() {
@@ -1532,31 +2158,36 @@
         var pas_energy_var = [];
         var neg_energy_var = [];
 
-        var actual_wind = [];
-        var target_wind = [];
-        var pas_wind_var = [];
-        var neg_wind_var = [];
+        var actual_pr = [];
+        var target_pr = [];
+        var pas_pr_var = [];
+        var neg_pr_var = [];
         var Levels = [];
+
+
         //var Actual_Energy_Dataset = [];
         //var Energy_var_Dataset = [];
         $.ajax({
             type: "GET",
-              url: '@Url.Action("GetWindPRReportSiteWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+              url: '@Url.Action("GetSolarPRReportSiteWise", "SolarReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
             //url: "/WindReport/GetWindPRReportSiteWise?fy=" + fyear+" &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
                // var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+
                 var tbl = '<table id="example2"  class="table table-bordered table-striped" style="width:150%">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th rowspan="2">Site</th><th  rowspan="2">Capacity (MW)</th>';
-                tbl += '<th colspan="3" class="text-center">JMR Gen nos.(MUs)</th><th>Revenue</th>';
-                tbl += '<th colspan="3" class="text-center">Wind Speed (m/s)</th><th colspan="3" class="text-center">PLF</th>';
-                tbl += '<th colspan="3" class="text-center">MA (Actual)</th><th colspan="3" class="text-center">IGA</th>';
-                tbl += '<th colspan="3" class="text-center">EGA</th></tr>';
+                tbl += '<th rowspan="2">Site</th><th  rowspan="2">Capacity <br>(MW)</th>';
+                tbl += '<th colspan="3" class="text-center">Gen nos. (MUs)</th><th>Revenue</th>';
+                tbl += '<th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">GHI Vs POA Gain%</th>';
+                tbl += '<th colspan="3" class="text-center">PLF (%)</th>';
+                tbl += '<th colspan="3" class="text-center">PR (%)</th>';
+                tbl += '<th colspan="3" class="text-center">MA Actual (%)</th><th colspan="3" class="text-center">IGA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr>';
                // tbl += '<tr><th>&nbsp;</th>';
-                //tbl += '<th>(MW)</th>';
+
                 tbl += '<tr><th>Tar</th>';
                 tbl += '<th>Act JMR</th>';
                 tbl += '<th>Var (%)</th>';
@@ -1576,7 +2207,20 @@
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
                 tbl += '<th>Var (%)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '</tr></thead>';
+
 
                 if (result.length > 0) {
 
@@ -1589,20 +2233,31 @@
                     //let pas_wind_var = [];
                     //let neg_wind_var = [];
                     for (var i = 0; i < result.length; i++) {
+
                         let revenue = 0;
                         let jmr_var = 0;
-                        let wind_var = 0;
+                        //let wind_var = 0;
+                        let ghi_var = 0;
+                        let poa_var = 0;
                         let plf_var = 0;
                         let ma_act_var = 0;
                         let iga_var = 0;
                         let ega_var = 0;
+                        let pr_var = 0;
 
-                        revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
-                        if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
-                            jmr_var = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) / result[i].tar_kwh_mu) * 100;
+                        revenue = (result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif;
+                        if (result[i].act_kwh != 0 || result[i].tar_kwh != 0) {
+                            jmr_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
-                        if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
-                            wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
+                        if (result[i].act_pr != 0 || result[i].tar_pr != 0) {
+                            pr_var = ((result[i].act_pr - result[i].tar_pr) / result[i].tar_pr) * 100;
+                        }
+
+                        if (result[i].act_ghi != 0 || result[i].tar_ghi != 0) {
+                            ghi_var = ((result[i].act_ghi - result[i].tar_ghi) / result[i].tar_ghi) * 100;
+                        }
+                        if (result[i].act_poa != 0 || result[i].tar_poa != 0) {
+                            ghi_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
                         }
                         if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
                             plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
@@ -1618,51 +2273,79 @@
                         }
                         let pasitive;
                         let negative;
+
                         if (jmr_var < 0) {
                             negative = jmr_var;
                         }
                         else {
                             pasitive = jmr_var;
                         }
-                        let w_pasitive;
-                        let w_negative;
-                        if (wind_var < 0) {
-                            w_negative = wind_var;
+                        let pr_pasitive;
+                        let pr_negative;
+                        if (pr_var < 0) {
+                            pr_negative = pr_var;
                         }
                         else {
-                            w_pasitive = wind_var;
+                            pr_pasitive = pr_var;
                         }
 
-                        target_energy.push((result[i].tar_kwh_mu/1000000).toFixed(2));
-                        actual_energy.push(result[i].act_jmr_kwh_mu.toFixed(2));
+
+                        console.log(result[i].tar_kwh);
+                        target_energy.push((result[i].tar_kwh).toFixed(2));
+                        actual_energy.push(result[i].act_kwh.toFixed(2));
                         pas_energy_var.push(pasitive);
                         neg_energy_var.push(negative);
                         Levels.push(result[i].site);
 
-                        target_wind.push(result[i].tar_wind.toFixed(2));
-                        actual_wind.push(result[i].act_Wind.toFixed(2));
-                        pas_wind_var.push(w_pasitive);
-                        neg_wind_var.push(w_negative);
+                        target_pr.push(result[i].tar_pr.toFixed(2));
+                        actual_pr.push(result[i].act_pr.toFixed(2));
+                        pas_pr_var.push(pr_pasitive);
+                        neg_pr_var.push(pr_negative);
 
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].site + '</td>';
-                        tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].tar_kwh_mu.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].act_jmr_kwh_mu.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].capacity.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].tar_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_kwh.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + jmr_var.toFixed(2)+'</td>';
                         tbl += '<td class="text-right">' + revenue.toFixed(2)+'</td>';
-                        tbl += '<td class="text-right">' + result[i].tar_wind.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].act_Wind.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + wind_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ghi_var.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].tar_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + poa_var.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">-</td>';
+
+
                         tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + plf_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
+
+
+
+                        tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
+
+
                         tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + ma_act_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + ma_act_var.toFixed(2) + '</td>';
+
+
                         tbl += '<td class="text-right">' + result[i].tar_iga.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_iga.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + iga_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + iga_var.toFixed(2) + '</td>';
+
+
                         tbl += '<td class="text-right">' + result[i].tar_ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + ega_var.toFixed(2)+'</td>';
@@ -1724,50 +2407,93 @@
                 $('#example2').removeClass('dataTable');
                // console.log(data_arr);
                // BarChart(Target_Energy_Dataset, Actual_Energy_Dataset, Energy_var_Dataset);
-                document.getElementById("sitewisechart").style.display = 'flex';
-                document.getElementById("spvwisechart").style.display = 'none';
+
+               
+               // document.getElementById("sitewisechart").style.display = 'none';
+                //document.getElementById("spvwisechart").style.display = 'flex';
                 EnergyBarChart(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels);
-                WindBarChart(target_wind, actual_wind, pas_wind_var, neg_wind_var, Levels);
+                BarChart(target_pr, actual_pr, pas_pr_var, neg_pr_var, Levels, 'PR(%)');
             }
         });
     }
     function EnergyBarChart(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels) {
+        
+        let chartStatus = Chart.getChart("energy_chart_pr"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("energy_chart_pr"), {
+
             type: 'bar',
             data: {
                 labels: Levels,
-                datasets: [{
+                datasets: [
+                    {
+                        label: "+ve",
+                        type: "line",
+                        borderColor: "#86C466",
+                        data: pas_energy_var,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                        fill: false,
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                       // yAxisID: 'var',
+                    }, {
+                        label: "-ve",
+                        type: "line",
+                        borderColor: "#EE403D",
+                        data: neg_energy_var,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
+                        fill: false,
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                        //yAxisID: 'var',
+                    },{
                     label: "Target Energy",
                     type: "bar",
                     backgroundColor: "#77CAE7",
                     data: target_energy,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                    yAxisID: 'energy',
+                   // yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
                 }, {
                     label: "Actual Energy",
                     type: "bar",
                     backgroundColor: "#31576D",
                     backgroundColorHover: "#3e95cd",
                     data: actual_energy,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
-                    yAxisID: 'energy',
-                },
-                {
-                    label: "+ve",
-                    type: "line",
-                    borderColor: "#86C466",
-                    data: pas_energy_var,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                    fill: false,
-                    yAxisID: 'var',
-                }, {
-                    label: "-ve",
-                    type: "line",
-                    borderColor: "#EE403D",
-                    data: neg_energy_var,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
-                    fill: false,
-                    yAxisID: 'var',
+                   //yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
                 }
+                
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "PR (%)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
+                }
+            }
+
+            /*options: {
                 scales: {
 
                     yAxes: [{
@@ -1802,7 +2528,7 @@
                     display: true,
                     position: "bottom"
                 }
-            }
+            }*/
         });
        /* console.log("Target", data);
 
@@ -1831,53 +2557,91 @@
         })*/
     }
 
-    function WindBarChart(target_wind, actual_wind, pas_wind_var, neg_wind_var, Levels) {
-
+    function BarChart(target_wind, actual_wind, pas_wind_var, neg_wind_var, Levels, label) {
+        let chartStatus = Chart.getChart("wind_chart_pr"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("wind_chart_pr"), {
             type: 'bar',
             data: {
                 labels: Levels,
                 datasets: [{
-                    label: "Target Wind",
-                    type: "bar",
-                    backgroundColor: "#77CAE7",
-                    data: target_wind,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                    yAxisID: 'wind',
-                }, {
-                    label: "Actual Wind",
-                    type: "bar",
-                    backgroundColor: "#31576D",
-                    backgroundColorHover: "#3e95cd",
-                    data: actual_wind,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
-                    yAxisID: 'wind',
-                },
-                {
                     label: "+ve",
                     type: "line",
                     borderColor: "#86C466",
                     data: pas_wind_var,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                    //yAxisID: 'var',
                 }, {
-                    label: "-ve",
-                    type: "line",
-                    borderColor: "#EE403D",
-                    data: neg_wind_var,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
+                        label: "-ve",
+                        type: "line",
+                        borderColor: "#EE403D",
+                        data: neg_wind_var,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                        //yAxisID: 'var',
+                    },{
+                    label: "Target " + label,
+                    type: "bar",
+                    backgroundColor: "#77CAE7",
+                    data: target_wind,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                   // yAxisID: 'wind',
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                }, {
+                        label: "Actual " + label,
+                    type: "bar",
+                    backgroundColor: "#31576D",
+                    backgroundColorHover: "#3e95cd",
+                    data: actual_wind,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                   // yAxisID: 'wind',
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
                 }
+                
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "PR (%)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
+                }
+            }
+
+           /* options: {
                 scales: {
 
                     yAxes: [{
                         id: 'wind',
                         //type: 'linear',
+
                         position: 'left',
                         scaleLabel: {
                             display: true,
-                            labelString: "Wind(m/s)",
+                            labelString: label,
                             padding: 10
 
                         }
@@ -1901,7 +2665,7 @@
                     display: true,
                     position: "bottom"
                 }
-            }
+            }*/
         });
         /*var areaChartData = {
             labels: Levels,// ['WK', 'MTD', 'YTD'],

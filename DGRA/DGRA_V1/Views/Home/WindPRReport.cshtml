@@ -226,11 +226,11 @@
                 //var tbl = '<div class="text-center"><h5>' + reporthead+'</h5></div>';
                 var tbl = '<table id="example1"  class="table table-bordered table-striped" style="width: 130%;">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th rowspan="2" style="width: 10%;">SPV</th><th rowspan="2">Capacity (MW)</th>';
-                tbl += '<th colspan="3" class="text-center">JMR Gen nos.(MUs)</th><th>Revenue</th>';
-                tbl += '<th colspan="3" class="text-center">Wind Speed (m/s)</th><th colspan="3" class="text-center">PLF</th>';
-                tbl += '<th colspan="3" class="text-center">MA (Actual)</th><th colspan="3" class="text-center">IGA</th>';
-                tbl += '<th colspan="3" class="text-center">EGA</th></tr>';
+                tbl += '<th rowspan="2" style="width: 10%;">SPV</th><th rowspan="2">Capacity<br> (MW)</th>';
+                tbl += '<th colspan="3" class="text-center">JMR Energy (in MU)</th><th>Revenue</th>';
+                tbl += '<th colspan="3" class="text-center">Wind Speed (m/s)</th><th colspan="3" class="text-center">PLF (%)</th>';
+                tbl += '<th colspan="3" class="text-center">MA Actual (%)</th><th colspan="3" class="text-center">IGA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr>';
                 //tbl += '<tr><th>&nbsp;</th>';
                // tbl += '<th>(MW)</th>';
                 tbl += '<tr><th>Tar</th>';
@@ -266,9 +266,11 @@
                         let ma_act_var = 0;
                         let iga_var = 0;
                         let ega_var = 0;
+                        let tar_mu = 0;
+                        tar_mu = result[i].tar_kwh_mu / 1000000;
                         revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
-                            jmr_var = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) / result[i].tar_kwh_mu) * 100;
+                            jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
                         if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
                             wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
@@ -277,19 +279,19 @@
                             plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
                         }
                         if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
-                            ma_act_var = (result[i].act_ma - result[i].tar_ma);
+                            ma_act_var = (result[i].act_ma - result[i].tar_ma) * 100;
                         }
                         if (result[i].act_iga != 0 || result[i].tar_iga != 0) {
-                            iga_var = (result[i].act_iga - result[i].tar_iga);
+                            iga_var = (result[i].act_iga - result[i].tar_iga) * 100;
                         }
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
-                            ega_var = (result[i].act_ega - result[i].tar_ega);
+                            ega_var = (result[i].act_ega - result[i].tar_ega) * 100;
                         }
                         revenue_arr.push(revenue.toFixed(2));
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';
                         tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].tar_kwh_mu.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + tar_mu.toFixed(2)+'</td>';
                         tbl += '<td class="text-right">' + result[i].act_jmr_kwh_mu.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + jmr_var.toFixed(2)+'</td>';
                         tbl += '<td class="text-right">' + revenue.toFixed(2)+'</td>';
@@ -461,11 +463,11 @@
                // var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
                 var tbl = '<table id="example2"  class="table table-bordered table-striped" style="width: 130%;">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th rowspan="2"  style="width: 10%;">Site</th><th  rowspan="2">Capacity (MW)</th>';
-                tbl += '<th colspan="3" class="text-center">JMR Gen nos.(MUs)</th><th>Revenue</th>';
-                tbl += '<th colspan="3" class="text-center">Wind Speed (m/s)</th><th colspan="3" class="text-center">PLF</th>';
-                tbl += '<th colspan="3" class="text-center">MA (Actual)</th><th colspan="3" class="text-center">IGA</th>';
-                tbl += '<th colspan="3" class="text-center">EGA</th></tr>';
+                tbl += '<th rowspan="2"  style="width: 10%;">Site</th><th  rowspan="2">Capacity<br> (MW)</th>';
+                tbl += '<th colspan="3" class="text-center">JMR Energy (in MU)</th><th>Revenue</th>';
+                tbl += '<th colspan="3" class="text-center">Wind Speed (m/s)</th><th colspan="3" class="text-center">PLF (%)</th>';
+                tbl += '<th colspan="3" class="text-center">MA Actual (%)</th><th colspan="3" class="text-center">IGA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr>';
                // tbl += '<tr><th>&nbsp;</th>';
                 //tbl += '<th>(MW)</th>';
                 tbl += '<tr><th>Tar</th>';
@@ -507,10 +509,11 @@
                         let ma_act_var = 0;
                         let iga_var = 0;
                         let ega_var = 0;
-
+                        let tar_mu = 0;
+                        tar_mu = result[i].tar_kwh_mu / 1000000;
                         revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
-                            jmr_var = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) / result[i].tar_kwh_mu) * 100;
+                            jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
                         if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
                             wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
@@ -519,13 +522,13 @@
                             plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
                         }
                         if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
-                            ma_act_var = (result[i].act_ma - result[i].tar_ma);
+                            ma_act_var = (result[i].act_ma - result[i].tar_ma) * 100;
                         }
                         if (result[i].act_iga != 0 || result[i].tar_iga != 0) {
-                            iga_var = (result[i].act_iga - result[i].tar_iga);
+                            iga_var = (result[i].act_iga - result[i].tar_iga) * 100;
                         }
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
-                            ega_var = (result[i].act_ega - result[i].tar_ega);
+                            ega_var = (result[i].act_ega - result[i].tar_ega) * 100;
                         }
                         let pasitive;
                         let negative;
@@ -557,7 +560,7 @@
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].site + '</td>';
                         tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].tar_kwh_mu.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + tar_mu.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_jmr_kwh_mu.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + jmr_var.toFixed(2)+'</td>';
                         tbl += '<td class="text-right">' + revenue.toFixed(2)+'</td>';

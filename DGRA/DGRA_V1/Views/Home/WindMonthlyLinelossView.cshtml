@@ -58,7 +58,7 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Wind Monthly LineLoss</h3>
+                <h3 class="card-title text-center">Wind Monthly Line Loss</h3>
 
 
             </div>
@@ -68,8 +68,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
                                 </select>
                             </div>
                         </div>
@@ -78,12 +78,12 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">FY: </label>
-                                <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                <label class="col-sm-2 col-form-label text-left">FY: </label>
+                                <select class="form-control  col-sm-10" id="fy" name="fy" value="">
                                     <option value="">Select Financial Year</option>
                                     <!--<option value="2020-21">2020-21</option>
-                                    <option value="2021-22">2021-22</option>
-                                    <option value="2022-23">2022-23</option>-->
+                    <option value="2021-22">2021-22</option>
+                    <option value="2022-23">2022-23</option>-->
                                 </select>
                             </div>
                         </div>
@@ -92,13 +92,13 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Month : </label>
-                                <select class="form-control  col-sm-8" id="month" name="month" value="">
+                                <label class="col-sm-3 col-form-label text-left">Month : </label>
+                                <select class="form-control  col-sm-9" id="month" name="month" value="">
                                     @*@foreach (var item in Model)
-                                        {
-                                           <option value="@item.">@item.name</option>
+                        {
+                           <option value="@item.">@item.name</option>
 
-                                        }*@
+                        }*@
                                     <option value="">Select Month</option>
                                     <option value="Jan">January</option>
                                     <option value="Feb">February</option>
@@ -116,11 +116,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1">
 
-                    </div>
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
+                    </div>
+                    <div class="col-md-1">
+
                     </div>
                 </div>
             
@@ -223,7 +224,7 @@
                 tbl += '<th>FY</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Month</th>';
-                tbl += '<th style="width: 150px;">Line Losses(%)</th>';
+                tbl += '<th style="width: 150px;">Line Losses (%)</th>';
                 tbl += '</tr></thead>';
 
                 if (result.length > 0) {

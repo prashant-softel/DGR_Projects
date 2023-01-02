@@ -69,15 +69,41 @@ namespace DGRAPIs.Repositories
             _userinfo = await Context.GetData<UserInfomation>(qry).ConfigureAwait(false);
             return _userinfo;
         }
-        public async Task<List<HFEPage>> GetPageList(int login_id)
+        public async Task<List<UserInfomation>> GetSolarUserInformation(int login_id)
         {
-           /* string filter = "";
+            string filter = "";
             if (login_id != 0)
             {
-                filter = " where login_id='" + login_id + "'";
-            }*/
+                filter = " where login_id=" + login_id;
+            }
             string qry = "";
-            qry = "SELECT * FROM `hfe_pages` where Visible=1 ";
+            // qry = "SELECT login_id,username,useremail,user_role,created_on,active_user FROM `login` " + filter;
+            qry = "SELECT login_id, username,useremail,user_role,active_user  FROM `login` " + filter;
+            // Console.WriteLine(qry);
+            // var _Userinfo = await Context.GetData<UserInfomation>(qry).ConfigureAwait(false);
+            // return _Userinfo.FirstOrDefault();
+            List<UserInfomation> _userinfo = new List<UserInfomation>();
+            _userinfo = await Context.GetData<UserInfomation>(qry).ConfigureAwait(false);
+            return _userinfo;
+        }
+        public async Task<List<HFEPage>> GetPageList(int login_id, int site_type)
+        {
+            /* string filter = "";
+             if (login_id != 0)
+             {
+                 filter = " where login_id='" + login_id + "'";
+             }*/
+            string qry = "";
+
+           qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=2";
+            if(site_type == 2)
+            {
+                qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=2";
+            }
+            if (site_type == 1)
+            {
+                qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=1";
+            }
             // Console.WriteLine(qry);
             // var _Userinfo = await Context.GetData<UserInfomation>(qry).ConfigureAwait(false);
             // return _Userinfo.FirstOrDefault();
@@ -102,13 +128,15 @@ namespace DGRAPIs.Repositories
 
 
         }
-        internal async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList)
+        internal async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type)
         {
             var SiteList = new JavaScriptSerializer().Deserialize<dynamic>(siteList);
             var PageList = new JavaScriptSerializer().Deserialize<dynamic>(pageList);
             var ReportList = new JavaScriptSerializer().Deserialize<dynamic>(reportList);
 
-            string qry= "insert into `user_access` (`login_id`,`category_id`,`identity`) VALUES";
+            int flag = 0;
+            if (string.IsNullOrEmpty(site_type)) site_type = "1";
+            string qry= "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`) VALUES";
             string pagevalues = "";
             foreach (var page in PageList)
             {
@@ -117,14 +145,24 @@ namespace DGRAPIs.Repositories
                 var b = page.Value;
                 if(page.Value == true)
                 {
-                    pagevalues += "('" + login_id + "','1','" + page.Key + "'),";
+                    string checkqry = "select login_id from `user_access` where login_id = " + login_id + " and site_type = " + site_type + " and " +
+                        "category_id = 1 and identity = " + page.Key;
+                    List<UserAccess> _accesslist = await Context.GetData<UserAccess>(checkqry).ConfigureAwait(false); 
+                    if (_accesslist.Capacity > 0) continue;
+                    //string qry = "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`) VALUES";
+                    flag = 1;
+                    pagevalues += "('" + login_id + "',"+site_type+",'1','" + page.Key + "'),";
                 }
             }
-            qry += pagevalues;
-            await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-            
-            string qry1 = "insert into `user_access` (`login_id`,`category_id`,`identity`) VALUES";
+            if (flag == 1)
+            {
+
+                qry += pagevalues;
+                await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            }
+            string qry1 = "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`) VALUES";
             string reportvalues = "";
+            int flag2 = 0; 
             foreach (var report in ReportList)
             {
                 //Console.WriteLine("dictionary key is {0} and value is {1}", dictionary.Key, dictionary.Value);
@@ -132,30 +170,57 @@ namespace DGRAPIs.Repositories
                 var b = report.Value;
                 if (report.Value == true)
                 {
-                    reportvalues += "('" + login_id + "','2','" + report.Key + "'),";
+                    string checkqry = "select login_id from `user_access` where login_id = " + login_id + " and site_type = " + site_type + " and " +
+                        "category_id = 2 and identity = " + report.Key;
+                    List<UserAccess> _accesslist = await Context.GetData<UserAccess>(checkqry).ConfigureAwait(false);
+                    if (_accesslist.Capacity > 0) continue;
+                    //string qry1 = "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`) VALUES";
+                    flag2 = 1;
+                    reportvalues += "('" + login_id + "',"+site_type+",'2','" + report.Key + "'),";
                 }
             }
-            qry1 += reportvalues;
-            await Context.ExecuteNonQry<int>(qry1.Substring(0, (qry1.Length - 1)) + ";").ConfigureAwait(false);
+            if (flag2 == 1)
+            {
 
-            string qry2 = "insert into `user_access` (`login_id`,`category_id`,`identity`,`upload_access`) VALUES";
+                qry1 += reportvalues;
+                await Context.ExecuteNonQry<int>(qry1.Substring(0, (qry1.Length - 1)) + ";").ConfigureAwait(false);
+            }
+
+            string qry2 = "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`,`upload_access`) VALUES";
             string sitevalues = "";
+            bool flag3 = false;
             foreach (var site in SiteList)
             {
+
                 int upload_access = 0;
                 if (site.Value == true)
                 {
                     upload_access = 1;
                 }
-
-                    sitevalues += "('" + login_id + "','3','" + site.Key + "','"+ upload_access + "'),";
-               
+                if (site.Key == "") continue;
+                string checkqry = "select login_id from `user_access` where login_id = " + login_id + " and " +
+                        "category_id = 3 and identity = " + site.Key ;
+                List<UserAccess> _accesslist = await Context.GetData<UserAccess>(checkqry).ConfigureAwait(false);
+                if (_accesslist.Capacity > 0) 
+                {
+                    string qry3 = "update`user_access` set `upload_access` = " + upload_access + " where login_id = " + login_id + " and indentity =" +
+                        site.Key;
+                }
+                else
+                {
+                    flag3 = true;
+                    sitevalues += "('" + login_id + "'," + site_type + ",3,'" + site.Key + "','" + upload_access + "'),";
+                }
             }
-            qry2 += sitevalues;
-           return await Context.ExecuteNonQry<int>(qry2.Substring(0, (qry2.Length - 1)) + ";").ConfigureAwait(false);
-           // return 0;
+            if (flag3 == true)
+            {
+                qry2 += sitevalues;
+                return await Context.ExecuteNonQry<int>(qry2.Substring(0, (qry2.Length - 1)) + ";").ConfigureAwait(false);
+            }
+            return 0;
 
         }
+
 
         internal async Task<int> eQry(string qry)
         {

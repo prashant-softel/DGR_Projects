@@ -64,7 +64,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="input-group row">
                             <label class="col-sm-3 col-form-label">Date Range : </label>
                             <div class="input-group-prepend">
@@ -78,7 +78,7 @@
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
-                    <div class="col-md-3"></div>
+                    <div class="col-md-2"></div>
                 </div>
                
                 <hr>
@@ -185,12 +185,19 @@
                 tbl += '<th>AVG POA</th>';
                 tbl += '<th>Amb Temp </th>';
                 tbl += '<th>Mod Temp</th>';
+                tbl += '<th>Weather Type</th>';
                
                 tbl += '</tr></thead>';
                 
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
-                      
+                        let weather = "";
+                        if (result[i].weather_type == null) {
+                            weather = "-";
+                        }
+                        else {
+                            weather = result[i].weather_type;
+                        }
                         var formattedDate = moment(result[i].date_time, 'YYYY-MM-DD hh:mm:ss ').format('DD-MM-YYYY HH:mm:ss');
                         tbl += '<tr>';
                         tbl += '<td  class="text-left">' + formattedDate + '</td>';
@@ -208,6 +215,7 @@
                         tbl += '<td class="text-right">' + result[i].avg_poa.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].amb_temp.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].mod_temp.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left" >' + weather + '</td>';
                        
                         tbl += '</tr>';
                         console.log("counter :" + i + "> DateTime :" + formattedDate + "Main date  :" + result[i].date_time);

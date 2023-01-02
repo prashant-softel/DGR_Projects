@@ -53,8 +53,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
                                 </select>
                             </div>
                         </div>
@@ -63,8 +63,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">FY: </label>
-                                <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                <label class="col-sm-2 col-form-label text-right">FY: </label>
+                                <select class="form-control  col-sm-10" id="fy" name="fy" value="">
                                     <option value="">Select Financial Year</option>
 
                                 </select>
@@ -75,13 +75,13 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Month : </label>
-                                <select class="form-control  col-sm-8" id="month" name="month" value="">
+                                <label class="col-sm-3 col-form-label text-right">Month : </label>
+                                <select class="form-control  col-sm-9" id="month" name="month" value="">
                                     @*@foreach (var item in Model)
-                                        {
-                                           <option value="@item.">@item.name</option>
+                        {
+                           <option value="@item.">@item.name</option>
 
-                                        }*@
+                        }*@
                                     <option value="">Select Month</option>
                                     <option value="Jan">January</option>
                                     <option value="Feb">February</option>
@@ -99,11 +99,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1">
 
-                    </div>
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
+                    </div>
+                    <div class="col-md-1">
+
                     </div>
                 </div>
 
@@ -226,7 +227,7 @@
                 tbl += '<th>JMR Year</th>';
                 tbl += '<th>Line Loss</th>';
                 tbl += '<th>Line Loss (%)</th>';
-                tbl += '<th>RKVH (%)</th>';
+                tbl += '<th>kVARh (%)</th>';
                 tbl += '</tr></thead>';
 
                 if (result.length > 0) {

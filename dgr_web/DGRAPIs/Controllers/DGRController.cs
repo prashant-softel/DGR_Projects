@@ -643,13 +643,13 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        /*[Route("GetWindPerformanceReportSiteWise_3")]
+        [Route("GetSolarPerformanceReportSiteWise_2")]
         [HttpGet]
-        public async Task<IActionResult> GetWindPerformanceReportSiteWise_3(string fromDate, string toDate, string site)
+        public async Task<IActionResult> GetSolarPerformanceReportSiteWise_2(string fromDate, string toDate, string site)
         {
             try
             {
-                var data = await _dgrBs.GetWindPerformanceReportSiteWise_3(fromDate, toDate, site);
+                var data = await _dgrBs.GetSolarPerformanceReportSiteWise_2(fromDate, toDate, site);
                 return Ok(data);
 
             }
@@ -659,13 +659,13 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-        [Route("GetWindPerformanceReportSiteWise_4")]
+        [Route("GetSolarMajorBreakdownData")]
         [HttpGet]
-        public async Task<IActionResult> GetWindPerformanceReportSiteWise_4(string fromDate, string toDate, string site)
+        public async Task<IActionResult> GetSolarMajorBreakdownData(string fromDate, string toDate, string site)
         {
             try
             {
-                var data = await _dgrBs.GetWindPerformanceReportSiteWise_4(fromDate, toDate, site);
+                var data = await _dgrBs.GetSolarMajorBreakdownData(fromDate, toDate, site);
                 return Ok(data);
 
             }
@@ -674,9 +674,7 @@ namespace DGRAPIs.Controllers
 
                 return BadRequest(ex.Message);
             }
-        }*/
-
-        //[Route("GetWindPerformanceReportSiteWise/{fy}/{fromDate}/{toDate}")]
+        }
         [Route("GetWindPerformanceReportSiteWise")]
         [HttpGet]
         public async Task<IActionResult> GetWindPerformanceReportSiteWise(string fy, string fromDate, string todate)
@@ -2096,6 +2094,76 @@ namespace DGRAPIs.Controllers
 
                     return BadRequest(ex.Message);
                 }
+            }
+        }
+		[Route("GetSolarOperationHeadData")]
+        [HttpGet]
+        public async Task<IActionResult> GetSolarOperationHeadData(string site)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.GetSolarOperationHeadData(site);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("DeleteWindSite")]
+        [HttpGet]
+        public async Task<IActionResult> DeleteWindSite(int siteid)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.DeleteWindSite(siteid);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("DeleteSolarSite")]
+        [HttpGet]
+        public async Task<IActionResult> DeleteSolarSite(int siteid)
+        {
+            {
+                try
+                {
+                    var data = await _dgrBs.DeleteSolarSite(siteid);
+                    return Ok(data);
+
+                }
+                catch (Exception ex)
+                {
+
+                    return BadRequest(ex.Message);
+                }
+            }
+        }
+        [Route("GetWindMajorBreakdown")]
+        [HttpGet]
+        public async Task<IActionResult> GetWindMajorBreakdown(string fromDate, string toDate)
+        {
+            try
+            {
+                var data = await _dgrBs.GetWindMajorBreakdown(fromDate, toDate);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
             }
         }
         [Route("eQry/{qry}")]

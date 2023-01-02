@@ -55,7 +55,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="input-group row">
                             <label class="col-sm-3 col-form-label text-right">Date Range : </label>
                             <div class="input-group-prepend">
@@ -69,7 +69,7 @@
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
-                    <div class="col-md-3"></div>
+                    <div class="col-md-2"></div>
                     </div>
 
                     <hr>
@@ -185,7 +185,7 @@
                 tbl += '<th>Others</th>';
                 tbl += '<th>IGBDH</th>';
                 tbl += '<th>EGBDH</th>';
-                tbl += '<th>Load_Sh.</th>';
+                tbl += '<th>Load Shedding</th>';
                 tbl += '</tr></thead>';
 
                 if (result.length > 0) {
@@ -238,6 +238,8 @@
                     info: true,
                     autoWidth: false,
                     responsive: false,
+                    //scrollX: true,
+                    //pageLength: 20,
                     //pagingType: 'full_numbers',
                     buttons: [
                         {

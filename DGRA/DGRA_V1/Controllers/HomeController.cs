@@ -346,6 +346,31 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
+        public async Task<IActionResult> GetSolarUserInfo(int login_id)
+        {
+            string line = "";
+            try
+            {
+                //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
+                // var url = "http://localhost:23835/api/Login/GetWindUserInformation?login_id="+ login_id;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/GetSolarUserInformation?login_id=" + login_id;
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
+
+        }
         public async Task<IActionResult> GetUserAccess(int login_id, bool actionType = false)
         {
             UserAccess usermodel = new UserAccess();
@@ -380,14 +405,14 @@ namespace DGRA_V1.Controllers
 
         }
         //[HttpPost]
-        public async Task<IActionResult> SubmitAccess(int login_id,string site,string pages,string reports)
+        public async Task<IActionResult> SubmitAccess(int login_id,string site,string pages,string reports, string site_type)
         {
             string line = "";
             try
             {
                 //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
                 // var url = "http://localhost:23835/api/Login/SubmitUserAccess?login_id=" + login_id+"&siteList="+ site +"&pageList="+ pages +"&reportList="+ reports;
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/SubmitUserAccess?login_id=" + login_id + "&siteList=" + site + "&pageList=" + pages + "&reportList=" + reports;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/SubmitUserAccess?login_id=" + login_id + "&siteList=" + site + "&pageList=" + pages + "&reportList=" + reports + "&site_type="+site_type;
                 WebRequest request = WebRequest.Create(url);
                  using (WebResponse response = (HttpWebResponse)request.GetResponse())
                  {
@@ -405,20 +430,26 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
+    
         public IActionResult WindUserView()
         {
             
             return View();
         }
+        public IActionResult SolarUserView()
+        {
 
-        public async Task<IActionResult> GetPageList(int login_id)
+            return View();
+        }
+
+        public async Task<IActionResult> GetPageList(int login_id, int site_type)
         {
             string line = "";
             try
             {
                 //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
                // var url = "http://localhost:23835/api/Login/GetPageList?login_id=" + login_id;
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/GetPageList?login_id=" + login_id;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/GetPageList?login_id=" + login_id + "&site_type=" + site_type;
                 WebRequest request = WebRequest.Create(url);
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
                 {
@@ -516,6 +547,10 @@ namespace DGRA_V1.Controllers
         public ActionResult WindUserDetails(string id)
         {
            return RedirectToAction("WindUserView", new { id });
+        }
+        public ActionResult SolarUserDetails(string id,int site_type)
+        {
+            return RedirectToAction("SolarUserView", new { id , site_type});
         }
         public async Task<ActionResult> Logout(string username, string pass)
         {

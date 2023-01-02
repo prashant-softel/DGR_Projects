@@ -64,7 +64,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-5">
                         <div class="input-group row">
                             <label class="col-sm-3 col-form-label text-right">Date Range : </label>
                             <div class="input-group-prepend">
@@ -78,7 +78,7 @@
                     <div class="col-md-2">
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
                     </div>
-                    <div class="col-md-3"></div>
+                    <div class="col-md-2"></div>
                 </div>
                
                 <hr>
@@ -173,7 +173,7 @@
                 tbl += '<th style="width: 4%;">Date</th>';
                 tbl += '<th>State</th>';
                 tbl += '<th>Site</th>';
-                tbl += '<th>Location Name</th>';
+                tbl += '<th>Inverter</th>';
                 tbl += '<th>GHI</th>';
                 tbl += '<th>POA</th>';
                 tbl += '<th>Expected kWh</th>';
@@ -185,23 +185,23 @@
                 tbl += '<th>IGA (%)</th>';
                 tbl += '<th>EGA (%)</th>';
                 tbl += '<th>INV PLF AC (%)</th>';
-                tbl += '<th>INV PLF DC (%)</th>';
+                tbl += '<th>Plant PLF AC (%)</th>';
                 tbl += '<th>PI</th>';
-                tbl += '<th>Pro Hrs</th>';
-                tbl += '<th>Lull Hrs</th>';
-                tbl += '<th>USMH BS</th>';
-                tbl += '<th>SMH BD</th>';
-                tbl += '<th>Others Hrs BD</th>';
-                tbl += '<th>IGBDH BD</th>';
-                tbl += '<th>EGBDH BD</th>';
-                tbl += '<th>Load_Sh. BD</th>';
-                tbl += '<th>Total BD Hrs</th>';
+                tbl += '<th>Pro_hrs</th>';
+                tbl += '<th>Lull_hrs</th>';
                 tbl += '<th>USMH</th>';
                 tbl += '<th>SMH</th>';
-                tbl += '<th>OH</th>';
+                tbl += '<th>Others</th>';
                 tbl += '<th>IGBDH</th>';
                 tbl += '<th>EGBDH</th>';
-                tbl += '<th>Load Sh.</th>';
+                tbl += '<th>Load Shedding</th>';
+                tbl += '<th>Total BD Hrs</th>';
+                tbl += '<th>USMH Loss</th>';
+                tbl += '<th>SMH Loss</th>';
+                tbl += '<th>Others Loss</th>';
+                tbl += '<th>IGBDH Loss</th>';
+                tbl += '<th>EGBDH Loss</th>';
+                tbl += '<th>Load Shedding Loss</th>';
                 tbl += '<th>Total Losses</th>';
                 tbl += '</tr></thead>';
 
@@ -227,7 +227,7 @@
                         tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].inv_plf_ac.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].inv_plf_dc.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_plf_ac.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].pi + '</td>';
                         tbl += '<td class="text-right">' + result[i].prod_hrs.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].lull_hrs_bd.toFixed(2) + '</td>';

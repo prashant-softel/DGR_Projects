@@ -79,13 +79,14 @@
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<td>Country</td>';
-                tbl += '<td>State</td>';
-                tbl += '<td>SPV</td>';
-                tbl += '<td>Site</td>';
-                tbl += '<td>DC Capacity (MWp)</td>';
-                tbl += '<td>AC Capacity (MWp)</td>';
-                tbl += '<td>Total Tariff</td>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>DC Capacity (MWp)</th>';
+                tbl += '<th>AC Capacity (MWp)</th>';
+                tbl += '<th>Total Tariff</th>';
+                tbl += '<th>Action</th>';
                 tbl += '</tr></thead>';
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
@@ -98,6 +99,7 @@
                         tbl += '<td class="text-right">' + result[i].dc_capacity.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].ac_capacity.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].total_tarrif.toFixed(2) + '</td>';
+                        tbl += '<td class="text-center"><a href="#"  class="btn btn-block btn-danger" onclick="DeleteSolarSite(' + result[i].site_master_solar_id + ')"  style="padding: 0rem 0.75rem;width: 70%;display: inline;" >Delete</a></td>';
                         tbl += '</tr>';
                     }
                 }
@@ -145,7 +147,24 @@
             }
         });
     }
-
-
+    function DeleteSolarSite(siteid) {
+      $.ajax({
+        type: "GET",
+       // url: "/WindReport/GetSiteMaster",
+          url: '@Url.Action("DeleteSolarSite", "SolarReport")' + '?siteid=' + siteid,
+        contentType: "application/json; charset=utf-8",
+        //data: '{"countryname":"' + selcountry + '"}',
+        datatype: "html",
+        success: function (result, status, xhr) {
+            if (result > 0) {
+                alert("Record Delete Successfully");
+                location.reload();
+            }
+            else {
+                alert("Record Not Delete Please Try Again");
+            }
+        }
+    });
+    }
 
 </script>

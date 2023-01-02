@@ -2138,6 +2138,46 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
 
             return await Context.GetData<WindPerformanceReports>(strPerformanceQuery).ConfigureAwait(false);
         }
+		 internal async Task<List<SolarUploadingFileBreakDown>> GetSolarMajorBreakdownData(string fromDate, string toDate, string site)
+        {
+            string filter = "";
+           // fromDate = "2022-04-22";
+            //toDate = "2022-04-28";
+            if (!string.IsNullOrEmpty(fromDate))
+            {
+                filter += " and date>='" + fromDate + "' ";
+            }
+            if (!string.IsNullOrEmpty(fromDate))
+            {
+                filter += " and date<='" + toDate + "' ";
+            }
+            if (!string.IsNullOrEmpty(site))
+            {
+                filter += " and site_id in (" + site + ")";
+            }
+            string query = " select date, site, icr, inv, total_bd, bd_remarks from uploading_file_breakdown_solar where HOUR(total_bd)>=1 " + filter;
+            List<SolarUploadingFileBreakDown> data = new List<SolarUploadingFileBreakDown>();
+            data = await Context.GetData<SolarUploadingFileBreakDown>(query).ConfigureAwait(false);
+            return data;
+        }
+        internal async Task<List<SolarPerformanceReports2>> GetSolarPerformanceReportSiteWise_2(string fromDate, string toDate, string site)
+        {
+
+
+            string[] dateSplit = fromDate.Split("-");
+            if (Int32.Parse(dateSplit[1])<9 && dateSplit[1][0]!='0') dateSplit[1] = "0" + dateSplit[1];
+            fromDate = dateSplit[0] + "-" +dateSplit[1] + "-"+ dateSplit[2];
+
+            string[] dateSplitTo = toDate.Split("-");
+            if (Int32.Parse(dateSplitTo[1]) < 9 && dateSplit[1][0] != '0') dateSplitTo[1] = "0" + dateSplitTo[1];
+            toDate = dateSplitTo[0] + "-"+ dateSplitTo[1] + "-" + dateSplitTo[2];
+
+            /*string strPerformanceQuery = "select AVG(t1.wind_speed) as act_wind,AVG(t1.plf) as act_plf,AVG(t1.ma_actual) as act_ma,AVG(t1.iga) as act_iga,AVG(t1.ega) as act_ega,SUM(t1.kwh_afterloss) as act_jmr_kwh,SUM(t1.kwh_afterloss/1000000) as act_jmr_kwh_mu,SUM(t1.kwh) as total_mw,avg(t2.wind_speed) as tar_wind,AVG(t2.plf) as tar_plf,AVG(t2.ma) as tar_ma,AVG(t2.iga) as tar_iga,AVG(t2.ega) as tar_ega,SUM(t2.kwh*1000000) as tar_kwh,SUM(t2.kwh) as tar_kwh_mu from uploading_file_generation as t1 join daily_target_kpi as t2 on t2.date = t1.date where t1.date >= '" + fromDate + "'  and t1.date <= '" + toDate + "' and t1.site_id IN("+ site+")";*/
+
+            string strPerformanceQuery = "select AVG(t1.ghi) as act_ghi,AVG(t1.poa) as act_poa,AVG(t1.inv_plf_ac) as act_plf,AVG(t1.ma) as act_ma,AVG(t1.iga) as act_iga,AVG(t1.ega) as act_ega,SUM(t1.inv_kwh_afterloss) as act_kwh,SUM(t1.inv_kwh_afterloss / 1000000) as act_kwh_mu,SUM(t1.inv_kwh) as total_mw,avg(t2.ghi) as tar_ghi, avg(t2.poa) as tar_poa, AVG(t2.pr) as tar_pr, AVG(t2.plf) as tar_plf,AVG(t2.ma) as tar_ma,AVG(t2.iga) as tar_iga,AVG(t2.ega) as tar_ega,SUM(t2.gen_nos) * 1000000 as tar_kwh,SUM(t2.gen_nos) as tar_kwh_mu,SUM(t3.total_tarrif) as total_tarrif from daily_gen_summary_solar as t1 join daily_target_kpi_solar as t2 on t2.date = t1.date left join site_master_solar as t3 on t3.site_master_solar_id=t1.site_id  where t1.date >= '" + fromDate + "'  and t1.date <= '" + toDate + "' and t1.site_id IN(" + site + ")";
+
+            return await Context.GetData<SolarPerformanceReports2>(strPerformanceQuery).ConfigureAwait(false);
+        }
         /*internal async Task<List<WindPerformanceReports>> GetWindPerformanceReportSiteWise_3(string fromDate, string toDate, string site)
         {
 
@@ -4962,8 +5002,40 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             return _operationalData;
 
         }
+        public async Task<List<SolarOpertionalHead>> GetSolarOperationHeadData(string site)
+        {
+            string query = "SELECT COUNT(spv) as spv_count, SUM(ac_capacity) as capacity FROM `site_master_solar` where site_master_solar_id IN(" + site + ") ";
+            List<SolarOpertionalHead> _operationalData = new List<SolarOpertionalHead>();
+            _operationalData = await Context.GetData<SolarOpertionalHead>(query).ConfigureAwait(false);
+            return _operationalData;
+
+        }
+        internal async Task<int> DeleteWindSite(int siteid)
+        {
 
 
+           string qry1 = "delete from site_master  where site_master_id="+siteid+"";
+           string qry2 = "delete from location_master  where site_master_id=" + siteid + "";
+           await Context.ExecuteNonQry<int>(qry2).ConfigureAwait(false);
+          return await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+
+        }
+        internal async Task<int> DeleteSolarSite(int siteid)
+        {
+
+
+            string qry1 = "delete from site_master_solar  where site_master_solar_id=" + siteid + "";
+            string qry2 = "delete from location_master_solar  where site_id=" + siteid + "";
+            await Context.ExecuteNonQry<int>(qry2).ConfigureAwait(false);
+            return await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+
+        }
+        internal async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate)
+        {
+            string qry = "Select * from uploading_file_breakdown";
+            string filter = " where date >= '" + fromDate + "' and date <= '" + toDate + "' ";
+            return await Context.GetData<WindUploadingFileBreakDown>(qry + filter).ConfigureAwait(false);
+        }
         //#region KPI Calculations
         /// <summary>
         /// This function calculates the KPI of the site on a given date
@@ -5141,8 +5213,8 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             //add column called kwh_afterlineloss and plf_afterlineloss in dailygensummary and uploadgentable
             double lineLoss = await GetLineLoss(site_id, fromDate,1);
             bool bIsGenSummary = false;
-            /*string qry = "SELECT * from daily_gen_summary where site_id = " + site_id + " and date>='"+fromDate+"' and date<='"+toDate+"'";
-            try
+            string qry = "SELECT * from daily_gen_summary where site_id = " + site_id + " and date>='"+fromDate+"' and date<='"+toDate+"'";
+            /*try
             {
                 List<DailyGenSummary> checkIfApproved = await Context.GetData<DailyGenSummary>(qry).ConfigureAwait(false);
                 if (checkIfApproved.Count > 0)
@@ -5151,7 +5223,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             catch(Exception ex)
             {
                 //Pending Error 
-            }*/
+            } */
 
 
             lineLoss = 1 - (lineLoss / 100);
@@ -5498,8 +5570,11 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 case "(12-(IG))/12"://Internal Grid Availability 
                     returnValue = (12 - (IG)) / 12;
                     break;
-                case "(12-(EG))/12": /*External_Grid_FormulaID*///External Grid Availablity
-                    returnValue = (12 - (EG)) / 12;
+               // case "(12-(EG))/12": /*External_Grid_FormulaID*///External Grid Availablity
+                    //returnValue = (12 - (EG)) / 12;
+                   // break;
+                case "(12-(EG+LS))/12": /*External_Grid_FormulaID*///External Grid Availablity
+                    returnValue = (12 - (EG + LoadShedding)) / 12;
                     break;
                 default:
                     //Pending : error reporting
@@ -5566,7 +5641,9 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             string IGA_Formula = "";
             string EGA_Formula = "";
             string sCurrentInv = "";
+            string sCurrentICR_INV = "";
             string sLastInv = "";
+            string sLastICR_INV = "";
 
             try
             {
@@ -5637,13 +5714,16 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 int iBreakdownCount = 0;
                 List<SolarDailyGenSummary> _SolarDailyUploadGen = await Context.GetData<SolarDailyGenSummary>(qry).ConfigureAwait(false);
                 //foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
+                sLastInv = "";
+                sLastICR_INV = "";
                 //for each solar generation device, get the breakdown data
                 foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                 {
                     iBreakdownCount++;
                     bProcessGen = true;
                     TimeSpan Get_Time;
-                    sCurrentInv = SolarDevice.icr + "/" + SolarDevice.inv;
+                    //sCurrentInv = SolarDevice.icr + "/" + SolarDevice.inv;
+                	sCurrentICR_INV = SolarDevice.icr_inv;
 
                     //                    string sDeviceICR = SolarDevice.icr;
                     //                    string sDeviceINV = SolarDevice.inv;
@@ -5651,8 +5731,9 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                     if (iBreakdownCount == 1)
                     {
                         sLastInv = sCurrentInv;
+                                sLastICR_INV = sCurrentICR_INV;
                     }
-                    if (sCurrentInv != sLastInv)
+                    if (sLastICR_INV != sCurrentICR_INV)
                     {
                         //string updateqry = "update uploading_file_generation_solar set ghi = " + avg_GHI + ", poa= " + avg_POA + ", expected_kwh=" + (FinalCapcity * avg_POA) +
                         //  ", ma=100, iga=100, ega=100, inv_pr=inv_act*100/" + (FinalCapcity * avg_POA) + ",plant_pr=plant_act*100/" + (FinalCapcity * avg_POA) + ", inv_plf_ac = inv_act/(24*" + FinalCapcity + ") , plant_plf_ac = plant_act/(24*" + FinalCapcity + ") " +
@@ -5665,7 +5746,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                             ", ma=100, iga=100, ega=100, inv_pr=inv_act*100/" + (FinalCapcity * avg_POA) + ", plant_pr=plant_act*100/" + (FinalCapcity * avg_POA) +
                             ", inv_plf_ac = inv_act/(24*" + invAC[0].ac_capacity + ") * 100, plant_plf_ac = plant_act/(24*" + invAC[0].ac_capacity + ")*100 " +
 
-                             " where site_id = " + site_id + " and inverter ='" + sLastInv + "' and date = '" + fromDate + "'";
+                             " where site_id = " + site_id + " and inverter ='" + sLastICR_INV + "' and date = '" + fromDate + "'";
                         try
                         {
                             int result = await Context.ExecuteNonQry<int>(updateqry).ConfigureAwait(false);
@@ -5677,7 +5758,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
                         }
                         FinalCapcity = 0;
-                        sLastInv = sCurrentInv;
+                                sLastICR_INV = sCurrentICR_INV;
                     }
                     FinalCapcity += SolarDevice.capacity;
 
@@ -5698,7 +5779,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 //qry = @"SELECT date,t1.site_id,t1.ext_int_bd, t1.icr,t1.inv,t1.smb,t1.strings,t1.bd_type_id,t1.bd_type, t1.from_bd as stop_from, t1.to_bd as stop_to, SEC_TO_TIME(SUM(TIME_TO_SEC(total_stop)))
                 //  AS total_stop FROM uploading_file_breakdown_solar t1 left join location_master_solar t2 on t2.location_master_solar_id=t1.site_id left join site_master_solar t3 on t3.site_master_solar_id=t2.location_master_solar_id left join bd_type as t4 on t4.bd_type_id=t1.bd_type_id";
 
-                qry = @"SELECT date,t1.site_id,t1.ext_int_bd as ext_bd, t1.icr,t1.inv,t1.smb,t1.strings,t1.bd_type_id,t1.bd_type, t1.from_bd as stop_from, t1.to_bd as stop_to,total_bd
+                qry = @"SELECT date,t1.site_id, t1.igbd, t1.ext_int_bd as ext_bd, t1.icr,t1.inv,t1.smb,t1.strings,t1.bd_type_id,t1.bd_type, t1.from_bd as stop_from, t1.to_bd as stop_to,total_bd
                   AS total_stop FROM uploading_file_breakdown_solar t1 left join location_master_solar t2 on t2.location_master_solar_id=t1.site_id left join site_master_solar t3 on t3.site_master_solar_id=t2.location_master_solar_id left join bd_type as t4 on t4.bd_type_id=t1.bd_type_id";
 
 
@@ -5785,7 +5866,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                             {
                                 foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                                 {
-                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && sBreakdown.smb == "" && SolarDevice.strings == sBreakdown.strings)
+                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && sBreakdown.smb == "Nil" && SolarDevice.strings == sBreakdown.strings)
                                     {
                                         //when SMB is empty (for Gundlupet)
                                         SolarDevice.USMH_5 += Final_Time;
@@ -5862,7 +5943,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                             {
                                 foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                                 {
-                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && sBreakdown.smb == "" && SolarDevice.strings == sBreakdown.strings)
+                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && sBreakdown.smb == "Nil" && SolarDevice.strings == sBreakdown.strings)
                                     {
                                         //when SMB is empty (for Gundlupet)
                                         SolarDevice.SMH_5 += Final_Time;
@@ -5941,7 +6022,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                             {
                                 foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                                 {
-                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && sBreakdown.smb == "" && SolarDevice.strings == sBreakdown.strings)
+                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && sBreakdown.smb == "Nil" && SolarDevice.strings == sBreakdown.strings)
                                     {
                                         //when SMB is empty (for Gundlupet)
                                         SolarDevice.IGBD_6 += Final_Time;
@@ -6005,11 +6086,11 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                                     }
                                 }
                             }
-                            else if (!string.IsNullOrEmpty(sBreakdown.ext_bd) && sBreakdown.ext_bd != "Nil")
+                            else if (!string.IsNullOrEmpty(sBreakdown.igbd) && sBreakdown.igbd != "Nil")
                             {
                                 foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                                 {
-                                    if (SolarDevice.ig == sBreakdown.ext_bd)
+                                    if (SolarDevice.ig == sBreakdown.igbd)
                                     {
                                         SolarDevice.IGBD_1 += Final_Time;
                                         SolarDevice.IGBD += Final_Time;
@@ -6092,7 +6173,16 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                             {
                                 foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                                 {
-                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && SolarDevice.smb == sBreakdown.smb && SolarDevice.strings == sBreakdown.strings)
+                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && sBreakdown.smb == "Nil" && SolarDevice.strings == sBreakdown.strings)
+                                    {
+                                        //when SMB is empty (for Gundlupet)
+                                        SolarDevice.IGBD_6 += Final_Time;
+                                        SolarDevice.IGBD += Final_Time;
+
+
+                                        SolarDevice.IGBD_lostPOA += poa;
+                                    }
+                                    else if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && SolarDevice.smb == sBreakdown.smb && SolarDevice.strings == sBreakdown.strings)
                                     {
                                         SolarDevice.LS_4 += Final_Time;
                                         SolarDevice.LS += Final_Time;
@@ -6161,7 +6251,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                             {
                                 foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                                 {
-                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && sBreakdown.smb == "" && SolarDevice.strings == sBreakdown.strings)
+                                    if (SolarDevice.icr == sBreakdown.icr && SolarDevice.inv == sBreakdown.inv && sBreakdown.smb == "Nil" && SolarDevice.strings == sBreakdown.strings)
                                     {
                                         //when SMB is empty (for Gundlupet)
                                         SolarDevice.OthersHour_5 += Final_Time;
@@ -6310,21 +6400,24 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 //List<SolarDailyGenSummary> _SolarDailyUploadGen = await Context.GetData<SolarDailyGenSummary>(qry).ConfigureAwait(false);
                 //foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                 //for each solar generation device, get the breakdown data
+                sLastInv = "";
+                sLastICR_INV = "";
                 foreach (SolarLocationMaster_Calc SolarDevice in _SolarLocationMaster_Calc)
                 {
                     iBreakdownCount++;
                     bProcessGen = true;
                     TimeSpan Get_Time;
                     sCurrentInv = SolarDevice.icr + "/" + SolarDevice.inv;
+                    sCurrentICR_INV = SolarDevice.icr_inv;
 
                     //                    string sDeviceICR = SolarDevice.icr;
                     //                    string sDeviceINV = SolarDevice.inv;
 
                     if (iBreakdownCount == 1)
                     {
-                        sLastInv = sCurrentInv;
+                        sLastICR_INV = sCurrentICR_INV;
                     }
-                    if (sCurrentInv != sLastInv)
+                    if (sLastICR_INV != sCurrentICR_INV)
                     {
 
                         TimeSpan totalDownTime = Final_USMH_Time + Final_SMH_Time + Final_IGBD_Time + Final_EGBD_Time + Final_LoadShedding_Time + Final_LULL_Time + Final_OthersHour_Time;
@@ -6351,7 +6444,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                             availableHoursDouble = availableHoursDouble - totalDownTimeDouble;
                             await CalculateAndUpdatePLFandKWHAfterLineLossSolar(site_id, fromDate, fromDate, FinalCapacity);
 
-                            await UpdateSolarKPIs(site_id, sLastInv, totalDownTimeDouble, availableHoursDouble,
+                            await UpdateSolarKPIs(site_id, sLastICR_INV, totalDownTimeDouble, availableHoursDouble,
                              Final_USMH_Loss, Final_SMH_Loss, Final_IGBD_Loss, Final_EGBD_Loss, Final_LS_Loss, Final_LULL_Loss,
                              Final_OthersHour_Loss, totalLoss, fromDate, USMH_Hr, SMH_Hr, IGBD_Hr, EGBD_Hr, LS_Hr, Lull_hr, O_hr, MA, IGA, EGA, FinalProductionHours);
 
@@ -6380,6 +6473,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                         stringCount = 0;
                         totalLoss = 0;
                         sLastInv = sCurrentInv;
+                        sLastICR_INV = sCurrentICR_INV;
                     }
                     //consolidating all string breakdown time for this inverter
                     //Final_Production_Time += SolarDevice.Production; //pending

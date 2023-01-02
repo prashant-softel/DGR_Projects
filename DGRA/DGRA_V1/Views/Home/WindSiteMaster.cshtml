@@ -84,13 +84,14 @@
             tbl += '<th>SPV</th>';
             tbl += '<th>State</th>';
             tbl += '<th>Model</th>';
-            tbl += '<th>Capacity(MW)</th>';
+            tbl += '<th>Capacity (MW)</th>';
             tbl += '<th>WTG</th>';
             tbl += '<th>Total MW</th>';
             tbl += '<th>Tariff</th>';
             tbl += '<th>GBI</th>';
             tbl += '<th>Total Tariff</th>';
-            tbl += '<th>LL Compensation(%)</th>';
+            tbl += '<th>LL Compensation (%)</th>';
+            tbl += '<th style="width:10%">Action</th>';
             tbl += '</tr></thead>';
             if (result.length > 0) {
                 for (var i = 0; i < result.length; i++) {
@@ -106,9 +107,10 @@
                     tbl += '<td class="text-right">' + result[i].wtg + '</td>';
                     tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
                     tbl += '<td class="text-right">' + result[i].tarrif.toFixed(2) + '</td>';
-                    tbl += '<td class="text-right">-</td>';
-                    tbl += '<td class="text-right">-</td>';
+                    tbl += '<td class="text-right">' + result[i].gbi.toFixed(2)+'</td>';
+                    tbl += '<td class="text-right">' + result[i].total_tarrif.toFixed(2)+'</td>';
                     tbl += '<td class="text-right">' + result[i].ll_compensation.toFixed(2) + '</td>';
+                    tbl += '<td class="text-center"><a href="#"  class="btn btn-block btn-danger" onclick="DeleteWindSite(' + result[i].site_master_id + ')"  style="padding: 0rem 0.75rem;width: 70%;display: inline;" >Delete</a></td>';
 
                     tbl += '</tr>';
                 }
@@ -133,7 +135,7 @@
                 info: true,
                 autoWidth: false,
                 responsive: true,
-                
+
                 buttons: [
                     {
                         extend: 'excel',
@@ -161,6 +163,24 @@
     });
     }
 
-
+    function DeleteWindSite(siteid) {
+      $.ajax({
+        type: "GET",
+       // url: "/WindReport/GetSiteMaster",
+          url: '@Url.Action("DeleteWindSite", "WindReport")' + '?siteid=' + siteid,
+        contentType: "application/json; charset=utf-8",
+        //data: '{"countryname":"' + selcountry + '"}',
+        datatype: "html",
+        success: function (result, status, xhr) {
+            if (result > 0) {
+                alert("Record Delete Successfully");
+                location.reload();
+            }
+            else {
+                alert("Record Not Delete Please Try Again");
+            }
+        }
+    });
+    }
 
 </script>

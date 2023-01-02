@@ -16,10 +16,11 @@ namespace DGRAPIs.BS
         Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass);
       
         Task<List<UserInfomation>> GetWindUserInformation(int login_id);
-        Task<List<HFEPage>> GetPageList(int login_id);
+        Task<List<UserInfomation>> GetSolarUserInformation(int login_id);
+        Task<List<HFEPage>> GetPageList(int login_id, int site_type);
         Task<List<UserAccess>> GetWindUserAccess(int login_id);
 
-        Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList);
+        Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type);
 
     }
     public class LoginBS : iLoginBS
@@ -39,6 +40,21 @@ namespace DGRAPIs.BS
                 using (var repos = new LoginRepository(getDB))
                 {
                     return await repos.GetUserLogin(username, password);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.SubmitUserAccess(login_id, siteList, pageList, reportList, site_type);
 
                 }
             }
@@ -78,13 +94,28 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<List<HFEPage>> GetPageList(int login_id)
+        public async Task<List<UserInfomation>> GetSolarUserInformation(int login_id)
         {
             try
             {
                 using (var repos = new LoginRepository(getDB))
                 {
-                    return await repos.GetPageList(login_id);
+                    return await repos.GetSolarUserInformation(login_id);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<List<HFEPage>> GetPageList(int login_id,int site_type)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.GetPageList(login_id, site_type);
 
                 }
             }
@@ -108,21 +139,7 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList)
-        {
-            try
-            {
-                using (var repos = new LoginRepository(getDB))
-                {
-                    return await repos.SubmitUserAccess(login_id, siteList, pageList, reportList);
-
-                }
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
-        }
+     
         public async Task<int> eQry(string qry)
         {
             try

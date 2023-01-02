@@ -100,13 +100,13 @@
                                         <hr>
                                         <div class="row" id="wk_head" style="display:none">
                                             <div class="col-sm-5 text-center" id="wk_head_sec1">
-                                                
+
                                             </div>
                                             <div class="col-sm-3" id="wk_head_sec2">
-                                                
+
                                             </div>
                                             <div class="col-sm-4" id="wk_head_sec3">
-                                                
+
                                             </div>
                                         </div>
                                         <hr>
@@ -135,6 +135,12 @@
                                                 <canvas id="iga_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
                                             </div>
                                         </div>
+                                        <hr>
+                                        <div class="card-header">
+                                            <h3 class="card-title text-center">Mejor Brekdown Reports</h3>
+                                        </div>
+                                        <br>
+                                        <div id="majorBreakdown"></div>
                                     </div>
                                     <div class="tab-pane fade" id="custom-tabs-two-pr" role="tabpanel" aria-labelledby="custom-tabs-two-pr-tab">
                                         <div class="row">
@@ -237,6 +243,9 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
 <script src="~/Content/theme/plugins/chart.js/Chart.min.js"></script>
 <script src="~/Content/theme/dist/js/comman.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.0.0/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0-rc"></script>
+
 <script type="text/javascript">
     $(document).ready(function () {
         $('#daterange').daterangepicker(
@@ -448,6 +457,7 @@
                 var_ega_neg.push(ega_negative);
 
                 GetOperationMonthlyPR();   //Call Function for get monthly Data
+                GetWindMajorBreakdown();
             }
 
         });
@@ -801,53 +811,94 @@
 
                  //document.getElementById('spv_counts').innerHTML = result[0].spv_count;
                 //document.getElementById('capacity').innerHTML = result[0].capacity.toFixed(0);
+            
+             }
 
-            }
          });
-
+       
         //document.getElementById('portfolio').innerHTML = site_array.length;
         document.getElementById('wk_head').style.display = 'flex';
     }
     function chartEnergyMU(actual_mu, target_mu, var_mu_pos, var_mu_neg) {
+        let chartStatus = Chart.getChart("energy_mu_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("energy_mu_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK","MTD","YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_mu,
-                     yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_mu,
-                     yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_mu_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                    /*datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },*/
+                   // yAxisID: 'var',
+                    },
+                    {
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_mu_pos,
+                        fill: false,
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                       // yAxisID: 'var',
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_mu,
+                    // yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_mu_pos,
-                    fill: false,
-                    yAxisID: 'var',
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_mu,
+                    // yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
                 }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Energy(MUs)"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+                }
+            }
+            /*options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -883,50 +934,86 @@
                 }
 
 
-            }
+            }*/
         });
     }
     //Wind Spped Chart
     function chartWindSpeed(actual_wind, target_wind, var_wind_pos, var_wind_neg) {
+        let chartStatus = Chart.getChart("wind_sp_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("wind_sp_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK", "MTD", "YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_wind,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_wind,
-                    yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_wind_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                   // yAxisID: 'var',
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_wind_pos,
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_wind_pos,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+
+                        //yAxisID: 'var',
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_wind,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                   // yAxisID: 'energy',
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_wind,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                   // yAxisID: 'energy',
                 }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "Wind (m/s)"
+                    },
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    }
+                }
+            }
+            /*options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -960,51 +1047,86 @@
                     display: true,
                     position: "bottom"
                 }
-            }
+            }*/
         });
     }
-    
+
     //PLF Chart
     function PLF_chart(actual_plf, target_plf, var_plf_pos, var_plf_neg) {
+        let chartStatus = Chart.getChart("plf_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("plf_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK", "MTD", "YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_plf,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_plf,
-                    yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_plf_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                   // yAxisID: 'var',
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_plf_pos,
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_plf_pos,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                       // yAxisID: 'var',
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_plf,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                   // yAxisID: 'energy',
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_plf,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                    //yAxisID: 'energy',
                 }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "PLF (%)"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+                }
+            }
+            /*options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -1038,50 +1160,85 @@
                     display: true,
                     position: "bottom"
                 }
-            }
+            }*/
         });
     }
     //MA  Chart
     function MA_chart(actual_ma, target_ma, var_ma_pos, var_ma_neg) {
+        let chartStatus = Chart.getChart("ma_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("ma_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK", "MTD", "YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_ma,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_ma,
-                    yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_ma_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                    //yAxisID: 'var',
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_ma_pos,
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_ma_pos,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                        //yAxisID: 'var',
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_ma,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                   // yAxisID: 'energy',
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_ma,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                   // yAxisID: 'energy',
                 }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "MA (%)"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+                }
+            }
+            /*options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -1114,50 +1271,85 @@
                     display: true,
                     position: "bottom"
                 }
-            }
+            }*/
         });
     }
     //IGA  Chart
     function IGA_chart(actual_iga, target_iga, var_iga_pos, var_iga_neg) {
+        let chartStatus = Chart.getChart("iga_chart"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("iga_chart"), {
             type: 'bar',
             data: {
                 labels: ["WK", "MTD", "YTD"],
-                datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_iga,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_iga,
-                    yAxisID: 'energy',
-                }, {
+                datasets: [ {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_iga_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                    //yAxisID: 'var',
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_iga_pos,
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_iga_pos,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                       // yAxisID: 'var',
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_iga,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                   // yAxisID: 'energy',
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_iga,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                   // yAxisID: 'energy',
                 }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "IGA (%)"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+                }
+            }
+           /* options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -1191,7 +1383,7 @@
                     display: true,
                     position: "bottom"
                 }
-            }
+            }*/
         });
     }
     //EGA  Chart
@@ -1201,41 +1393,72 @@
             data: {
                 labels: ["WK", "MTD", "YTD"],
                 datasets: [{
-                    label: "Target",
-                    type: "bar",
-                    borderColor: "#77CAE7",
-                    backgroundColor: "#77CAE7",
-                    data: target_ega,
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual",
-                    type: "bar",
-                    borderColor: "#31576D",
-                    backgroundColor: "#31576D",
-                    data: actual_ega,
-                    
-                    yAxisID: 'energy',
-                }, {
                     label: "(-ve)",
                     type: "line",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
                     data: var_ega_neg,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                   // yAxisID: 'var',
                 }, {
-                    label: "(+ve)",
-                    type: "line",
-                    backgroundColor: "#86C466",
-                    borderColor: "#86C466",
-                    backgroundColorHover: "#3e95cd",
-                    data: var_ega_pos,
+                        label: "(+ve)",
+                        type: "line",
+                        backgroundColor: "#86C466",
+                        borderColor: "#86C466",
+                        backgroundColorHover: "#3e95cd",
+                        data: var_ega_pos,
                     fill: false,
-                    yAxisID: 'var',
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                       // yAxisID: 'var',
+                    },{
+                    label: "Target",
+                    type: "bar",
+                    borderColor: "#77CAE7",
+                    backgroundColor: "#77CAE7",
+                    data: target_ega,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                   // yAxisID: 'energy',
+                }, {
+                    label: "Actual",
+                    type: "bar",
+                    borderColor: "#31576D",
+                    backgroundColor: "#31576D",
+                    data: actual_ega,
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+
+                    //yAxisID: 'energy',
                 }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "EGA (%)"
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+                }
+            }
+            /*options: {
                 scales: {
                     yAxes: [{
                         id: 'energy',
@@ -1269,7 +1492,7 @@
                     display: true,
                     position: "bottom"
                 }
-            }
+            }*/
         });
     }
    // -----------------------------------Weekly ---------------------//
@@ -1446,6 +1669,7 @@
 
     }
     function RevenueChart(lebels, data) {
+
         var ctx1 = $("#pieChart");
         //pie chart data
         var data1 = {
@@ -1727,47 +1951,72 @@
                 document.getElementById("sitewisechart").style.display = 'flex';
                 document.getElementById("spvwisechart").style.display = 'none';
                 EnergyBarChart(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels);
-                WindBarChart(target_wind, actual_wind, pas_wind_var, neg_wind_var, Levels);
+                WindBarChart(target_wind, actual_wind, pas_wind_var.toString(2), neg_wind_var.toString(2), Levels);
             }
         });
     }
     function EnergyBarChart(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels) {
+        let chartStatus = Chart.getChart("energy_chart_pr"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("energy_chart_pr"), {
             type: 'bar',
             data: {
                 labels: Levels,
-                datasets: [{
-                    label: "Target Energy",
-                    type: "bar",
-                    backgroundColor: "#77CAE7",
-                    data: target_energy,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                    yAxisID: 'energy',
-                }, {
-                    label: "Actual Energy",
-                    type: "bar",
-                    backgroundColor: "#31576D",
-                    backgroundColorHover: "#3e95cd",
-                    data: actual_energy,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
-                    yAxisID: 'energy',
-                },
+                datasets: [
                 {
                     label: "+ve",
                     type: "line",
                     borderColor: "#86C466",
                     data: pas_energy_var,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
                     fill: false,
-                    yAxisID: 'var',
+                   // yAxisID: 'var',
                 }, {
                     label: "-ve",
                     type: "line",
                     borderColor: "#EE403D",
                     data: neg_energy_var,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
                     fill: false,
-                    yAxisID: 'var',
-                }
+                    //yAxisID: 'var',
+                    },{
+                        label: "Target Energy",
+                        type: "bar",
+                        backgroundColor: "#77CAE7",
+                        data: target_energy,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                       // yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                    }, {
+                        label: "Actual Energy",
+                        type: "bar",
+                        backgroundColor: "#31576D",
+                        backgroundColorHover: "#3e95cd",
+                        data: actual_energy,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                       // yAxisID: 'energy',
+                    },
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Energy(MWh)'
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+                }
+            }
+           /* options: {
                 scales: {
 
                     yAxes: [{
@@ -1802,7 +2051,7 @@
                     display: true,
                     position: "bottom"
                 }
-            }
+            }*/
         });
        /* console.log("Target", data);
 
@@ -1832,43 +2081,68 @@
     }
 
     function WindBarChart(target_wind, actual_wind, pas_wind_var, neg_wind_var, Levels) {
-
+        let chartStatus = Chart.getChart("wind_chart_pr"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
         new Chart(document.getElementById("wind_chart_pr"), {
             type: 'bar',
             data: {
                 labels: Levels,
-                datasets: [{
-                    label: "Target Wind",
-                    type: "bar",
-                    backgroundColor: "#77CAE7",
-                    data: target_wind,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
-                    yAxisID: 'wind',
-                }, {
-                    label: "Actual Wind",
-                    type: "bar",
-                    backgroundColor: "#31576D",
-                    backgroundColorHover: "#3e95cd",
-                    data: actual_wind,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
-                    yAxisID: 'wind',
-                },
+                datasets: [
                 {
                     label: "+ve",
                     type: "line",
                     borderColor: "#86C466",
                     data: pas_wind_var,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
                     fill: false,
-                    yAxisID: 'var',
+                    //yAxisID: 'var',
                 }, {
                     label: "-ve",
                     type: "line",
                     borderColor: "#EE403D",
                     data: neg_wind_var,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
                     fill: false,
-                    yAxisID: 'var',
-                }
+                    //yAxisID: 'var',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                    },
+                    {
+                        label: "Target Wind",
+                        type: "bar",
+                        backgroundColor: "#77CAE7",
+                        data: target_wind,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                       // yAxisID: 'wind',
+                    }, {
+                        label: "Actual Wind",
+                        type: "bar",
+                        backgroundColor: "#31576D",
+                        backgroundColorHover: "#3e95cd",
+                        data: actual_wind,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                        //yAxisID: 'wind',
+                    }
                 ]
             },
+            plugins: [ChartDataLabels],
             options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Wind(m/s)'
+                    },
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+                }
+            }
+            /*options: {
                 scales: {
 
                     yAxes: [{
@@ -1901,7 +2175,7 @@
                     display: true,
                     position: "bottom"
                 }
-            }
+            }*/
         });
         /*var areaChartData = {
             labels: Levels,// ['WK', 'MTD', 'YTD'],
@@ -1928,6 +2202,109 @@
         })*/
     }
 
+function GetWindMajorBreakdown() {
+       var daterange = $('#daterange').val();
+
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        //var fyear = $('select#fy1 option:selected').val();
+        var leble = [];
+        var revenue_arr = [];
+        
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetWindMajorBreakdown", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                //var tbl = '<div class="text-center"><h5>' + reporthead+'</h5></div>';
+                var tbl= '<table id="example1"  class="table table-bordered table-striped" style="width:100%">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>Date</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Location</th>';
+                tbl += '<th>TAT</th> ';
+                tbl += '<th>Reason Of Breakdown</th> ';
+
+                tbl += '</tr></thead><tbody>';
+
+                if (result.length > 0) {
+                    console.log("Datatable");
+
+                    for (var i = 0; i < result.length; i++) {
+
+                       if((result[i].bd_type_id == 1 || result[i].bd_type_id == 2) && +result[i].total_stop.split(":")[0] >= 4) {
+                       tbl += '<tr>';
+                            tbl += '<td class="text-left">' + result[i].date + '</td>';
+                            tbl += '<td class="text-left">' + result[i].site_name + '</td>';
+                            tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                           tbl += '<td class="text-left">' + result[i].stop_from + ' - ' + result[i].stop_to + ' = ' + result[i].total_stop + '</td>';
+                            tbl += '<td class="text-left">' + result[i].error_description +'</td>';
+                            tbl += '</tr>';
+                       }
+                       if((result[i].bd_type_id != 1 && result[i].bd_type_id != 2) && +result[i].total_stop.split(":")[0] >= 1) {
+                       tbl += '<tr>';
+                            tbl += '<td class="text-left">' + result[i].date + '</td>';
+                            tbl += '<td class="text-left">' + result[i].site_name + '</td>';
+                            tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                            tbl += '<td class="text-left">' + result[i].stop_from + ' - ' + result[i].stop_to+' = '+ result[i].total_stop + '</td>';
+                            tbl += '<td class="text-left">' + result[i].error_description +'</td>';
+                            tbl += '</tr>';
+                       }
+
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                }
+
+                tbl += '</tbody></table>';
+                $("#majorBreakdown").html(tbl);
+                //$.fn.DataTable.ext.pager.numbers_length = 6;
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    responsive: false,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Wind Mejor Breakdown Reports',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Wind Mejor Breakdown Reports',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $('#example1').removeClass('dataTable');
+                //document.getElementById("reportsDaily").style.display = 'block';
+                
+            }
+        });
+
+    }
 
 
 </script>

@@ -87,12 +87,14 @@
             console.log(result);
             var tbl = '<table id="example1" class="table table-bordered table-striped">';
             tbl += '<thead class="tbl-head"><tr>';
-            tbl += '<td>User Name</td>';
-            tbl += '<td>Email</td>';
-            tbl += '<td>Role</td>';
-            tbl += '<td>Created By</td>';
-            tbl += '<td>Status</td>';
-            tbl += '<td>Action</td>';
+            tbl += '<th>User Name</th>';
+            tbl += '<th>Email</th>';
+            tbl += '<th>Role</th>';
+            //
+            tbl += '<th>Created By</th>';
+            tbl += '<th>Status</th>';
+            tbl += '<th>Wind Access</th>';
+            tbl += '<th>Solar Access</th>';
 
             tbl += '</tr></thead>';
             if (result.length > 0) {
@@ -108,9 +110,10 @@
                     tbl += '<td>' + result[i].username + '</td>';
                     tbl += '<td>' + result[i].useremail + '</td>';
                     tbl += '<td>' + result[i].user_role + '</td>';
-                    tbl += '<td>' + result[i].created_on + '</td>';
+                    //tbl += '<td>' + result[i].created_on + '</td>';
                     tbl += '<td>' + status + '</td>';
-                    tbl += '<td><a href="#" class="btn btn-info" onclick="ViewUser(' + result[i].login_id +')">View</a></td>';
+                    tbl += '<td><a href="#" class="btn btn-info" onclick="ViewUser(' + result[i].login_id + ')">View</a></td>';
+                    tbl += '<td><a href="#" class="btn btn-info" onclick="SolarViewUser(' + result[i].login_id + ')">View</a></td>';
 
 
                     tbl += '</tr>';
@@ -122,26 +125,53 @@
             }
             tbl += '</table>';
             $("#userData").html(tbl);
-            $.noConflict();
             $('#example1').DataTable({
-                    dom: 'frtip',
-                   responsive: true,
+                dom: 'Bfrtip',
+                title: 'ImportApproval',
+                responsive: false,
                 lengthChange: false,
                 autoWidth: false,
                 paging: true,
-                lengthChange: false,
                 searching: true,
                 ordering: true,
                 info: true,
                 autoWidth: false,
-                responsive: true,
-            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                buttons: [
+                    {
+                        extend: 'excel',
+                        title: 'Site User Master',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        title: 'Site User Master',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    'colvis'
+                ]
+                /* "buttons": [
+                     'copy', 'excel', 'csv', 'colvis'
+                 ]*/
+            });
+            $(".dt-buttons").addClass('btn-group flex-wrap');
+            $(".dt-buttons > button").addClass('btn btn-secondary');
+            $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+            $('#example2').removeClass('dataTable');
         }
     });
     }
     function ViewUser(login_id) {
         $.post("/Home/WindUserDetails", { id: login_id}, function (data) {
             window.location.href = "/Home/WindUserView?id=" + login_id ;
+        });
+    }
+    function SolarViewUser(login_id) {
+        $.post("/Home/SolarUserDetails", { id: login_id }, function (data) {
+            window.location.href = "/Home/SolarUserView?id=" + login_id;
         });
     }
 

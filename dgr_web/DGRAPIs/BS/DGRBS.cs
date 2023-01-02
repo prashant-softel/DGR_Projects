@@ -47,7 +47,9 @@ namespace DGRAPIs.BS
         Task<List<WindDailyGenReports2>> GetWindYearlyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string wtg, string month);
         Task<List<WindDailyGenReports>> GetWindWtgFromdailyGenSummary(string state, string site);
         Task<List<WindPerformanceReports>> GetWindPerformanceReportSiteWise_2(string fromDate, string toDate, string site);
-       //Task<List<WindPerformanceReports>> GetWindPerformanceReportSiteWise_3(string fromDate, string toDate, string site);
+        Task<List<SolarPerformanceReports2>> GetSolarPerformanceReportSiteWise_2(string fromDate, string toDate, string site);
+        Task<List<SolarUploadingFileBreakDown>> GetSolarMajorBreakdownData(string fromDate, string toDate, string site);
+        //Task<List<WindPerformanceReports>> GetWindPerformanceReportSiteWise_3(string fromDate, string toDate, string site);
         //Task<List<WindPerformanceReports>> GetWindPerformanceReportSiteWise_4(string fromDate, string toDate, string site);
         Task<List<WindPerformanceReports>> GetWindPerformanceReportSiteWise(string fy, string fromDate, string todate);
         Task<List<WindPerformanceReports>> GetWindPerformanceReportBySPVWise(string fy, string fromDate, string todate);
@@ -144,6 +146,10 @@ namespace DGRAPIs.BS
 
         Task<int> importMetaData(ImportBatch meta,string userName,int userId);
         Task<List<WindOpertionalHead>> GetOperationHeadData(string site);
+		Task<List<SolarOpertionalHead>> GetSolarOperationHeadData(string site);
+        Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate);
+        Task<int> DeleteWindSite(int siteid);
+        Task<int> DeleteSolarSite(int siteid);
         //Task<WindOpertionalHead> GetOperationHeadData(string site);
     }
     public class DGRBS : IDGRBS
@@ -626,6 +632,34 @@ namespace DGRAPIs.BS
                 using (var repos = new DGRRepository(getDB))
                 {
                     return await repos.GetWindPerformanceReportSiteWise_2(fromDate, toDate, site);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<List<SolarPerformanceReports2>> GetSolarPerformanceReportSiteWise_2(string fromDate, string toDate, string site)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetSolarPerformanceReportSiteWise_2(fromDate, toDate, site);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<List<SolarUploadingFileBreakDown>> GetSolarMajorBreakdownData(string fromDate, string toDate, string site)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetSolarMajorBreakdownData(fromDate, toDate, site);
                 }
             }
             catch (Exception ex)
@@ -1989,6 +2023,66 @@ namespace DGRAPIs.BS
                 using (var repos = new DGRRepository(getDB))
                 {
                     return await repos.GetOperationHeadData(site);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+        public async Task<int> DeleteWindSite( int siteid)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.DeleteWindSite(siteid);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+        public async Task<int> DeleteSolarSite(int siteid)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.DeleteSolarSite(siteid);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+		 public async Task<List<SolarOpertionalHead>> GetSolarOperationHeadData(string site)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetSolarOperationHeadData(site);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+        public async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.GetWindMajorBreakdown(fromDate, toDate);
                 }
             }
             catch (Exception ex)
