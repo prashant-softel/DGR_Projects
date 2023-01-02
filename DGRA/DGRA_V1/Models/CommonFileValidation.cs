@@ -49,27 +49,37 @@ namespace DGRA_V1.Models
 
         public double stringToPercentage(long rowNo, string excelValue, string columnName)
         {
-            double percentage = 0;
-            if (!(string.IsNullOrEmpty(excelValue)))
+            try
             {
-                excelValue = excelValue.Replace("%", "");
-                excelValue = excelValue.Replace(" ", "");
-                percentage = Convert.ToDouble(excelValue);
-                if (percentage > 100)
+
+                double percentage = 0;
+                if (!(string.IsNullOrEmpty(excelValue)))
                 {
-                    m_ErrorLog.SetError(",File Row <" + rowNo + "> Percentage value in column <" + columnName + "> exceeds 100% value");
+                    excelValue = excelValue.Replace("%", "");
+                    excelValue = excelValue.Replace(" ", "");
+                    percentage = Convert.ToDouble(excelValue);
+                    if (percentage > 100)
+                    {
+                        m_ErrorLog.SetError(",File Row <" + rowNo + "> Incorrect value<" + excelValue + ">: Expected percentage value between 0-100% in column <" + columnName + "> exceeds 100% value");
+                    }
+                    else if (percentage < 0)
+                    {
+                        m_ErrorLog.SetError(",File Row <" + rowNo + "> Incorrect value<" + excelValue + ">: Expected percentage value between 0-100% in column <" + columnName + "> is negative");
+                    }
                 }
-                else if (percentage < 0)
+                else
                 {
-                    m_ErrorLog.SetError(",File Row <" + rowNo + "> Percentage value in column <" + columnName + "> is negative");
+                    return 0;
                 }
+
+                return percentage;
             }
-            else
+            catch (Exception)
             {
-                return 0;
+                m_ErrorLog.SetError(",File row<" + rowNo + "> Incorrect value<" + excelValue + ">: Expected percentage value between 0-100% in column <" + columnName + ">");
+                return -1;
             }
 
-            return percentage;
         }
 
 
