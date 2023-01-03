@@ -11,6 +11,7 @@
         public dynamic Export_kWh { get; set; }
         public dynamic Import_kWh { get; set; }
         public dynamic Net_Export_kWh { get; set; }
+        public dynamic Net_Billable_kWh { get; set; }
         public dynamic Export_kVAh { get; set; }
         public dynamic Import_kVAh { get; set; }
         public dynamic Export_kVArh_lag { get; set; }

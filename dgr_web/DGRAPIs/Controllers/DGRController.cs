@@ -118,7 +118,6 @@ namespace DGRAPIs.Controllers
             }
             catch (Exception ex)
             {
-
                 return BadRequest(ex.Message);
             }
         }

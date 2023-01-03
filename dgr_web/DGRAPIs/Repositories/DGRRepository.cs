@@ -1,16 +1,9 @@
 ﻿using DGRAPIs.Helper;
 using DGRAPIs.Models;
 using System;
-using System.Web;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using DGRAPIs.Helper;
-using DGRAPIs.Models;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
 using System.Data;
+using System.Threading.Tasks;
 namespace DGRAPIs.Repositories
 {
 
@@ -727,7 +720,7 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month_no=month(t1
             List<SolarLocationMaster> _SolarLocationMaster = new List<SolarLocationMaster>();
             _SolarLocationMaster = await Context.GetData<SolarLocationMaster>(qry).ConfigureAwait(false);
             return _SolarLocationMaster;
-           // return await Context.GetData<SolarLocationMaster>("Select location_master_solar_id,country,site,eg,ig,icr_inv,icr,inv,smb,string as strings,string_configuration,total_string_current,total_string_voltage,modules_quantity,wp,capacity,module_make,module_model_no,    module_type from location_master_solar where site IN (" + site + ")").ConfigureAwait(false);
+            // return await Context.GetData<SolarLocationMaster>("Select location_master_solar_id,country,site,eg,ig,icr_inv,icr,inv,smb,string as strings,string_configuration,total_string_current,total_string_voltage,modules_quantity,wp,capacity,module_make,module_model_no,    module_type from location_master_solar where site IN (" + site + ")").ConfigureAwait(false);
 
         }
         internal async Task<List<SolarLocationMaster>> GetSolarLocationMaster()
@@ -2138,10 +2131,10 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
 
             return await Context.GetData<WindPerformanceReports>(strPerformanceQuery).ConfigureAwait(false);
         }
-		 internal async Task<List<SolarUploadingFileBreakDown>> GetSolarMajorBreakdownData(string fromDate, string toDate, string site)
+        internal async Task<List<SolarUploadingFileBreakDown>> GetSolarMajorBreakdownData(string fromDate, string toDate, string site)
         {
             string filter = "";
-           // fromDate = "2022-04-22";
+            // fromDate = "2022-04-22";
             //toDate = "2022-04-28";
             if (!string.IsNullOrEmpty(fromDate))
             {
@@ -2165,12 +2158,12 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
 
 
             string[] dateSplit = fromDate.Split("-");
-            if (Int32.Parse(dateSplit[1])<9 && dateSplit[1][0]!='0') dateSplit[1] = "0" + dateSplit[1];
-            fromDate = dateSplit[0] + "-" +dateSplit[1] + "-"+ dateSplit[2];
+            if (Int32.Parse(dateSplit[1]) < 9 && dateSplit[1][0] != '0') dateSplit[1] = "0" + dateSplit[1];
+            fromDate = dateSplit[0] + "-" + dateSplit[1] + "-" + dateSplit[2];
 
             string[] dateSplitTo = toDate.Split("-");
             if (Int32.Parse(dateSplitTo[1]) < 9 && dateSplit[1][0] != '0') dateSplitTo[1] = "0" + dateSplitTo[1];
-            toDate = dateSplitTo[0] + "-"+ dateSplitTo[1] + "-" + dateSplitTo[2];
+            toDate = dateSplitTo[0] + "-" + dateSplitTo[1] + "-" + dateSplitTo[2];
 
             /*string strPerformanceQuery = "select AVG(t1.wind_speed) as act_wind,AVG(t1.plf) as act_plf,AVG(t1.ma_actual) as act_ma,AVG(t1.iga) as act_iga,AVG(t1.ega) as act_ega,SUM(t1.kwh_afterloss) as act_jmr_kwh,SUM(t1.kwh_afterloss/1000000) as act_jmr_kwh_mu,SUM(t1.kwh) as total_mw,avg(t2.wind_speed) as tar_wind,AVG(t2.plf) as tar_plf,AVG(t2.ma) as tar_ma,AVG(t2.iga) as tar_iga,AVG(t2.ega) as tar_ega,SUM(t2.kwh*1000000) as tar_kwh,SUM(t2.kwh) as tar_kwh_mu from uploading_file_generation as t1 join daily_target_kpi as t2 on t2.date = t1.date where t1.date >= '" + fromDate + "'  and t1.date <= '" + toDate + "' and t1.site_id IN("+ site+")";*/
 
@@ -2692,8 +2685,8 @@ bd_remarks, action_taken
             int val = 0;
             //stores an existing record from the database which matches with a record in the client dataset
             SolarMonthlyJMR existingRecord = new SolarMonthlyJMR();
-            string updateQry = "INSERT INTO monthly_jmr_solar(monthly_jmr_solar_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, LineLoss, Line_Loss_percentage, RKVH_percentage) VALUES";
-            string qry = " insert into monthly_jmr_solar (FY, Site, site_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, JMR_Month, JMR_Year, LineLoss, Line_Loss_percentage, RKVH_percentage) values";
+            string updateQry = "INSERT INTO monthly_jmr_solar(monthly_jmr_solar_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Net_Billable_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, LineLoss, Line_Loss_percentage, RKVH_percentage) VALUES";
+            string qry = " insert into monthly_jmr_solar (FY, Site, site_id, Plant_Section, Controller_KWH_INV, Scheduled_Units_kWh, Export_kWh, Import_kWh, Net_Export_kWh, Net_Billable_kWh, Export_kVAh, Import_kVAh, Export_kVArh_lag, Import_kVArh_lag, Export_kVArh_lead, Import_kVArh_lead, JMR_date, JMR_Month, JMR_Year, LineLoss, Line_Loss_percentage, RKVH_percentage) values";
             string insertValues = "";
             string updateValues = "";
             foreach (var unit in set)
@@ -2703,7 +2696,7 @@ bd_remarks, action_taken
 
                 if (existingRecord == null)
                 {
-                    insertValues += "('" + unit.FY + "','" + unit.Site + "','" + unit.site_id + "','" + unit.Plant_Section + "','" + unit.Controller_KWH_INV + "','" + unit.Scheduled_Units_kWh + "','" + unit.Export_kWh + "','" + unit.Import_kWh + "','" + unit.Net_Export_kWh + "','" + unit.Export_kVAh + "','" + unit.Import_kVAh + "','" + unit.Export_kVArh_lag + "','" + unit.Import_kVArh_lag + "','" + unit.Export_kVArh_lead + "','" + unit.Import_kVArh_lead + "','" + unit.JMR_date + "','" + unit.JMR_Month + "','" + unit.JMR_Year + "','" + unit.LineLoss + "','" + unit.Line_Loss_percentage + "','" + unit.RKVH_percentage + "'),";
+                    insertValues += "('" + unit.FY + "','" + unit.Site + "','" + unit.site_id + "','" + unit.Plant_Section + "','" + unit.Controller_KWH_INV + "','" + unit.Scheduled_Units_kWh + "','" + unit.Export_kWh + "','" + unit.Import_kWh + "','" + unit.Net_Export_kWh + "','" + unit.Net_Billable_kWh + "','" + unit.Export_kVAh + "','" + unit.Import_kVAh + "','" + unit.Export_kVArh_lag + "','" + unit.Import_kVArh_lag + "','" + unit.Export_kVArh_lead + "','" + unit.Import_kVArh_lead + "','" + unit.JMR_date + "','" + unit.JMR_Month + "','" + unit.JMR_Year + "','" + unit.LineLoss + "','" + unit.Line_Loss_percentage + "','" + unit.RKVH_percentage + "'),";
                 }
                 else
                 {
@@ -3112,128 +3105,128 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name  " + filter + " grou
 
         }
 
-//        internal async Task<List<SolarDailyGenReports2>> GetSolarDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
-//        {
-//            string filter = "";
+        //        internal async Task<List<SolarDailyGenReports2>> GetSolarDailyGenSummaryReport2(string fromDate, string toDate, string country, string state, string spv, string site, string inverter, string month)
+        //        {
+        //            string filter = "";
 
-//            if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
-//            {
-//                filter += " and (date >= '" + fromDate + "'  and date<= '" + toDate + "')";
+        //            if (!string.IsNullOrEmpty(fromDate) && fromDate != "All")
+        //            {
+        //                filter += " and (date >= '" + fromDate + "'  and date<= '" + toDate + "')";
 
-//            }
-//            if (!string.IsNullOrEmpty(country) && country != "All~")
-//            {
+        //            }
+        //            if (!string.IsNullOrEmpty(country) && country != "All~")
+        //            {
 
-//                string[] spcountry = country.Split("~");
-//                filter += " and t2.country in (";
-//                string countrys = "";
-//                for (int i = 0; i < spcountry.Length; i++)
-//                {
-//                    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
-//                    {
-//                        countrys += "'" + spcountry[i].ToString() + "',";
-//                    }
-//                }
-//                filter += countrys.TrimEnd(',') + ")";
+        //                string[] spcountry = country.Split("~");
+        //                filter += " and t2.country in (";
+        //                string countrys = "";
+        //                for (int i = 0; i < spcountry.Length; i++)
+        //                {
+        //                    if (!string.IsNullOrEmpty(spcountry[i].ToString()))
+        //                    {
+        //                        countrys += "'" + spcountry[i].ToString() + "',";
+        //                    }
+        //                }
+        //                filter += countrys.TrimEnd(',') + ")";
 
-//            }
-//            if (!string.IsNullOrEmpty(state) && state != "All~")
-//            {
+        //            }
+        //            if (!string.IsNullOrEmpty(state) && state != "All~")
+        //            {
 
-//                string[] spstate = state.Split("~");
-//                filter += " and t1.state in (";
-//                string states = "";
-//                for (int i = 0; i < spstate.Length; i++)
-//                {
-//                    if (!string.IsNullOrEmpty(spstate[i].ToString()))
-//                    {
-//                        states += "'" + spstate[i].ToString() + "',";
-//                    }
-//                }
-//                filter += states.TrimEnd(',') + ")";
+        //                string[] spstate = state.Split("~");
+        //                filter += " and t1.state in (";
+        //                string states = "";
+        //                for (int i = 0; i < spstate.Length; i++)
+        //                {
+        //                    if (!string.IsNullOrEmpty(spstate[i].ToString()))
+        //                    {
+        //                        states += "'" + spstate[i].ToString() + "',";
+        //                    }
+        //                }
+        //                filter += states.TrimEnd(',') + ")";
 
-//            }
-//            if (!string.IsNullOrEmpty(spv) && spv != "All~")
-//            {
+        //            }
+        //            if (!string.IsNullOrEmpty(spv) && spv != "All~")
+        //            {
 
-//                string[] spspv = spv.Split("~");
-//                filter += " and t2.spv in (";
-//                string spvs = "";
-//                for (int i = 0; i < spspv.Length; i++)
-//                {
-//                    if (!string.IsNullOrEmpty(spspv[i].ToString()))
-//                    {
-//                        spvs += "'" + spspv[i].ToString() + "',";
-//                    }
-//                }
-//                filter += spvs.TrimEnd(',') + ")";
+        //                string[] spspv = spv.Split("~");
+        //                filter += " and t2.spv in (";
+        //                string spvs = "";
+        //                for (int i = 0; i < spspv.Length; i++)
+        //                {
+        //                    if (!string.IsNullOrEmpty(spspv[i].ToString()))
+        //                    {
+        //                        spvs += "'" + spspv[i].ToString() + "',";
+        //                    }
+        //                }
+        //                filter += spvs.TrimEnd(',') + ")";
 
-//            }
-//            if (!string.IsNullOrEmpty(site) && site != "All~")
-//            {
+        //            }
+        //            if (!string.IsNullOrEmpty(site) && site != "All~")
+        //            {
 
-//                string[] spsite = site.Split("~");
-//                filter += " and t1.site in (";
-//                string sites = "";
-//                for (int i = 0; i < spsite.Length; i++)
-//                {
-//                    if (!string.IsNullOrEmpty(spsite[i].ToString()))
-//                    {
-//                        sites += "'" + spsite[i].ToString() + "',";
-//                    }
-//                }
-//                filter += sites.TrimEnd(',') + ")";
+        //                string[] spsite = site.Split("~");
+        //                filter += " and t1.site in (";
+        //                string sites = "";
+        //                for (int i = 0; i < spsite.Length; i++)
+        //                {
+        //                    if (!string.IsNullOrEmpty(spsite[i].ToString()))
+        //                    {
+        //                        sites += "'" + spsite[i].ToString() + "',";
+        //                    }
+        //                }
+        //                filter += sites.TrimEnd(',') + ")";
 
-//            }
-//            if (!string.IsNullOrEmpty(inverter) && inverter != "All~")
-//            {
-//                inverter = inverter.Replace('=', '/');
-//                string[] spinverter = inverter.Split("~");
-//                filter += " and t1.location_name in (";
-//                string inverters = "";
-//                for (int i = 0; i < spinverter.Length; i++)
-//                {
-//                    if (!string.IsNullOrEmpty(spinverter[i].ToString()))
-//                    {
-//                        inverters += "'" + spinverter[i].ToString() + "',";
-//                    }
-//                }
-//                filter += inverters.TrimEnd(',') + ")";
-//            }
-//            if (!string.IsNullOrEmpty(month) && month != "All~")
-//            {
+        //            }
+        //            if (!string.IsNullOrEmpty(inverter) && inverter != "All~")
+        //            {
+        //                inverter = inverter.Replace('=', '/');
+        //                string[] spinverter = inverter.Split("~");
+        //                filter += " and t1.location_name in (";
+        //                string inverters = "";
+        //                for (int i = 0; i < spinverter.Length; i++)
+        //                {
+        //                    if (!string.IsNullOrEmpty(spinverter[i].ToString()))
+        //                    {
+        //                        inverters += "'" + spinverter[i].ToString() + "',";
+        //                    }
+        //                }
+        //                filter += inverters.TrimEnd(',') + ")";
+        //            }
+        //            if (!string.IsNullOrEmpty(month) && month != "All~")
+        //            {
 
-//                string[] spmonth = month.Split("~");
-//                filter += " and month(date) in (";
-//                string months = "";
-//                for (int i = 0; i < spmonth.Length; i++)
-//                {
-//                    if (!string.IsNullOrEmpty(spmonth[i].ToString()))
-//                    {
-//                        months += "" + spmonth[i].ToString() + ",";
-//                    }
-//                }
-//                filter += months.TrimEnd(',') + ")";
-//            }
+        //                string[] spmonth = month.Split("~");
+        //                filter += " and month(date) in (";
+        //                string months = "";
+        //                for (int i = 0; i < spmonth.Length; i++)
+        //                {
+        //                    if (!string.IsNullOrEmpty(spmonth[i].ToString()))
+        //                    {
+        //                        months += "" + spmonth[i].ToString() + ",";
+        //                    }
+        //                }
+        //                filter += months.TrimEnd(',') + ")";
+        //            }
 
 
-//            string qry = @"SELECT year(date)as year,month(date)as month,date,
-//t2.country,t1.state,t2.spv,t1.site,(t2.dc_capacity)as dc_capacity,
-//(t2.ac_capacity)as ac_capacity,(sum(ghi)/count(*))as ghi,(sum(poa)/count(*))as poa,sum(expected_kwh)as expected_kwh,
-//sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(*))as inv_pr,(sum(plant_pr)/count(*))as plant_pr,
-//inv_plf_ac as inv_plf,plant_plf_ac as plant_plf,
-//ma as ma_actual,ma as ma_contractual,
-//(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs,sum(usmh)as usmh,sum(smh)as smh,
-//sum(oh)as oh,sum(igbdh)as igbdh,sum(egbdh)as egbdh,
-//sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as total_losses
-// FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site=t1.site
-//where   t2.state=t1.state  " + filter + " group by date,t1.site ";
+        //            string qry = @"SELECT year(date)as year,month(date)as month,date,
+        //t2.country,t1.state,t2.spv,t1.site,(t2.dc_capacity)as dc_capacity,
+        //(t2.ac_capacity)as ac_capacity,(sum(ghi)/count(*))as ghi,(sum(poa)/count(*))as poa,sum(expected_kwh)as expected_kwh,
+        //sum(inv_kwh)as inv_kwh,sum(plant_kwh)as plant_kwh,(sum(inv_pr)/count(*))as inv_pr,(sum(plant_pr)/count(*))as plant_pr,
+        //inv_plf_ac as inv_plf,plant_plf_ac as plant_plf,
+        //ma as ma_actual,ma as ma_contractual,
+        //(sum(iga)/count(*))as iga,(sum(ega)/count(*))as ega,sum(prod_hrs) as gen_hrs,sum(usmh)as usmh,sum(smh)as smh,
+        //sum(oh)as oh,sum(igbdh)as igbdh,sum(egbdh)as egbdh,
+        //sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as total_losses
+        // FROM daily_gen_summary_solar t1 left join site_master_solar t2 on  t2.site=t1.site
+        //where   t2.state=t1.state  " + filter + " group by date,t1.site ";
 
-//            //where t1.approve_status=" + approve_status + " and  t2.state=t1.state  " + filter + " group by date,t1.site ";
+        //            //where t1.approve_status=" + approve_status + " and  t2.state=t1.state  " + filter + " group by date,t1.site ";
 
-//            return await Context.GetData<SolarDailyGenReports2>(qry).ConfigureAwait(false);
+        //            return await Context.GetData<SolarDailyGenReports2>(qry).ConfigureAwait(false);
 
-//        }
+        //        }
 
         internal async Task<List<SolarDailyGenReports1>> GetSolarMonthlyGenSummaryReport1(string fy, string month, string country, string state, string spv, string site, string inverter)
         {
@@ -3264,7 +3257,7 @@ where   t2.state=t1.state  and t3.inverter=t1.location_name  " + filter + " grou
             }
             else
             {
-                filter += " where ((year(date) = '" + fy + "' and month(date)>3) || (year(date) = '"+ (Convert.ToInt32(fy)+1).ToString()  +"' and month(date)<4))";
+                filter += " where ((year(date) = '" + fy + "' and month(date)>3) || (year(date) = '" + (Convert.ToInt32(fy) + 1).ToString() + "' and month(date)<4))";
                 chkfilter = 1;
             }
             //if (!string.IsNullOrEmpty(country) && country != "All~")
@@ -4582,13 +4575,13 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
             if (importType == 1)
             {
-               // query = "select ib.*,sm.site as site_name from import_batches as ib join site_master_solar as sm on sm.site_master_id=ib.site_id join uploading_file_generation as t3 on t3.import_batch_id=ib.import_batch_id where DATE(ib.import_date)>='" + importFromDate + "' and DATE(ib.import_date) <='" + importToDate + "'and `file_name` like '%DGR_Automation%' and ib.import_type=" + importType + "" + filter + "";
+                // query = "select ib.*,sm.site as site_name from import_batches as ib join site_master_solar as sm on sm.site_master_id=ib.site_id join uploading_file_generation as t3 on t3.import_batch_id=ib.import_batch_id where DATE(ib.import_date)>='" + importFromDate + "' and DATE(ib.import_date) <='" + importToDate + "'and `file_name` like '%DGR_Automation%' and ib.import_type=" + importType + "" + filter + "";
 
                 query = "select ib.*,sm.site as site_name from import_batches as ib join site_master_solar as sm on sm.site_master_solar_id = ib.site_id join uploading_file_generation_solar as t3 on t3.import_batch_id = ib.import_batch_id where DATE(ib.import_date) >= '" + importFromDate + "' and DATE(ib.import_date) <='" + importToDate + "' and `file_name` like '%DGR_Automation%' and ib.import_type =" + importType + "" + filter + "";
             }
             else if (importType == 2)
             {
-               
+
                 query = "select ib.*,sm.site as site_name from import_batches as ib join site_master as sm on sm.site_master_id=ib.site_id join uploading_file_generation as t3 on t3.import_batch_id=ib.import_batch_id where DATE(ib.import_date)>='" + importFromDate + "' and DATE(ib.import_date) <='" + importToDate + "'and `file_name` like '%DGR_Automation%' and ib.import_type=" + importType + "" + filter + "";
             }
             List<approvalObject> _approvalObject = new List<approvalObject>();
@@ -4599,26 +4592,26 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
         internal async Task<int> SetApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
         {
-            
+
             string qry = "select t1.*,t2.site,t2.country,t2.state,t3.feeder from uploading_file_generation as t1 left join site_master as t2 on t2.site_master_id=t1.site_id left join location_master as t3 on t3.site_master_id=t1.site_id where import_batch_id IN(" + dataId + ")";
 
             List<WindUploadingFilegeneration2> _importedData = new List<WindUploadingFilegeneration2>();
             _importedData = await Context.GetData<WindUploadingFilegeneration2>(qry).ConfigureAwait(false);
 
-            
+
 
             string qry1 = " insert into daily_gen_summary(state, site,site_id, date, wtg, wind_speed, kwh, kwh_afterlineloss, feeder, ma_contractual, ma_actual, iga, ega, plf,plf_afterlineloss,capacity_kw, grid_hrs, lull_hrs, production_hrs, unschedule_hrs, schedule_hrs, others, igbdh, egbdh, load_shedding, approve_status) values";
             string values = "";
 
             foreach (var unit in _importedData)
             {
-                
+
 
                 values += "('" + unit.state + "','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.wtg + "','" + unit.wind_speed + "','" + unit.kwh + "','" + unit.kwh_afterlineloss + "','" + unit.feeder + "','" + unit.ma_contractual + "','" + unit.ma_actual + "','" + unit.iga + "','" + unit.ega + "','" + unit.plf + "','" + unit.plf_afterlineloss + "','" + unit.capacity_kw + "','" + unit.grid_hrs + "','" + unit.lull_hrs + "','" + unit.operating_hrs + "','" + unit.unschedule_hrs + "','" + unit.schedule_hrs + "','" + unit.others + "','" + unit.igbdh + "','" + unit.egbdh + "','" + unit.load_shedding + "','1'),";
             }
 
             qry1 += values;
-            string qry3 = "delete from daily_gen_summary  where date='"+ _importedData[0].date + "' and site_id=" + _importedData[0].site_id + " ;";
+            string qry3 = "delete from daily_gen_summary  where date='" + _importedData[0].date + "' and site_id=" + _importedData[0].site_id + " ;";
             await Context.ExecuteNonQry<int>(qry3).ConfigureAwait(false);
             int res = await Context.ExecuteNonQry<int>(qry1.Substring(0, (qry1.Length - 1)) + ";").ConfigureAwait(false);
             if (res > 0)
@@ -4636,10 +4629,10 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         internal async Task<int> SetRejectFlagForImportBatches(string dataId, int rejectedBy, string rejectByName, int status)
         {
 
-          
+
             string query = "UPDATE `import_batches` SET `rejected_date` = NOW(),`rejected_by`= " + rejectedBy + ",`is_approved`=" + status + ",`rejected_by_name`='" + rejectByName + "' WHERE `import_batch_id` IN(" + dataId + ")";
             return await Context.ExecuteNonQry<int>(query).ConfigureAwait(false);
-           
+
         }
 
         internal async Task<int> SetSolarApprovalFlagForImportBatches(string dataId, int approvedBy, string approvedByName, int status)
@@ -4656,7 +4649,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             foreach (var unit in _importedData)
             {
 
-                values += "('" + unit.state + "','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.inverter + "','" + unit.ghi + "','" + unit.poa + "','" + unit.expected_kwh + "','" + unit.inv_act + "','" + unit.plant_act + "','" + unit.inv_pr + "','" + unit.plant_pr + "','" + unit.ma + "','" + unit.iga + "','" + unit.ega + "','" + unit.inv_plf_ac+ "','" + unit.inv_plf_dc + "','" + unit.plant_plf_ac + "','" + unit.plant_plf_dc + "','" + unit.pi + "','" + unit.prod_hrs + "','" + unit.lull_hrs_bd + "','" + unit.usmh_bd + "','" + unit.smh_bd + "','" + unit.oh_bd+ "','" + unit.igbdh_bd + "','" + unit.egbdh_bd + "','" + unit.load_shedding_bd + "','" + unit.total_bd_hrs + "','" + unit.usmh + "','" + unit.smh + "','" + unit.oh + "','" + unit.igbdh + "','" + unit.egbdh + "','" + unit.load_shedding + "','" + unit.total_losses + "','1','" + unit.inv_act_afterloss + "','" + unit.plant_act_afterloss + "','" + unit.inv_plf_afterloss + "','" + unit.plant_plf_afterloss + "'),";
+                values += "('" + unit.state + "','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.inverter + "','" + unit.ghi + "','" + unit.poa + "','" + unit.expected_kwh + "','" + unit.inv_act + "','" + unit.plant_act + "','" + unit.inv_pr + "','" + unit.plant_pr + "','" + unit.ma + "','" + unit.iga + "','" + unit.ega + "','" + unit.inv_plf_ac + "','" + unit.inv_plf_dc + "','" + unit.plant_plf_ac + "','" + unit.plant_plf_dc + "','" + unit.pi + "','" + unit.prod_hrs + "','" + unit.lull_hrs_bd + "','" + unit.usmh_bd + "','" + unit.smh_bd + "','" + unit.oh_bd + "','" + unit.igbdh_bd + "','" + unit.egbdh_bd + "','" + unit.load_shedding_bd + "','" + unit.total_bd_hrs + "','" + unit.usmh + "','" + unit.smh + "','" + unit.oh + "','" + unit.igbdh + "','" + unit.egbdh + "','" + unit.load_shedding + "','" + unit.total_losses + "','1','" + unit.inv_act_afterloss + "','" + unit.plant_act_afterloss + "','" + unit.inv_plf_afterloss + "','" + unit.plant_plf_afterloss + "'),";
             }
 
             qry1 += values;
@@ -4680,7 +4673,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         {
             string query = "UPDATE `import_batches` SET `rejected_date` = NOW(),`rejected_by`= " + rejectedBy + ",`is_approved`=" + status + ",`rejected_by_name`='" + rejectByName + "' WHERE `import_batch_id` IN(" + dataId + ")";
             return await Context.ExecuteNonQry<int>(query).ConfigureAwait(false);
-           
+
         }
         public async Task<List<CountryList>> GetCountryData()
         {
@@ -4716,7 +4709,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             {
                 filter += " where state in (" + state + ") group by spv";
             }
-            string query = "SELECT spv FROM `site_master` "+filter;
+            string query = "SELECT spv FROM `site_master` " + filter;
             List<SPVList> _spvlist = new List<SPVList>();
             _spvlist = await Context.GetData<SPVList>(query).ConfigureAwait(false);
             return _spvlist;
@@ -4908,7 +4901,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             }
             if (!string.IsNullOrEmpty(spv))
             {
-                if(chkfilter == 1)
+                if (chkfilter == 1)
                     filter += " and ";
                 else
                     filter += " where ";
@@ -4955,7 +4948,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         public async Task<List<SolarUploadingFileGeneration2>> GetSolarImportGenData(int importId)
         {
             string query = "SELECT t1.*, t2.site FROM `uploading_file_generation_solar` as t1 join site_master_solar as t2 on t2.site_master_solar_id = t1.site_id where import_batch_id =" + importId + "";
-           
+
             List<SolarUploadingFileGeneration2> _importSolarGenData = new List<SolarUploadingFileGeneration2>();
             _importSolarGenData = await Context.GetData<SolarUploadingFileGeneration2>(query).ConfigureAwait(false);
             return _importSolarGenData;
@@ -4965,7 +4958,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         {
 
             string query = "SELECT t1.*,t3.bd_type_name FROM `uploading_file_breakdown_solar` as t1 left join site_master_solar as t2 on t2.site_master_solar_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id =" + importId + "";
-          //  string query = " SELECT t1.site_id,t1.date,t1.wtg,t1.stop_from,t1.stop_to,t1.total_stop,t1.error_description,t2.site,t3.bd_type_name FROM `uploading_file_breakdown` as t1 left join site_master as t2 on t2.site_master_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id = " + importId + "";
+            //  string query = " SELECT t1.site_id,t1.date,t1.wtg,t1.stop_from,t1.stop_to,t1.total_stop,t1.error_description,t2.site,t3.bd_type_name FROM `uploading_file_breakdown` as t1 left join site_master as t2 on t2.site_master_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id = " + importId + "";
             List<SolarUploadingFileBreakDown1> _importSolarBreakdownData = new List<SolarUploadingFileBreakDown1>();
             _importSolarBreakdownData = await Context.GetData<SolarUploadingFileBreakDown1>(query).ConfigureAwait(false);
             return _importSolarBreakdownData;
@@ -5014,10 +5007,10 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         {
 
 
-           string qry1 = "delete from site_master  where site_master_id="+siteid+"";
-           string qry2 = "delete from location_master  where site_master_id=" + siteid + "";
-           await Context.ExecuteNonQry<int>(qry2).ConfigureAwait(false);
-          return await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+            string qry1 = "delete from site_master  where site_master_id=" + siteid + "";
+            string qry2 = "delete from location_master  where site_master_id=" + siteid + "";
+            await Context.ExecuteNonQry<int>(qry2).ConfigureAwait(false);
+            return await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
 
         }
         internal async Task<int> DeleteSolarSite(int siteid)
@@ -5211,9 +5204,9 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLoss(int site_id, string fromDate, string toDate, double capacity_mw)
         {
             //add column called kwh_afterlineloss and plf_afterlineloss in dailygensummary and uploadgentable
-            double lineLoss = await GetLineLoss(site_id, fromDate,1);
+            double lineLoss = await GetLineLoss(site_id, fromDate, 1);
             bool bIsGenSummary = false;
-            string qry = "SELECT * from daily_gen_summary where site_id = " + site_id + " and date>='"+fromDate+"' and date<='"+toDate+"'";
+            string qry = "SELECT * from daily_gen_summary where site_id = " + site_id + " and date>='" + fromDate + "' and date<='" + toDate + "'";
             /*try
             {
                 List<DailyGenSummary> checkIfApproved = await Context.GetData<DailyGenSummary>(qry).ConfigureAwait(false);
@@ -5419,11 +5412,12 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 col = "line_loss";
             }
             //Solar
-            else {
+            else
+            {
                 tbl = "monthly_line_loss_solar";
                 col = "LineLoss";
             }
-            string qry = @"SELECT  fy, month_no, site, "+col+" as lineLoss FROM " + tbl + " where site_id = " + site_id + " and year = " + year + " and month_no = " + month;
+            string qry = @"SELECT  fy, month_no, site, " + col + " as lineLoss FROM " + tbl + " where site_id = " + site_id + " and year = " + year + " and month_no = " + month;
             List<WindMonthlyUploadingLineLosses> _WindMonthlyUploadingLineLosses = await Context.GetData<WindMonthlyUploadingLineLosses>(qry).ConfigureAwait(false);
 
             foreach (WindMonthlyUploadingLineLosses WindMonthlyLineLosses in _WindMonthlyUploadingLineLosses)
@@ -5570,9 +5564,9 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 case "(12-(IG))/12"://Internal Grid Availability 
                     returnValue = (12 - (IG)) / 12;
                     break;
-               // case "(12-(EG))/12": /*External_Grid_FormulaID*///External Grid Availablity
-                    //returnValue = (12 - (EG)) / 12;
-                   // break;
+                // case "(12-(EG))/12": /*External_Grid_FormulaID*///External Grid Availablity
+                //returnValue = (12 - (EG)) / 12;
+                // break;
                 case "(12-(EG+LS))/12": /*External_Grid_FormulaID*///External Grid Availablity
                     returnValue = (12 - (EG + LoadShedding)) / 12;
                     break;
@@ -5723,7 +5717,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                     bProcessGen = true;
                     TimeSpan Get_Time;
                     //sCurrentInv = SolarDevice.icr + "/" + SolarDevice.inv;
-                	sCurrentICR_INV = SolarDevice.icr_inv;
+                    sCurrentICR_INV = SolarDevice.icr_inv;
 
                     //                    string sDeviceICR = SolarDevice.icr;
                     //                    string sDeviceINV = SolarDevice.inv;
@@ -5731,14 +5725,14 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                     if (iBreakdownCount == 1)
                     {
                         sLastInv = sCurrentInv;
-                                sLastICR_INV = sCurrentICR_INV;
+                        sLastICR_INV = sCurrentICR_INV;
                     }
                     if (sLastICR_INV != sCurrentICR_INV)
                     {
                         //string updateqry = "update uploading_file_generation_solar set ghi = " + avg_GHI + ", poa= " + avg_POA + ", expected_kwh=" + (FinalCapcity * avg_POA) +
                         //  ", ma=100, iga=100, ega=100, inv_pr=inv_act*100/" + (FinalCapcity * avg_POA) + ",plant_pr=plant_act*100/" + (FinalCapcity * avg_POA) + ", inv_plf_ac = inv_act/(24*" + FinalCapcity + ") , plant_plf_ac = plant_act/(24*" + FinalCapcity + ") " +
                         //  " where site_id = " + site_id + " and inverter ='" + sLastInv + "' and date = '" + fromDate + "'";
-                        
+
                         string plantQryACDC = "select ac_capacity from solar_ac_dc_capacity where site_id = " + site_id + " and inverter = '" + sLastInv + "' ";
                         List<SolarInvAcDcCapacity> invAC = await Context.GetData<SolarInvAcDcCapacity>(plantQryACDC).ConfigureAwait(false);
 
@@ -5758,7 +5752,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
                         }
                         FinalCapcity = 0;
-                                sLastICR_INV = sCurrentICR_INV;
+                        sLastICR_INV = sCurrentICR_INV;
                     }
                     FinalCapcity += SolarDevice.capacity;
 
@@ -6503,7 +6497,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
                     stringCount++;
                     Final_USMH_Time += SolarDevice.USMH;
-                    Final_USMH_Loss += SolarDevice.USMH_lostPOA * SolarDevice.capacity * prTarget / 100; 
+                    Final_USMH_Loss += SolarDevice.USMH_lostPOA * SolarDevice.capacity * prTarget / 100;
 
                     Final_SMH_Time += SolarDevice.SMH;
                     Final_SMH_Loss += SolarDevice.SMH_lostPOA * SolarDevice.capacity * prTarget / 100;
@@ -6583,14 +6577,14 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             return true;
 
         }
-        public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLossSolar(int site_id, string fromDate, string toDate, double capacity_kw, bool Maintainance=false)
+        public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLossSolar(int site_id, string fromDate, string toDate, double capacity_kw, bool Maintainance = false)
         {
             //add column called kwh_afterlineloss and plf_afterlineloss in dailygensummary and uploadgentable
             double lineLoss = await GetLineLoss(site_id, fromDate, 0);
             lineLoss = 1 - (lineLoss / 100);
             return await CalculateAndUpdatePLFandKWHAfterLineLoss2Solar(site_id, fromDate, toDate, lineLoss, capacity_kw, Maintainance);
         }
-        public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLoss2Solar(int site_id, string fromDate, string toDate, double lineloss , double capacity_kw, bool Maintainance)
+        public async Task<bool> CalculateAndUpdatePLFandKWHAfterLineLoss2Solar(int site_id, string fromDate, string toDate, double lineloss, double capacity_kw, bool Maintainance)
         {
             //Pending : Add information to log file
             string sLog = "PLF and KWH updated for site id =" + site_id + " fromDate=" + fromDate + " and toDate = " + toDate;
@@ -6629,25 +6623,25 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             }
             else
             {
-                
-                    tableName = "uploading_file_generation_solar"; //unapproved data
-                    myQuery = "Update " + tableName + " set " +
-                  " inv_act_afterloss = inv_act * " + lineloss + ", " +
-                   // " inv_plf_ac = (inv_kwh/(" + capacity_mw + ") * 100), " +
-                   "inv_plf_afterloss =  (inv_plf_ac*" + lineloss + ") " +
-                    ", plant_act_afterloss = plant_act * " + lineloss + ", " +
-                   "plant_plf_afterloss =  (plant_plf_ac *" + lineloss + ") " +
-                   " where date>='" + fromDate + "' and date<='" + toDate + "' and site_id=" + site_id;
-               
+
+                tableName = "uploading_file_generation_solar"; //unapproved data
+                myQuery = "Update " + tableName + " set " +
+              " inv_act_afterloss = inv_act * " + lineloss + ", " +
+               // " inv_plf_ac = (inv_kwh/(" + capacity_mw + ") * 100), " +
+               "inv_plf_afterloss =  (inv_plf_ac*" + lineloss + ") " +
+                ", plant_act_afterloss = plant_act * " + lineloss + ", " +
+               "plant_plf_afterloss =  (plant_plf_ac *" + lineloss + ") " +
+               " where date>='" + fromDate + "' and date<='" + toDate + "' and site_id=" + site_id;
+
             }
-            
+
             //int result = await Context.ExecuteNonQry<int>(myQuery.Substring(0, (myQuery.Length - 1)) + ";").ConfigureAwait(false);
             int result = await getDB.ExecuteNonQry<int>(myQuery).ConfigureAwait(false);
             if (result > 0)
                 return true;
             return false;
         }
-        
+
 
         internal class ViewerStatsFormat
         {

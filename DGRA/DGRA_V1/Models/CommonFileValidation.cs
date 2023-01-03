@@ -60,11 +60,11 @@ namespace DGRA_V1.Models
                     percentage = Convert.ToDouble(excelValue);
                     if (percentage > 100)
                     {
-                        m_ErrorLog.SetError(",File Row <" + rowNo + "> Incorrect value<" + excelValue + ">: Expected percentage value between 0-100% in column <" + columnName + "> exceeds 100% value");
+                        m_ErrorLog.SetError(",File Row <" + rowNo + "> column <" + columnName + ">: Incorrect value<" + excelValue + ">: Expected percentage value between 0-100% in exceeds 100% value");
                     }
                     else if (percentage < 0)
                     {
-                        m_ErrorLog.SetError(",File Row <" + rowNo + "> Incorrect value<" + excelValue + ">: Expected percentage value between 0-100% in column <" + columnName + "> is negative");
+                        m_ErrorLog.SetError(",File Row <" + rowNo + "> column <" + columnName + ">: Incorrect value<" + excelValue + ">: Expected percentage value between 0-100% in is negative");
                     }
                 }
                 else
