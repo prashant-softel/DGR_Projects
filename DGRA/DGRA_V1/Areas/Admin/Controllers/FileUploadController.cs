@@ -576,13 +576,11 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
 
             m_ErrorLog.SaveToCSV(csvFileName);
-            if (statusCode != 200)
+            //if (statusCode != 200)
+            ArrayList messageList = m_ErrorLog.errorLog();
+            foreach (var item in messageList)
             {
-                ArrayList messageList = m_ErrorLog.errorLog();
-                foreach (var item in messageList)
-                {
-                    status += ((string)item).Replace(",", "") + ",";
-                }
+                status += ((string)item).Replace(",", "") + ",";
             }
             return status;
         }
@@ -656,7 +654,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             catch (Exception ex)
             {
                 status = "Something went wrong : Exception Caught Debugging Required";
-                m_ErrorLog.SetError("," + status);
+                m_ErrorLog.SetError("," + status + ",");
                 throw new Exception(ex.Message);
             }
         }
@@ -666,55 +664,62 @@ namespace DGRA_V1.Areas.admin.Controllers
 
         private async Task<int> InsertSolarFileGeneration(string status, DataSet ds)
         {
-
+            DateTime dateValidate = DateTime.MinValue;
             List<bool> errorFlag = new List<bool>();
             int rowNumber = 1;
             int errorCount = 0;
             int responseCode = 400;
-            //DateTime minDate = DateTime.MaxValue;
-            //DateTime maxDate = DateTime.MinValue;
+            DateTime fromDate;
+            DateTime toDate;
             try
             {
-                //kpi helper variables(to be worked on:-)
-                //DateTime.TryParseExact(ds.Tables[0].Rows[0]["Date"].ToString(), "dd-MM-yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out dt1);
-                DateTime fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
-                DateTime toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
-                DateTime nextDate = DateTime.MinValue;
-                string site = "";
-                //---------------------
-                if (ds.Tables.Count > 0)
+                fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+                toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+            }
+            catch (Exception)
+            {
+                m_ErrorLog.SetError(",File Row<2> column<Date> Invalid Date Format. Use format dd/MM/yy");
+                fromDate = DateTime.MaxValue;
+                toDate = DateTime.MinValue;
+            }
+            DateTime nextDate = DateTime.MinValue;
+            string kpiSite = "";
+            //---------------------
+            if (ds.Tables.Count > 0)
+            {
+                CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
+                SolarUploadingFileValidation solarValidation = new SolarUploadingFileValidation(m_ErrorLog, _idapperRepo);
+                List<SolarUploadingFileGeneration> addSet = new List<SolarUploadingFileGeneration>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
-                    SolarUploadingFileValidation solarValidation = new SolarUploadingFileValidation(m_ErrorLog, _idapperRepo);
-                    List<SolarUploadingFileGeneration> addSet = new List<SolarUploadingFileGeneration>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
-                        rowNumber++;
                         SolarUploadingFileGeneration addUnit = new SolarUploadingFileGeneration();
-                        addUnit.date = Convert.ToDateTime(dr["Date"], timeCulture).ToString("yyyy-MM-dd");
-                        //Date Validation  Added
-                        errorFlag.Add(addUnit.date == DateTime.MinValue.ToString("dd-MM-yyyy") ? true : false);
-                        addUnit.site = Convert.ToString(dr["Site"]);
-                        addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);
-                        //Site Validation Added
-                        errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
+                        rowNumber++;
+                        bool skipRow = false;
+
+                        addUnit.date = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToDateTime((string)dr["Date"], timeCulture).ToString("yyyy-MM-dd");
+                        errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
+
+                        dateValidate = Convert.ToDateTime((string)dr["Date"], timeCulture);
+                        errorFlag.Add((siteUserRole == "Admin") ? false : importDateValidation(dateValidate));
+
+                        addUnit.site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
+                        addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);
                         objImportBatch.importSiteId = addUnit.site_id;//C
-                        //nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
+                        kpiSite = Convert.ToString(addUnit.site_id);
+                        errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
+
                         nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
                         fromDate = ((nextDate < fromDate) ? (nextDate) : (fromDate));
                         toDate = (nextDate > toDate) ? (nextDate) : (toDate);
-                        //if (nextDate < minDate)
-                        //{
-                        //    minDate = nextDate;
-                        //}
-                        //if (nextDate > maxDate)
-                        //{
-                        //    maxDate = nextDate;
-                        //}
-                        site = Convert.ToString(addUnit.site_id);
-                        addUnit.inverter = Convert.ToString(dr["Inverter"]);
-                        addUnit.inv_act = Convert.ToDouble(dr["Inv_Act(KWh)"]);
-                        addUnit.plant_act = Convert.ToDouble(dr["Plant_Act(kWh)"]);
+
+                        addUnit.inverter = string.IsNullOrEmpty((string)dr["Inverter"]) ? "Nil" : Convert.ToString(dr["Inverter"]);
+                        errorFlag.Add(solarInverterValidation(addUnit.inverter, "Inverter", rowNumber));
+
+                        addUnit.inv_act = string.IsNullOrEmpty((string)dr["Inv_Act(KWh)"]) ? 0 : Convert.ToDouble(dr["Inv_Act(KWh)"]);
+                        addUnit.plant_act = string.IsNullOrEmpty((string)dr["Plant_Act(kWh)"]) ? 0 : Convert.ToDouble(dr["Plant_Act(kWh)"]);
+
                         addUnit.pi = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["PI(%)"]), "PI(%)");
                         errorFlag.Add(solarValidation.validateGenerationData(rowNumber, addUnit.inverter, addUnit.inv_act, addUnit.plant_act));
                         foreach (bool item in errorFlag)
@@ -722,36 +727,42 @@ namespace DGRA_V1.Areas.admin.Controllers
                             if (item)
                             {
                                 errorCount++;
+                                skipRow = true;
+                                errorFlag.Clear();
                                 break;
                             }
                         }
-                        addSet.Add(addUnit);
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
-                    if (!(errorCount > 0))
+                    catch (Exception e)
                     {
-                        //set the  validationgeneration sucess flag
-                        m_ErrorLog.SetError(",Solar Generation Validation Successful");
-                        isGenValidationSuccess = true;
-                        responseCode = 200;
-                        kpiArgs.Add(fromDate);
-                        kpiArgs.Add(toDate);
-                        //kpiArgs.Add(minDate);
-                        //kpiArgs.Add(maxDate);
-                        kpiArgs.Add(site);
-                        genJson = JsonConvert.SerializeObject(addSet);
-                    }
-                    else
-                    {
-                        // add to error log that validation of generation failed
-                        m_ErrorLog.SetError(",Solar Generation Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": function: InsertSolarFileGeneration,");
+                        ErrorLog(",Exception Occurred In Function: InsertSolarFileGeneration: " + e.Message + ",");
+                        errorCount++;
                     }
                 }
-            }
-            catch (Exception e)
-            {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": function: InsertSolarFileGeneration");
-                ErrorLog(",Exception Occurred In Function: InsertSolarFileGeneration: " + e.Message);
+                if (!(errorCount > 0))
+                {
+                    //set the  validationgeneration sucess flag
+                    //kpiArgs.Add(minDate);
+                    //kpiArgs.Add(maxDate);
+                    m_ErrorLog.SetError(",Solar Generation Validation Successful");
+                    isGenValidationSuccess = true;
+                    responseCode = 200;
+                    kpiArgs.Add(fromDate);
+                    kpiArgs.Add(toDate);
+                    kpiArgs.Add(kpiSite);
+                    genJson = JsonConvert.SerializeObject(addSet);
+                }
+                else
+                {
+                    // add to error log that validation of generation failed
+                    m_ErrorLog.SetError(",Solar Generation Validation Failed");
+                }
             }
             return responseCode;
         }
@@ -800,7 +811,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.date = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]) ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"], timeCulture).ToString("yyyy-MM-dd");
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         addUnit.wtg = dr["WTG"] is DBNull || string.IsNullOrEmpty((string)dr["WTG"]) ? "Nil" : Convert.ToString(dr["WTG"]);
-                        addUnit.wtg_id = equipmentId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(equipmentId[addUnit.wtg]) : 0;//A
+                        addUnit.wtg_id = equipmentId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(equipmentId[addUnit.wtg]) : 0;
                         addUnit.site_id = eqSiteId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(eqSiteId[addUnit.wtg]) : 0;
                         addUnit.site_name = siteName.ContainsKey(addUnit.site_id) ? (string)(siteName[addUnit.site_id]) : "Nil";//D
                         objImportBatch.importSiteId = addUnit.site_id;
@@ -810,8 +821,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.lull_hrs = dr["Lull_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Lull_Hrs"]) ? 0 : Convert.ToDouble(dr["Lull_Hrs"]);
                         addUnit.grid_hrs = dr["Grid_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Grid_Hrs"]) ? 0 : Convert.ToDouble(dr["Grid_Hrs"]);
                         site = Convert.ToString(addUnit.site_id);
-                        dateValidate = Convert.ToDateTime(addUnit.date, timeCulture);
                         errorFlag.Add(uniformWindSiteValidation(rowNumber, addUnit.site_id, addUnit.wtg));
+                        dateValidate = Convert.ToDateTime(addUnit.date, timeCulture);
                         errorFlag.Add((siteUserRole == "Admin") ? false : importDateValidation(dateValidate));
                         errorFlag.Add(validationObject.validateGenData(rowNumber, addUnit.date, addUnit.wtg, addUnit.wind_speed, addUnit.kwh, addUnit.operating_hrs, addUnit.lull_hrs, addUnit.grid_hrs));
                         nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
@@ -829,7 +840,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                     }
                     if (!(errorCount > 0))
                     {
-                        m_ErrorLog.SetInformation(",Wind Generation File Validation Successful");
+                        m_ErrorLog.SetInformation(",Wind Generation File Validation Successful,");
                         isGenValidationSuccess = true;
                         responseCode = 200;
                         genJson = JsonConvert.SerializeObject(addSet);
@@ -847,8 +858,8 @@ namespace DGRA_V1.Areas.admin.Controllers
             catch (Exception e)
             {
                 //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindFileGeneration");
-                ErrorLog(",Exception Occurred In Function: InsertWindFileGeneration: " + e.Message);
+                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindFileGeneration,");
+                ErrorLog(",Exception Occurred In Function: InsertWindFileGeneration: " + e.Message + "");
             }
             return responseCode;
         }
@@ -856,7 +867,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         private async Task<int> InsertSolarFileBreakDown(string status, DataSet ds)
         {
             long rowNumber = 1;
-            bool errorFlag = false;
+            List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
             int responseCode = 400;
             try
@@ -869,35 +880,61 @@ namespace DGRA_V1.Areas.admin.Controllers
                     {
                         SolarUploadingFileBreakDown addUnit = new SolarUploadingFileBreakDown();
                         rowNumber++;
-                        addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
-                        addUnit.site = Convert.ToString(dr["Site"]);
-                        if (siteNameId.ContainsKey(addUnit.site))
-                        { addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]); }//C
-                        else { errorFlag = true; }
+                        bool skipRow = false;
+                        addUnit.date = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : (string)dr["Date"];
+                        errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
+
+                        addUnit.site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
+                        addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);
+                        errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
                         objImportBatch.importSiteId = addUnit.site_id;//C
-                        addUnit.ext_int_bd = Convert.ToString(dr["Ext_BD"]);
-                        addUnit.igbd = Convert.ToString(dr["IGBD"]);
-                        addUnit.icr = Convert.ToString(dr["ICR"]);
-                        addUnit.inv = Convert.ToString(dr["INV"]);
-                        addUnit.smb = Convert.ToString(dr["SMB"]);
-                        addUnit.strings = Convert.ToString(dr["Strings"]);
-                        addUnit.from_bd = Convert.ToDateTime(dr["From"]);
-                        addUnit.to_bd = Convert.ToDateTime(dr["To"]);
-                        addUnit.total_bd = validationObject.breakDownCalc(addUnit.from_bd, addUnit.to_bd);
-                        addUnit.bd_remarks = Convert.ToString(dr["BDRemarks"]);
-                        addUnit.bd_type = Convert.ToString(dr["BDType"]);
+
+                        addUnit.ext_int_bd = dr["Ext_BD"] is DBNull || string.IsNullOrEmpty((string)dr["Ext_BD"]) ? "Nil" : Convert.ToString(dr["Ext_BD"]);
+                        errorFlag.Add(stringNullValidation(addUnit.ext_int_bd, "Ext_BD", rowNumber));
+
+                        addUnit.igbd = dr["IGBD"] is DBNull || string.IsNullOrEmpty((string)dr["IGBD"]) ? "Nil" : Convert.ToString(dr["IGBD"]);
+                        errorFlag.Add(stringNullValidation(addUnit.igbd, "IGBD", rowNumber));
+
+                        addUnit.icr = dr["ICR"] is DBNull || string.IsNullOrEmpty((string)dr["ICR"]) ? "Nil" : Convert.ToString(dr["ICR"]);
+                        errorFlag.Add(stringNullValidation(addUnit.icr, "ICR", rowNumber));
+
+                        addUnit.inv = dr["INV"] is DBNull || string.IsNullOrEmpty((string)dr["INV"]) ? "Nil" : Convert.ToString(dr["INV"]);
+                        errorFlag.Add(stringNullValidation(addUnit.inv, "INV", rowNumber));
+
+                        addUnit.smb = dr["SMB"] is DBNull || string.IsNullOrEmpty((string)dr["SMB"]) ? "Nil" : Convert.ToString(dr["SMB"]);
+                        errorFlag.Add(stringNullValidation(addUnit.smb, "SMB", rowNumber));
+
+                        addUnit.strings = dr["Strings"] is DBNull || string.IsNullOrEmpty((string)dr["Strings"]) ? "Nil" : Convert.ToString(dr["Strings"]);
+                        errorFlag.Add(stringNullValidation(addUnit.strings, "Strings", rowNumber));
+
+                        //from_bd and to_bd conversion for validation
+                        addUnit.from_bd = dr["From"] is DBNull || string.IsNullOrEmpty((string)dr["From"]) ? "Nil" : Convert.ToDateTime(dr["From"]).ToString("HH:mm:ss");
+                        errorFlag.Add(timeValidation(addUnit.from_bd, "From", rowNumber));
+
+                        addUnit.to_bd = dr["To"] is DBNull || string.IsNullOrEmpty((string)dr["To"]) ? "Nil" : Convert.ToDateTime(dr["To"]).ToString("HH:mm:ss");
+                        errorFlag.Add(timeValidation(addUnit.to_bd, "To", rowNumber));
+
+                        addUnit.total_bd = validationObject.breakDownCalc(addUnit.from_bd, addUnit.to_bd, rowNumber);
+                        addUnit.bd_remarks = dr["BDRemarks"] is DBNull || string.IsNullOrEmpty((string)dr["BDRemarks"]) ? "Nil" : Convert.ToString(dr["BDRemarks"]);
+                        addUnit.bd_type = dr["BDRemarks"] is DBNull || string.IsNullOrEmpty((string)dr["BDRemarks"]) ? "Nil" : Convert.ToString(dr["BDType"]);
                         addUnit.bd_type_id = Convert.ToInt32(breakdownType[addUnit.bd_type]);//B
-                        addUnit.action_taken = Convert.ToString(dr["ActionTaken"]);
-                        errorFlag = validationObject.validateBreakDownData(rowNumber, addUnit.from_bd, addUnit.to_bd, addUnit.igbd);
-                        addUnit.from_bd = Convert.ToDateTime(addUnit.from_bd).ToString("HH:mm:ss");
-                        addUnit.to_bd = Convert.ToDateTime(addUnit.to_bd).ToString("HH:mm:ss");
-                        if (errorFlag)
+
+                        addUnit.action_taken = dr["ActionTaken"] is DBNull || string.IsNullOrEmpty((string)dr["ActionTaken"]) ? "Nil" : Convert.ToString(dr["ActionTaken"]);
+                        errorFlag.Add(validationObject.validateBreakDownData(rowNumber, addUnit.from_bd, addUnit.to_bd, addUnit.igbd));
+                        foreach (bool item in errorFlag)
                         {
-                            errorCount++;
-                            errorFlag = false;
-                            continue;
+                            if (item)
+                            {
+                                errorCount++;
+                                skipRow = true;
+                                errorFlag.Clear();
+                                break;
+                            }
                         }
-                        addSet.Add(addUnit);
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
                     if (!(errorCount > 0))
                     {
@@ -990,13 +1027,8 @@ namespace DGRA_V1.Areas.admin.Controllers
         }
         private async Task<int> InsertSolarPyranoMeter1Min(string status, DataSet ds)
         {
-            //Changed model datatypes reflecting database
-            //Updated API function
-            //records site id
-            //importing successfully?
-            //validating successfully?
             long rowNumber = 1;
-            bool errorFlag = false;
+            List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
             int responseCode = 400;
             try
@@ -1006,15 +1038,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                     List<SolarUploadingPyranoMeter1Min> addSet = new List<SolarUploadingPyranoMeter1Min>();
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
-                        rowNumber++;
                         SolarUploadingPyranoMeter1Min addUnit = new SolarUploadingPyranoMeter1Min();
-                        //addUnit.date_time = Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
-                        addUnit.date_time = Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
-                        string site = Convert.ToString(dr["Site"]);
-                        if (siteNameId.ContainsKey(site))
-                        { addUnit.site_id = Convert.ToInt32(siteNameId[site]); }//C
-                        else { errorFlag = true; }
+                        rowNumber++;
+                        bool skipRow = false;
+                        addUnit.date_time = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
+                        errorFlag.Add(stringNullValidation(addUnit.date_time, "Time stamp", rowNumber));
+                        errorFlag.Add(dateNullValidation(addUnit.date_time, "Time stamp", rowNumber));
+
+                        string site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
+                        addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[site]);
+                        errorFlag.Add(siteValidation(site, addUnit.site_id, rowNumber));
                         objImportBatch.importSiteId = addUnit.site_id;
+
                         addUnit.ghi_1 = Convert.ToDouble((dr["GHI-1"] is DBNull) || string.IsNullOrEmpty((string)dr["GHI-1"]) ? 0 : dr["GHI-1"]);
                         addUnit.ghi_2 = Convert.ToDouble((dr["GHI-2"] is DBNull) || string.IsNullOrEmpty((string)dr["GHI-2"]) ? 0 : dr["GHI-2"]);
                         addUnit.poa_1 = Convert.ToDouble((dr["POA-1"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-1"]) ? 0 : dr["POA-1"]);
@@ -1028,13 +1063,20 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.avg_poa = Convert.ToDouble((dr["Average POA (w/m²)"] is DBNull) || string.IsNullOrEmpty((string)dr["Average POA (w/m²)"]) ? 0 : dr["Average POA (w/m²)"]);
                         addUnit.amb_temp = Convert.ToDouble((dr["Ambient Temp"] is DBNull) || string.IsNullOrEmpty((string)dr["Ambient Temp"]) ? 0 : dr["Ambient Temp"]);
                         addUnit.mod_temp = Convert.ToDouble((dr["Module Temp"] is DBNull) || string.IsNullOrEmpty((string)dr["Module Temp"]) ? 0 : dr["Module Temp"]);
-                        if (errorFlag)
+                        foreach (bool item in errorFlag)
                         {
-                            errorCount++;
-                            errorFlag = false;
-                            continue;
+                            if (item)
+                            {
+                                errorCount++;
+                                errorFlag.Clear();
+                                skipRow = true;
+                                break;
+                            }
                         }
-                        addSet.Add(addUnit);
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
                     //pending check error
                     //set IsPyro1 flag
@@ -1065,11 +1107,8 @@ namespace DGRA_V1.Areas.admin.Controllers
 
         private async Task<int> InsertSolarPyranoMeter15Min(string status, DataSet ds)
         {
-            //Changed model datatypes reflecting database
-            //Updated API function
-            //records site id
             long rowNumber = 1;
-            bool errorFlag = false;
+            List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
             int responseCode = 400;
             try
@@ -1079,14 +1118,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                     List<SolarUploadingPyranoMeter15Min> addSet = new List<SolarUploadingPyranoMeter15Min>();
                     foreach (DataRow dr in ds.Tables[0].Rows)
                     {
-                        rowNumber++;
                         SolarUploadingPyranoMeter15Min addUnit = new SolarUploadingPyranoMeter15Min();
-                        addUnit.date_time = Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
-                        string site = Convert.ToString(dr["Site"]);
-                        if (siteNameId.ContainsKey(site))
-                        { addUnit.site_id = Convert.ToInt32(siteNameId[site]); }//C
-                        else { errorFlag = true; }
+                        rowNumber++;
+                        bool skipRow = false;
+                        addUnit.date_time = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
+                        errorFlag.Add(stringNullValidation(addUnit.date_time, "Time stamp", rowNumber));
+                        errorFlag.Add(dateNullValidation(addUnit.date_time, "Time stamp", rowNumber));
+
+                        string site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
+                        addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[site]);
+                        errorFlag.Add(siteValidation(site, addUnit.site_id, rowNumber));
                         objImportBatch.importSiteId = addUnit.site_id;
+
                         addUnit.ghi_1 = Convert.ToDouble((dr["GHI-1"] is DBNull || string.IsNullOrEmpty((string)dr["GHI-1"])) ? 0 : dr["GHI-1"]);
                         addUnit.ghi_2 = Convert.ToDouble((dr["GHI-2"] is DBNull || string.IsNullOrEmpty((string)dr["GHI-2"])) ? 0 : dr["GHI-2"]);
                         addUnit.poa_1 = Convert.ToDouble((dr["POA-1"] is DBNull || string.IsNullOrEmpty((string)dr["POA-1"])) ? 0 : dr["POA-1"]);
@@ -1100,13 +1143,20 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.avg_poa = Convert.ToDouble((dr["Average POA (w/m²)"] is DBNull || string.IsNullOrEmpty((string)dr["Average POA (w/m²)"])) ? 0 : dr["Average POA (w/m²)"]);
                         addUnit.amb_temp = Convert.ToDouble((dr["Ambient Temp"] is DBNull || string.IsNullOrEmpty((string)dr["Ambient Temp"])) ? 0 : dr["Ambient Temp"]);
                         addUnit.mod_temp = Convert.ToDouble((dr["Module Temp"] is DBNull || string.IsNullOrEmpty((string)dr["Module Temp"])) ? 0 : dr["Module Temp"]);
-                        if (errorFlag)
+                        foreach (bool item in errorFlag)
                         {
-                            errorCount++;
-                            errorFlag = false;
-                            continue;
+                            if (item)
+                            {
+                                errorCount++;
+                                errorFlag.Clear();
+                                skipRow = true;
+                                break;
+                            }
                         }
-                        addSet.Add(addUnit);
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
                     //pending check error
                     //set IsPyro1 flag
@@ -1267,118 +1317,155 @@ namespace DGRA_V1.Areas.admin.Controllers
                     m_ErrorLog.SetError(",Solar Monthly JMR Validation Failed");
                 }
             }
-
             return responseCode;
         }
         //End of all DGR Import functions for both Wind and Solar Upload types
         private async Task<int> InsertWindMonthlyJMR(string status, DataSet ds)
         {
-            long rowNumber = 0;
-            bool errorFlag = false;
+            long rowNumber = 1;
+            List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
             int responseCode = 400;
-            try
+            if (ds.Tables.Count > 0)
             {
-                if (ds.Tables.Count > 0)
+                CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
+                List<WindMonthlyJMR> addSet = new List<WindMonthlyJMR>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
-                    List<WindMonthlyJMR> addSet = new List<WindMonthlyJMR>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
-                        rowNumber++;
                         WindMonthlyJMR addUnit = new WindMonthlyJMR();
-                        addUnit.fy = Convert.ToString(dr["FY"]);
-                        addUnit.site = Convert.ToString(dr["Site"]);
-                        //added site_id recording
-                        addUnit.siteId = Convert.ToInt32(siteNameId[addUnit.site]);//C
-                                                                                   //added site_id validation
-                        errorFlag = siteValidation(addUnit.site, addUnit.siteId, rowNumber);
-                        //recording site_id for import_batches record
+                        bool skipRow = false;
+                        rowNumber++;
+                        addUnit.fy = string.IsNullOrEmpty((string)dr["FY"]) ? "Nil" : Convert.ToString(dr["FY"]);
+                        errorFlag.Add(financialYearValidation(addUnit.fy, rowNumber));
+
+                        addUnit.site = string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
+                        addUnit.siteId = siteNameId.ContainsKey(addUnit.site) ? Convert.ToInt32(siteNameId[addUnit.site]) : 0;
+                        errorFlag .Add(siteValidation(addUnit.site, addUnit.siteId, rowNumber));
                         objImportBatch.importSiteId = addUnit.siteId;
-                        addUnit.plantSection = Convert.ToString(dr["Plant Section"]);
-                        addUnit.jmrDate = Convert.ToDateTime((dr["JMR date"] is DBNull) ? "0000-00-00" : dr["JMR date"]).ToString("yyyy-MM-dd");
-                        addUnit.jmrMonth = Convert.ToString(dr["JMR Month"]);
-                        errorFlag = longMonthList.Contains(addUnit.jmrMonth) ? false : true;
-                        addUnit.jmrMonth_no = Convert.ToInt32(longMonthList[addUnit.jmrMonth]);
-                        addUnit.jmrYear = Convert.ToInt32(dr["JMR Year"]);
-                        //string lineLoss = Convert.ToString(dr["Line Loss%"]);
-                        //addUnit.lineLossPercent = Convert.ToDouble(lineLoss.TrimEnd('%')) / 100;
+
+                        addUnit.plantSection = string.IsNullOrEmpty((string)dr["Plant Section"]) ? "Nil" : Convert.ToString(dr["Plant Section"]);
+                        errorFlag.Add(stringNullValidation(addUnit.plantSection, "Plant Section", rowNumber));
+
+                        addUnit.jmrDate = string.IsNullOrEmpty((string)dr["JMR date"]) ? "Nil" : Convert.ToString(dr["JMR date"]);
+                        errorFlag.Add(timeValidation(addUnit.jmrDate, "JMR date", rowNumber));
+
+                        addUnit.jmrMonth = string.IsNullOrEmpty((string)dr["JMR Month"]) ? "Nil" : Convert.ToString(dr["JMR Month"]);
+                        addUnit.jmrMonth_no = longMonthList.Contains(addUnit.jmrMonth) ? Convert.ToInt32(longMonthList[addUnit.jmrMonth]) :0;
+                        errorFlag.Add(monthValidation(addUnit.jmrMonth, addUnit.jmrMonth_no,rowNumber));
+
+                        addUnit.jmrYear = string.IsNullOrEmpty((string)dr["JMR Year"]) ? 0 : Convert.ToInt32(dr["JMR Year"]);
+                        errorFlag.Add(yearValidation(addUnit.jmrYear, rowNumber));
 
                         addUnit.lineLossPercent = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["Line Loss%"]), "Line Loss%");
-                        errorFlag = (addUnit.lineLossPercent > 100 || addUnit.lineLossPercent < 0) ? true : false;
-                        addUnit.rkvhPercent = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["RKVH%"]), "RKVH%");
-                        errorFlag = (addUnit.rkvhPercent > 100 || addUnit.rkvhPercent < 0) ? true : false;
+                        errorFlag.Add((addUnit.lineLossPercent > 100 || addUnit.lineLossPercent < 0) ? true : false);
 
-                        addUnit.controllerKwhInv = Convert.ToDouble(dr["Controller KWH/INV KWH"] is DBNull ? 0 : dr["Controller KWH/INV KWH"]);
+                        addUnit.rkvhPercent = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["RKVH%"]), "RKVH%");
+                        errorFlag.Add((addUnit.rkvhPercent > 100 || addUnit.rkvhPercent < 0) ? true : false);
+
+                        addUnit.controllerKwhInv = Convert.ToDouble(dr["Controller KWH/INV KWH"] is DBNull || string.IsNullOrEmpty((string)dr["Controller KWH/INV KWH"]) ? 0 : dr["Controller KWH/INV KWH"]);
+                        errorFlag.Add(numericNullValidation(addUnit.controllerKwhInv, "Controller KWH/INV KWH", rowNumber));
+
                         addUnit.scheduledUnitsKwh = Convert.ToDouble(dr["Scheduled Units  (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Scheduled Units  (kWh)"]) ? 0 : dr["Scheduled Units  (kWh)"]);
-                        addUnit.exportKwh = Convert.ToDouble(dr["Export (kWh)"] is DBNull ? 0 : dr["Export (kWh)"]);
-                        addUnit.importKwh = Convert.ToDouble(dr["Import (kWh)"] is DBNull ? 0 : dr["Import (kWh)"]);
-                        addUnit.netExportKwh = Convert.ToDouble(dr["Net Export (kWh)"] is DBNull ? 0 : dr["Net Export (kWh)"]);
-                        addUnit.exportKvah = Convert.ToDouble(dr["Export (kVAh)"] is DBNull ? 0 : dr["Export (kVAh)"]);
-                        addUnit.importKvah = Convert.ToDouble(dr["Import (kVAh)"] is DBNull ? 0 : dr["Import (kVAh)"]);
-                        addUnit.exportKvarhLag = Convert.ToDouble(dr["Export (kVArh lag)"] is DBNull ? 0 : dr["Export (kVArh lag)"]);
-                        addUnit.importKvarhLag = Convert.ToDouble(dr["Import (kVArh lag)"] is DBNull ? 0 : dr["Import (kVArh lag)"]);
-                        addUnit.exportKvarhLead = Convert.ToDouble(dr["Export (kVArh lead)"] is DBNull ? 0 : dr["Export (kVArh lead)"]);
-                        addUnit.importKvarhLead = Convert.ToDouble(dr["Import (kVArh lead)"] is DBNull ? 0 : dr["Import (kVArh lead)"]);
-                        addUnit.lineLoss = Convert.ToDouble(dr["LineLoss"] is DBNull ? 0 : dr["LineLoss"]);
-                        if (errorFlag)
+                        errorFlag.Add(numericNullValidation(addUnit.scheduledUnitsKwh, "Scheduled Units  (kWh)", rowNumber));
+
+                        addUnit.exportKwh = Convert.ToDouble(dr["Export (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Export (kWh)"]) ? 0 : dr["Export (kWh)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.exportKwh, "Export (kWh)", rowNumber));
+
+                        addUnit.importKwh = Convert.ToDouble(dr["Import (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Import (kWh)"]) ? 0 : dr["Import (kWh)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.importKwh, "Import (kWh)", rowNumber));
+
+                        addUnit.netExportKwh = Convert.ToDouble(dr["Net Export (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Net Export (kWh)"]) ? 0 : dr["Net Export (kWh)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.netExportKwh, "Net Export (kWh)", rowNumber));
+
+                        addUnit.exportKvah = Convert.ToDouble(dr["Export (kVAh)"] is DBNull || string.IsNullOrEmpty((string)dr["Net Export (kWh)"]) ? 0 : dr["Export (kVAh)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.exportKvah, "Export (kVAh)", rowNumber));
+
+                        addUnit.importKvah = Convert.ToDouble(dr["Import (kVAh)"] is DBNull || string.IsNullOrEmpty((string)dr["Net Export (kWh)"]) ? 0 : dr["Import (kVAh)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.importKvah, "Import (kVAh)", rowNumber));
+
+                        addUnit.exportKvarhLag = Convert.ToDouble(dr["Export (kVArh lag)"] is DBNull || string.IsNullOrEmpty((string)dr["Export (kVArh lag)"]) ? 0 : dr["Export (kVArh lag)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.exportKvarhLag, "Export (kVArh lag)", rowNumber));
+
+                        addUnit.importKvarhLag = Convert.ToDouble(dr["Import (kVArh lag)"] is DBNull || string.IsNullOrEmpty((string)dr["Import (kVArh lag)"]) ? 0 : dr["Import (kVArh lag)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.importKvarhLag, "Import (kVArh lag)", rowNumber));
+
+                        addUnit.exportKvarhLead = Convert.ToDouble(dr["Export (kVArh lead)"] is DBNull || string.IsNullOrEmpty((string)dr["Export (kVArh lead)"]) ? 0 : dr["Export (kVArh lead)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.exportKvarhLead, "Export (kVArh lead)", rowNumber));
+
+                        addUnit.importKvarhLead = Convert.ToDouble(dr["Import (kVArh lead)"] is DBNull || string.IsNullOrEmpty((string)dr["Import(kVArh lead)"]) ? 0 : dr["Import (kVArh lead)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.importKvarhLead, "Import (kVArh lead)", rowNumber));
+
+                        addUnit.lineLoss = Convert.ToDouble(dr["LineLoss"] is DBNull || string.IsNullOrEmpty((string)dr["LineLoss"]) ? 0 : dr["LineLoss"]);
+                        errorFlag.Add(numericNullValidation(addUnit.lineLoss, "LineLoss", rowNumber));
+                        foreach (bool item in errorFlag)
                         {
-                            errorCount++;
-                            errorFlag = false;
-                            continue;
+                            if (item)
+                            {
+                                errorCount++;
+                                skipRow = true;
+                                errorFlag.Clear();
+                                break;
+                            }
                         }
-                        addSet.Add(addUnit);
-                    }
-                    if (!(errorCount > 0))
-                    {
-                        m_ErrorLog.SetError(",Wind Monthly JMR Validation Successful");
-                        //api call used for importing wind:monthly jmr client data to the database
-                        var json = JsonConvert.SerializeObject(addSet);
-                        var data = new StringContent(json, Encoding.UTF8, "application/json");
-                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindJMR";
-                        using (var client = new HttpClient())
+                        if (!(skipRow))
                         {
-                            var response = await client.PostAsync(url, data);
-                            if (response.IsSuccessStatusCode)
-                            {
-                                m_ErrorLog.SetError(",Wind Monthly JMR Import API Successful:");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                            else
-                            {
-                                m_ErrorLog.SetError(",Wind Monthly JMR Import API Failed:");
-                                return responseCode = (int)response.StatusCode;
-                            }
+                            addSet.Add(addUnit);
                         }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        // add to error log that validation of generation failed
-                        m_ErrorLog.SetError(",Wind Monthly JMR Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindMonthlyJMR");
+                        ErrorLog(",Exception Occurred In Function: InsertWindMonthlyJMR: " + e.Message);
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Wind Monthly JMR Validation Successful");
+                    //api call used for importing wind:monthly jmr client data to the database
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindJMR";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            m_ErrorLog.SetError(",Wind Monthly JMR Import API Successful:");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                        else
+                        {
+                            m_ErrorLog.SetError(",Wind Monthly JMR Import API Failed:");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                    }
+                }
+                else
+                {
+                    // add to error log that validation of generation failed
+                    m_ErrorLog.SetError(",Wind Monthly JMR Validation Failed");
+                }
             }
-            catch (Exception e)
-            {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindMonthlyJMR");
-                ErrorLog(",Exception Occurred In Function: InsertWindMonthlyJMR: " + e.Message);
-            }
+
             return responseCode;
         }
         private async Task<int> InsertSolarMonthlyLineLoss(string status, DataSet ds)
         {
             List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
-            long rowNumber = 0;
+            long rowNumber = 1;
             int responseCode = 400;
-            try
+
+            if (ds.Tables.Count > 0)
             {
-                if (ds.Tables.Count > 0)
+                CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
+                List<SolarMonthlyUploadingLineLosses> addSet = new List<SolarMonthlyUploadingLineLosses>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
-                    List<SolarMonthlyUploadingLineLosses> addSet = new List<SolarMonthlyUploadingLineLosses>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         SolarMonthlyUploadingLineLosses addUnit = new SolarMonthlyUploadingLineLosses();
                         bool skipRow = false;
@@ -1386,6 +1473,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                         addUnit.FY = dr["FY"] is DBNull || string.IsNullOrEmpty((string)dr["FY"]) ? "Nil" : Convert.ToString(dr["FY"]);
                         errorFlag.Add(financialYearValidation(addUnit.FY, rowNumber));
+
                         addUnit.Sites = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
                         addUnit.Site_Id = siteNameId.ContainsKey(addUnit.Sites) ? Convert.ToInt32(siteNameId[addUnit.Sites]) : 0;
                         errorFlag.Add(siteValidation(addUnit.Sites, addUnit.Site_Id, rowNumber));
@@ -1393,10 +1481,12 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                         addUnit.Month = dr["Month"] is DBNull || string.IsNullOrEmpty((string)dr["Month"]) ? "Nil" : Convert.ToString(dr["Month"]);
                         addUnit.month_no = MonthList.ContainsKey(addUnit.Month) ? Convert.ToInt32(MonthList[addUnit.Month]) : 0;
+                        errorFlag.Add(monthValidation(addUnit.Month, addUnit.month_no, rowNumber));
+
                         int year = errorFlag[0] == false ? Convert.ToInt32(addUnit.FY.Substring(0, 4)) : 0;
                         addUnit.year = (addUnit.month_no > 3) ? year : year += 1;
-                        errorFlag.Add(monthValidation(addUnit.Month, addUnit.month_no, rowNumber));
                         errorFlag.Add(yearValidation(addUnit.year, rowNumber));
+
                         addUnit.LineLoss = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["Line Loss (%)"]), "Line Loss (%)");
                         errorFlag.Add(addUnit.LineLoss > 100 || addUnit.LineLoss < 0 ? true : false);
 
@@ -1416,137 +1506,152 @@ namespace DGRA_V1.Areas.admin.Controllers
                             addSet.Add(addUnit);
                         }
                     }
-                    if (!(errorCount > 0))
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetError(",Solar Monthly Lineloss Validation Successful");
-                        var json = JsonConvert.SerializeObject(addSet);
-                        var data = new StringContent(json, Encoding.UTF8, "application/json");
-                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarMonthlyUploadingLineLosses";
-                        using (var client = new HttpClient())
-                        {
-                            var response = await client.PostAsync(url, data);
-                            if (response.IsSuccessStatusCode)
-                            {
-                                m_ErrorLog.SetError(",Solar Monthly Lineloss Import API Successful");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                            else
-                            {
-                                m_ErrorLog.SetError(",Solar Monthly Lineloss Import API Failed");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        m_ErrorLog.SetError(",Solar Monthly Lineloss Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarMonthlyLineLoss,");
+                        ErrorLog(",Exception Occurred In Function: InsertSolarMonthlyLineLoss: " + e.Message);
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Solar Monthly Lineloss Validation Successful,");
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarMonthlyUploadingLineLosses";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            m_ErrorLog.SetError(",Solar Monthly Lineloss Import API Successful,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                        else
+                        {
+                            m_ErrorLog.SetError(",Solar Monthly Lineloss Import API Failed,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                    }
+                }
+                else
+                {
+                    m_ErrorLog.SetError(",Solar Monthly Lineloss Validation Failed,");
+                }
             }
-            catch (Exception e)
+            else
             {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarMonthlyLineLoss");
-                ErrorLog(",Exception Occurred In Function: InsertSolarMonthlyLineLoss: " + e.Message);
+                m_ErrorLog.SetError(",Solar Monthly Lineloss File Empty,");
             }
             return responseCode;
         }
         private async Task<int> InsertWindMonthlyLineLoss(string status, DataSet ds)
         {
-            long rowNumber = 0;
-            bool errorFlag = false;
+            long rowNumber = 1;
+            List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
             int responseCode = 400;
-            try
+            if (ds.Tables.Count > 0)
             {
-                if (ds.Tables.Count > 0)
+                CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
+                List<WindMonthlyUploadingLineLosses> addSet = new List<WindMonthlyUploadingLineLosses>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
-                    List<WindMonthlyUploadingLineLosses> addSet = new List<WindMonthlyUploadingLineLosses>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         WindMonthlyUploadingLineLosses addUnit = new WindMonthlyUploadingLineLosses();
+                        bool skipRow = false;
                         rowNumber++;
-                        addUnit.fy = Convert.ToString(dr["FY"]);
-                        addUnit.site = Convert.ToString(dr["Sites"]);
-                        //added site_id recording
-                        addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
-                                                                                    //added site_id validation
-                        errorFlag = siteValidation(addUnit.site, addUnit.site_id, rowNumber);
-                        //added site_id recording for import_batches record
-                        objImportBatch.importSiteId = addUnit.site_id;//C
-                        addUnit.month = Convert.ToString(dr["Month"]);
-                        addUnit.month_no = Convert.ToInt32(MonthList[addUnit.month]);
-                        int finalYear = Convert.ToInt32(addUnit.fy.Substring(0, 4));
+                        addUnit.fy = string.IsNullOrEmpty((string)dr["FY"]) ? "Nil" : Convert.ToString(dr["FY"]);
+                        errorFlag.Add(financialYearValidation(addUnit.fy, rowNumber));
+
+                        addUnit.site = string.IsNullOrEmpty((string)dr["FY"]) ? "Nil" : Convert.ToString(dr["Sites"]);
+                        addUnit.site_id = string.IsNullOrEmpty((string)dr["FY"]) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);
+                        errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
+                        objImportBatch.importSiteId = addUnit.site_id;
+
+                        addUnit.month = string.IsNullOrEmpty((string)dr["Month"]) ? "Nil" : Convert.ToString(dr["Month"]);
+                        addUnit.month_no = MonthList.ContainsKey(addUnit.month) ? Convert.ToInt32(MonthList[addUnit.month]) : 0;
+                        errorFlag.Add(monthValidation(addUnit.month, addUnit.month_no, rowNumber));
+
+                        int finalYear = errorFlag[0] == false ? Convert.ToInt32(addUnit.fy.Substring(0, 4)) : 0;
                         addUnit.year = (addUnit.month_no > 3) ? finalYear : finalYear = +1;
-                        //addUnit.lineLoss = Convert.ToString(dr["Line Loss"]);
-                        //string lineloss = Convert.ToString(dr["Line Loss"]);
+
                         addUnit.lineLoss = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["Line Loss%"]), "Line Loss%");
-                        errorFlag = (addUnit.lineLoss > 100 || addUnit.lineLoss < 0) ? true : false;
-                        if (errorFlag)
+                        errorFlag.Add((addUnit.lineLoss > 100 || addUnit.lineLoss < 0) ? true : false);
+                        foreach (bool item in errorFlag)
                         {
-                            errorCount++;
-                            errorFlag = false;
-                            continue;
-                        }
-                        addSet.Add(addUnit);
-                    }
-                    //validation success
-                    if (!(errorCount > 0))
-                    {
-                        m_ErrorLog.SetError(",Wind Monthly Line Loss Validation Successful");
-                        //api call used for importing wind:monthly linelosses client data to the database
-                        var json = JsonConvert.SerializeObject(addSet);
-                        var data = new StringContent(json, Encoding.UTF8, "application/json");
-                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertMonthlyUploadingLineLosses";
-                        using (var client = new HttpClient())
-                        {
-                            var response = await client.PostAsync(url, data);
-                            if (response.IsSuccessStatusCode)
+                            if (item)
                             {
-                                m_ErrorLog.SetError(",Wind Monthly Line Loss Import API Successful");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                            else
-                            {
-                                m_ErrorLog.SetError(",Wind Monthly Line Loss Import API Failed");
-                                return responseCode = (int)response.StatusCode;
+                                errorCount++;
+                                skipRow = true;
+                                errorFlag.Clear();
+                                break;
                             }
                         }
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        // add to error log that validation of file failed
-                        m_ErrorLog.SetError(",Wind Monthly Line Loss Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindMonthlyLineLoss,");
+                        ErrorLog(",Exception Occurred In Function: InsertWindMonthlyLineLoss: " + e.Message);
+                        errorCount++;
                     }
                 }
+                //validation success
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Wind Monthly Line Loss Validation Successful,");
+                    //api call used for importing wind:monthly linelosses client data to the database
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertMonthlyUploadingLineLosses";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            m_ErrorLog.SetError(",Wind Monthly Line Loss Import API Successful,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                        else
+                        {
+                            m_ErrorLog.SetError(",Wind Monthly Line Loss Import API Failed,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                    }
+                }
+                else
+                {
+                    // add to error log that validation of file failed
+                    m_ErrorLog.SetError(",Wind Monthly Line Loss Validation Failed,");
+                }
             }
-            catch (Exception e)
+            else
             {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindMonthlyLineLoss");
-                ErrorLog(",Exception Occurred In Function: InsertWindMonthlyLineLoss: " + e.Message);
+                // add to error log that validation of file failed
+                m_ErrorLog.SetError(",Wind Monthly Line Loss File empty,");
             }
             return responseCode;
         }
 
         private async Task<int> InsertSolarMonthlyTargetKPI(string status, DataSet ds)
         {
-            //Changed model datatypes reflecting database
-            //Updated API function
-            //records site id
-            //fixed percentages
             long rowNumber = 1;
             int errorCount = 0;
             List<bool> errorFlag = new List<bool>();
             int responseCode = 400;
-            try
+            if (ds.Tables.Count > 0)
             {
-                if (ds.Tables.Count > 0)
+                CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
+                List<SolarMonthlyTargetKPI> addSet = new List<SolarMonthlyTargetKPI>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
-                    List<SolarMonthlyTargetKPI> addSet = new List<SolarMonthlyTargetKPI>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         SolarMonthlyTargetKPI addUnit = new SolarMonthlyTargetKPI();
                         bool skipRow = false;
@@ -1557,9 +1662,10 @@ namespace DGRA_V1.Areas.admin.Controllers
                         //addUnit.month_no = Convert.ToInt32(MonthList[addUnit.Month]);
                         addUnit.Month = dr["Month"] is DBNull || string.IsNullOrEmpty((string)dr["Month"]) ? "Nil" : Convert.ToString(dr["Month"]);
                         addUnit.month_no = MonthList.ContainsKey(addUnit.Month) ? Convert.ToInt32(MonthList[addUnit.Month]) : 0;
+                        errorFlag.Add(monthValidation(addUnit.Month, addUnit.month_no, rowNumber));
+
                         int year = errorFlag[0] == false ? Convert.ToInt32(addUnit.FY.Substring(0, 4)) : 0;
                         addUnit.year = (addUnit.month_no > 3) ? year : year += 1;
-                        errorFlag.Add(monthValidation(addUnit.Month, addUnit.month_no, rowNumber));
                         errorFlag.Add(yearValidation(addUnit.year, rowNumber));
 
                         //addUnit.Site_Id = Convert.ToInt32(siteNameId[addUnit.Sites]);
@@ -1568,7 +1674,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(siteValidation(addUnit.Sites, addUnit.Site_Id, rowNumber));
                         objImportBatch.importSiteId = addUnit.Site_Id;//C
 
-                        addUnit.GHI = Convert.ToDouble((dr[3] is DBNull) || string.IsNullOrEmpty((string)dr[3])? 0 : dr[3]);
+                        addUnit.GHI = Convert.ToDouble((dr[3] is DBNull) || string.IsNullOrEmpty((string)dr[3]) ? 0 : dr[3]);
                         errorFlag.Add(numericNullValidation(addUnit.GHI, "GHI", rowNumber));
 
                         addUnit.POA = Convert.ToDouble((dr[4] is DBNull) || string.IsNullOrEmpty((string)dr[4]) ? 0 : dr[4]);
@@ -1577,10 +1683,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.kWh = Convert.ToDouble((dr[5] is DBNull) || string.IsNullOrEmpty((string)dr[5]) ? 0 : dr[5]);
                         errorFlag.Add(numericNullValidation(addUnit.kWh, "kWh", rowNumber));
 
-                        //addUnit.MA = Convert.ToDouble(dr["MA (%)"]);
                         addUnit.MA = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["MA (%)"]), "MA (%)");
                         errorFlag.Add((addUnit.MA > 100 || addUnit.MA < 0) ? true : false);
-
 
                         addUnit.IGA = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["IGA (%)"]), "IGA (%)");
                         errorFlag.Add((addUnit.IGA > 100 || addUnit.IGA < 0) ? true : false);
@@ -1611,71 +1715,83 @@ namespace DGRA_V1.Areas.admin.Controllers
                             addSet.Add(addUnit);
                         }
                     }
-                    if (!(errorCount > 0))
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetError(",Solar Monthly Target KPI Validation Successful");
-                        var json = JsonConvert.SerializeObject(addSet);
-                        var data = new StringContent(json, Encoding.UTF8, "application/json");
-                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarMonthlyTargetKPI";
-                        using (var client = new HttpClient())
-                        {
-                            var response = await client.PostAsync(url, data);
-                            if (response.IsSuccessStatusCode)
-                            {
-                                m_ErrorLog.SetError(",Solar Monthly Target KPI Import API Successful");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                            else
-                            {
-                                m_ErrorLog.SetError(",Solar Monthly Target KPI Import API Failed");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        m_ErrorLog.SetError(",Solar Monthly Target KPI Validation Failed");
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarMonthlyTargetKPI,");
+                        ErrorLog(",Exception Occurred In Function: InsertSolarMonthlyTargetKPI: " + e.Message + ",");
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Solar Monthly Target KPI Validation Successful,");
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarMonthlyTargetKPI";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            m_ErrorLog.SetError(",Solar Monthly Target KPI Import API Successful,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                        else
+                        {
+                            m_ErrorLog.SetError(",Solar Monthly Target KPI Import API Failed,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                    }
+                }
+                else
+                {
+                    m_ErrorLog.SetError(",Solar Monthly Target KPI Validation Failed,");
+                }
             }
-            catch (Exception e)
+            else
             {
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarMonthlyTargetKPI");
-                ErrorLog(",Exception Occurred In Function: InsertSolarMonthlyTargetKPI: " + e.Message);
+                m_ErrorLog.SetError(",Solar Monthly Target KPI File empty,");
             }
             return responseCode;
         }
         private async Task<int> InsertWindMonthlyTargetKPI(string status, DataSet ds)
         {
-            long rowNumber = 0;
+            long rowNumber = 1;
             int errorCount = 0;
             List<bool> errorFlag = new List<bool>();
             int responseCode = 400;
-            try
+            if (ds.Tables.Count > 0)
             {
-                if (ds.Tables.Count > 0)
+                List<WindMonthlyTargetKPI> addSet = new List<WindMonthlyTargetKPI>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    List<WindMonthlyTargetKPI> addSet = new List<WindMonthlyTargetKPI>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
                         WindMonthlyTargetKPI addUnit = new WindMonthlyTargetKPI();
                         bool skipRow = false;
                         rowNumber++;
                         addUnit.fy = dr["FY"] is DBNull || string.IsNullOrEmpty((string)dr["FY"]) ? "Nil" : Convert.ToString(dr["FY"]);
-                        errorFlag.Add(stringNullValidation(addUnit.fy, "FY", rowNumber));
-                        addUnit.month = Convert.ToString(dr["Month"]);
-                        addUnit.month_no = Convert.ToInt32(MonthList[addUnit.month]);
-                        int year = Convert.ToInt32(addUnit.fy.Substring(0, 4));
+                        errorFlag.Add(financialYearValidation(addUnit.fy, rowNumber));
+
+                        addUnit.month = string.IsNullOrEmpty((string)dr["Month"]) ? "Nil" : Convert.ToString(dr["Month"]);
+                        addUnit.month_no = string.IsNullOrEmpty((string)dr["Month"]) ? 0 : Convert.ToInt32(MonthList[addUnit.month]);
+                        errorFlag.Add(monthValidation(addUnit.month, addUnit.month_no, rowNumber));
+
+                        int year = errorFlag[0] == false ? Convert.ToInt32(addUnit.fy.Substring(0, 4)) : 0;
                         addUnit.year = (addUnit.month_no < 4 ? year += 1 : year);
-                        addUnit.site = Convert.ToString(dr["Sites"]);
-                        //added site_id recording
-                        addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
+                        errorFlag.Add(yearValidation(addUnit.year, rowNumber));
+
+                        addUnit.site = string.IsNullOrEmpty((string)dr["Sites"]) ? "Nil" : Convert.ToString(dr["Sites"]);
+                        addUnit.site_id = string.IsNullOrEmpty(addUnit.site) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);//C
                         errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
-                        //added site_id recording for import_batches record
                         objImportBatch.importSiteId = addUnit.site_id;//C
-                        addUnit.windSpeed = Convert.ToDouble(dr["WindSpeed"]);
-                        addUnit.kwh = Convert.ToDouble(dr["kWh"]);
+
+                        addUnit.windSpeed = string.IsNullOrEmpty((string)dr["WindSpeed"]) ? "Nil" : Convert.ToDouble(dr["WindSpeed"]);
+                        errorFlag.Add(numericNullValidation(addUnit.windSpeed, "WindSpeed", rowNumber));
+
+                        addUnit.kwh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
+                        errorFlag.Add(numericNullValidation(addUnit.kwh, "kwh", rowNumber));
+
                         addUnit.ma = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["MA%"]), "MA%");
                         errorFlag.Add((addUnit.ma > 100 || addUnit.ma < 0) ? true : false);
                         addUnit.iga = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["IGA%"]), "IGA%");
@@ -1700,54 +1816,59 @@ namespace DGRA_V1.Areas.admin.Controllers
                             addSet.Add(addUnit);
                         }
                     }
-                    if (!(errorCount > 0))
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetError(",Wind Monthly Target KPI Validation Successful");
-                        //api call used for importing wind:monthly target kpi client data to the database
-                        var json = JsonConvert.SerializeObject(addSet);
-                        var data = new StringContent(json, Encoding.UTF8, "application/json");
-                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertMonthlyTargetKPI";
-                        using (var client = new HttpClient())
-                        {
-                            var response = await client.PostAsync(url, data);
-                            if (response.IsSuccessStatusCode)
-                            {
-                                m_ErrorLog.SetError(",Wind Monthly Target KPI Import API Failed");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                            else
-                            {
-                                m_ErrorLog.SetError(",Wind Monthly Target KPI Import API Failed");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // add to error log that validation of file failed
-                        m_ErrorLog.SetError(",Wind Monthly Target KPI Validation Failed");
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindMonthlyTargetKPI,");
+                        ErrorLog(",Exception Occurred In Function: InsertWindMonthlyTargetKPI: " + e.Message + ",");
+                        errorCount++;
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Wind Monthly Target KPI Validation Successful,");
+                    //api call used for importing wind:monthly target kpi client data to the database
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertMonthlyTargetKPI";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            m_ErrorLog.SetError(",Wind Monthly Target KPI Import API Failed,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                        else
+                        {
+                            m_ErrorLog.SetError(",Wind Monthly Target KPI Import API Failed,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                    }
+                }
+                else
+                {
+                    // add to error log that validation of file failed
+                    m_ErrorLog.SetError(",Wind Monthly Target KPI Validation Failed,");
+                }
             }
-            catch (Exception e)
+            else
             {
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindMonthlyTargetKPI");
-                ErrorLog(",Exception Occurred In Function: InsertWindMonthlyTargetKPI: " + e.Message);
+                m_ErrorLog.SetError(",Wind Monthly Target KPI File empty,");
             }
             return responseCode;
         }
         private async Task<int> InsertSolarDailyLoadShedding(string status, DataSet ds)
         {
-            long rowNumber = 0;
+            long rowNumber = 1;
             List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
             int responseCode = 400;
-            try
+            if (ds.Tables.Count > 0)
             {
-                if (ds.Tables.Count > 0)
+                List<SolarDailyLoadShedding> addSet = new List<SolarDailyLoadShedding>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    List<SolarDailyLoadShedding> addSet = new List<SolarDailyLoadShedding>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         SolarDailyLoadShedding addUnit = new SolarDailyLoadShedding();
                         rowNumber++;
@@ -1790,114 +1911,139 @@ namespace DGRA_V1.Areas.admin.Controllers
                             addSet.Add(addUnit);
                         }
                     }
-                    if (!(errorCount > 0))
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetError(",Solar Daily Load Shedding Validation Successful");
-                        var json = JsonConvert.SerializeObject(addSet);
-                        var data = new StringContent(json, Encoding.UTF8, "application/json");
-                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarDailyLoadShedding";
-                        using (var client = new HttpClient())
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarDailyLoadShedding,");
+                        ErrorLog(",Exception Occurred In Function: InsertSolarDailyLoadShedding: " + e.Message);
+                        errorCount++;
+                    }
+                }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Solar Daily Load Shedding Validation Successful,");
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarDailyLoadShedding";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
                         {
-                            var response = await client.PostAsync(url, data);
-                            if (response.IsSuccessStatusCode)
-                            {
-                                m_ErrorLog.SetError(",Solar Daily Load Shedding Import API Successful");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                            else
-                            {
-                                m_ErrorLog.SetError(",Solar Daily Load Shedding Import API Failed");
-                                return responseCode = (int)response.StatusCode;
-                            }
+                            m_ErrorLog.SetError(",Solar Daily Load Shedding Import API Successful,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                        else
+                        {
+                            m_ErrorLog.SetError(",Solar Daily Load Shedding Import API Failed,");
+                            return responseCode = (int)response.StatusCode;
                         }
                     }
-                    else
-                    {
-                        m_ErrorLog.SetError(",Solar Daily Load Shedding Validation Failed");
-                    }
-
                 }
+                else
+                {
+                    m_ErrorLog.SetError(",Solar Daily Load Shedding Validation Failed,");
+                }
+
             }
-            catch (Exception e)
+            else
             {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarDailyLoadShedding");
-                ErrorLog(",Exception Occurred In Function: InsertSolarDailyLoadShedding: " + e.Message);
+                m_ErrorLog.SetError(",Solar Daily Load Shedding File empty,");
             }
             return responseCode;
         }
         private async Task<int> InsertWindDailyLoadShedding(string status, DataSet ds)
-        {//siteID recorded
-            long rowNumber = 0;
+        {
+            long rowNumber = 1;
             int errorCount = 0;
-            bool errorFlag = false;
+            List<bool> errorFlag = new List<bool>();
             int responseCode = 400;
-            try
+            if (ds.Tables.Count > 0)
             {
-
-                if (ds.Tables.Count > 0)
+                List<WindDailyLoadShedding> addSet = new List<WindDailyLoadShedding>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    List<WindDailyLoadShedding> addSet = new List<WindDailyLoadShedding>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         WindDailyLoadShedding addUnit = new WindDailyLoadShedding();
+                        bool skipRow = false;
                         rowNumber++;
-                        addUnit.site = Convert.ToString(dr["Site"]);
-                        addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.site]);//C
-                        errorFlag = siteValidation(addUnit.site, addUnit.site_id, rowNumber);
+                        addUnit.site = string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
+                        addUnit.site_id = string.IsNullOrEmpty(addUnit.site) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);
+                        errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
                         objImportBatch.importSiteId = addUnit.site_id;//C
-                        addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
-                        addUnit.startTime = Convert.ToDateTime(dr["Start Time"]).ToString("hh:mm:ss");
-                        addUnit.endTime = Convert.ToDateTime(dr["End Time"]).ToString("hh:mm:ss");
-                        addUnit.totalTime = Convert.ToDateTime(dr["Total Time"]).ToString("hh:mm:ss");
-                        //addUnit.startTime = Convert.ToString(dr["Start Time"]);
-                        //addUnit.endTime = Convert.ToString(dr["End Time"]);
-                        //addUnit.totalTime = Convert.ToString(dr["Total Time"]);
-                        addUnit.permLoad = Convert.ToDouble(dr[" Permissible Load (MW)"]);
-                        addUnit.genShedding = Convert.ToDouble(dr["Generation loss in KWH due to Load shedding"]);
-                        if (errorFlag)
-                        {
-                            errorCount++;
-                            errorFlag = false;
-                            continue;
-                        }
-                        addSet.Add(addUnit);
 
-                        //addUnit.stop_from = Convert.ToString(dr["Stop From"]);
-                        // addUnit.stop_to = Convert.ToString(dr["Stop To"]);
-                    }
-                    if (!(errorCount > 0))
-                    {
-                        m_ErrorLog.SetError(",Wind Daily Load Shedding Validation Successful");
-                        var json = JsonConvert.SerializeObject(addSet);
-                        var data = new StringContent(json, Encoding.UTF8, "application/json");
-                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindDailyLoadShedding";
-                        using (var client = new HttpClient())
+                        addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToString(dr["Date"]);
+                        errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
+
+                        addUnit.startTime = string.IsNullOrEmpty((string)dr["Start Time"]) ? "Nil" : Convert.ToString(dr["Start Time"]);
+                        errorFlag.Add(timeValidation(addUnit.startTime, "Start Time", rowNumber));
+
+                        addUnit.endTime = string.IsNullOrEmpty((string)dr["End Time"]) ? "Nil" : Convert.ToString(dr["End Time"]);
+                        errorFlag.Add(timeValidation(addUnit.startTime, "End Time", rowNumber));
+
+                        addUnit.totalTime = string.IsNullOrEmpty((string)dr["Total Time"]) ? "Nil" : Convert.ToString(dr["Total Time"]);
+                        errorFlag.Add(timeValidation(addUnit.totalTime, "Total Time", rowNumber));
+
+                        addUnit.permLoad = string.IsNullOrEmpty((string)dr[" Permissible Load (MW)"]) ? 0 : Convert.ToDouble(dr[" Permissible Load (MW)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.permLoad, " Permissible Load (MW)", rowNumber));
+
+                        addUnit.genShedding = string.IsNullOrEmpty((string)dr["Generation loss in KWH due to Load shedding"]) ? 0 : Convert.ToDouble(dr["Generation loss in KWH due to Load shedding"]);
+                        errorFlag.Add(numericNullValidation(addUnit.genShedding, "Generation loss in KWH due to Load shedding", rowNumber));
+
+                        foreach (bool item in errorFlag)
                         {
-                            var response = await client.PostAsync(url, data);
-                            if (response.IsSuccessStatusCode)
+                            if (item)
                             {
-                                m_ErrorLog.SetError(",Wind Daily Load Shedding API Successful");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                            else
-                            {
-                                m_ErrorLog.SetError(",Wind Daily Load Shedding API Failed");
-                                return responseCode = (int)response.StatusCode;
+                                errorCount++;
+                                errorFlag.Clear();
+                                skipRow = true;
+                                break;
                             }
                         }
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetError(",Wind Daily Load Shedding Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindDailyLoadShedding,");
+                        ErrorLog(",Exception Occurred In Function: InsertWindDailyLoadShedding: " + e.Message + ",");
+                        errorCount++;
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Wind Daily Load Shedding Validation Successful,");
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertWindDailyLoadShedding";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            m_ErrorLog.SetError(",Wind Daily Load Shedding API Successful,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                        else
+                        {
+                            m_ErrorLog.SetError(",Wind Daily Load Shedding API Failed,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                    }
+                }
+                else
+                {
+                    m_ErrorLog.SetError(",Wind Daily Load Shedding Validation Failed,");
+                }
             }
-            catch (Exception e)
+            else
             {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindDailyLoadShedding");
-                ErrorLog(",Exception Occurred In Function: InsertWindDailyLoadShedding: " + e.Message);
+                //No data in the file
+                m_ErrorLog.SetError(",Wind Daily Load Shedding File is empty,");
             }
             return responseCode;
         }
@@ -1907,13 +2053,14 @@ namespace DGRA_V1.Areas.admin.Controllers
             long rowNumber = 0;
             int errorCount = 0;
             int responseCode = 400;
-            try
+
+            if (ds.Tables.Count > 0)
             {
-                if (ds.Tables.Count > 0)
+                List<SolarDailyTargetKPI> addSet = new List<SolarDailyTargetKPI>();
+                CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    List<SolarDailyTargetKPI> addSet = new List<SolarDailyTargetKPI>();
-                    CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         SolarDailyTargetKPI addUnit = new SolarDailyTargetKPI();
                         bool skipRow = false;
@@ -1962,120 +2109,148 @@ namespace DGRA_V1.Areas.admin.Controllers
                             addSet.Add(addUnit);
                         }
                     }
-                    if (!(errorCount > 0))
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetError(",Solar Daily Target KPI Validation SuccessFul");
-
-                        var json = JsonConvert.SerializeObject(addSet);
-                        var data = new StringContent(json, Encoding.UTF8, "application/json");
-                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarDailyTargetKPI";
-                        using (var client = new HttpClient())
-                        {
-                            var response = await client.PostAsync(url, data);
-                            if (response.IsSuccessStatusCode)
-                            {
-                                m_ErrorLog.SetError(",Solar Daily Target KPI API Successful");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                            else
-                            {
-                                m_ErrorLog.SetError(",Solar Daily Target KPI API Failure");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        m_ErrorLog.SetError(",Solar Daily Target KPI Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarDailyTargetKPI");
+                        ErrorLog(",Exception Occurred In Function: InsertSolarDailyTargetKPI: " + e.Message);
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Solar Daily Target KPI Validation SuccessFul");
+
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarDailyTargetKPI";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            m_ErrorLog.SetError(",Solar Daily Target KPI API Successful");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                        else
+                        {
+                            m_ErrorLog.SetError(",Solar Daily Target KPI API Failure");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                    }
+                }
+                else
+                {
+                    m_ErrorLog.SetError(",Solar Daily Target KPI Validation Failed");
+                }
             }
-            catch (Exception e)
+            else
             {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarDailyTargetKPI");
-                ErrorLog(",Exception Occurred In Function: InsertSolarDailyTargetKPI: " + e.Message);
+                //No data in the file
+                m_ErrorLog.SetError(",Solar Daily Target KPI File is empty,");
             }
             return responseCode;
-
         }
         private async Task<int> InsertWindDailyTargetKPI(string status, DataSet ds)
         {
-            long rowNumber = 0;
-            bool errorFlag = false;
+            long rowNumber = 1;
+            List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
             int responseCode = 400;
-            try
+
+            if (ds.Tables.Count > 0)
             {
-                if (ds.Tables.Count > 0)
+                CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
+                List<WindDailyTargetKPI> addSet = new List<WindDailyTargetKPI>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
-                    List<WindDailyTargetKPI> addSet = new List<WindDailyTargetKPI>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         WindDailyTargetKPI addUnit = new WindDailyTargetKPI();
+                        bool skipRow = false;
                         rowNumber++;
-                        addUnit.FY = Convert.ToString(dr["FY"]);
-                        addUnit.Date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
-                        addUnit.Site = Convert.ToString(dr["Site"]);
-                        addUnit.site_id = Convert.ToInt32(siteNameId[addUnit.Site]);//C
-                        objImportBatch.importSiteId = addUnit.site_id;//C
-                        addUnit.WindSpeed = Convert.ToDouble(dr["WindSpeed"]);
-                        addUnit.kWh = Convert.ToDouble(dr["kWh"]);
+                        addUnit.FY = dr["FY"] is DBNull || string.IsNullOrEmpty((string)dr["FY"]) ? "Nil" : Convert.ToString(dr["FY"]);
+                        errorFlag.Add(financialYearValidation(addUnit.FY, rowNumber));
+
+                        addUnit.Date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToString(dr["Date"]);
+                        errorFlag.Add(dateNullValidation(addUnit.Date, "Date", rowNumber));
+
+                        addUnit.Site = string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
+                        addUnit.site_id = string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[addUnit.Site]);
+                        errorFlag.Add(siteValidation(addUnit.Site, addUnit.site_id, rowNumber));
+                        objImportBatch.importSiteId = addUnit.site_id;
+
+                        addUnit.WindSpeed = string.IsNullOrEmpty((string)dr["WindSpeed"]) ? 0 : Convert.ToDouble(dr["WindSpeed"]);
+                        errorFlag.Add(numericNullValidation(addUnit.WindSpeed, "WindSpeed", rowNumber));
+
+                        addUnit.kWh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
+                        errorFlag.Add(numericNullValidation(addUnit.kWh, "kWh", rowNumber));
+
                         addUnit.MA = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["MA%"]), "MA%");
-                        errorFlag = (addUnit.MA > 100 || addUnit.MA < 0) ? true : false;
+                        errorFlag.Add((addUnit.MA > 100 || addUnit.MA < 0) ? true : false);
                         addUnit.IGA = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["IGA%"]), "IGA%");
-                        errorFlag = (addUnit.IGA > 100 || addUnit.IGA < 0) ? true : false;
+                        errorFlag.Add((addUnit.IGA > 100 || addUnit.IGA < 0) ? true : false);
                         addUnit.EGA = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["EGA%"]), "EGA%");
-                        errorFlag = (addUnit.EGA > 100 || addUnit.EGA < 0) ? true : false;
+                        errorFlag.Add((addUnit.EGA > 100 || addUnit.EGA < 0) ? true : false);
                         addUnit.PLF = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["PLF%"]), "PLF%");
-                        errorFlag = (addUnit.PLF > 100 || addUnit.PLF < 0) ? true : false;
-                        errorFlag = siteValidation(addUnit.Site, addUnit.site_id, rowNumber);
-                        if (errorFlag)
+                        errorFlag.Add((addUnit.PLF > 100 || addUnit.PLF < 0) ? true : false);
+                        foreach (bool item in errorFlag)
                         {
-                            errorCount++;
-                            errorFlag = false;
-                            continue;
-                        }
-                        addSet.Add(addUnit);
-                    }
-                    if (!(errorCount > 0))
-                    {
-                        m_ErrorLog.SetError(",Wind Daily Target KPI Validation SuccessFul");
-                        var json = JsonConvert.SerializeObject(addSet);
-                        var data = new StringContent(json, Encoding.UTF8, "application/json");
-                        var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertDailyTargetKPI";
-                        using (var client = new HttpClient())
-                        {
-                            var response = await client.PostAsync(url, data);
-                            if (response.IsSuccessStatusCode)
+                            if (item)
                             {
-                                m_ErrorLog.SetError(",Wind Daily Target KPI API Success");
-                                return responseCode = (int)response.StatusCode;
-                            }
-                            else
-                            {
-                                m_ErrorLog.SetError(",Wind Daily Target KPI API Failure");
-                                return responseCode = (int)response.StatusCode;
+                                errorCount++;
+                                errorFlag.Clear();
+                                skipRow = true;
+                                break;
                             }
                         }
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
-                    else
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetError(",Wind Daily Target KPI Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindDailyTargetKPI,");
+                        ErrorLog(",Exception Occurred In Function: InsertWindDailyTargetKPI: " + e.Message + ",");
+                        errorCount++;
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Wind Daily Target KPI Validation SuccessFul,");
+                    var json = JsonConvert.SerializeObject(addSet);
+                    var data = new StringContent(json, Encoding.UTF8, "application/json");
+                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertDailyTargetKPI";
+                    using (var client = new HttpClient())
+                    {
+                        var response = await client.PostAsync(url, data);
+                        if (response.IsSuccessStatusCode)
+                        {
+                            m_ErrorLog.SetError(",Wind Daily Target KPI API Success,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                        else
+                        {
+                            m_ErrorLog.SetError(",Wind Daily Target KPI API Failure,");
+                            return responseCode = (int)response.StatusCode;
+                        }
+                    }
+                }
+                else
+                {
+                    m_ErrorLog.SetError(",Wind Daily Target KPI Validation Failed,");
+                }
             }
-            catch (Exception e)
+            else
             {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindDailyTargetKPI");
-                ErrorLog(",Exception Occurred In Function: InsertWindDailyTargetKPI: " + e.Message);
+                //No data in the file
+                m_ErrorLog.SetError(",Wind Daily Target KPI File is empty,");
             }
             return responseCode;
         }
         private async Task<int> InsertSolarSiteMaster(string status, DataSet ds)
-        {//siteID recorded
+        {
             int responseCode = 400;
             List<bool> errorFlag = new List<bool>();
             long rowNumber = 0;
@@ -2111,6 +2286,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                         addUnit.total_tarrif = Convert.ToDouble(dr["Total Tariff"]);
                         errorFlag.Add(numericNullValidation(addUnit.total_tarrif, "Total Tariff", rowNumber));
+                        uniqueRecordCheckSolarSiteMaster(addUnit, addSet, rowNumber);
                         foreach (bool item in errorFlag)
                         {
                             if (item)
@@ -2125,7 +2301,6 @@ namespace DGRA_V1.Areas.admin.Controllers
                         {
                             addSet.Add(addUnit);
                         }
-                        addSet.Add(addUnit);
                     }
                     catch (Exception e)
                     {
@@ -2161,13 +2336,20 @@ namespace DGRA_V1.Areas.admin.Controllers
                     m_ErrorLog.SetError(",Solar Site Master Validation Failed");
                 }
             }
+            else
+            {
+                //No data in the file
+                m_ErrorLog.SetError(",Solar Site Master File is empty,");
+            }
             return responseCode;
         }
         private async Task<int> InsertWindSiteMaster(string status, DataSet ds)
-        {//siteID recorded
-            long rowNumber = 0;
+        {
+            int errorCount = 0;
+            long rowNumber = 1;
             int responseCode = 400;
-            bool errorFlag = false;
+            List<bool> errorFlag = new List<bool>();
+
             if (ds.Tables.Count > 0)
             {
                 CommonFileValidation commonValidation = new CommonFileValidation(m_ErrorLog, _idapperRepo);
@@ -2178,32 +2360,69 @@ namespace DGRA_V1.Areas.admin.Controllers
                     {
                         WindSiteMaster addUnit = new WindSiteMaster();
                         rowNumber++;
-                        addUnit.country = Convert.ToString(dr["Country"]);
-                        addUnit.site = Convert.ToString(dr["Site"]);
+                        bool skipRow = false;
+                        addUnit.country = string.IsNullOrEmpty((string)dr["Country"]) ? "Nil" : Convert.ToString(dr["Country"]);
+                        errorFlag.Add(countryValidation(addUnit.country, "Country", rowNumber));
+
+                        addUnit.site = string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
+                        errorFlag.Add(stringNullValidation(addUnit.site, "Site", rowNumber));
                         objImportBatch.importSiteId = Convert.ToInt32(siteNameId[addUnit.site]);//C
-                        addUnit.spv = Convert.ToString(dr["SPV"]);
-                        addUnit.state = Convert.ToString(dr["State"]);
-                        addUnit.model = Convert.ToString(dr["Model"]);
-                        addUnit.capacity_mw = Convert.ToDouble(dr["Capacity(MW)"]);
+
+                        addUnit.spv = string.IsNullOrEmpty((string)dr["SPV"]) ? "Nil" : Convert.ToString(dr["SPV"]);
+                        errorFlag.Add(stringNullValidation(addUnit.spv, "SPV", rowNumber));
+
+                        addUnit.state = string.IsNullOrEmpty((string)dr["State"]) ? "Nil" : Convert.ToString(dr["State"]);
+                        errorFlag.Add(stringNullValidation(addUnit.state, "State", rowNumber));
+
+                        addUnit.model = string.IsNullOrEmpty((string)dr["Model"]) ? "Nil" : Convert.ToString(dr["Model"]);
+                        errorFlag.Add(stringNullValidation(addUnit.model, "Model", rowNumber));
+
+                        addUnit.capacity_mw = string.IsNullOrEmpty((string)dr["Capacity(MW)"]) ? 0 : Convert.ToDouble(dr["Capacity(MW)"]);
+                        errorFlag.Add(numericNullValidation(addUnit.capacity_mw, "Capacity(MW)", rowNumber));
+
                         addUnit.wtg = dr["WTG"] is DBNull || string.IsNullOrEmpty((string)dr["WTG"]) ? 0 : Convert.ToDouble(dr["WTG"]);
-                        addUnit.total_mw = Convert.ToDouble(dr["Total_MW"]);
-                        addUnit.tarrif = Convert.ToDouble(dr["Tariff"]);
-                        addUnit.gbi = Convert.ToDouble(dr["GBI"]);
-                        addUnit.total_tarrif = Convert.ToDouble(dr["Total_Tariff"]);
+                        errorFlag.Add(numericNullValidation(addUnit.wtg, "WTG", rowNumber));
+
+                        addUnit.total_mw = string.IsNullOrEmpty((string)dr["Total_MW"]) ? 0 : Convert.ToDouble(dr["Total_MW"]);
+                        errorFlag.Add(numericNullValidation(addUnit.total_mw, "Total_MW", rowNumber));
+
+                        addUnit.tarrif = string.IsNullOrEmpty((string)dr["Tariff"]) ? 0 : Convert.ToDouble(dr["Tariff"]);
+                        errorFlag.Add(numericNullValidation(addUnit.tarrif, "Tariff", rowNumber));
+
+                        addUnit.gbi = string.IsNullOrEmpty((string)dr["GBI"]) ? 0 : Convert.ToDouble(dr["GBI"]);
+                        errorFlag.Add(numericNullValidation(addUnit.gbi, "GBI", rowNumber));
+
+                        addUnit.total_tarrif = string.IsNullOrEmpty((string)dr["Total_Tariff"]) ? 0 : Convert.ToDouble(dr["Total_Tariff"]);
+                        errorFlag.Add(numericNullValidation(addUnit.total_tarrif, "Total_Tariff", rowNumber));
+
                         addUnit.ll_compensation = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["LL_Compensation%"]), "LL_Compensation%");
-                        addSet.Add(addUnit);
+                        uniqueRecordCheckWindSiteMaster(addUnit, addSet, rowNumber);
+                        foreach (bool item in errorFlag)
+                        {
+                            if (item)
+                            {
+                                errorCount++;
+                                errorFlag.Clear();
+                                skipRow = true;
+                                break;
+                            }
+                        }
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
                     catch (Exception e)
                     {
                         //developer errorlog
-                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindSiteMaster");
-                        ErrorLog(",Exception Occurred In Function: InsertWindSiteMaster: " + e.Message);
-                        errorFlag = true;
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindSiteMaster,");
+                        ErrorLog(",Exception Occurred In Function: InsertWindSiteMaster: " + e.Message + ",");
+                        errorCount++;
                     }
                 }
-                if (errorFlag)
+                if (!(errorCount > 0))
                 {
-                    m_ErrorLog.SetError(",Wind Site Master Validation Failed");
+                    m_ErrorLog.SetError(",Wind Site Master Validation Failed,");
                 }
                 else
                 {
@@ -2215,12 +2434,12 @@ namespace DGRA_V1.Areas.admin.Controllers
                         var response = await client.PostAsync(url, data);
                         if (response.IsSuccessStatusCode)
                         {
-                            m_ErrorLog.SetError(",Wind Site Master API SuccessFul");
+                            m_ErrorLog.SetError(",Wind Site Master API SuccessFul,");
                             return responseCode = (int)response.StatusCode;
                         }
                         else
                         {
-                            m_ErrorLog.SetError(",Wind Site Master API Failure");
+                            m_ErrorLog.SetError(",Wind Site Master API Failure,");
                             return responseCode = (int)response.StatusCode;
                         }
                     }
@@ -2229,7 +2448,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             else
             {
                 //No data in the file
-                m_ErrorLog.SetError(",Wind Site Master File is empty");
+                m_ErrorLog.SetError(",Wind Site Master File is empty,");
             }
             return responseCode;
         }
@@ -2238,7 +2457,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         {//siteID recorded
             int errorCount = 0;
             List<bool> errorFlag = new List<bool>();
-            long rowNumber = 0;
+            long rowNumber = 1;
             int responseCode = 400;
             if (ds.Tables.Count > 0)
             {
@@ -2250,13 +2469,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         SolarLocationMaster addUnit = new SolarLocationMaster();
                         rowNumber++;
                         bool skipRow = false;
-                        addUnit.country = Convert.ToString(dr["Country"]);
-                        errorFlag.Add(stringNullValidation(addUnit.country, "Country", rowNumber));
-                        if (!(addUnit.country == "India"))
-                        {
-                            errorFlag.Add(true);
-                            m_ErrorLog.SetError(",File Row<" + rowNumber + "> column <Country> Invalid Country name,");
-                        }
+                        addUnit.country = dr["Country"] is DBNull || string.IsNullOrEmpty((string)dr["Country"]) ? "Nil" : Convert.ToString(dr["Country"]);
+                        errorFlag.Add(countryValidation(addUnit.country, "Country", rowNumber));
                         addUnit.site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
                         addUnit.site_id = siteNameId.ContainsKey(addUnit.site) ? Convert.ToInt32(siteNameId[addUnit.site]) : 0;
                         errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
@@ -2278,7 +2492,6 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(stringNullValidation(addUnit.inv, "INV", rowNumber));
                         //SMB can remain Nil
                         addUnit.smb = Convert.ToString(dr["SMB"] is DBNull || string.IsNullOrEmpty((string)dr["SMB"]) ? "Nil" : dr["SMB"]);
-                        errorFlag.Add(stringNullValidation(addUnit.smb, "SMB", rowNumber));
 
                         addUnit.strings = Convert.ToString(dr["String"]);
                         errorFlag.Add(stringNullValidation(addUnit.strings, "String", rowNumber));
@@ -2335,6 +2548,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         //developer errorlog
                         m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarLocationMaster");
                         ErrorLog(",Exception Occurred In Function: InsertSolarLocationMaster: " + e.Message);
+                        errorCount++;
                     }
                 }
                 if (errorCount == 0)
@@ -2364,11 +2578,10 @@ namespace DGRA_V1.Areas.admin.Controllers
                     m_ErrorLog.SetError(",Solar Location Master Validation Failed");
                 }
             }
-
             return responseCode;
         }
         private async Task<int> InsertWindLocationMaster(string status, DataSet ds)
-        {//siteID recorded
+        {
             long rowNumber = 1;
             //List<bool> errorFlag = new List<bool>();
             //int errorCount = 0;
@@ -2479,7 +2692,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             else
             {
                 //No data in the file
-                m_ErrorLog.SetError(",Wind Location Master File is emplty");
+                m_ErrorLog.SetError(",Wind Location Master File is emplty,");
             }
             return responseCode;
         }
@@ -2513,7 +2726,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                         addUnit.ac_capacity = dr["AC Capacity (kW)"] is DBNull || string.IsNullOrEmpty((string)dr["AC Capacity (kW)"]) ? 0 : Convert.ToDouble(dr["AC Capacity (kW)"]);
                         errorFlag.Add(numericNullValidation(addUnit.dc_capacity, "AC Capacity (kW)", rowNumber));
-
+                        uniqueRecordCheckAcDcCapacity(addUnit, addSet, rowNumber);
                         foreach (bool item in errorFlag)
                         {
                             if (item)
@@ -2532,13 +2745,14 @@ namespace DGRA_V1.Areas.admin.Controllers
                     catch (Exception e)
                     {
                         //developer errorlog
-                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarAcDcCapacity");
-                        ErrorLog(",Exception Occurred In Function: InsertSolarAcDcCapacity: " + e.Message);
+                        m_ErrorLog.SetError(",File Row<" + rowNumber + ">" + e.GetType() + ": Function: InsertSolarAcDcCapacity,");
+                        ErrorLog(",Exception Occurred In Function: InsertSolarAcDcCapacity: " + e.Message + ",");
+                        errorCount++;
                     }
                 }
                 if (!(errorCount > 0))
                 {
-                    m_ErrorLog.SetError(",Solar ACDC Validation SuccessFul");
+                    m_ErrorLog.SetError(",Solar ACDC Validation SuccessFul,");
                     var json = JsonConvert.SerializeObject(addSet);
                     var data = new StringContent(json, Encoding.UTF8, "application/json");
                     var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/InsertSolarInvAcDcCapacity";
@@ -2547,19 +2761,19 @@ namespace DGRA_V1.Areas.admin.Controllers
                         var response = await client.PostAsync(url, data);
                         if (response.IsSuccessStatusCode)
                         {
-                            m_ErrorLog.SetError(",Solar ACDC API SuccessFul");
+                            m_ErrorLog.SetError(",Solar ACDC API SuccessFul,");
                             return responseCode = (int)response.StatusCode;
                         }
                         else
                         {
-                            m_ErrorLog.SetError(",Solar ACDC API Failure");
+                            m_ErrorLog.SetError(",Solar ACDC API Failure,");
                             return responseCode = (int)response.StatusCode;
                         }
                     }
                 }
                 else
                 {
-                    m_ErrorLog.SetError(",Solar ACDC Validation Failed");
+                    m_ErrorLog.SetError(",Solar ACDC Validation Failed,");
                 }
             }
             return responseCode;
@@ -2981,6 +3195,111 @@ namespace DGRA_V1.Areas.admin.Controllers
             System.IO.File.AppendAllText(@"C:\LogFile\test.txt", Message);
         }
         //Validation Functions
+
+        public bool uniqueRecordCheckWtgWise(string value, string columnName, long rowNo, Hashtable equipmentList)
+        {
+            bool retValue = false;
+            if (equipmentList.ContainsKey(value))
+            {
+                m_ErrorLog.SetError(",File row <" + rowNo + "> column <" + columnName + ">: duplicate value <" + value + "> ,");
+                retValue = true;
+            }
+            return retValue;
+        }
+
+        public bool uniqueRecordCheckSolarLocationMaster(SolarLocationMaster currentRecord, List<SolarLocationMaster> recordSet, long rowNo)
+        {
+            bool retVal = false;
+            SolarLocationMaster existingRecord = new SolarLocationMaster();
+            //checks if recordSet contains record that that matches current record being checked
+            existingRecord = recordSet.Find(tableRecord => tableRecord.site_id.Equals(currentRecord.site_id) && tableRecord.icr.Equals(currentRecord.icr) && tableRecord.inv.Equals(currentRecord.inv) && tableRecord.smb.Equals(currentRecord.smb) && tableRecord.strings.Equals(currentRecord.strings));
+            if (existingRecord != null)
+            {
+                m_ErrorLog.SetError(",File row <" + rowNo + "> Duplicate record error: There already exists a row in excel sheet with following values: Site<" + currentRecord.site + ">; ICR<" + currentRecord.icr + ">; INV<" + currentRecord.inv + ">; SMB<" + currentRecord.smb + ">; Strings<" + currentRecord.strings + ">,");
+                retVal = true;
+            }
+            return retVal;
+        }
+
+        public bool uniqueRecordCheckSolarPerMonthYear_JMR(SolarMonthlyJMR thisRecord, List<SolarMonthlyJMR> tableData, long rowNo)
+        {
+            bool retValue = false;
+            //checks if recordSet contains record that matches current record being checked
+            SolarMonthlyJMR existingRecord = tableData.Find(tableRecord => tableRecord.site_id.Equals(thisRecord.site_id) && tableRecord.JMR_Year.Equals(thisRecord.JMR_Year) && tableRecord.JMR_Month_no.Equals(thisRecord.JMR_Month_no));
+            if (existingRecord != null)
+            {
+                //JMR record already exists
+                m_ErrorLog.SetInformation(",File row <" + rowNo + "> data for site<" + thisRecord.Site + ">, year<" + thisRecord.JMR_Year + ">, month<" + thisRecord.JMR_Month + "> already exists. Data would be updated");
+            }
+            return retValue;
+        }
+
+        public bool uniqueRecordCheckSolarPerMonthYear_LineLoss(SolarMonthlyUploadingLineLosses thisRecord, List<SolarMonthlyUploadingLineLosses> tableData, long rowNo)
+        {
+            bool retValue = false;
+            //checks if recordSet contains record that matches current record being checked
+            SolarMonthlyUploadingLineLosses existingRecord = tableData.Find(tableRecord => tableRecord.Site_Id.Equals(thisRecord.Site_Id) && tableRecord.year.Equals(thisRecord.year) && tableRecord.month_no.Equals(thisRecord.month_no));
+            if (existingRecord != null)
+            {
+                //JMR record already exists
+                m_ErrorLog.SetInformation(",File row <" + rowNo + "> data for site<" + thisRecord.Sites + ">, year<" + thisRecord.year + ">, month<" + thisRecord.Month + "> already exists. Data would be updated");
+            }
+            return retValue;
+            //SetInformation instead of error : 
+        }
+
+        public bool uniqueRecordCheckSolarPerMonthYear_KPI(SolarMonthlyTargetKPI thisRecord, List<SolarMonthlyTargetKPI> tableData, long rowNo)
+        {
+            bool retValue = false;
+
+            //checks if recordSet contains record that matches current record being checked
+            SolarMonthlyTargetKPI existingRecord = tableData.Find(tableRecord => tableRecord.Site_Id.Equals(thisRecord.Site_Id) && tableRecord.year.Equals(thisRecord.year) && tableRecord.month_no.Equals(thisRecord.month_no));
+            if (existingRecord != null)
+            {
+                //JMR record already exists
+                m_ErrorLog.SetInformation(",File row <" + rowNo + "> data for site<" + thisRecord.Sites + ">, year<" + thisRecord.year + ">, month<" + thisRecord.Month + "> already exists. Data would be updated");
+            }
+            return retValue;
+        }
+        public bool uniqueRecordCheckAcDcCapacity(SolarInvAcDcCapacity currentRecord, List<SolarInvAcDcCapacity> recordSet, long rowNo)
+        {
+            bool retVal = false;
+            SolarInvAcDcCapacity existingRecord = new SolarInvAcDcCapacity();
+            //checks if recordSet contains record that that matches current record being checked
+            existingRecord = recordSet.Find(tSite => (tSite.site_id == currentRecord.site_id && tSite.inverter == currentRecord.inverter));
+            if (existingRecord != null)
+            {
+                m_ErrorLog.SetError(",File row <" + rowNo + "> data for Site<" + currentRecord.site + ">; Inverter <" + currentRecord.inverter + "> already exists. Data would be updated,");
+                retVal = true;
+            }
+            return retVal;
+        }
+
+        public bool uniqueRecordCheckSolarSiteMaster(SolarSiteMaster currentRecord, List<SolarSiteMaster> recordSet, long rowNo)
+        {
+            bool retVal = false;
+            SolarSiteMaster existingRecord = new SolarSiteMaster();
+            //checks if recordSet contains record that that matches current record being checked
+            existingRecord = recordSet.Find(tableRecord => tableRecord.site.Equals(currentRecord.site));
+            if (existingRecord != null)
+            {
+                m_ErrorLog.SetInformation(",File row <" + rowNo + "> data for Site<" + currentRecord.site + "> already exists. Data would be updated,");
+                retVal = true;
+            }
+            return retVal;
+        }
+        public bool uniqueRecordCheckWindSiteMaster(WindSiteMaster currentRecord, List<WindSiteMaster> recordSet, long rowNo)
+        {
+            bool retVal = false;
+            WindSiteMaster existingRecord = new WindSiteMaster();
+            existingRecord = recordSet.Find(tableRecord => tableRecord.site.Equals(currentRecord.site));
+            if (existingRecord != null)
+            {
+                m_ErrorLog.SetInformation(",File row <" + rowNo + "> data for Site<" + currentRecord.site + "> already exists. Data would be updated,");
+                retVal = true;
+            }
+            return retVal;
+        }
         public bool siteValidation(string site, int siteId, long rowNumber)
         {
             bool response = false;
@@ -2995,7 +3314,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return response;
         }
-
         public bool bdTypeValidation(string bdtype, long rowNumber)
         {
             bool response = false;
@@ -3006,7 +3324,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return response;
         }
-
         public bool importDateValidation(DateTime importDate)
         {
             bool invalidDate = false;
@@ -3014,28 +3331,27 @@ namespace DGRA_V1.Areas.admin.Controllers
             TimeSpan dayDiff = today - importDate;
             int dayOfWeek = (int)today.DayOfWeek;
             //for DayOfWeek function 
-            //if file-date is of previous day and today is from Tuesday-Friday
-            if (dayDiff.Days == 1 && dayOfWeek > 1 && dayOfWeek < 6)
+            //if it's not true that file-date is of previous day and today is from Tuesday-Friday
+            if (!(dayDiff.Days == 1 && dayOfWeek > 1 && dayOfWeek < 6))
             {
-                // file date is correct
-                invalidDate = false;
+                // file date is incorrect
+                invalidDate = true;
+
             }
             //if today is Monday and file-date is of day-before-yesterday or yesterday
-            else if (dayOfWeek == 1 && dayDiff.Days > 0 && dayDiff.Days <= 2)
+            else if (!(dayOfWeek == 1 && dayDiff.Days > 0 && dayDiff.Days <= 2))
             {
-                invalidDate = false;
-            }
-            else
-            {
-                //Pending : log to error log file
                 invalidDate = true;
             }
+            //Pending : log to error log file
             return invalidDate;
         }
-        //public bool uniformSolarSiteValidation(long rowNo, int siteId)
-        //{
-        //    bool invalidSiteUniformity = false;
-        //}
+        public bool uniformDateValidation(string date, int siteId, dynamic recordSet)
+        {
+            bool retVal = false;
+            //doubt as to how date and site should be checked
+            return retVal;
+        }
         public bool uniformWindSiteValidation(long rowNo, int siteId, string wtg)
         {
             bool invalidSiteUniformity = false;
@@ -3081,21 +3397,26 @@ namespace DGRA_V1.Areas.admin.Controllers
             bool retVal = false;
             try
             {
+                string dateValue = Convert.ToDateTime(value, timeCulture).ToString("dd/MM/yyyy");
                 if (value == "Nil")
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + "> Cell value cannot be empty,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Cell value cannot be empty,");
                     retVal = true;
                 }
-                DateTime dateValue = Convert.ToDateTime(value, timeCulture);
-                if (dateValue == DateTime.MinValue)
+                else if (value != dateValue)
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format. Use following format: dd/MM/yyyy,");
+                    retVal = true;
+                }
+                else if (value == DateTime.MinValue.ToString("dd/MM/yyyy"))
+                {
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format. Use following format: dd/MM/yyyy,");
                     retVal = true;
                 }
             }
             catch (Exception e)
             {
-                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date format. Use following format dd/MM/yyyy,");
+                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date format. Use following format: dd/MM/yyyy,");
                 retVal = true;
             }
             return retVal;
@@ -3122,71 +3443,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             return retVal;
         }
 
-        public bool uniqueRecordCheckWtgWise(string value, string columnName, long rowNo, Hashtable equipmentList)
-        {
-            bool retValue = false;
-            if (equipmentList.ContainsKey(value))
-            {
-                m_ErrorLog.SetError(",File row <" + rowNo + "> column <" + columnName + ">: duplicate value <" + value + "> ,");
-                retValue = true;
-            }
-            return retValue;
-        }
-
-        public bool uniqueRecordCheckSolarLocationMaster(SolarLocationMaster currentRecord, List<SolarLocationMaster> recordSet, long rowNo)
-        {
-            bool retVal = false;
-            SolarLocationMaster existingRecord = new SolarLocationMaster();
-            //checks if recordSet contains record that that matches current record being checked
-            existingRecord = recordSet.Find(tableRecord => tableRecord.site_id.Equals(currentRecord.site_id) && tableRecord.icr.Equals(currentRecord.icr) && tableRecord.inv.Equals(currentRecord.inv) && tableRecord.smb.Equals(currentRecord.smb) && tableRecord.strings.Equals(currentRecord.strings));
-            if (existingRecord != null)
-            {
-                m_ErrorLog.SetError(",File row <" + rowNo + "> Duplicate record error: There already exists a row in excel sheet with following values: Site<" + currentRecord.site + ">; ICR<" + currentRecord.icr + ">; INV<" + currentRecord.inv + ">; SMB<" + currentRecord.smb + ">; Strings<" + currentRecord.strings + ">,");
-                retVal = true;
-            }
-            return retVal;
-        }
-
-
-        public bool uniqueRecordCheckSolarPerMonthYear_JMR(SolarMonthlyJMR thisRecord, List<SolarMonthlyJMR> tableData, long rowNo)
-        {
-            bool retValue = false;
-            //checks if recordSet contains record that matches current record being checked
-            SolarMonthlyJMR existingRecord = tableData.Find(tableRecord => tableRecord.site_id.Equals(thisRecord.site_id) && tableRecord.JMR_Year.Equals(thisRecord.JMR_Year) && tableRecord.JMR_Month_no.Equals(thisRecord.JMR_Month_no));
-            if (existingRecord != null)
-            {
-                //JMR record already exists
-                m_ErrorLog.SetInformation(",File row <" + rowNo + "> data for site<" + thisRecord.Site + ">, year<" + thisRecord.JMR_Year + ">, month<" + thisRecord.JMR_Month + "> already exists. Data would be updated");
-            }
-            return retValue;
-        }
-        public bool uniqueRecordCheckSolarPerMonthYear_LineLoss(SolarMonthlyUploadingLineLosses thisRecord, List<SolarMonthlyUploadingLineLosses> tableData, long rowNo)
-        {
-            bool retValue = false;
-            //checks if recordSet contains record that matches current record being checked
-            SolarMonthlyUploadingLineLosses existingRecord = tableData.Find(tableRecord => tableRecord.Site_Id.Equals(thisRecord.Site_Id) && tableRecord.year.Equals(thisRecord.year) && tableRecord.month_no.Equals(thisRecord.month_no));
-            if (existingRecord != null)
-            {
-                //JMR record already exists
-                m_ErrorLog.SetInformation(",File row <" + rowNo + "> data for site<" + thisRecord.Sites + ">, year<" + thisRecord.year + ">, month<" + thisRecord.Month + "> already exists. Data would be updated");
-            }
-            return retValue;
-            //SetInformation instead of error : 
-        }
-
-        public bool uniqueRecordCheckSolarPerMonthYear_KPI(SolarMonthlyTargetKPI thisRecord, List<SolarMonthlyTargetKPI> tableData, long rowNo)
-        {
-            bool retValue = false;
-
-            //checks if recordSet contains record that matches current record being checked
-            SolarMonthlyTargetKPI existingRecord = tableData.Find(tableRecord => tableRecord.Site_Id.Equals(thisRecord.Site_Id) && tableRecord.year.Equals(thisRecord.year) && tableRecord.month_no.Equals(thisRecord.month_no));
-            if (existingRecord != null)
-            {
-                //JMR record already exists
-                m_ErrorLog.SetInformation(",File row <" + rowNo + "> data for site<" + thisRecord.Sites + ">, year<" + thisRecord.year + ">, month<" + thisRecord.Month + "> already exists. Data would be updated");
-            }
-            return retValue;
-        }
         public bool financialYearValidation(string year, long rowNo)
         {
             bool retVal = false;
@@ -3216,16 +3472,24 @@ namespace DGRA_V1.Areas.admin.Controllers
             bool retVal = false;
             try
             {
+                //conversion error should throw format error
+                string standardTime = Convert.ToDateTime(timeValue, timeCulture).ToString("HH:mm:ss");
+                //if cell empty then throw empty error
                 if (timeValue == "Nil")
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + "> Cell value empty. Add valid Add valid time value in HH:mm:ss format,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + "> Cell value empty. Add valid time value in HH:mm:ss 24 hour format,");
                     retVal = true;
                 }
-                DateTime time = Convert.ToDateTime(timeValue, timeCulture);
+                else if (timeValue != standardTime)
+                {
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + "> Add valid time value in HH:mm:ss 24 hour format,");
+                    retVal = true;
+                }
             }
             catch (Exception)
             {
                 m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + "> Invalid Time Format. Add valid time value in HH:mm:ss format,");
+                retVal = true;
             }
             return retVal;
         }
@@ -3258,6 +3522,16 @@ namespace DGRA_V1.Areas.admin.Controllers
                 m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Invalid Inverter value <" + inverterValue + "> not found in master records,");
             }
             return retValue;
+        }
+        public bool countryValidation(string countryValue, string columnName, long rowNo)
+        {
+            bool retVal = false;
+            if (!(countryValue == "India") || countryValue == "Nil")
+            {
+                m_ErrorLog.SetError(",File Row<" + rowNo + "> column <" + columnName + ">: Invalid Country name<" + countryValue + ">,");
+                retVal = true;
+            }
+            return retVal;
         }
     }
 }

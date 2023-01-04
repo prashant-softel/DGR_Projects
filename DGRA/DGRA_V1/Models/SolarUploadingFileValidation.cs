@@ -144,12 +144,20 @@ namespace DGRA_V1.Models
             }
         }
 
-        public string breakDownCalc(DateTime stopFrom, DateTime stopTo)
+        public string breakDownCalc(string fromBD, string toBD, long rowNo)
         {
-            //DateTime stopFrom_ = Convert.ToDateTime(stopFrom);
-            //DateTime stopTo_ = Convert.ToDateTime(stopTo);
-            TimeSpan totalStop_ = stopTo - stopFrom;
-            string totalStop = Convert.ToString(totalStop_);
+            string totalStop = string.Empty;
+            try
+            {
+                DateTime stopFrom = Convert.ToDateTime(fromBD);
+                DateTime stopTo = Convert.ToDateTime(toBD);
+                TimeSpan totalStop_ = stopTo - stopFrom;
+                totalStop = Convert.ToString(totalStop_);
+            }
+            catch (Exception e)
+            {
+                m_ErrorLog.SetError(",File Row<"+rowNo+"> column<From> and column<To> Invalid Time format causing error in Total BD time calculation,");
+            }
             return totalStop;
         }
 
@@ -191,11 +199,10 @@ namespace DGRA_V1.Models
             if (greaterStopTo == true || totalBd == true )
             {
                 //|| sumOfBDHours == true
-                m_ErrorLog.SetError(",File Row (" + rowNumber + ") had error(s) ");
 
                 if (greaterStopTo == true)
                 {
-                    m_ErrorLog.SetError(",Stop-To Time is lower than Stop-From: ");
+                    m_ErrorLog.SetError(",File Row <" + rowNumber + "> Stop-To Time is lower than Stop-From: ,");
                 }
                 //if (lastStopTo == true)
                 //{
@@ -203,7 +210,7 @@ namespace DGRA_V1.Models
                 //}
                 if (totalBd == true)
                 {
-                    m_ErrorLog.SetError(",Breakdown Hours are exceeding 24 hours:");
+                    m_ErrorLog.SetError(",File Row <" + rowNumber + "> Breakdown Hours are exceeding 24 hours:,");
                 }
                 //if (sumOfBDHours == true)
                 //{

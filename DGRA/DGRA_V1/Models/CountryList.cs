@@ -6,7 +6,8 @@ namespace DGRA_V1.Models
     {
 
         public string country { get; set; }
-
-        public List<CountryList> list = new List<CountryList>();
+        public List<CountryList> List = new List<CountryList>();
+        public List<string> countryList = new List<string>()
+        { "India" };
     }
-}
+}   

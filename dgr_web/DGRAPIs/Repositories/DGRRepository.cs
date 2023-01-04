@@ -5001,27 +5001,20 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             List<SolarOpertionalHead> _operationalData = new List<SolarOpertionalHead>();
             _operationalData = await Context.GetData<SolarOpertionalHead>(query).ConfigureAwait(false);
             return _operationalData;
-
         }
         internal async Task<int> DeleteWindSite(int siteid)
         {
-
-
             string qry1 = "delete from site_master  where site_master_id=" + siteid + "";
             string qry2 = "delete from location_master  where site_master_id=" + siteid + "";
             await Context.ExecuteNonQry<int>(qry2).ConfigureAwait(false);
             return await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
-
         }
         internal async Task<int> DeleteSolarSite(int siteid)
         {
-
-
             string qry1 = "delete from site_master_solar  where site_master_solar_id=" + siteid + "";
             string qry2 = "delete from location_master_solar  where site_id=" + siteid + "";
             await Context.ExecuteNonQry<int>(qry2).ConfigureAwait(false);
             return await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
-
         }
         internal async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate)
         {

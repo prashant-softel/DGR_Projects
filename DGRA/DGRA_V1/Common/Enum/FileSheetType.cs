@@ -1,15 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using System.Collections.Generic;
 
 
 namespace DGRA_V1.Common
 {
     public class FileSheetType
     {
-        
+
         public const string Uploading_File_Generation = "Uploading_File_Generation";
         public const string Uploading_File_Breakdown = "Uploading_File_Breakdown";
         public const string Uploading_PyranoMeter1Min = "Uploading_PyranoMeter1Min";
@@ -26,20 +22,8 @@ namespace DGRA_V1.Common
 
         public static List<string> sheetList = new List<string>()
         {
-        "Uploading_File_Generation",
-        "Uploading_File_Breakdown",
-        "Uploading_PyranoMeter1Min",
-        "Uploading_PyranoMeter15Min",
-        "Monthly_JMR_Input_and_Output",
-        "Monthly_LineLoss",
-        "Monthly_Target_KPI",
-        "Load_Shedding_Uploading_Format",
-        "Daily_JMR_Input_and_Output",
-        "Daily_Target_KPI",
-        "Site_Master",
-        "Location_Master",
-        "Solar_AC_DC_Capacity"
-    };
+            "Uploading_File_Generation", "Uploading_File_Breakdown", "Uploading_PyranoMeter1Min", "Uploading_PyranoMeter15Min", "Monthly_JMR_Input_and_Output", "Monthly_LineLoss", "Monthly_Target_KPI", "Load_Shedding_Uploading_Format", "Daily_JMR_Input_and_Output", "Daily_Target_KPI", "Site_Master", "Location_Master", "Solar_AC_DC_Capacity" 
+        };
 
         //private static readonly List<SelectListItem> items;
 
