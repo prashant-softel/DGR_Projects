@@ -189,6 +189,10 @@ namespace DGRA_V1.Areas.admin.Controllers
                                     masterHashtable_WtgToWtgId();
                                     masterHashtable_WtgToSiteId();
                                 }
+                                if (fileUploadType == "Solar")
+                                {
+                                    masterInverterList();
+                                }
                             }
                             else
                             {
@@ -664,26 +668,26 @@ namespace DGRA_V1.Areas.admin.Controllers
 
         private async Task<int> InsertSolarFileGeneration(string status, DataSet ds)
         {
-            DateTime dateValidate = DateTime.MinValue;
             List<bool> errorFlag = new List<bool>();
-            int rowNumber = 1;
+            long rowNumber = 1;
             int errorCount = 0;
             int responseCode = 400;
+            DateTime dateValidate = DateTime.MinValue;
             DateTime fromDate;
             DateTime toDate;
+            DateTime nextDate = DateTime.MinValue;
+            string kpiSite = "";
             try
             {
                 fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
                 toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                m_ErrorLog.SetError(",File Row<2> column<Date> Invalid Date Format. Use format dd/MM/yy");
+                m_ErrorLog.SetError(",File Row <2> column <Date> Invalid Date Format. Use format MM-dd-yyyy");
                 fromDate = DateTime.MaxValue;
                 toDate = DateTime.MinValue;
             }
-            DateTime nextDate = DateTime.MinValue;
-            string kpiSite = "";
             //---------------------
             if (ds.Tables.Count > 0)
             {
@@ -698,17 +702,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                         rowNumber++;
                         bool skipRow = false;
 
-                        addUnit.date = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToDateTime((string)dr["Date"], timeCulture).ToString("yyyy-MM-dd");
+                        addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToString((string)dr["Date"]);
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
+                        addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
 
                         dateValidate = Convert.ToDateTime((string)dr["Date"], timeCulture);
                         errorFlag.Add((siteUserRole == "Admin") ? false : importDateValidation(dateValidate));
 
                         addUnit.site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
                         addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);
+                        errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
                         objImportBatch.importSiteId = addUnit.site_id;//C
                         kpiSite = Convert.ToString(addUnit.site_id);
-                        errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
 
                         nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
                         fromDate = ((nextDate < fromDate) ? (nextDate) : (fromDate));
@@ -769,55 +774,59 @@ namespace DGRA_V1.Areas.admin.Controllers
 
         private async Task<int> InsertWindFileGeneration(string status, DataSet ds)
         {
-            //siteID recorded
-            //siteID validated
-            //validation variables
-            DateTime dateValidate = DateTime.MinValue;
+            List<bool> errorFlag = new List<bool>();
             long rowNumber = 1;
             int errorCount = 0;
-            List<bool> errorFlag = new List<bool>();
             int responseCode = 400;
-            //DateTime dt1;
-            //DateTime dt2;
-            //kpi helper variables
-            //string firstDate = (ds.Tables[0].Rows[0]["Date"].ToString()); 
-            //DateTime.TryParseExact(ds.Tables[0].Rows[0]["Date"].ToString(), "dd-MM-yyyy", CultureInfo.InvariantCulture,DateTimeStyles.None,out dt1);
-
-            //DateTime minDate = DateTime.MaxValue;
-            //DateTime maxDate = DateTime.MinValue;
-
-            //DateTime fromDate = dt1;// Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
-            //DateTime toDate = dt1;// Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
-
-
-
-            //DateTime nextDate= DateTime.MinValue;
-            string site = "";
+            DateTime dateValidate = DateTime.MinValue;
             DateTime fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
             DateTime toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
             DateTime nextDate = DateTime.MinValue;
-
-            //function return variable
+            string site = "";
             try
             {
-                WindUploadingFileValidation validationObject = new WindUploadingFileValidation(m_ErrorLog, _idapperRepo);
-                if (ds.Tables.Count > 0)
+                fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+                toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+            }
+            catch (Exception e)
+            {
+                m_ErrorLog.SetError(",File Row <2> column <Date> Invalid Date Format. Use format MM-dd-yyyy");
+                fromDate = DateTime.MaxValue;
+                toDate = DateTime.MinValue;
+            }
+            //---------------------------------
+            WindUploadingFileValidation validationObject = new WindUploadingFileValidation(m_ErrorLog, _idapperRepo);
+            if (ds.Tables.Count > 0)
+            {
+                List<WindUploadingFileGeneration> addSet = new List<WindUploadingFileGeneration>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    List<WindUploadingFileGeneration> addSet = new List<WindUploadingFileGeneration>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
-                        rowNumber++;
                         WindUploadingFileGeneration addUnit = new WindUploadingFileGeneration();
-                        addUnit.date = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]) ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"], timeCulture).ToString("yyyy-MM-dd");
+                        bool skipRow = false;
+                        rowNumber++;
+                        addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : (string)(dr["Date"]);
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
+                        addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+
                         addUnit.wtg = dr["WTG"] is DBNull || string.IsNullOrEmpty((string)dr["WTG"]) ? "Nil" : Convert.ToString(dr["WTG"]);
                         addUnit.wtg_id = equipmentId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(equipmentId[addUnit.wtg]) : 0;
+                        errorFlag.Add(wtgValidation(addUnit.wtg, addUnit.wtg_id, rowNumber));
+
                         addUnit.site_id = eqSiteId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(eqSiteId[addUnit.wtg]) : 0;
-                        addUnit.site_name = siteName.ContainsKey(addUnit.site_id) ? (string)(siteName[addUnit.site_id]) : "Nil";//D
+                        addUnit.site_name = siteName.ContainsKey(addUnit.site_id) ? (string)(siteName[addUnit.site_id]) : "Nil";
                         objImportBatch.importSiteId = addUnit.site_id;
-                        addUnit.wind_speed = dr["Wind_Speed"] is DBNull || string.IsNullOrEmpty((string)dr["Wind_Speed"]) ? 0 : Convert.ToDouble(dr["Wind_Speed"]);
-                        addUnit.kwh = dr["kWh"] is DBNull || string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
+
+                        addUnit.wind_speed = string.IsNullOrEmpty((string)dr["Wind_Speed"]) ? 0 : Convert.ToDouble(dr["Wind_Speed"]);
+                        errorFlag.Add(numericNullValidation(addUnit.wind_speed, "Wind_Speed", rowNumber));
+
+                        addUnit.kwh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
+                        errorFlag.Add(numericNullValidation(addUnit.kwh, "kWh", rowNumber));
+
                         addUnit.operating_hrs = dr["Gen_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Gen_Hrs"]) ? 0 : Convert.ToDouble(dr["Gen_Hrs"]);
+                        errorFlag.Add(numericNullValidation(addUnit.operating_hrs, "Gen_Hrs", rowNumber));
+
                         addUnit.lull_hrs = dr["Lull_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Lull_Hrs"]) ? 0 : Convert.ToDouble(dr["Lull_Hrs"]);
                         addUnit.grid_hrs = dr["Grid_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Grid_Hrs"]) ? 0 : Convert.ToDouble(dr["Grid_Hrs"]);
                         site = Convert.ToString(addUnit.site_id);
@@ -833,34 +842,40 @@ namespace DGRA_V1.Areas.admin.Controllers
                             if (item)
                             {
                                 errorCount++;
+                                skipRow = true;
+                                errorFlag.Clear();
                                 break;
                             }
                         }
-                        addSet.Add(addUnit);
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
-                    if (!(errorCount > 0))
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetInformation(",Wind Generation File Validation Successful,");
-                        isGenValidationSuccess = true;
-                        responseCode = 200;
-                        genJson = JsonConvert.SerializeObject(addSet);
-                        kpiArgs.Add(fromDate);
-                        kpiArgs.Add(toDate);
-                        kpiArgs.Add(site);
-                    }
-                    else
-                    {
-                        // add to error log that validation of generation failed
-                        m_ErrorLog.SetError(",Wind Generation File Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindFileGeneration,");
+                        ErrorLog(",Exception Occurred In Function: InsertWindFileGeneration: " + e.Message + "");
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetInformation(",Wind Generation File Validation Successful,");
+                    isGenValidationSuccess = true;
+                    responseCode = 200;
+                    genJson = JsonConvert.SerializeObject(addSet);
+                    kpiArgs.Add(fromDate);
+                    kpiArgs.Add(toDate);
+                    kpiArgs.Add(site);
+                }
+                else
+                {
+                    // add to error log that validation of generation failed
+                    m_ErrorLog.SetError(",Wind Generation File Validation Failed");
+                }
             }
-            catch (Exception e)
-            {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindFileGeneration,");
-                ErrorLog(",Exception Occurred In Function: InsertWindFileGeneration: " + e.Message + "");
-            }
+
             return responseCode;
         }
 
@@ -870,42 +885,38 @@ namespace DGRA_V1.Areas.admin.Controllers
             List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
             int responseCode = 400;
-            try
+
+            if (ds.Tables.Count > 0)
             {
-                if (ds.Tables.Count > 0)
+                SolarUploadingFileValidation validationObject = new SolarUploadingFileValidation(m_ErrorLog, _idapperRepo);
+                List<SolarUploadingFileBreakDown> addSet = new List<SolarUploadingFileBreakDown>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    SolarUploadingFileValidation validationObject = new SolarUploadingFileValidation(m_ErrorLog, _idapperRepo);
-                    List<SolarUploadingFileBreakDown> addSet = new List<SolarUploadingFileBreakDown>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         SolarUploadingFileBreakDown addUnit = new SolarUploadingFileBreakDown();
                         rowNumber++;
                         bool skipRow = false;
                         addUnit.date = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : (string)dr["Date"];
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
+                        addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
 
-                        addUnit.site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
-                        addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);
+                        addUnit.site = string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
+                        addUnit.site_id = string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);
                         errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
-                        objImportBatch.importSiteId = addUnit.site_id;//C
-
-                        addUnit.ext_int_bd = dr["Ext_BD"] is DBNull || string.IsNullOrEmpty((string)dr["Ext_BD"]) ? "Nil" : Convert.ToString(dr["Ext_BD"]);
-                        errorFlag.Add(stringNullValidation(addUnit.ext_int_bd, "Ext_BD", rowNumber));
-
-                        addUnit.igbd = dr["IGBD"] is DBNull || string.IsNullOrEmpty((string)dr["IGBD"]) ? "Nil" : Convert.ToString(dr["IGBD"]);
-                        errorFlag.Add(stringNullValidation(addUnit.igbd, "IGBD", rowNumber));
-
-                        addUnit.icr = dr["ICR"] is DBNull || string.IsNullOrEmpty((string)dr["ICR"]) ? "Nil" : Convert.ToString(dr["ICR"]);
-                        errorFlag.Add(stringNullValidation(addUnit.icr, "ICR", rowNumber));
-
-                        addUnit.inv = dr["INV"] is DBNull || string.IsNullOrEmpty((string)dr["INV"]) ? "Nil" : Convert.ToString(dr["INV"]);
-                        errorFlag.Add(stringNullValidation(addUnit.inv, "INV", rowNumber));
-
-                        addUnit.smb = dr["SMB"] is DBNull || string.IsNullOrEmpty((string)dr["SMB"]) ? "Nil" : Convert.ToString(dr["SMB"]);
-                        errorFlag.Add(stringNullValidation(addUnit.smb, "SMB", rowNumber));
-
+                        objImportBatch.importSiteId = addUnit.site_id;
+                        //can be nil:
+                        addUnit.ext_int_bd = string.IsNullOrEmpty((string)dr["Ext_BD"]) ? "Nil" : Convert.ToString(dr["Ext_BD"]);
+                        //can be nil:
+                        addUnit.igbd = string.IsNullOrEmpty((string)dr["IGBD"]) ? "Nil" : Convert.ToString(dr["IGBD"]);
+                        //can be nil:
+                        addUnit.icr = string.IsNullOrEmpty((string)dr["ICR"]) ? "Nil" : Convert.ToString(dr["ICR"]);
+                        //can be nil:
+                        addUnit.inv = string.IsNullOrEmpty((string)dr["INV"]) ? "Nil" : Convert.ToString(dr["INV"]);
+                        //can be nil:
+                        addUnit.smb = string.IsNullOrEmpty((string)dr["SMB"]) ? "Nil" : Convert.ToString(dr["SMB"]);
+                        //can be nil:
                         addUnit.strings = dr["Strings"] is DBNull || string.IsNullOrEmpty((string)dr["Strings"]) ? "Nil" : Convert.ToString(dr["Strings"]);
-                        errorFlag.Add(stringNullValidation(addUnit.strings, "Strings", rowNumber));
 
                         //from_bd and to_bd conversion for validation
                         addUnit.from_bd = dr["From"] is DBNull || string.IsNullOrEmpty((string)dr["From"]) ? "Nil" : Convert.ToDateTime(dr["From"]).ToString("HH:mm:ss");
@@ -936,47 +947,53 @@ namespace DGRA_V1.Areas.admin.Controllers
                             addSet.Add(addUnit);
                         }
                     }
-                    if (!(errorCount > 0))
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetInformation(",Solar Breakdown Validation Successful:");
-                        //set the  validationgeneration sucess flag
-                        isBreakdownValidationSuccess = true;
-                        responseCode = 200;
-                        breakJson = JsonConvert.SerializeObject(addSet);
-                    }
-                    else
-                    {
-                        // add to error log that validation of generation failed
-                        m_ErrorLog.SetError(",Solar Breakdown Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError(",File row <" + rowNumber + ">" + e.GetType() + ": Function: InsertSolarFileBreakDown");
+                        ErrorLog(",Exception Occurred In Function: InsertSolarFileBreakDown: " + e.Message);
+                        errorCount++;
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetInformation(",Solar Breakdown Validation Successful:");
+                    //set the  validationgeneration sucess flag
+                    isBreakdownValidationSuccess = true;
+                    responseCode = 200;
+                    breakJson = JsonConvert.SerializeObject(addSet);
+                }
+                else
+                {
+                    // add to error log that validation of generation failed
+                    m_ErrorLog.SetError(",Solar Breakdown Validation Failed");
+                }
             }
-            catch (Exception e)
-            {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertSolarFileBreakDown");
-                ErrorLog(",Exception Occurred In Function: InsertSolarFileBreakDown: " + e.Message);
-            }
+
             return responseCode;
         }
         private async Task<int> InsertWindFileBreakDown(string status, DataSet ds)
         {
             WindUploadingFileValidation ValidationObject = new WindUploadingFileValidation(m_ErrorLog, _idapperRepo);
             long rowNumber = 1;
-            bool errorFlag = false;
+            List<bool> errorFlag = new List<bool>();
             int errorCount = 0;
             int responseCode = 400;
-            try
-            {
 
-                if (ds.Tables.Count > 0)
+            if (ds.Tables.Count > 0)
+            {
+                List<WindUploadingFileBreakDown> addSet = new List<WindUploadingFileBreakDown>();
+                foreach (DataRow dr in ds.Tables[0].Rows)
                 {
-                    List<WindUploadingFileBreakDown> addSet = new List<WindUploadingFileBreakDown>();
-                    foreach (DataRow dr in ds.Tables[0].Rows)
+                    try
                     {
                         WindUploadingFileBreakDown addUnit = new WindUploadingFileBreakDown();
                         rowNumber++;
-                        addUnit.date = Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                        bool skipRow = false;
+                        addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : (string)dr["Date"];
+                        errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
+                        addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+
                         addUnit.wtg = Convert.ToString(dr["WTG"]);
                         addUnit.wtg_id = Convert.ToInt32(equipmentId[addUnit.wtg]);//A
                         addUnit.site_id = Convert.ToInt32(eqSiteId[addUnit.wtg]);//E
@@ -984,47 +1001,54 @@ namespace DGRA_V1.Areas.admin.Controllers
                         objImportBatch.importSiteId = addUnit.site_id;
                         addUnit.bd_type = Convert.ToString(dr["BD_Type"]);
                         addUnit.bd_type_id = Convert.ToInt32(breakdownType[addUnit.bd_type]);//B
-                        errorFlag = bdTypeValidation(addUnit.bd_type, rowNumber);
-                        addUnit.stop_from = Convert.ToString(dr["Stop From"]);
-                        addUnit.stop_to = Convert.ToString(dr["Stop To"]);
+                        errorFlag.Add(bdTypeValidation(addUnit.bd_type, rowNumber));
+                        addUnit.stop_from = Convert.ToDateTime(dr["Stop From"]).ToString("HH:mm:ss");
+                        addUnit.stop_to = Convert.ToDateTime(dr["Stop To"]).ToString("HH:mm:ss");
                         addUnit.total_stop = ValidationObject.breakDownCalc(addUnit.stop_from, addUnit.stop_to);
                         addUnit.error_description = Convert.ToString(dr["Error description"]);
                         addUnit.action_taken = Convert.ToString(dr["Action Taken"]);
-                        errorFlag = ValidationObject.validateBreakDownData(rowNumber, addUnit.bd_type, addUnit.wtg, addUnit.stop_from, addUnit.stop_to);
-                        if (errorFlag)
+                        errorFlag.Add(ValidationObject.validateBreakDownData(rowNumber, addUnit.bd_type, addUnit.wtg, addUnit.stop_from, addUnit.stop_to));
+                        foreach (bool item in errorFlag)
                         {
-                            errorCount++;
-                            errorFlag = false;
-                            continue;
+                            if (item)
+                            {
+                                errorCount++;
+                                skipRow = true;
+                                errorFlag.Clear();
+                                break;
+                            }
                         }
-                        addUnit.stop_from = Convert.ToDateTime(dr["Stop From"]).ToString("hh:mm:ss");
-                        addUnit.stop_to = Convert.ToDateTime(dr["Stop To"]).ToString("hh:mm:ss");
-                        addSet.Add(addUnit);
+                        if (!(skipRow))
+                        {
+                            addSet.Add(addUnit);
+                        }
                     }
-                    if (!(errorCount > 0))
+                    catch (Exception e)
                     {
-                        m_ErrorLog.SetError(",Wind Breakdown File Validation Successful");
-                        //set the  validationgeneration sucess flag
-                        isBreakdownValidationSuccess = true;
-                        responseCode = 200;
-                        breakJson = JsonConvert.SerializeObject(addSet);
-
-                    }
-                    else
-                    {
-                        // add to error log that validation of generation failed
-                        m_ErrorLog.SetError(",Wind Breakdown File Validation Failed");
+                        //developer errorlog
+                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindFileBreakDown,");
+                        ErrorLog(",Exception Occurred In Function: InsertWindFileBreakDown: " + e.Message + ",");
                     }
                 }
+                if (!(errorCount > 0))
+                {
+                    m_ErrorLog.SetError(",Wind Breakdown File Validation Successful,");
+                    //set the  validationgeneration sucess flag
+                    isBreakdownValidationSuccess = true;
+                    responseCode = 200;
+                    breakJson = JsonConvert.SerializeObject(addSet);
+
+                }
+                else
+                {
+                    // add to error log that validation of generation failed
+                    m_ErrorLog.SetError(",Wind Breakdown File Validation Failed,");
+                }
             }
-            catch (Exception e)
-            {
-                //developer errorlog
-                m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindFileBreakDown");
-                ErrorLog(",Exception Occurred In Function: InsertWindFileBreakDown: " + e.Message);
-            }
+
             return responseCode;
         }
+
         private async Task<int> InsertSolarPyranoMeter1Min(string status, DataSet ds)
         {
             long rowNumber = 1;
@@ -1041,7 +1065,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         SolarUploadingPyranoMeter1Min addUnit = new SolarUploadingPyranoMeter1Min();
                         rowNumber++;
                         bool skipRow = false;
-                        addUnit.date_time = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
+                        addUnit.date_time = string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
                         errorFlag.Add(stringNullValidation(addUnit.date_time, "Time stamp", rowNumber));
                         errorFlag.Add(dateNullValidation(addUnit.date_time, "Time stamp", rowNumber));
 
@@ -1342,7 +1366,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                         addUnit.site = string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
                         addUnit.siteId = siteNameId.ContainsKey(addUnit.site) ? Convert.ToInt32(siteNameId[addUnit.site]) : 0;
-                        errorFlag .Add(siteValidation(addUnit.site, addUnit.siteId, rowNumber));
+                        errorFlag.Add(siteValidation(addUnit.site, addUnit.siteId, rowNumber));
                         objImportBatch.importSiteId = addUnit.siteId;
 
                         addUnit.plantSection = string.IsNullOrEmpty((string)dr["Plant Section"]) ? "Nil" : Convert.ToString(dr["Plant Section"]);
@@ -1352,8 +1376,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(timeValidation(addUnit.jmrDate, "JMR date", rowNumber));
 
                         addUnit.jmrMonth = string.IsNullOrEmpty((string)dr["JMR Month"]) ? "Nil" : Convert.ToString(dr["JMR Month"]);
-                        addUnit.jmrMonth_no = longMonthList.Contains(addUnit.jmrMonth) ? Convert.ToInt32(longMonthList[addUnit.jmrMonth]) :0;
-                        errorFlag.Add(monthValidation(addUnit.jmrMonth, addUnit.jmrMonth_no,rowNumber));
+                        addUnit.jmrMonth_no = longMonthList.Contains(addUnit.jmrMonth) ? Convert.ToInt32(longMonthList[addUnit.jmrMonth]) : 0;
+                        errorFlag.Add(monthValidation(addUnit.jmrMonth, addUnit.jmrMonth_no, rowNumber));
 
                         addUnit.jmrYear = string.IsNullOrEmpty((string)dr["JMR Year"]) ? 0 : Convert.ToInt32(dr["JMR Year"]);
                         errorFlag.Add(yearValidation(addUnit.jmrYear, rowNumber));
@@ -3300,52 +3324,8 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return retVal;
         }
-        public bool siteValidation(string site, int siteId, long rowNumber)
-        {
-            bool response = false;
-            if (stringNullValidation(site, "Site", rowNumber))
-            {
-                response = true;
-            }
-            else if (!(siteName.ContainsKey(siteId)))
-            {
-                response = true;
-                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Invalid Site <" + site + "> is not found in master records");
-            }
-            return response;
-        }
-        public bool bdTypeValidation(string bdtype, long rowNumber)
-        {
-            bool response = false;
-            if (!(breakdownType.ContainsKey(bdtype)))
-            {
-                response = true;
-                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Invalid breakdown type - <" + bdtype + "> is not found in master records");
-            }
-            return response;
-        }
-        public bool importDateValidation(DateTime importDate)
-        {
-            bool invalidDate = false;
-            DateTime today = DateTime.Now;
-            TimeSpan dayDiff = today - importDate;
-            int dayOfWeek = (int)today.DayOfWeek;
-            //for DayOfWeek function 
-            //if it's not true that file-date is of previous day and today is from Tuesday-Friday
-            if (!(dayDiff.Days == 1 && dayOfWeek > 1 && dayOfWeek < 6))
-            {
-                // file date is incorrect
-                invalidDate = true;
 
-            }
-            //if today is Monday and file-date is of day-before-yesterday or yesterday
-            else if (!(dayOfWeek == 1 && dayDiff.Days > 0 && dayDiff.Days <= 2))
-            {
-                invalidDate = true;
-            }
-            //Pending : log to error log file
-            return invalidDate;
-        }
+
         public bool uniformDateValidation(string date, int siteId, dynamic recordSet)
         {
             bool retVal = false;
@@ -3392,12 +3372,74 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return invalidSiteUniformity;
         }
+        public bool importDateValidation(DateTime importDate)
+        {
+            bool invalidDate = false;
+            DateTime today = DateTime.Now;
+            TimeSpan dayDiff = today - importDate;
+            int dayOfWeek = (int)today.DayOfWeek;
+            //for DayOfWeek function 
+            //if it's not true that file-date is of previous day and today is from Tuesday-Friday
+            if (!(dayDiff.Days == 1 && dayOfWeek > 1 && dayOfWeek < 6))
+            {
+                // file date is incorrect
+                invalidDate = true;
+
+            }
+            //if today is Monday and file-date is of day-before-yesterday or yesterday
+            else if (!(dayOfWeek == 1 && dayDiff.Days > 0 && dayDiff.Days <= 2))
+            {
+                invalidDate = true;
+            }
+            //Pending : log to error log file
+            return invalidDate;
+        }
+        public bool wtgValidation(string wtg, int wtgId, long rowNumber)
+        {
+            bool retVal = false;
+            if (stringNullValidation(wtg, "WTG", rowNumber))
+            {
+                retVal = true;
+            }
+            else if (!(equipmentId.ContainsKey(wtgId)))
+            {
+                retVal = true;
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Invalid WTG <" + wtg + "> is not found in master records");
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Invalid Site due to invalid <" + wtg + "> not found in master records");
+            }
+            return retVal;
+        }
+        public bool siteValidation(string site, int siteId, long rowNumber)
+        {
+            bool response = false;
+            if (stringNullValidation(site, "Site", rowNumber))
+            {
+                response = true;
+            }
+            else if (!(siteName.ContainsKey(siteId)))
+            {
+                response = true;
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Invalid Site <" + site + "> is not found in master records");
+            }
+            return response;
+        }
+        public bool bdTypeValidation(string bdtype, long rowNumber)
+        {
+            bool response = false;
+            if (!(breakdownType.ContainsKey(bdtype)))
+            {
+                response = true;
+                m_ErrorLog.SetError(",File Row <" + rowNumber + "> Invalid breakdown type - <" + bdtype + "> is not found in master records");
+            }
+            return response;
+        }
         public bool dateNullValidation(string value, string columnName, long rowNo)
         {
             bool retVal = false;
             try
             {
-                string dateValue = Convert.ToDateTime(value, timeCulture).ToString("dd/MM/yyyy");
+                string dateValue = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
+                value = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
                 if (value == "Nil")
                 {
                     m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Cell value cannot be empty,");
@@ -3405,18 +3447,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 else if (value != dateValue)
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format. Use following format: dd/MM/yyyy,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format. While feeding data use following format: MM-dd-yyyy,");
                     retVal = true;
                 }
-                else if (value == DateTime.MinValue.ToString("dd/MM/yyyy"))
+                else if (value == DateTime.MinValue.ToString("dd-MM-yyyy"))
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format. Use following format: dd/MM/yyyy,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format. While feeding data use following format: MM-dd-yyyy,");
                     retVal = true;
                 }
             }
             catch (Exception e)
             {
-                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date format. Use following format: dd/MM/yyyy,");
+                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date format. While feeding data use following format: MM-dd-yyyy,");
                 retVal = true;
             }
             return retVal;
@@ -3442,7 +3484,6 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return retVal;
         }
-
         public bool financialYearValidation(string year, long rowNo)
         {
             bool retVal = false;
@@ -3516,7 +3557,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         public bool solarInverterValidation(string inverterValue, string columnName, long rowNo)
         {
             bool retValue = false;
-            if (string.IsNullOrEmpty(inverterValue) && !(inverterList.Contains(inverterValue)))
+            if (string.IsNullOrEmpty(inverterValue) || !(inverterList.Contains(inverterValue)))
             {
                 retValue = true;
                 m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Invalid Inverter value <" + inverterValue + "> not found in master records,");

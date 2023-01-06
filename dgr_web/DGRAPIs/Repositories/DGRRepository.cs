@@ -5726,7 +5726,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                         //  ", ma=100, iga=100, ega=100, inv_pr=inv_act*100/" + (FinalCapcity * avg_POA) + ",plant_pr=plant_act*100/" + (FinalCapcity * avg_POA) + ", inv_plf_ac = inv_act/(24*" + FinalCapcity + ") , plant_plf_ac = plant_act/(24*" + FinalCapcity + ") " +
                         //  " where site_id = " + site_id + " and inverter ='" + sLastInv + "' and date = '" + fromDate + "'";
 
-                        string plantQryACDC = "select ac_capacity from solar_ac_dc_capacity where site_id = " + site_id + " and inverter = '" + sLastInv + "' ";
+                        string plantQryACDC = "select ac_capacity from solar_ac_dc_capacity where site_id = " + site_id + " and inverter = '" + sLastICR_INV + "' ";
                         List<SolarInvAcDcCapacity> invAC = await Context.GetData<SolarInvAcDcCapacity>(plantQryACDC).ConfigureAwait(false);
 
                         string updateqry = "update uploading_file_generation_solar set ghi = " + avg_GHI + ", poa= " + avg_POA + ", expected_kwh=" + (FinalCapcity * avg_POA) +

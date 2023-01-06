@@ -161,7 +161,7 @@ namespace DGRA_V1.Models
             return totalStop;
         }
 
-        public bool validateBreakDownData(long rowNumber, DateTime stopFrom, DateTime stopTo, string igbd)
+        public bool validateBreakDownData(long rowNumber, string stopFrom, string stopTo, string igbd)
         {
             bool greaterStopTo = false;
             //bool lastStopTo = false;
@@ -169,9 +169,9 @@ namespace DGRA_V1.Models
             //bool sumOfBDHours = false;
 
             //1)(Stop To) – column always greater than (Stop From) – column.
-            //DateTime stopTo_ = Convert.ToDateTime(stopTo);
-            //DateTime stopFrom_ = Convert.ToDateTime(stopFrom);
-            if (stopFrom> stopTo)
+            DateTime to = Convert.ToDateTime(stopTo);
+            DateTime from = Convert.ToDateTime(stopFrom);
+            if (from> to)
             {
                 greaterStopTo = true;
             }
@@ -183,7 +183,7 @@ namespace DGRA_V1.Models
             //}
 
             //3)BD Hours should not be more than 24 Hrs.
-            TimeSpan bdHours = (stopTo - stopFrom);
+            TimeSpan bdHours = (to - from);
             if (bdHours.Hours>12)
             {
                 totalBd = true;

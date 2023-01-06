@@ -78,7 +78,7 @@ namespace DGRA_V1.Controllers
                     using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
                     {
                         string line = readStream.ReadToEnd().Trim();
-                        countrylist.list = JsonConvert.DeserializeObject<List<CountryList>>(line);
+                        //countrylist.list = JsonConvert.DeserializeObject<List<CountryList>>(line);
                     }
 
                 }
