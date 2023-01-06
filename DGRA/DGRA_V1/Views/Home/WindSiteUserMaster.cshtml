@@ -1,6 +1,7 @@
-﻿@model DGRA_V1.Models.CountryList
+﻿
+@model DGRA_V1.Models.CountryList
 @{
-    ViewData["Title"] = "Wind Site User Master";
+    ViewData["Title"] = "Site User Master";
 }
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -30,16 +31,19 @@
     <section class="content">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title  text-center">Wind Site User Master</h3>
+                <h3 class="card-title  text-center">Site User Master</h3>
 
             </div>
             <div class="card-body">
-                <div class="col-md-2"><a href="@Url.Action("WindUserRegister", "Home" )" class="btn btn-block btn-success">Add New User</a></div>
-                <div class="col-md-10"></div>
-                <div id="userData" style="overflow-x: auto;" class="userData"></div>
+                <div class="row">
+                    <div class="col-md-10"></div>
+                    <div class="col-md-2"><a href="@Url.Action("WindUserRegister", "Home" )" class="btn btn-block btn-success">Add New User</a></div>
+                    </div>
+                    <hr>
+                    <div id="userData" style="overflow-x: auto;" class="userData"></div>
 
+                </div>
             </div>
-        </div>
    
 
      
@@ -77,7 +81,7 @@
        var  loginid = 0;
     $.ajax({
         type: "GET",
-        url: "/Home/GetWindUserInfo?login_id=" + loginid,
+       // url: "/Home/GetWindUserInfo?login_id=" + loginid,
         url: '@Url.Action("GetWindUserInfo", "Home")' + '?login_id=' + loginid ,
         contentType: "application/json; charset=utf-8",
         //data: '{"countryname":"' + selcountry + '"}',
@@ -90,8 +94,6 @@
             tbl += '<th>User Name</th>';
             tbl += '<th>Email</th>';
             tbl += '<th>Role</th>';
-            //
-            tbl += '<th>Created By</th>';
             tbl += '<th>Status</th>';
             tbl += '<th>Wind Access</th>';
             tbl += '<th>Solar Access</th>';
@@ -100,10 +102,10 @@
             if (result.length > 0) {
                 for (var i = 0; i < result.length; i++) {
                     var status = "";
-                    if (result[i].blocked_user == 1) {
+                    if (result[i].active_user == 1) {
                         status = "Active";
                     }
-                    if (result[i].blocked_user == 0) {
+                    if (result[i].active_user == 0) {
                         status = "InActive";
                     }
                     tbl += '<tr>';
@@ -112,8 +114,15 @@
                     tbl += '<td>' + result[i].user_role + '</td>';
                     //tbl += '<td>' + result[i].created_on + '</td>';
                     tbl += '<td>' + status + '</td>';
-                    tbl += '<td><a href="#" class="btn btn-info" onclick="ViewUser(' + result[i].login_id + ')">View</a></td>';
-                    tbl += '<td><a href="#" class="btn btn-info" onclick="SolarViewUser(' + result[i].login_id + ')">View</a></td>';
+                    if (result[i].user_role != "Admin") {
+                        tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="ViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
+                        tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="SolarViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
+                    }
+                    else {
+                        tbl += '<td>&nbsp;</td>';
+                        tbl += '<td>&nbsp;</td>';
+                    }
+                   
 
 
                     tbl += '</tr>';

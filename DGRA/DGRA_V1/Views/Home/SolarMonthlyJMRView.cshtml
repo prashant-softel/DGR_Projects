@@ -53,8 +53,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-2 col-form-label text-right">FY : </label>
-                                <select class="form-control  col-sm-10" id="fy" name="fy" value="">
+                                <label class="col-sm-2 col-form-label text-left">FY : </label>
+                                <select class="form-control  col-sm-10" id="fy" name="fy[]" value="" multiple>
                                     <option value="">Select Financial Year</option>
                                 </select>
                             </div>
@@ -64,21 +64,8 @@
                         <!-- select -->
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-3 col-form-label text-right">Month : </label>
-                                <select class="form-control  col-sm-9" id="month" name="month" value="">
-                                    <option value="">Select Month</option>
-                                    <option value="January">January</option>
-                                    <option value="February">February</option>
-                                    <option value="March">March</option>
-                                    <option value="April">April</option>
-                                    <option value="May">May</option>
-                                    <option value="June">June</option>
-                                    <option value="July">July</option>
-                                    <option value="August">August</option>
-                                    <option value="September">September</option>
-                                    <option value="October">October</option>
-                                    <option value="November">November</option>
-                                    <option value="December">December</option>
+                                <label class="col-sm-3 col-form-label text-left">Month : </label>
+                                <select class="form-control  col-sm-9" id="month" name="month[]" value="" multiple>
                                 </select>
                             </div>
                         </div>
@@ -118,6 +105,16 @@
     window.onload = function () {
         var state = "";
         var spv = "";
+   var options = "";
+        options += '<option value = "Jan">January</option ><option value="Feb">February</option>';
+        options += '<option value="Mar">March</option><option value="Apr">April</option><option value="May">May</option><option value="Jun">June</option>';
+        options += '<option value="Jul">July</option><option value="Aug">August</option><option value="Sep">September</option>';
+        options += '<option value="Oct">October</option><option value="Nov">November</option><option value="Dec">December</option>';
+        $("#month").html(options);
+        $('#month').multipleSelect({
+            "minimumCountSelected": 2,
+            "placeholder": "Select Month(s)",
+        });
         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
         $.ajax({
             type: "POST",
@@ -148,11 +145,15 @@
             datatype: "html",
             success: function (result, status, xhr) {
                 var options = "";
-                options += '<option value="">Select Financial Year</option>';
+                //options += '<option value="">Select Financial Year</option>';
                 for (var i = 0; i < result.length; i++) {
                     options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
                 }
                 $("#fy").html(options);
+                $('#fy').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select FY(s)",
+                });
             }
         });
     }
@@ -163,8 +164,22 @@
         });
         site_id = site_id != "" ? site_id.slice(0, -1) : site_id;
         console.log(site_id);
-        var year = $('select#fy option:selected').val();
-        var month = $('select#month option:selected').val();
+        let year = "";
+        $('select#fy option:selected').each(function () {
+            year += $(this).val() + ",";
+            // console.log($(this).val());
+        });
+        year = year != "" ? year.slice(0, -1) : year;
+        console.log(year);
+
+        let month = "";
+        $('select#month option:selected').each(function () {
+            month += $(this).val() + ",";
+            // console.log($(this).val());
+
+        });
+        month = month != "" ? month.slice(0, -1) : month;
+        console.log(month);
         $.ajax({
             type: "GET",
             url: '@Url.Action("SolarMonthlyJMRView", "SolarView")' + '?year=' + year + '&month=' + month + '&site=' + site_id,
@@ -237,14 +252,15 @@
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
                     responsive: false,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -266,8 +282,8 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-
-                $('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+                //$('#example1').removeClass('dataTable');
             }
         });
     }

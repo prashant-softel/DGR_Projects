@@ -49,171 +49,126 @@
             <div class="card-header">
                 <h3 class="card-title text-center">Solar Weekly Performance Reports</h3>
             </div>
-            <div class="card-body" style="padding: 0.25rem;">
-                <div class="row">
-                    <div class="col-12 col-sm-12">
-                        <div class="card card-primary card-outline card-tabs">
-                            <div class="p-0 pt-1 border-bottom-0">
-                                <!--<div class="card-header p-0 pt-1 border-bottom-0">-->
-                                <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" id="custom-tabs-two-op-tab" data-toggle="pill" href="#custom-tabs-two-op" role="tab" aria-controls="custom-tabs-two-op" aria-selected="true">Operational Performance</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="custom-tabs-two-pr-tab" data-toggle="pill" href="#custom-tabs-two-pr" role="tab" aria-controls="custom-tabs-two-pr" aria-selected="false">Weekly Performance</a>
-                                    </li>
-                                </ul>
-                            </div>
+          
 
-                            <div class="card-body">
-                                <div class="tab-content" id="custom-tabs-two-tabContent">
-                                    <div class="tab-pane fade show active" id="custom-tabs-two-op" role="tabpanel" aria-labelledby="custom-tabs-two-op-tab">
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <div class="row">
-                                                        <label class="col-sm-4 col-form-label text-right">FY : </label>
-                                                        <select class="form-control  col-sm-8" id="fy" name="fy" value="">
-                                                            <option value="">Select Financial Year</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="input-group " style="margin-left: -5px; width: 104%;">
-                                                    <label class="col-sm-4 col-form-label text-right">Date : </label>
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text">
-                                                            <i class="far fa-calendar-alt"></i>
-                                                        </span>
-                                                    </div>
-                                                    <input type="text" class="form-control float-right" id="daterange" name="daterange">
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2"></div>
-                                            <div class="col-sm-2">
-                                                <button type="button" class="btn btn-block btn-primary" onclick="GetOperationWKPR();">Search</button>
-                                            </div>
-                                            <hr>
-
-                                        </div>
-                                        <hr>
-                                        <div class="row" id="wk_head" style="display:none">
-                                            <div class="col-sm-5 text-center" id="wk_head_sec1">
-
-                                            </div>
-                                            <div class="col-sm-3" id="wk_head_sec2">
-
-                                            </div>
-                                            <div class="col-sm-4" id="wk_head_sec3">
-
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <div class="row">
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="energy_mu_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="wind_sp_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="plf_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                        </div>
-                                        <hr>
-
-                                        <div class="row">
-
-                                            <div class="chart col-sm-4 " style="padding:10px;">
-                                                <canvas id="ma_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="ega_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="iga_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <div class="card-header">
-                                              <h5 class="card-title text-center">Major Breakdown Reports</h5>
-                                        </div>
-                                        <div id="reportsMonthly" style="overflow-x: auto;" class="reportsMonthly"></div>
-
-                                    </div>
-                                    <div class="tab-pane fade" id="custom-tabs-two-pr" role="tabpanel" aria-labelledby="custom-tabs-two-pr-tab">
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <div class="row">
-                                                        <label class="col-sm-4 col-form-label text-right">FY : </label>
-                                                        <select class="form-control  col-sm-8" id="fy1" name="fy1" value="">
-                                                            <option value="">Select Financial Year</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="input-group " style="margin-left: -5px; width: 104%;">
-                                                    <label class="col-sm-2 col-form-label text-right">Date : </label>
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text">
-                                                            <i class="far fa-calendar-alt"></i>
-                                                        </span>
-                                                    </div>
-                                                    <input type="text" class="form-control float-right" id="daterange1" name="daterange1">
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2"></div>
-                                            <div class="col-sm-2">
-                                                <button type="button" class="btn btn-block btn-primary" onclick="WeeklyPRReport();">Search</button>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-5">
-                                                <div class="table-responsive pad">
-                                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn bg-olive">
-                                                            <input type="radio" name="weekly" value="SPV" id="weekly_b1" autocomplete="off" checked> Performance By SPV
-                                                        </label>
-                                                        <label class="btn bg-olive">
-                                                            <input type="radio" name="weekly" value="Site" id="weekly_b2" autocomplete="off"> Performance By Site
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-7"></div>
-                                        </div>
-                                        <hr>
-                                        <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
-                                        <div class="row" id="sitewisechart" >
-                                            <div class="chart col-sm-6 text-center">
-                                                <h5>Energy (MUs) </h5>
-                                                <canvas id="energy_chart_pr" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-6 text-center">
-                                                <h5>PR (%)</h5>
-                                                <canvas id="wind_chart_pr" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
-                                            </div>
-
-                                        </div>
-                                        <!--<div class="row" id="spvwisechart" style="display:none">
-        <div class="col-sm-6 text-center">
-            <canvas id="pieChart" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
-        </div>-->
-                                        <div class="col-sm-6 text-center"></div>
-                                    </div>
-                                    </div>
+        <div class="card-body">
+            <div class="tab-content" id="custom-tabs-two-tabContent">
+                <div class="tab-pane fade show active" id="custom-tabs-two-op" role="tabpanel" aria-labelledby="custom-tabs-two-op-tab">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <div class="form-group">
+                                <div class="row">
+                                    <label class="col-sm-4 col-form-label text-right">FY : </label>
+                                    <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                        <option value="">Select Financial Year</option>
+                                    </select>
                                 </div>
-
                             </div>
                         </div>
+                        <div class="col-sm-4">
+                            <div class="input-group " style="margin-left: -5px; width: 104%;">
+                                <label class="col-sm-4 col-form-label text-right">Date : </label>
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">
+                                        <i class="far fa-calendar-alt"></i>
+                                    </span>
+                                </div>
+                                <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                            </div>
+                        </div>
+                        <div class="col-sm-2"></div>
+                        <div class="col-sm-2">
+                            <button type="button" class="btn btn-block btn-primary" onclick="GetOperationWKPR();">Search</button>
+                        </div>
+                        <hr>
+
                     </div>
-                    <!-- /.card -->
+                    <hr>
+                    <div class="row" id="wk_head" style="display:none">
+                        <div class="col-sm-5 text-center" id="wk_head_sec1">
+
+                        </div>
+                        <div class="col-sm-3" id="wk_head_sec2">
+
+                        </div>
+                        <div class="col-sm-4" id="wk_head_sec3">
+
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="chart col-sm-4" style="padding:10px;">
+                            <canvas id="energy_mu_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="chart col-sm-4" style="padding:10px;">
+                            <canvas id="wind_sp_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="chart col-sm-4" style="padding:10px;">
+                            <canvas id="plf_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+                    <hr>
+
+                    <div class="row">
+
+                        <div class="chart col-sm-4 " style="padding:10px;">
+                            <canvas id="ma_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="chart col-sm-4" style="padding:10px;">
+                            <canvas id="ega_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="chart col-sm-4" style="padding:10px;">
+                            <canvas id="iga_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                        </div>
+                    </div>
+                    <hr>
+                    <br>
+                    <div class="card-header">
+                        <h3 class="card-title text-center">Performance By SPV</h3>
+                    </div>
+                    <div id="reportsDailySPV" style="overflow-x: auto;" class="reportsDailySPV"></div>
+                    <br>
+                    <div class="row" id="sitewisechart">
+                        <div class="chart col-sm-6 text-center">
+                            <h5>Energy (MUs) </h5>
+                            <canvas id="energy_chart_pr_spv" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="chart col-sm-6 text-center">
+                            <h5>PR (%)</h5>
+                            <canvas id="wind_chart_pr_spv" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                        </div>
+
+                    </div>
+                    <br>
+                    <div class="card-header">
+                        <h3 class="card-title text-center">Performance By Site</h3>
+                    </div>
+                    <br>
+                    <div id="reportsDailySite" style="overflow-x: auto;" class="reportsDailySite"></div>
+                    <br>
+                    <div class="row" id="sitewisechart">
+                        <div class="chart col-sm-6 text-center">
+                            <h5>Energy (MUs) </h5>
+                            <canvas id="energy_chart_pr_site" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="chart col-sm-6 text-center">
+                            <h5>PR (%)</h5>
+                            <canvas id="wind_chart_pr_site" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                        </div>
+
+                    </div>
+                    <hr>
+                    <div class="card-header">
+                        <h5 class="card-title text-center">Major Breakdown Reports</h5>
+                    </div>
+                    <br>
+                    <div id="reportsMonthly" style="overflow-x: auto;" class="reportsMonthly"></div>
+
                 </div>
+                
             </div>
         </div>
+</div>
 
         <!--<div class="card-footer">
             Footer
@@ -1686,45 +1641,7 @@
 
                 }
             }
-            /*options: {
-                scales: {
-                    yAxes: [{
-                        id: 'energy',
-                        //type: 'linear',
-                        position: 'left',
-                        scaleLabel: {
-                            display: true,
-                            labelString: "Target/Actual",
-                            padding: 10,
-                            fontColor: "#31576D"
-
-                        }
-                    }, {
-                        id: 'var',
-                        //type: 'linear',
-
-                        position: 'right',
-                        scaleLabel: {
-                            display: true,
-                            labelString: "Var %",
-                            padding: 10,
-                            fontColor: "#FFCA5A"
-
-                        }
-                    }]
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: "EGA"
-                    },
-                    legend: {
-                        display: true,
-                        position: "bottom"
-                    }
-                },
-               
-            }*/
+            
         });
     }
    // -----------------------------------Weekly ---------------------//
@@ -1813,30 +1730,21 @@
                 $('#example2').removeClass('dataTable');
             }
         });
+        GetPerformanceBySPV();
+        GetPerformanceBySite();
     }
-    function WeeklyPRReport() {
-
-        var ReportType = $("input[name='weekly']:checked").val();
-        if (ReportType == "SPV") {
-
-            GetPerformanceBySPV();
-        }
-        else {
-            //alert("SIte");
-            GetPerformanceBySite();
-        }
-    }
+    
 
     // Mothly Report WTG Wise
 
     function GetPerformanceBySPV() {
 
-        var daterange = $('#daterange1').val();
+        var daterange = $('#daterange').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var fyear = $('select#fy1 option:selected').val();
+        var fyear = $('select#fy option:selected').val();
 
         var actual_energy = [];
         var target_energy = [];
@@ -1866,8 +1774,8 @@
                 tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<th rowspan="2">Site</th><th rowspan="2">SPV</th><th  rowspan="2">Capacity <br>(MW)</th>';
                 tbl += '<th colspan="3" class="text-center">Gen nos.(MUs)</th><th>Revenue</th>';
-                tbl += '<th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">GHI Vs POA Gain%</th>';
-                tbl += '<th colspan="3" class="text-center">PLF</th>';
+                tbl += '<th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">GHI Vs POA Gain (%)</th>';
+                tbl += '<th colspan="3" class="text-center">PLF (%)</th>';
                 tbl += '<th colspan="3" class="text-center">PR (%)</th>';
                 tbl += '<th colspan="3" class="text-center">MA Actual (%)</th><th colspan="3" class="text-center">IGA (%)</th>';
                 tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr>';
@@ -1921,6 +1829,10 @@
                         let ghi_var = 0;
                         let poa_var = 0;
                         let pr_var = 0;
+                        let gain_tar = 0;
+                        let gain_act = 0;
+                        let gain_var = 0;
+                       
 
                         revenue = (result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif;
                         if (result[i].act_kwh != 0 || result[i].tar_kwh != 0) {
@@ -1948,6 +1860,9 @@
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
                             ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
+                        gain_tar = (result[i].tar_ghi / result[i].tar_poa) * 100;
+                        gain_act = (result[i].act_ghi / result[i].act_poa) * 100;
+                        gain_var = ((gain_act - gain_tar) / gain_tar);
                         let pasitive;
                         let negative;
 
@@ -1996,9 +1911,9 @@
                         tbl += '<td class="text-right">' + result[i].tar_poa.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_poa.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + poa_var.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">-</td>';
-                        tbl += '<td class="text-right">-</td>';
-                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">' + gain_tar.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_act.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
@@ -2022,20 +1937,21 @@
 
                 }
                 tbl += '</table>';
-                $("#reportsDaily").html(tbl);
+                $("#reportsDailySPV").html(tbl);
                 $.fn.DataTable.ext.pager.numbers_length = 6;
                 $('#example1').DataTable({
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
                     responsive: false,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -2057,99 +1973,185 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-                $('#example1').removeClass('dataTable');
-                //document.getElementById("reportsDaily").style.display = 'block';
-               // document.getElementById("sitewisechart").style.display = 'none';
-                //document.getElementById("spvwisechart").style.display = 'flex';
+                //$('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
 
-                EnergyBarChart(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels);
-                BarChart(target_pr, actual_pr, pas_pr_var, neg_pr_var, Levels, 'PR(%)');
+                EnergyBarChartSPV(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels);
+                BarChartSPV(target_pr, actual_pr, pas_pr_var, neg_pr_var, Levels, 'PR(%)');
 
-                //RevenueChart(leble, revenue_arr);
 
             }
         });
 
     }
-   /*function RevenueChart(lebels, data) {
-        var ctx1 = $("#pieChart");
-        //pie chart data
-        var data1 = {
-            labels: lebels, //["match1", "match2", "match3", "match4", "match5"],
-            datasets: [
-                {
-                    label: lebels,
-                    data: data,
-                    backgroundColor: [
-                        "#31576D",
-                        "#86C466",
-                        "#FFCA5A",
-                        "#EE403D",
-                        "#77CAE7",
-                        "#31576D",
-                        "#86C466",
-                        "#FFCA5A",
-                        "#EE403D",
-                        "#77CAE7"
-                    ],
-                    borderColor: [
-                        "#31576D",
-                        "#86C466",
-                        "#FFCA5A",
-                        "#EE403D",
-                        "#77CAE7",
-                        "#31576D",
-                        "#86C466",
-                        "#FFCA5A",
-                        "#EE403D",
-                        "#77CAE7"
-                    ],
-                    borderWidth: [1, 1, 1, 1, 1]
-                }
-            ]
-        };
+    function EnergyBarChartSPV(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels) {
 
+        let chartStatus = Chart.getChart("energy_chart_pr_spv"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
+        new Chart(document.getElementById("energy_chart_pr_spv"), {
 
-        //options
-        var options = {
-            responsive: true,
-            maintainAspectRatio: false,
-            title: {
-                display: true,
-                position: "top",
-                text: "Revenue (MINR) by SPVs",
-                fontSize: 14,
-                fontColor: "#111"
+            type: 'bar',
+            data: {
+                labels: Levels,
+                datasets: [
+                    {
+                        label: "+ve",
+                        type: "line",
+                        borderColor: "#86C466",
+                        data: pas_energy_var,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                        fill: false,
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                        // yAxisID: 'var',
+                    }, {
+                        label: "-ve",
+                        type: "line",
+                        borderColor: "#EE403D",
+                        data: neg_energy_var,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
+                        fill: false,
+                        datalabels: {
+                            labels: {
+                                title: null,
+                            }
+                        }
+                        //yAxisID: 'var',
+                    }, {
+                        label: "Target Energy",
+                        type: "bar",
+                        backgroundColor: "#77CAE7",
+                        data: target_energy,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                        // yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                    }, {
+                        label: "Actual Energy",
+                        type: "bar",
+                        backgroundColor: "#31576D",
+                        backgroundColorHover: "#3e95cd",
+                        data: actual_energy,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                        //yAxisID: 'energy',
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'top',
+                        },
+                    }
+
+                ]
             },
-            legend: {
-                display: true,
-                position: "left",
-                labels: {
-                    fontColor: "#333",
-                    fontSize: 12
+            plugins: [ChartDataLabels],
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "PR (%)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
                 }
             }
-        };
 
-        //create Chart class object
-        var chart1 = new Chart(ctx1, {
-            type: "pie",
-            data: data1,
-            options: options,
-            maintainAspectRatio: false,
+
         });
 
-    }*/
+    }
+
+    function BarChartSPV(target_wind, actual_wind, pas_wind_var, neg_wind_var, Levels, label) {
+        let chartStatus = Chart.getChart("wind_chart_pr_spv"); // <canvas> id
+        if (chartStatus != undefined) {
+            chartStatus.destroy();
+        }
+        new Chart(document.getElementById("wind_chart_pr_spv"), {
+            type: 'bar',
+            data: {
+                labels: Levels,
+                datasets: [{
+                    label: "+ve",
+                    type: "line",
+                    borderColor: "#86C466",
+                    data: pas_wind_var,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                    fill: false,
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                    //yAxisID: 'var',
+                }, {
+                    label: "-ve",
+                    type: "line",
+                    borderColor: "#EE403D",
+                    data: neg_wind_var,//[133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478],
+                    fill: false,
+                    datalabels: {
+                        labels: {
+                            title: null,
+                        }
+                    }
+                    //yAxisID: 'var',
+                }, {
+                    label: "Target " + label,
+                    type: "bar",
+                    backgroundColor: "#77CAE7",
+                    data: target_wind,//[408, 547, 675, 734, 408, 547, 675, 734, 408, 547, 675, 734],
+                    // yAxisID: 'wind',
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                }, {
+                    label: "Actual " + label,
+                    type: "bar",
+                    backgroundColor: "#31576D",
+                    backgroundColorHover: "#3e95cd",
+                    data: actual_wind,// [133, 221, 783, 2478, 133, 221, 783, 2478, 133, 221, 783, 2478]
+                    // yAxisID: 'wind',
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                    },
+                }
+
+                ]
+            },
+            plugins: [ChartDataLabels],
+            options: {
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "PR (%)"
+                    },
+
+                    legend: {
+                        display: true,
+                        position: "bottom"
+                    }
+
+                }
+            }
+        });
+
+    }
     //------------------------------------
     // Mothly Report SIte Wise
     function GetPerformanceBySite() {
 
-       var daterange = $('#daterange1').val();
+       var daterange = $('#daterange').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var fyear = $('select#fy1 option:selected').val();
+        var fyear = $('select#fy option:selected').val();
         var reporthead = "Site Wise Reports";
         var Energy_Dataset = [];
         var Wind_Dataset = [];
@@ -2164,9 +2166,6 @@
         var neg_pr_var = [];
         var Levels = [];
 
-
-        //var Actual_Energy_Dataset = [];
-        //var Energy_var_Dataset = [];
         $.ajax({
             type: "GET",
               url: '@Url.Action("GetSolarPRReportSiteWise", "SolarReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
@@ -2224,14 +2223,6 @@
 
                 if (result.length > 0) {
 
-                    //let target_energy = [];
-                    //let actual_energy = [];
-                    //let pas_energy_var = [];
-                    //let neg_energy_var = [];
-                    //let target_wind = [];
-                    //let actual_wind = [];
-                    //let pas_wind_var = [];
-                    //let neg_wind_var = [];
                     for (var i = 0; i < result.length; i++) {
 
                         let revenue = 0;
@@ -2244,7 +2235,9 @@
                         let iga_var = 0;
                         let ega_var = 0;
                         let pr_var = 0;
-
+                        let gain_tar = 0;
+                        let gain_act = 0;
+                        let gain_var = 0;
                         revenue = (result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif;
                         if (result[i].act_kwh != 0 || result[i].tar_kwh != 0) {
                             jmr_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
@@ -2271,6 +2264,10 @@
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
                             ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
+                        gain_tar = (result[i].tar_ghi / result[i].tar_poa) * 100;
+                        gain_act = (result[i].act_ghi / result[i].act_poa) * 100;
+                        gain_var = ((gain_act - gain_tar) / gain_tar);
+
                         let pasitive;
                         let negative;
 
@@ -2320,9 +2317,9 @@
                         tbl += '<td class="text-right">' + result[i].act_poa.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + poa_var.toFixed(2) + '</td>';
 
-                        tbl += '<td class="text-right">-</td>';
-                        tbl += '<td class="text-right">-</td>';
-                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">' + gain_tar.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_act.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_var.toFixed(2) + '</td>';
 
 
                         tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
@@ -2353,15 +2350,7 @@
                         tbl += '</tr>';
                     }
 
-                   // Energy_Dataset.push({ type: 'bar', label: 'Target', data: target_energy, yAxix: 1, backgroundColor: '#77CAE7'},
-                     //   { type: 'bar', label: 'Actual', data: actual_energy, yAxix: 0, backgroundColor: '#31576D' },
-                      //  { type: 'line', label: '+ve', data: pas_energy_var, yAxix: 2, backgroundColor: '#86C466' },
-                     //   { type: 'line', label: '-ve', data: neg_energy_var, xAxix: 0, backgroundColor: '#EE403D' });
-
-                   // Wind_Dataset.push({ type: 'bar', label: 'Target', data: target_wind, yAxix: 1, backgroundColor: '#77CAE7' },
-                      //  { type: 'bar', label: 'Actual', data: actual_wind, yAxix: 0, backgroundColor: '#31576D' },
-                      //  { type: 'line', label: '+ve', data: pas_wind_var, yAxix: 2, backgroundColor: '#86C466' },
-                     //   { type: 'line', label: '-ve', data: neg_wind_var, xAxix: 0, backgroundColor: '#EE403D' });
+                   
 
                 }
                 else {
@@ -2369,20 +2358,21 @@
 
                 }
                 tbl += '</table>';
-                $("#reportsDaily").html(tbl);
+                $("#reportsDailySite").html(tbl);
                 $.fn.DataTable.ext.pager.numbers_length = 6;
                 $('#example2').DataTable({
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
                     responsive: false,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -2404,25 +2394,20 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-                $('#example2').removeClass('dataTable');
-               // console.log(data_arr);
-               // BarChart(Target_Energy_Dataset, Actual_Energy_Dataset, Energy_var_Dataset);
-
-               
-               // document.getElementById("sitewisechart").style.display = 'none';
-                //document.getElementById("spvwisechart").style.display = 'flex';
-                EnergyBarChart(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels);
-                BarChart(target_pr, actual_pr, pas_pr_var, neg_pr_var, Levels, 'PR(%)');
+                //$('#example2').removeClass('dataTable');
+                $('#example2').wrap("<div class='scrolledTable'></div>");
+                EnergyBarChartSite(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels);
+                BarChartSite(target_pr, actual_pr, pas_pr_var, neg_pr_var, Levels, 'PR(%)');
             }
         });
     }
-    function EnergyBarChart(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels) {
+    function EnergyBarChartSite(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels) {
         
-        let chartStatus = Chart.getChart("energy_chart_pr"); // <canvas> id
+        let chartStatus = Chart.getChart("energy_chart_pr_site"); // <canvas> id
         if (chartStatus != undefined) {
             chartStatus.destroy();
         }
-        new Chart(document.getElementById("energy_chart_pr"), {
+        new Chart(document.getElementById("energy_chart_pr_site"), {
 
             type: 'bar',
             data: {
@@ -2493,76 +2478,17 @@
                 }
             }
 
-            /*options: {
-                scales: {
-
-                    yAxes: [{
-                        id: 'energy',
-                        //type: 'linear',
-                        position: 'left',
-                        scaleLabel: {
-                            display: true,
-                            labelString: "Energy(MWh)",
-                            padding: 10,
-                            fontColor: "#31576D"
-
-                        }
-                    }, {
-                        id: 'var',
-                        //type: 'linear',
-                        position: 'right',
-                        scaleLabel: {
-                            display: true,
-                            labelString: "Var %",
-                            padding: 10,
-                            fontColor: "#FFCA5A"
-
-                        }
-                    }]
-                },
-                //title: {
-                   // display: true,
-                   // text: title
-                //},
-                legend: {
-                    display: true,
-                    position: "bottom"
-                }
-            }*/
+           
         });
-       /* console.log("Target", data);
-
-        var areaChartData = {
-            labels: Levels,// ['WK', 'MTD', 'YTD'],
-            datasets: data,
-        }
-        var barChartCanvas = $('#energy_chart_pr').get(0).getContext('2d')
-        var barChartData = $.extend(true, {}, areaChartData)
-        var temp0 = areaChartData.datasets[0]
-        var temp1 = areaChartData.datasets[1]
-        barChartData.datasets[0] = temp1
-        barChartData.datasets[1] = temp0
-
-        var barChartOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            datasetFill: false
-        }
-
-        new Chart(barChartCanvas, {
-            type: 'bar',
-            data: barChartData,
-            options: barChartOptions,
-            pasition: 'bottom',
-        })*/
+       
     }
 
-    function BarChart(target_wind, actual_wind, pas_wind_var, neg_wind_var, Levels, label) {
-        let chartStatus = Chart.getChart("wind_chart_pr"); // <canvas> id
+    function BarChartSite(target_wind, actual_wind, pas_wind_var, neg_wind_var, Levels, label) {
+        let chartStatus = Chart.getChart("wind_chart_pr_site"); // <canvas> id
         if (chartStatus != undefined) {
             chartStatus.destroy();
         }
-        new Chart(document.getElementById("wind_chart_pr"), {
+        new Chart(document.getElementById("wind_chart_pr_site"), {
             type: 'bar',
             data: {
                 labels: Levels,
@@ -2630,66 +2556,8 @@
 
                 }
             }
-
-           /* options: {
-                scales: {
-
-                    yAxes: [{
-                        id: 'wind',
-                        //type: 'linear',
-
-                        position: 'left',
-                        scaleLabel: {
-                            display: true,
-                            labelString: label,
-                            padding: 10
-
-                        }
-                    }, {
-                        id: 'var',
-                        //type: 'linear',
-                        position: 'right',
-                        scaleLabel: {
-                            display: true,
-                            labelString: "Var %",
-                            padding: 10
-
-                        }
-                    }]
-                },
-                //title: {
-                   // display: true,
-                    //text: title
-               // },
-                legend: {
-                    display: true,
-                    position: "bottom"
-                }
-            }*/
         });
-        /*var areaChartData = {
-            labels: Levels,// ['WK', 'MTD', 'YTD'],
-            datasets: data,
-        }
-        var barChartCanvas = $('#wind_chart_pr').get(0).getContext('2d')
-        var barChartData = $.extend(true, {}, areaChartData)
-        var temp0 = areaChartData.datasets[0]
-        var temp1 = areaChartData.datasets[1]
-        barChartData.datasets[0] = temp1
-        barChartData.datasets[1] = temp0
-
-        var barChartOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            datasetFill: false
-        }
-
-        new Chart(barChartCanvas, {
-            type: 'bar',
-            data: barChartData,
-            options: barChartOptions,
-            pasition: 'bottom',
-        })*/
+       
     }
 
 

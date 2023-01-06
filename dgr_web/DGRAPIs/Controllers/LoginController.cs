@@ -107,12 +107,12 @@ namespace Login.Controllers
 
         [Route("GetWindUserAccess")]
         [HttpGet]
-        public async Task<IActionResult> GetWindUserAccess(int login_id)
+        public async Task<IActionResult> GetWindUserAccess(int login_id,string role)
         {
             try
             {
 
-                var data = await _loginBs.GetWindUserAccess(login_id);
+                var data = await _loginBs.GetWindUserAccess(login_id, role);
                 return Ok(data);
             }
             catch (Exception ex)

@@ -259,14 +259,15 @@
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
                     responsive: false,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -288,8 +289,8 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-
-                $('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+                //$('#example1').removeClass('dataTable');
             }
         });
     }

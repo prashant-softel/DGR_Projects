@@ -70,7 +70,9 @@ namespace DGRAPIs.Models
             public double dc_capacity { get; set; }
 
         public double ac_capacity { get; set; }
-          
+        public string inverter { get; set; }
+
+
     }
 
 }

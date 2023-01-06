@@ -91,7 +91,7 @@
                                 </td>
                                 <td> <input type="checkbox" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left: 15px; margin-top: -6px;"></td>
                                 <td>
-                                    <input type="button" class="btn btn-block btn-danger" name="button1" value="Delete" onclick="removeRow('button1')" style="width: 50%;">
+                                    <input type="button" class="btn btn-block btn-danger" name="button1" value="Delete" onclick="removeRow('button1')" style="width: 50%; display:none">
                                     <input type="hidden" id="rowcnt" value="1">
                                 </td>
                             </tr>
@@ -123,7 +123,7 @@
     <div class="col-sm-4"></div>
 
     <div class="col-sm-2"><button type="button" class="btn btn-block btn-success" onclick="SubmitDetials()">Submit</button></div>
-    <div class="col-sm-2"> <button type="button" class="btn btn-block btn-danger" onclick="DataApproved(2)">Cancel</button></div>
+    <div class="col-sm-2"> <button type="button" class="btn btn-block btn-danger" onclick="Cancle()">Cancel</button></div>
     <div class="col-sm-4"></div>
 </div>
 <div class="row"><p><br></p></div>
@@ -219,7 +219,7 @@
         $.ajax({
             type: "POST",
            // url: "/Home/GetPageList?login_id=" + id,
-            url: '@Url.Action("GetPageList", "Home")' + '?login_id=' + id,
+            url: '@Url.Action("GetPageList", "Home")' + '?login_id=' + id + '&site_type=1',
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -307,7 +307,7 @@
         // console.log(site_options);
         var row = '<tr class="site-row"><td><select class="form-control  col-sm-8 site" id="site" name="site" value="">' + site_options + '</select></td>';
         row += '<td><input type="checkbox" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left: 15px; margin-top: -6px;"></td>';
-        row += '<td><input type="button" class="btn btn-block btn-danger" name="button1" value="Delete" onclick="removeRow()" style="width: 50%;"></td></tr >';
+        row += '<td><input type="button" class="btn btn-block btn-danger" name="button1" value="Delete" onclick="removeRow()" style="width: 50%;display:none"></td></tr >';
         $(table).find('tbody').append(row);
         // var rowCount = table.rows.length;
         //var row = table.insertRow(row);
@@ -384,7 +384,9 @@
             //data: "{'login_id':'" + id + "','site':'" + JSON.stringify(site_arr) + "','pages':'" + JSON.stringify(page_arr) + "','reports':'" + JSON.stringify(report_arr) + "'}",
             dataType: 'json',
             success: function (result, status, xhr) {
-
+                 alert("Success");
+               // location.href = "/Home/WindSiteUserMaster";
+                location.href = '@Url.Action("WindSiteUserMaster", "Home")';
 
             }
         });

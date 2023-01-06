@@ -586,12 +586,13 @@
                     title: 'ImportApproval',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -617,7 +618,8 @@
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $("dataTables_filter").css("margin-top", "-35px");
-                $('#example1').removeClass('dataTable');
+               // $('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
 
             }
         });

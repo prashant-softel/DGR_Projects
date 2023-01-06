@@ -1,4 +1,7 @@
-﻿@model DGRA_V1.Models.CountryList
+﻿@using System.Security.Principal
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@model DGRA_V1.Models.CountryList
 @{
     ViewData["Title"] = "Wind Site Master Reports";
 }
@@ -64,9 +67,11 @@
 
     window.onload = function () {
 
+
         getSiteData();
     }
     function getSiteData() {
+        var userRole = "@Html.Raw(@HttpContextAccessor.HttpContext.Session.GetString("role"))";
     $.ajax({
         type: "GET",
        // url: "/WindReport/GetSiteMaster",
@@ -91,7 +96,10 @@
             tbl += '<th>GBI</th>';
             tbl += '<th>Total Tariff</th>';
             tbl += '<th>LL Compensation (%)</th>';
-            tbl += '<th style="width:10%">Action</th>';
+            if (userRole == "Admin") {
+                tbl += '<th style="width:10%">Action</th>';
+            }
+
             tbl += '</tr></thead>';
             if (result.length > 0) {
                 for (var i = 0; i < result.length; i++) {
@@ -110,8 +118,9 @@
                     tbl += '<td class="text-right">' + result[i].gbi.toFixed(2)+'</td>';
                     tbl += '<td class="text-right">' + result[i].total_tarrif.toFixed(2)+'</td>';
                     tbl += '<td class="text-right">' + result[i].ll_compensation.toFixed(2) + '</td>';
-                    tbl += '<td class="text-center"><a href="#"  class="btn btn-block btn-danger" onclick="DeleteWindSite(' + result[i].site_master_id + ')"  style="padding: 0rem 0.75rem;width: 70%;display: inline;" >Delete</a></td>';
-
+                    if (userRole == "Admin") {
+                        tbl += '<td class="text-center"><a href="#"  class="btn btn-block btn-danger" onclick="DeleteWindSite(' + result[i].site_master_id + ')"  style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >Delete</a></td>';
+                    }
                     tbl += '</tr>';
                 }
             }
@@ -135,6 +144,7 @@
                 info: true,
                 autoWidth: false,
                 responsive: true,
+                pageLength: 50,
 
                 buttons: [
                     {

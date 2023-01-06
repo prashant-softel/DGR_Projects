@@ -49,178 +49,122 @@
             <div class="card-header">
                 <h3 class="card-title text-center">Wind Weekly Performance Reports</h3>
             </div>
-            <div class="card-body" style="padding: 0.25rem;">
-                <div class="row">
-                    <div class="col-12 col-sm-12">
-                        <div class="card card-primary card-outline card-tabs">
-                            <div class="p-0 pt-1 border-bottom-0">
-                                <!--<div class="card-header p-0 pt-1 border-bottom-0">-->
-                                <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
-                                    <li class="nav-item">
-                                        <a class="nav-link active" id="custom-tabs-two-op-tab" data-toggle="pill" href="#custom-tabs-two-op" role="tab" aria-controls="custom-tabs-two-op" aria-selected="true">Operational Performance</a>
-                                    </li>
-                                    <li class="nav-item">
-                                        <a class="nav-link" id="custom-tabs-two-pr-tab" data-toggle="pill" href="#custom-tabs-two-pr" role="tab" aria-controls="custom-tabs-two-pr" aria-selected="false">Weekly Performance</a>
-                                    </li>
-                                </ul>
-                            </div>
+            
 
-                            <div class="card-body">
-                                <div class="tab-content" id="custom-tabs-two-tabContent">
-                                    <div class="tab-pane fade show active" id="custom-tabs-two-op" role="tabpanel" aria-labelledby="custom-tabs-two-op-tab">
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <div class="row">
-                                                        <label class="col-sm-4 col-form-label text-right">FY : </label>
-                                                        <select class="form-control  col-sm-8" id="fy" name="fy" value="">
-                                                            <option value="">Select Financial Year</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="input-group " style="margin-left: -5px; width: 104%;">
-                                                    <label class="col-sm-4 col-form-label text-right">Date : </label>
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text">
-                                                            <i class="far fa-calendar-alt"></i>
-                                                        </span>
-                                                    </div>
-                                                    <input type="text" class="form-control float-right" id="daterange" name="daterange">
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2"></div>
-                                            <div class="col-sm-2">
-                                                <button type="button" class="btn btn-block btn-primary" onclick="GetOperationWKPR();">Search</button>
-                                            </div>
-                                            <hr>
-
-                                        </div>
-                                        <hr>
-                                        <div class="row" id="wk_head" style="display:none">
-                                            <div class="col-sm-5 text-center" id="wk_head_sec1">
-
-                                            </div>
-                                            <div class="col-sm-3" id="wk_head_sec2">
-
-                                            </div>
-                                            <div class="col-sm-4" id="wk_head_sec3">
-
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <div class="row">
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="energy_mu_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="wind_sp_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="plf_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                        </div>
-                                        <hr>
-
-                                        <div class="row">
-
-                                            <div class="chart col-sm-4 " style="padding:10px;">
-                                                <canvas id="ma_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="ega_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-4" style="padding:10px;">
-                                                <canvas id="iga_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <div class="card-header">
-                                            <h3 class="card-title text-center">Mejor Brekdown Reports</h3>
-                                        </div>
-                                        <br>
-                                        <div id="majorBreakdown"></div>
-                                    </div>
-                                    <div class="tab-pane fade" id="custom-tabs-two-pr" role="tabpanel" aria-labelledby="custom-tabs-two-pr-tab">
-                                        <div class="row">
-                                            <div class="col-sm-4">
-                                                <div class="form-group">
-                                                    <div class="row">
-                                                        <label class="col-sm-4 col-form-label text-right">FY : </label>
-                                                        <select class="form-control  col-sm-8" id="fy1" name="fy1" value="">
-                                                            <option value="">Select Financial Year</option>
-                                                        </select>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-4">
-                                                <div class="input-group " style="margin-left: -5px; width: 104%;">
-                                                    <label class="col-sm-4 col-form-label text-right">Date : </label>
-                                                    <div class="input-group-prepend">
-                                                        <span class="input-group-text">
-                                                            <i class="far fa-calendar-alt"></i>
-                                                        </span>
-                                                    </div>
-                                                    <input type="text" class="form-control float-right" id="daterange1" name="daterange1">
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-2"></div>
-                                            <div class="col-sm-2">
-                                                <button type="button" class="btn btn-block btn-primary" onclick="WeeklyPRReport();">Search</button>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col-sm-5">
-                                                <div class="table-responsive pad">
-                                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                                                        <label class="btn bg-olive">
-                                                            <input type="radio" name="weekly" value="SPV" id="weekly_b1" autocomplete="off" checked> Performance By SPV
-                                                        </label>
-                                                        <label class="btn bg-olive">
-                                                            <input type="radio" name="weekly" value="Site" id="weekly_b2" autocomplete="off"> Performance By Site
-                                                        </label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-sm-7"></div>
-                                        </div>
-                                        <hr>
-                                        <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
-                                        <div class="row" id="sitewisechart" style="display:none">
-                                            <div class="chart col-sm-6 text-center">
-                                                <h5>Energy (MUs) </h5>
-                                                <canvas id="energy_chart_pr" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="chart col-sm-6 text-center">
-                                                <h5>Wind (m/s) </h5>
-                                                <canvas id="wind_chart_pr" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
-                                            </div>
-
-                                        </div>
-                                        <div class="row" id="spvwisechart" style="display:none">
-                                            <div class="col-sm-6 text-center">
-                                                <canvas id="pieChart" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
-                                            </div>
-                                            <div class="col-sm-6 text-center"></div>
-                                        </div>
+            <div class="card-body">
+                <div class="tab-content" id="custom-tabs-two-tabContent">
+                    <div class="tab-pane fade show active" id="custom-tabs-two-op" role="tabpanel" aria-labelledby="custom-tabs-two-op-tab">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <div class="form-group">
+                                    <div class="row">
+                                        <label class="col-sm-2 col-form-label text-left">FY : </label>
+                                        <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                                            <option value="">Select Financial Year</option>
+                                        </select>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="col-sm-4">
+                                <div class="input-group " style="margin-left: -5px; width: 104%;">
+                                    <label class="col-sm-2 col-form-label text-left">Date : </label>
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <i class="far fa-calendar-alt"></i>
+                                        </span>
+                                    </div>
+                                    <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-block btn-primary" onclick="GetOperationWKPR();">Search</button>
+                            </div>
+                            <div class="col-sm-2"></div>
+                            <hr>
+
+                        </div>
+                        <hr>
+                        <div class="row" id="wk_head" style="display:none">
+                            <div class="col-sm-5 text-center" id="wk_head_sec1">
+
+                            </div>
+                            <div class="col-sm-3" id="wk_head_sec2">
+
+                            </div>
+                            <div class="col-sm-4" id="wk_head_sec3">
 
                             </div>
                         </div>
+                        <hr>
+                        <div class="row">
+                            <div class="chart col-sm-4" style="padding:10px;">
+                                <canvas id="energy_mu_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            </div>
+                            <div class="chart col-sm-4" style="padding:10px;">
+                                <canvas id="wind_sp_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            </div>
+                            <div class="chart col-sm-4" style="padding:10px;">
+                                <canvas id="plf_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            </div>
+                        </div>
+                        <hr>
+
+                        <div class="row">
+
+                            <div class="chart col-sm-4 " style="padding:10px;">
+                                <canvas id="ma_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            </div>
+                            <div class="chart col-sm-4" style="padding:10px;">
+                                <canvas id="ega_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            </div>
+                            <div class="chart col-sm-4" style="padding:10px;">
+                                <canvas id="iga_chart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%;"></canvas>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="card-header">
+                            <h3 class="card-title text-center">Performance By Site</h3>
+                        </div>
+                        <br>
+                        <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
+                        <div class="row" id="sitewisechart">
+                            <div class="chart col-sm-6 text-center">
+                                <h5>Energy (MUs) </h5>
+                                <canvas id="energy_chart_pr" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                            </div>
+                            <div class="chart col-sm-6 text-center">
+                                <h5>Wind (m/s) </h5>
+                                <canvas id="wind_chart_pr" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                            </div>
+
+                        </div>
+                        <hr>
+                        <div class="card-header">
+                            <h3 class="card-title text-center">Performance By SPV</h3>
+                        </div>
+                        <br>
+                        <div id="reportsDaily1" style="overflow-x: auto;" class="reportsDaily1"></div>
+                        <div class="row" id="spvwisechart">
+                            <div class="col-sm-6 text-center">
+                                <canvas id="pieChart" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                            </div>
+                            <div class="col-sm-6 text-center"></div>
+                        </div>
+
+                        <hr>
+                        <div class="card-header">
+                            <h3 class="card-title text-center">Mejor Brekdown Reports</h3>
+                        </div>
+                        <br>
+                        <div id="majorBreakdown"></div>
                     </div>
-                    <!-- /.card -->
+                    
                 </div>
+
             </div>
         </div>
-
-        <!--<div class="card-footer">
-            Footer
-        </div>-->
-
 </div>
-
 
     </section>
 
@@ -801,9 +745,9 @@
                  sec3 += '<table class="table table-bordered table-striped">';
                  sec3 += '<thead class="tbl-head"><tr>';
                  sec3 += '<th>Period</th><th>Energy Gain/Loss (MUs)	</th><th>Revenue(MINR)</th></tr ></thead> ';
-                 sec3 += '<tr><td>WK</td><td style="text-align: right;">' + actual_mu[0] + '</td><td style="text-align: right;">' + revenue[0]+'</td></tr>';
-                 sec3 += '<tr><td>MTD</td><td style="text-align: right;">' + actual_mu[1] + '</td><td style="text-align: right;">' + revenue[1] +'</td></tr>';
-                 sec3 += '<tr><td>YTD</td><td style="text-align: right;">' + actual_mu[2] + '</td><td style="text-align: right;">' + revenue[2] +'</td></tr></table>';
+                 sec3 += '<tr><td>WK</td><td style="text-align: right;">' + actual_mu[0] + '</td><td style="text-align: right;">' + (revenue[0] / 1000000).toFixed(2) + '</td></tr>';
+                 sec3 += '<tr><td>MTD</td><td style="text-align: right;">' + actual_mu[1] + '</td><td style="text-align: right;">' + (revenue[1] / 1000000).toFixed(2) +'</td></tr>';
+                 sec3 += '<tr><td>YTD</td><td style="text-align: right;">' + actual_mu[2] + '</td><td style="text-align: right;">' + (revenue[2] / 1000000).toFixed(2) +'</td></tr></table>';
 
                  $("#wk_head_sec1").html(sec1);
                  $("#wk_head_sec2").html(sec2);
@@ -811,13 +755,15 @@
 
                  //document.getElementById('spv_counts').innerHTML = result[0].spv_count;
                 //document.getElementById('capacity').innerHTML = result[0].capacity.toFixed(0);
-            
+
              }
 
          });
-       
+
         //document.getElementById('portfolio').innerHTML = site_array.length;
         document.getElementById('wk_head').style.display = 'flex';
+        GetPerformanceBySPV();
+        GetPerformanceBySite();
     }
     function chartEnergyMU(actual_mu, target_mu, var_mu_pos, var_mu_neg) {
         let chartStatus = Chart.getChart("energy_mu_chart"); // <canvas> id
@@ -1496,7 +1442,7 @@
         });
     }
    // -----------------------------------Weekly ---------------------//
-    function WeeklyPRReport() {
+    /*function WeeklyPRReport() {
 
         var ReportType = $("input[name='weekly']:checked").val();
         if (ReportType == "SPV") {
@@ -1507,17 +1453,17 @@
             //alert("SIte");
             GetPerformanceBySite();
         }
-    }
+    }*/
 
     // Mothly Report WTG Wise
     function GetPerformanceBySPV() {
 
-       var daterange = $('#daterange1').val();
+       var daterange = $('#daterange').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var fyear = $('select#fy1 option:selected').val();
+        var fyear = $('select#fy option:selected').val();
         var leble = [];
         var revenue_arr = [];
         var reporthead = "SPV Wise Reports";
@@ -1573,7 +1519,7 @@
                         let ma_act_var = 0;
                         let iga_var = 0;
                         let ega_var = 0;
-                        revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
+                        revenue = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif)/1000000;
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
                             jmr_var = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) / result[i].tar_kwh_mu) * 100;
                         }
@@ -1624,20 +1570,21 @@
 
                 }
                 tbl += '</table>';
-                $("#reportsDaily").html(tbl);
+                $("#reportsDaily1").html(tbl);
                 $.fn.DataTable.ext.pager.numbers_length = 6;
                 $('#example1').DataTable({
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
                     responsive: false,
+                    pageLength: 20,
                     buttons: [
                         {
                             extend: 'excel',
@@ -1659,10 +1606,11 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-                $('#example1').removeClass('dataTable');
+                //$('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
                 //document.getElementById("reportsDaily").style.display = 'block';
-                document.getElementById("sitewisechart").style.display = 'none';
-                document.getElementById("spvwisechart").style.display = 'flex';
+               // document.getElementById("sitewisechart").style.display = 'none';
+               // document.getElementById("spvwisechart").style.display = 'flex';
                 RevenueChart(leble, revenue_arr);
             }
         });
@@ -1742,12 +1690,12 @@
     // Mothly Report SIte Wise
     function GetPerformanceBySite() {
 
-       var daterange = $('#daterange1').val();
+       var daterange = $('#daterange').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var fyear = $('select#fy1 option:selected').val();
+        var fyear = $('select#fy option:selected').val();
         var reporthead = "Site Wise Reports";
         var Energy_Dataset = [];
         var Wind_Dataset = [];
@@ -1821,7 +1769,7 @@
                         let iga_var = 0;
                         let ega_var = 0;
 
-                        revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
+                        revenue = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif)/1000000;
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
                             jmr_var = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) / result[i].tar_kwh_mu) * 100;
                         }
@@ -1916,14 +1864,15 @@
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
                     responsive: false,
+                    pageLength: 20,
                     buttons: [
                         {
                             extend: 'excel',
@@ -1945,11 +1894,12 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-                $('#example2').removeClass('dataTable');
+                //$('#example2').removeClass('dataTable');
+                $('#example2').wrap("<div class='scrolledTable'></div>");
                // console.log(data_arr);
                // BarChart(Target_Energy_Dataset, Actual_Energy_Dataset, Energy_var_Dataset);
-                document.getElementById("sitewisechart").style.display = 'flex';
-                document.getElementById("spvwisechart").style.display = 'none';
+               // document.getElementById("sitewisechart").style.display = 'flex';
+               // document.getElementById("spvwisechart").style.display = 'none';
                 EnergyBarChart(target_energy, actual_energy, pas_energy_var, neg_energy_var, Levels);
                 WindBarChart(target_wind, actual_wind, pas_wind_var.toString(2), neg_wind_var.toString(2), Levels);
             }
@@ -2212,7 +2162,7 @@ function GetWindMajorBreakdown() {
         //var fyear = $('select#fy1 option:selected').val();
         var leble = [];
         var revenue_arr = [];
-        
+
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWindMajorBreakdown", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate,
@@ -2300,7 +2250,7 @@ function GetWindMajorBreakdown() {
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $('#example1').removeClass('dataTable');
                 //document.getElementById("reportsDaily").style.display = 'block';
-                
+
             }
         });
 

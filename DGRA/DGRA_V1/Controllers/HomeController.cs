@@ -170,7 +170,12 @@ namespace DGRA_V1.Controllers
                                 HttpContext.Session.SetString("userid",model.login_id.ToString());
                              
                                 int loginid = model.login_id;
-                                var actionResult = await GetUserAccess(loginid,true);
+                                string role = model.user_role;
+                                 var actionResult = await GetUserAccess(loginid, role, true);
+                                
+                                
+                                
+                                
                               
 
                             }
@@ -371,7 +376,7 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
-        public async Task<IActionResult> GetUserAccess(int login_id, bool actionType = false)
+        public async Task<IActionResult> GetUserAccess(int login_id,string role ,bool actionType = false)
         {
             UserAccess usermodel = new UserAccess();
             string line = "";
@@ -379,7 +384,7 @@ namespace DGRA_V1.Controllers
             {
                 //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
                 // var url = "http://localhost:23835/api/Login/GetWindUserInformation?login_id="+ login_id;
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/GetWindUserAccess?login_id=" + login_id;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/GetWindUserAccess?login_id=" + login_id+"&role="+ role;
                 WebRequest request = WebRequest.Create(url);
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
                 {

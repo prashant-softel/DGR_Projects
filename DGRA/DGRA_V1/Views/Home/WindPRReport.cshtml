@@ -18,6 +18,10 @@
         font-size: 0.7rem;
         font-weight: bold;
     }
+    .scrolledTable {
+        overflow-y: auto;
+        clear: both;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -268,7 +272,7 @@
                         let ega_var = 0;
                         let tar_mu = 0;
                         tar_mu = result[i].tar_kwh_mu / 1000000;
-                        revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
+                        revenue = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif)/1000000;
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
                             jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
@@ -326,14 +330,14 @@
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
                     responsive: false,
+                    autoWidth: true,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -355,87 +359,14 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-
-                $('#example1').removeClass('dataTable');
-                //document.getElementById("reportsDaily").style.display = 'block';
-              //document.getElementById("sitewisechart").style.display = 'none';
-               // document.getElementById("spvwisechart").style.display = 'flex';
-               // RevenueChart(leble, revenue_arr);
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+               
             }
         });
 
 
     }
-    /*function RevenueChart(lebels, data)
-    {
-        var ctx1 = $("#pieChart");
-        //pie chart data
-        var data1 = {
-            labels: lebels, //["match1", "match2", "match3", "match4", "match5"],
-            datasets: [
-                {
-                    label: lebels ,
-                    data:data,
-                    backgroundColor: [
-                        "#31576D",
-                        "#86C466",
-                        "#FFCA5A",
-                        "#EE403D",
-                        "#77CAE7",
-                        "#31576D",
-                        "#86C466",
-                        "#FFCA5A",
-                        "#EE403D",
-                        "#77CAE7"
-                    ],
-                    borderColor: [
-                        "#31576D",
-                        "#86C466",
-                        "#FFCA5A",
-                        "#EE403D",
-                        "#77CAE7",
-                        "#31576D",
-                        "#86C466",
-                        "#FFCA5A",
-                        "#EE403D",
-                        "#77CAE7"
-                    ],
-                    borderWidth: [1, 1, 1, 1, 1]
-                }
-            ]
-        };
-
-
-        //options
-        var options = {
-            responsive: true,
-            maintainAspectRatio: false,
-            title: {
-                display: true,
-                position: "top",
-                text: "Revenue (MINR) by SPVs",
-                fontSize: 14,
-                fontColor: "#111"
-            },
-            legend: {
-                display: true,
-                position: "left",
-                labels: {
-                    fontColor: "#333",
-                    fontSize: 12
-                }
-            }
-        };
-
-        //create Chart class object
-        var chart1 = new Chart(ctx1, {
-            type: "pie",
-            data: data1,
-            options: options,
-            maintainAspectRatio: false,
-        });
-
-    }*/
+    
    // -----------------------------------------------
 
     // Daily Gen Report Site WIse
@@ -511,7 +442,7 @@
                         let ega_var = 0;
                         let tar_mu = 0;
                         tar_mu = result[i].tar_kwh_mu / 1000000;
-                        revenue = (result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif;
+                        revenue = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif)/100000;
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
                             jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
@@ -583,16 +514,7 @@
                         tbl += '</tr>';
                     }
 
-                   // Energy_Dataset.push({ type: 'bar', label: 'Target', data: target_energy, yAxix: 1, backgroundColor: '#77CAE7'},
-                      //  { type: 'bar', label: 'Actual', data: actual_energy, yAxix: 0, backgroundColor: '#31576D' },
-                      //  { type: 'line', label: '+ve', data: pas_energy_var, xAxix: 0, backgroundColor: '#86C466' },
-                      //  { type: 'line', label: '-ve', data: neg_energy_var, xAxix: 0, backgroundColor: '#EE403D' });
-
-                   // Wind_Dataset.push({ type: 'bar', label: 'Target', data: target_wind, yAxix: 1, backgroundColor: '#77CAE7' },
-                     //   { type: 'bar', label: 'Actual', data: actual_wind, yAxix: 0, backgroundColor: '#31576D' },
-                     //   { type: 'line', label: '+ve', data: pas_wind_var, xAxix: 0, backgroundColor: '#86C466' },
-                     //   { type: 'line', label: '-ve', data: neg_wind_var, xAxix: 0, backgroundColor: '#EE403D' });
-
+                  
                 }
                 else {
                     console.log("Data not available");
@@ -605,14 +527,15 @@
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
                     responsive: false,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -635,80 +558,11 @@
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
 
-                $('#example2').removeClass('dataTable');
-               // console.log(data_arr);
-               // BarChart(Target_Energy_Dataset, Actual_Energy_Dataset, Energy_var_Dataset);
-               // document.getElementById("sitewisechart").style.display = 'flex';
-                //document.getElementById("spvwisechart").style.display = 'none';
-                //EnergyBarChart(Energy_Dataset, Levels);
-                //WindBarChart(Wind_Dataset, Levels);
+                $('#example2').wrap("<div class='scrolledTable'></div>");
+               
             }
         });
     }
-   /* function EnergyBarChart(data, Levels)
-    {
-        console.log("Target", data);
-
-            var areaChartData = {
-                labels: Levels,// ['WK', 'MTD', 'YTD'],
-                datasets: data,
-            }
-            var barChartCanvas = $('#energy_chart').get(0).getContext('2d')
-            var barChartData = $.extend(true, {}, areaChartData)
-            var temp0 = areaChartData.datasets[0]
-            var temp1 = areaChartData.datasets[1]
-            barChartData.datasets[0] = temp1
-            barChartData.datasets[1] = temp0
-
-            var barChartOptions = {
-                responsive: true,
-                maintainAspectRatio: false,
-                datasetFill: false
-            }
-
-            new Chart(barChartCanvas, {
-                type: 'bar',
-                data: barChartData,
-                options: barChartOptions,
-                pasition: 'bottom',
-            })
-
-
-
-
-   }
-
-    function WindBarChart(data, Levels) {
-        console.log("Target", data);
-
-        var areaChartData = {
-            labels: Levels,// ['WK', 'MTD', 'YTD'],
-            datasets: data,
-        }
-        var barChartCanvas = $('#wind_chart').get(0).getContext('2d')
-        var barChartData = $.extend(true, {}, areaChartData)
-        var temp0 = areaChartData.datasets[0]
-        var temp1 = areaChartData.datasets[1]
-        barChartData.datasets[0] = temp1
-        barChartData.datasets[1] = temp0
-
-        var barChartOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            datasetFill: false
-        }
-
-        new Chart(barChartCanvas, {
-            type: 'bar',
-            data: barChartData,
-            options: barChartOptions,
-            pasition: 'bottom',
-        })
-
-
-
-
-
-    }*/
+   
 
 </script>

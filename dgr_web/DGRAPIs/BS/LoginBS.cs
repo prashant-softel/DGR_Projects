@@ -18,7 +18,7 @@ namespace DGRAPIs.BS
         Task<List<UserInfomation>> GetWindUserInformation(int login_id);
         Task<List<UserInfomation>> GetSolarUserInformation(int login_id);
         Task<List<HFEPage>> GetPageList(int login_id, int site_type);
-        Task<List<UserAccess>> GetWindUserAccess(int login_id);
+        Task<List<UserAccess>> GetWindUserAccess(int login_id,string role);
 
         Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type);
 
@@ -124,13 +124,13 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<List<UserAccess>> GetWindUserAccess(int login_id)
+        public async Task<List<UserAccess>> GetWindUserAccess(int login_id,string role)
         {
             try
             {
                 using (var repos = new LoginRepository(getDB))
                 {
-                    return await repos.GetWindUserAccess(login_id);
+                    return await repos.GetWindUserAccess(login_id,role);
 
                 }
             }

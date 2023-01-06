@@ -19,22 +19,26 @@
 @{
     string windSiteList = "";
     string solarSiteList = "";
-    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+   
 
 }
-@for (int i = 0; i < @usermodel.access_list.Count; i++)
+@if (@HttpContextAccessor.HttpContext.Session.GetString("role") != "Admin")
 {
-
-    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+    for (int i = 0; i < @usermodel.access_list.Count; i++)
     {
-        windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
-    }
-    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
-    {
-        solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
-    }
+
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+        {
+            windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+        }
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+        {
+            solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+        }
 
 
+    }
 }
 
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />

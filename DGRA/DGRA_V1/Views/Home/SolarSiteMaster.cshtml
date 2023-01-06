@@ -1,4 +1,7 @@
-﻿@model DGRA_V1.Models.CountryList
+﻿@using System.Security.Principal
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@model DGRA_V1.Models.CountryList
 @{
     ViewData["Title"] = "Solar Site Master Reports";
 }
@@ -68,6 +71,7 @@
         getSiteData();
     }
     function getSiteData() {
+        var userRole = "@Html.Raw(@HttpContextAccessor.HttpContext.Session.GetString("role"))";
         $.ajax({
             type: "GET",
             url: "/SolarReport/GetSolarSiteMaster",
@@ -84,9 +88,12 @@
                 tbl += '<th>SPV</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>DC Capacity (MWp)</th>';
-                tbl += '<th>AC Capacity (MWp)</th>';
+                tbl += '<th>AC Capacity (MW)</th>';
                 tbl += '<th>Total Tariff</th>';
-                tbl += '<th>Action</th>';
+                if (userRole == "Admin") {
+                    tbl += '<th style="width:10%">Action</th>';
+                }
+
                 tbl += '</tr></thead>';
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
@@ -99,8 +106,10 @@
                         tbl += '<td class="text-right">' + result[i].dc_capacity.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].ac_capacity.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].total_tarrif.toFixed(2) + '</td>';
-                        tbl += '<td class="text-center"><a href="#"  class="btn btn-block btn-danger" onclick="DeleteSolarSite(' + result[i].site_master_solar_id + ')"  style="padding: 0rem 0.75rem;width: 70%;display: inline;" >Delete</a></td>';
-                        tbl += '</tr>';
+                        if (userRole == "Admin") {
+                            tbl += '<td class="text-center"><a href="#"  class="btn btn-block btn-danger" onclick="DeleteSolarSite(' + result[i].site_master_solar_id + ')"  style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >Delete</a></td>';
+                        }
+                         tbl += '</tr>';
                     }
                 }
                 else {
@@ -121,6 +130,7 @@
                     info: true,
                     autoWidth: false,
                     responsive: false,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',

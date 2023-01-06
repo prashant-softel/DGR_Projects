@@ -519,10 +519,10 @@
                 tbl += '<th style="width:100px">Import Date</th>';
                 tbl += '<th>Impo. By</th>';
                 tbl += '<th>Status</th>';
-                tbl += '<th>App. Date</th>';
-                tbl += '<th>App. By</th>';
-                tbl += '<th>Rej Date</th>';
-                tbl += '<th>Rej. By</th>';
+                tbl += '<th>Verified By Date</th>';
+                tbl += '<th>Verified By</th>';
+                //tbl += '<th>Rej Date</th>';
+                //tbl += '<th>Rej. By</th>';
                 tbl += '<th>Action</th>';
                 tbl += '</tr></thead>';
 
@@ -553,36 +553,46 @@
                         tbl += '<td>' + formattedDate + '</td>';
                         tbl += '<td>' + result[i].import_by_name + '</td>';
                         tbl += '<td>' + status + '</td>';
-                        if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
-                            var formattedDate1 = '';
-                        }
-                        else {
-                            var formattedDate1 = moment(result[i].approval_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                        }
+                        
                         var approval_name = "";
-                        if (result[i].approved_by == 0) {
-                            approval_name = "";
+                        var verified_date = "";
+                        var verified_name = "";
+                        if (result[i].is_approved == 1) {
+                            //approval_name = "";
+                            verified_name = result[i].approved_by_name;
+                            if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
+                                verified_date = '';
+                            }
+                            else {
+                                verified_date = moment(result[i].approval_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                            }
+                        }
+                        else if (result[i].is_approved == 2) {
+                           // approval_name = result[i].approved_by_name;
+                            verified_name = result[i].rejected_by_name;
+                            if (result[i].rejected_date == '0001-01-01T00:00:00' || result[i].rejected_date == null) {
+                                verified_date = '';
+                            }
+                            else {
+                                verified_date = moment(result[i].rejected_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                            }
                         }
                         else {
-                            approval_name = result[i].approved_by_name;
+                            verified_name = "";
                         }
-                        if (result[i].rejected_date == '0001-01-01T00:00:00' || result[i].rejected_date == null) {
-                            var formattedDate2 = '';
-                        }
-                        else {
-                            var formattedDate2 = moment(result[i].rejected_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                        }
-                        var rejected_name = "";
+                        
+                       
+                        /*var rejected_name = "";
                         if (result[i].rejected_by == 0) {
                             rejected_name = "";
                         }
                         else {
                             rejected_name = result[i].rejected_by_name;
-                        }
-                        tbl += '<td>' + formattedDate1 + '</td>';
-                        tbl += '<td>' + approval_name + '</td>';
-                        tbl += '<td>' + formattedDate2 + '</td>';
-                        tbl += '<td>' + rejected_name + '</td>';
+                        }*/
+                        tbl += '<td>' + verified_date + '</td>';
+                        tbl += '<td>' + verified_name + '</td>';
+                       // tbl += '<td>' + formattedDate2 + '</td>';
+                        //tbl += '<td>' + rejected_name + '</td>';
                         tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewSolarGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem">G</a></div>';
                         tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewSolarBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >B</a></div>';
                         tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Pyranometer 1Min Data" class="btn  btn-info" onclick="ViewPY1Data(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >P1</a></div>';

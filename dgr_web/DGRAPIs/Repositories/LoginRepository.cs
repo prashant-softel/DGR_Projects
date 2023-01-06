@@ -95,7 +95,7 @@ namespace DGRAPIs.Repositories
              }*/
             string qry = "";
 
-           qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=2";
+           //qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=2";
             if(site_type == 2)
             {
                 qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=2";
@@ -113,15 +113,18 @@ namespace DGRAPIs.Repositories
 
 
         }
-        public async Task<List<UserAccess>> GetWindUserAccess(int login_id)
+        public async Task<List<UserAccess>> GetWindUserAccess(int login_id,string role)
         {
             
             string qry = "";
-           // qry = "SELECT t1.category_name,t1.cat_id,t2.login_id,t2.identity,t2.upload_access,t3.display_name,t3.Action_url,t3.Controller_name FROM `access_category`as t1 left join `user_access` as t2 on t1.cat_id=t2.category_id left join hfe_pages as t3 on t3.Id=t2.identity where t2.login_id='" + login_id + "'";
-            //qry = "SELECT t1.login_id,t1.site_type,if(t3.Page_type IS NOT NULL,t3.Page_type,3) as page_type,t1.identity,t1.upload_access,t3.display_name,t3.Action_url,t3.Controller_name FROM `user_access`as t1 left join hfe_pages as t3 on t3.Id=t1.identity where t1.login_id='" + login_id + "'";
-
-            qry = "SELECT t1.login_id,t1.site_type,if(t3.Page_type IS NOT NULL,t3.Page_type,3) as page_type,t1.identity,t1.upload_access,t3.display_name,t3.Action_url,t3.Controller_name FROM `user_access`as t1 left join hfe_pages as t3 on t3.Id=t1.identity and t1.category_id NOT IN(3) where t1.login_id='" + login_id + "'";
-            
+            if (role == "Admin")
+            {
+                qry = "SELECT Site_Type as site_type,Page_type as page_type,display_name,Action_url,Controller_name FROM `hfe_pages`";
+            }
+            else
+            {
+                qry = "SELECT t1.login_id,t1.site_type,if(t3.Page_type IS NOT NULL,t3.Page_type,3) as page_type,t1.identity,t1.upload_access,t3.display_name,t3.Action_url,t3.Controller_name FROM `user_access`as t1 left join hfe_pages as t3 on t3.Id=t1.identity and t1.category_id NOT IN(3) where t1.login_id='" + login_id + "'";
+            }
             List<UserAccess> _accesslist = new List<UserAccess>();
             _accesslist = await Context.GetData<UserAccess>(qry).ConfigureAwait(false);
             return _accesslist;
@@ -133,9 +136,12 @@ namespace DGRAPIs.Repositories
             var SiteList = new JavaScriptSerializer().Deserialize<dynamic>(siteList);
             var PageList = new JavaScriptSerializer().Deserialize<dynamic>(pageList);
             var ReportList = new JavaScriptSerializer().Deserialize<dynamic>(reportList);
-
             int flag = 0;
             if (string.IsNullOrEmpty(site_type)) site_type = "1";
+            string delAccess ="DELETE FROM `user_access` WHERE login_id  = '" + login_id + "' AND `site_type` = '"+ site_type + "'";
+            await Context.ExecuteNonQry<int>(delAccess).ConfigureAwait(false);
+           
+            
             string qry= "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`) VALUES";
             string pagevalues = "";
             foreach (var page in PageList)

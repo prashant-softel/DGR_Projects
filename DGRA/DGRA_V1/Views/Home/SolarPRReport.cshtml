@@ -187,7 +187,7 @@
             success: function (result, status, xhr) {
                 console.log(result);
                 //var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
-                var tbl = '<table id="example1"  class="table table-bordered table-striped" style="width:130%">';
+                var tbl = '<table id="example1"  class="table table-bordered table-striped" style="width:150%">';
                 tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<th rowspan="2">SPV</th><th rowspan="2">Capacity <br> (MW)</th>';
                 tbl += '<th colspan="5" class="text-center"> Energy (in MU)</th >';
@@ -195,8 +195,10 @@
                 tbl += '<th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th>';
                 tbl += '<th colspan="3" class="text-center">GHI Vs POA Gain (%)</th>';
                 tbl += '<th colspan="3" class="text-center">PLF (%)</th>';
-                tbl += '<th colspan="3" class="text-center">PR (%)</th></tr >';
-
+                tbl += '<th colspan="3" class="text-center">PR (%)</th>';
+                tbl += '<th colspan="3" class="text-center">MA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">IGA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr > ';
                 tbl += '<tr>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Exp</th>';
@@ -204,6 +206,15 @@
                 tbl += '<th>T.Var (%)</th>';
                 tbl += '<th>E.Var (%)</th>';
                 tbl += '<th>(MINR)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar </th>';
+                tbl += '<th>Act </th>';
+                tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
                 tbl += '<th>Var (%)</th>';
@@ -234,7 +245,10 @@
                         let gain_var = 0;
                         let plf_var = 0;
                         let pr_var = 0;
-                        minr = (result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif;
+                        let ma_var = 0;
+                        let iga_var = 0;
+                        let ega_var = 0;
+                        minr = ((result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif)/1000000;
                         if (result[i].tar_kwh != 0) {
                             t_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
@@ -253,6 +267,19 @@
                         if (result[i].tar_pr != 0) {
                             pr_var = ((result[i].act_pr - result[i].tar_pr) / result[i].tar_pr) * 100;
                         }
+                        if (result[i].tar_ma != 0) {
+                            ma_var = ((result[i].act_ma - result[i].tar_ma) / result[i].tar_ma) * 100;
+                        }
+                        if (result[i].tar_iga != 0) {
+                            iga_var = ((result[i].act_iga - result[i].tar_iga) / result[i].tar_iga) * 100;
+                        }
+                        if (result[i].tar_ega != 0) {
+                            ega_var = ((result[i].act_ega - result[i].tar_ega) / result[i].tar_ega) * 100;
+                        }
+
+                        gain_tar = (result[i].tar_ghi / result[i].tar_poa) * 100;
+                        gain_act = (result[i].act_ghi / result[i].act_poa) * 100;
+                        gain_var = ((gain_act - gain_tar) / gain_tar) ;
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';
                         tbl += '<td class="text-right" >' + result[i].capacity.toFixed(2) + '</td>';
@@ -268,15 +295,24 @@
                         tbl += '<td class="text-right">' + result[i].tar_poa.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_poa.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + poa_var.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">-</td>';
-                        tbl += '<td class="text-right">-</td>';
-                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">' + gain_tar.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_act.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_pr.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + pr_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ma_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + iga_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ega_var.toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }
@@ -291,14 +327,15 @@
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
                     responsive: false,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -320,8 +357,8 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-
-                $('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+                //$('#example1').removeClass('dataTable');
 
                 //document.getElementById("reportsDaily").style.display = 'block';
                 ///document.getElementById("reportsMonthly").style.display = 'block';
@@ -350,15 +387,18 @@
             success: function (result, status, xhr) {
                 console.log(result);
                // var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
-                var tbl = '<table id="example1"  class="table table-bordered table-striped" style="width:130%">';
+                var tbl = '<table id="example1"  class="table table-bordered table-striped" style="width:150%">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th rowspan="2" style="width: 10%;">Site</th><th rowspan="2">Capacity <br>(MW)</th>';
+                tbl += '<th rowspan="2" style="width: 5%;">Site</th><th rowspan="2">Capacity <br>(MW)</th>';
                 tbl += '<th colspan="5" class="text-center"> Energy (in MU)</th >';
                 tbl += '<th>Revenue</th><th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th>';
                 tbl += '<th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th>';
                 tbl += '<th colspan="3" class="text-center">GHI Vs POA Gain (%)</th>';
                 tbl += '<th colspan="3" class="text-center">PLF (%)</th>';
-                tbl += '<th colspan="3" class="text-center">PR (%)</th></tr >';
+                tbl += '<th colspan="3" class="text-center">PR (%)</th>';
+                tbl += '<th colspan="3" class="text-center">MA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">IGA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr > ';
 
                 tbl += '<tr>';
                 tbl += '<th>Tar</th>';
@@ -373,8 +413,17 @@
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
                 tbl += '<th>Var (%)</th>';
-                tbl += '<th>Tar (%)</th>';
-                tbl += '<th>Act (%)</th>';
+                tbl += '<th>Tar </th>';
+                tbl += '<th>Act </th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
                 tbl += '<th>Var (%)</th>';
                 tbl += '<th>Tar</th>';
                 tbl += '<th>Act</th>';
@@ -398,7 +447,10 @@
                         let gain_var = 0;
                         let plf_var  = 0;
                         let pr_var = 0;
-                        minr = (result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif;
+                        let ma_var = 0;
+                        let iga_var = 0;
+                        let ega_var = 0;
+                        minr = ((result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif)/1000000;
                         if (result[i].tar_kwh != 0) {
                             t_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
@@ -417,6 +469,19 @@
                         if (result[i].tar_pr != 0) {
                             pr_var = ((result[i].act_pr - result[i].tar_pr) / result[i].tar_pr) * 100;
                         }
+                        if (result[i].tar_ma != 0) {
+                            ma_var = ((result[i].act_ma - result[i].tar_ma) / result[i].tar_ma) * 100;
+                        }
+                        if (result[i].tar_iga != 0) {
+                            iga_var = ((result[i].act_iga - result[i].tar_iga) / result[i].tar_iga) * 100;
+                        }
+                        if (result[i].tar_ega != 0) {
+                            ega_var = ((result[i].act_ega - result[i].tar_ega) / result[i].tar_ega) * 100;
+                        }
+
+                        gain_tar = (result[i].tar_ghi / result[i].tar_poa) * 100;
+                        gain_act = (result[i].act_ghi / result[i].act_poa) * 100;
+                        gain_var = ((gain_act - gain_tar) / gain_tar);
                         tbl += '<tr>';
                         tbl += '<td>' + result[i].site + '</td>';
                         tbl += '<td class="text-right" >' + result[i].capacity.toFixed(2) + '</td>';
@@ -432,15 +497,25 @@
                         tbl += '<td class="text-right">' + result[i].tar_poa.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_poa.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + poa_var.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">-</td>';
-                        tbl += '<td class="text-right">-</td>';
-                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">' + gain_tar.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + gain_act.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + gain_var.toFixed(2)+'</td>';
                         tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_pr.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + pr_var.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ma_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + iga_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ega_var.toFixed(2) + '</td>';
 
                         tbl += '</tr>';
                     }
@@ -456,14 +531,15 @@
                     dom: 'Bfrtip',
                     responsive: false,
                     lengthChange: false,
-                    autoWidth: false,
+                    autoWidth: true,
                     paging: true,
                     lengthChange: false,
                     searching: true,
                     ordering: true,
                     info: true,
-                    autoWidth: false,
+                    autoWidth: true,
                     responsive: false,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -485,8 +561,8 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-
-                $('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+               // $('#example1').removeClass('dataTable');
 
             }
         });
