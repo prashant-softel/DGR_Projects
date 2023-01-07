@@ -144,16 +144,24 @@ namespace DGRA_V1.Models
             }
         }
 
-        public string breakDownCalc(DateTime stopFrom, DateTime stopTo)
+        public string breakDownCalc(string fromBD, string toBD, long rowNo)
         {
-            //DateTime stopFrom_ = Convert.ToDateTime(stopFrom);
-            //DateTime stopTo_ = Convert.ToDateTime(stopTo);
-            TimeSpan totalStop_ = stopTo - stopFrom;
-            string totalStop = Convert.ToString(totalStop_);
+            string totalStop = string.Empty;
+            try
+            {
+                DateTime stopFrom = Convert.ToDateTime(fromBD);
+                DateTime stopTo = Convert.ToDateTime(toBD);
+                TimeSpan totalStop_ = stopTo - stopFrom;
+                totalStop = Convert.ToString(totalStop_);
+            }
+            catch (Exception e)
+            {
+                m_ErrorLog.SetError(",File Row<"+rowNo+"> column<From> and column<To> Invalid Time format causing error in Total BD time calculation,");
+            }
             return totalStop;
         }
 
-        public bool validateBreakDownData(long rowNumber, DateTime stopFrom, DateTime stopTo, string igbd)
+        public bool validateBreakDownData(long rowNumber, string stopFrom, string stopTo, string igbd)
         {
             bool greaterStopTo = false;
             //bool lastStopTo = false;
@@ -161,9 +169,9 @@ namespace DGRA_V1.Models
             //bool sumOfBDHours = false;
 
             //1)(Stop To) – column always greater than (Stop From) – column.
-            //DateTime stopTo_ = Convert.ToDateTime(stopTo);
-            //DateTime stopFrom_ = Convert.ToDateTime(stopFrom);
-            if (stopFrom> stopTo)
+            DateTime to = Convert.ToDateTime(stopTo);
+            DateTime from = Convert.ToDateTime(stopFrom);
+            if (from> to)
             {
                 greaterStopTo = true;
             }
@@ -175,7 +183,7 @@ namespace DGRA_V1.Models
             //}
 
             //3)BD Hours should not be more than 24 Hrs.
-            TimeSpan bdHours = (stopTo - stopFrom);
+            TimeSpan bdHours = (to - from);
             if (bdHours.Hours>12)
             {
                 totalBd = true;
@@ -191,11 +199,10 @@ namespace DGRA_V1.Models
             if (greaterStopTo == true || totalBd == true )
             {
                 //|| sumOfBDHours == true
-                m_ErrorLog.SetError(",File Row (" + rowNumber + ") had error(s) ");
 
                 if (greaterStopTo == true)
                 {
-                    m_ErrorLog.SetError(",Stop-To Time is lower than Stop-From: ");
+                    m_ErrorLog.SetError(",File Row <" + rowNumber + "> Stop-To Time is lower than Stop-From: ,");
                 }
                 //if (lastStopTo == true)
                 //{
@@ -203,7 +210,7 @@ namespace DGRA_V1.Models
                 //}
                 if (totalBd == true)
                 {
-                    m_ErrorLog.SetError(",Breakdown Hours are exceeding 24 hours:");
+                    m_ErrorLog.SetError(",File Row <" + rowNumber + "> Breakdown Hours are exceeding 24 hours:,");
                 }
                 //if (sumOfBDHours == true)
                 //{

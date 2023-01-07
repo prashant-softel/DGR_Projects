@@ -15,7 +15,7 @@ namespace DGRAPIs.Models
         public string jmrDate { get; set; }
         public string jmrMonth { get; set; }
         public int jmrMonth_no { get; set; }
-        public int jmrYear { get; set; }
+        public dynamic jmrYear { get; set; }
         public dynamic lineLossPercent { get; set; }
         public dynamic rkvhPercent { get; set; }
         public dynamic controllerKwhInv { get; set; }

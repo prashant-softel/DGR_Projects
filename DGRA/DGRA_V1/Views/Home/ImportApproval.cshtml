@@ -91,7 +91,7 @@
                     <div class="col-md-4">
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Import Type : </label>
+                                <label class="col-sm-4 col-form-label text-left">Import Type : </label>
                                 <select class="form-control  col-sm-8" id="importType" name="importType" value="" onchange="getSiteList()">
                                     <option value="0">Select Import Type</option>
                                     <option value="1">Solar</option>
@@ -118,9 +118,23 @@
                         </div>
                     </div>
                     <div class="col-md-4">
+                        <div class="input-group row">
+                            <label class="col-sm-3 col-form-label text-right">Date : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange" style="max-width: 270px;">
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
                         <div class="form-group">
                             <div class="row">
-                                <label class="col-sm-4 col-form-label text-right">Status : </label>
+                                <label class="col-sm-4 col-form-label text-left">Status : </label>
                                 <select class="form-control  col-sm-8" id="status" name="status" value="">
                                     <option value="-1">All</option>
                                     <option value="0">Waiting for Approval</option>
@@ -128,19 +142,6 @@
                                     <option value="2">Rejected</option>
                                 </select>
                             </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="input-group row" style="margin-left: 30px;">
-                            <label class="col-sm-3 col-form-label text-right">Date Range : </label>
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">
-                                    <i class="far fa-calendar-alt"></i>
-                                </span>
-                            </div>
-                            <input type="text" class="form-control float-right" id="daterange" name="daterange" style="max-width: 238px;">
                         </div>
                     </div>
                     <div class="col-md-1"></div>

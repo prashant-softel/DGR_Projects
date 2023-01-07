@@ -17,6 +17,7 @@ namespace DGRAPIs.Models
         public dynamic Export_kWh { get; set; }
         public dynamic Import_kWh { get; set; }
         public dynamic Net_Export_kWh { get; set; }
+        public dynamic Net_Billable_kWh { get; set; }
         public dynamic Export_kVAh { get; set; }
         public dynamic Import_kVAh { get; set; }
         public dynamic Export_kVArh_lag { get; set; }
@@ -26,7 +27,7 @@ namespace DGRAPIs.Models
         public dynamic JMR_date { get; set; }
         public dynamic JMR_Month { get; set; }
         public int JMR_Month_no { get; set; }
-        public string JMR_Year { get; set; }
+        public dynamic JMR_Year { get; set; }
         public dynamic LineLoss { get; set; }
         public dynamic Line_Loss_percentage { get; set; }
         public dynamic RKVH_percentage { get; set; }
