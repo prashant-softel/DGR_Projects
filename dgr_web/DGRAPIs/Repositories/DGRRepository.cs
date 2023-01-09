@@ -6406,7 +6406,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                     }
                     if (sLastICR_INV != sCurrentICR_INV)
                     {
-
+                        double temp = FinalCapacity;
                         TimeSpan totalDownTime = Final_USMH_Time + Final_SMH_Time + Final_IGBD_Time + Final_EGBD_Time + Final_LoadShedding_Time + Final_LULL_Time + Final_OthersHour_Time;
                         totalLoss = Final_USMH_Loss + Final_SMH_Loss + Final_IGBD_Loss + Final_EGBD_Loss + Final_LS_Loss + Final_LULL_Loss + Final_OthersHour_Loss;
                         double totalDownTimeDouble = totalDownTime.TotalSeconds / 3600;
@@ -6464,9 +6464,9 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                     }
                     //consolidating all string breakdown time for this inverter
                     //Final_Production_Time += SolarDevice.Production; //pending
-                    /*stringCount++;
+                    //stringCount++;
                     FinalCapacity += SolarDevice.capacity;
-                    Final_USMH_Time += SolarDevice.USMH;
+                    /*Final_USMH_Time += SolarDevice.USMH;
                     Final_USMH_Loss += SolarDevice.USMH_lostPOA * SolarDevice.capacity;
 
                     Final_SMH_Time += SolarDevice.SMH;

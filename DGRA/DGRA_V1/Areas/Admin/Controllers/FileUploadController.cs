@@ -1,10 +1,10 @@
-﻿
-using DGRA_V1.Common;
+﻿using DGRA_V1.Common;
 using DGRA_V1.Models;
 using DGRA_V1.Repository.Interface;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Office.Interop.Excel;
 using Newtonsoft.Json;
 using OfficeOpenXml;
 using System;
@@ -19,6 +19,7 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using DataTable = System.Data.DataTable;
 
 namespace DGRA_V1.Areas.admin.Controllers
 {
@@ -63,7 +64,6 @@ namespace DGRA_V1.Areas.admin.Controllers
         Hashtable siteNameId = new Hashtable(); //(C)Gets siteId from siteName
         Hashtable siteName = new Hashtable(); //(D)Gets siteName from siteId
 
-
         Hashtable eqSiteId = new Hashtable();//(E)Gets siteId from (wtg)equipmentName
         Hashtable MonthList = new Hashtable() { { "Jan", 1 }, { "Feb", 2 }, { "Mar", 3 }, { "Apr", 4 }, { "May", 5 }, { "Jun", 6 }, { "Jul", 7 }, { "Aug", 8 }, { "Sep", 9 }, { "Oct", 10 }, { "Nov", 11 }, { "Dec", 12 } };
         Hashtable longMonthList = new Hashtable() { { "January", 1 }, { "February", 2 }, { "March", 3 }, { "April", 4 }, { "May", 5 }, { "June", 6 }, { "July", 7 }, { "August", 8 }, { "September", 9 }, { "October", 10 }, { "November", 11 }, { "December", 12 } };
@@ -81,6 +81,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         {
             return View();
         }
+
         [HttpPost]
         public async Task<ActionResult> Upload(string fileUpload)
         {
@@ -100,7 +101,7 @@ namespace DGRA_V1.Areas.admin.Controllers
 
         public async Task<string> ExcelDataReaderAndUpload(IFormFile file, string fileUploadType)
         {
-            var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+            var usermodel = JsonConvert.DeserializeObject<Models.UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
             for (int i = 0; i < usermodel.access_list.Count; i++)
             {
                 if (usermodel.access_list[i].page_type == 3 && usermodel.access_list[i].site_type == 1)
@@ -440,7 +441,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                             statusCode = await dgrWindImport(batchIdDGRAutomation);
                                             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(kpiArgs[0]).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(kpiArgs[1]).ToString("yyyy-MM-dd") + "&site=" + (string)kpiArgs[2] + "";
                                             //remove after testing
-                                            m_ErrorLog.SetInformation("Url" + url);
+                                            //m_ErrorLog.SetInformation("Url" + url);
                                             using (var client = new HttpClient())
                                             {
                                                 var response = await client.GetAsync(url);
@@ -610,14 +611,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                 // ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
                 using (var package = new ExcelPackage(excelFile))
                 {
+                    Application app = new Application();
+                    Workbook workbook = app.Workbooks.Open(filePath);
                     foreach (var li in _worksheetList)
                     {
                         dt = new DataTable();
                         dt.TableName = li;
                         ExcelWorksheet workSheet = package.Workbook.Worksheets[li];
+                        Worksheet ws = workbook.Worksheets[li];
                         //add column header
                         try
                         {
+
                             foreach (var header in workSheet.Cells[1, 1, 1, workSheet.Dimension.End.Column])
                             {
                                 dt.Columns.Add(header.Text);
@@ -626,11 +631,12 @@ namespace DGRA_V1.Areas.admin.Controllers
                             {
                                 ExcelRange row = workSheet.Cells[rN, 1, rN, workSheet.Dimension.End.Column];
                                 DataRow newR = dt.NewRow();
-                                foreach (var cell in row)
+                                foreach (   var cell in row)
                                 {
                                     try
                                     {
                                         newR[cell.Start.Column - 1] = cell.Text;
+                                        
                                     }
                                     catch (Exception ex)
                                     {
@@ -779,14 +785,17 @@ namespace DGRA_V1.Areas.admin.Controllers
             int errorCount = 0;
             int responseCode = 400;
             DateTime dateValidate = DateTime.MinValue;
-            DateTime fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
-            DateTime toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+            DateTime fromDate;// = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+            DateTime toDate;//= Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
             DateTime nextDate = DateTime.MinValue;
             string site = "";
             try
             {
-                fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
-                toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+                //fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+                //toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+                string value = Convert.ToString(ds.Tables[0].Rows[0]["Date"]);
+                fromDate = DateTime.ParseExact(value, "dd-MM-yyyy", timeCulture);
+                toDate = DateTime.ParseExact(value, "dd-MM-yyyy", timeCulture);
             }
             catch (Exception e)
             {
@@ -808,7 +817,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         rowNumber++;
                         addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : (string)(dr["Date"]);
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
-                        addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                        addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : DateTime.ParseExact(addUnit.date, "dd-MM-yyyy", timeCulture).ToString("yyyy-MM-dd");
 
                         addUnit.wtg = dr["WTG"] is DBNull || string.IsNullOrEmpty((string)dr["WTG"]) ? "Nil" : Convert.ToString(dr["WTG"]);
                         addUnit.wtg_id = equipmentId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(equipmentId[addUnit.wtg]) : 0;
@@ -829,12 +838,14 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                         addUnit.lull_hrs = dr["Lull_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Lull_Hrs"]) ? 0 : Convert.ToDouble(dr["Lull_Hrs"]);
                         addUnit.grid_hrs = dr["Grid_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Grid_Hrs"]) ? 0 : Convert.ToDouble(dr["Grid_Hrs"]);
+
                         site = Convert.ToString(addUnit.site_id);
                         errorFlag.Add(uniformWindSiteValidation(rowNumber, addUnit.site_id, addUnit.wtg));
-                        dateValidate = Convert.ToDateTime(addUnit.date, timeCulture);
+                        dateValidate = DateTime.ParseExact((string)dr["Date"],"dd-MM-yyyy", timeCulture);
+
                         errorFlag.Add((siteUserRole == "Admin") ? false : importDateValidation(dateValidate));
                         errorFlag.Add(validationObject.validateGenData(rowNumber, addUnit.date, addUnit.wtg, addUnit.wind_speed, addUnit.kwh, addUnit.operating_hrs, addUnit.lull_hrs, addUnit.grid_hrs));
-                        nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
+                        nextDate = DateTime.ParseExact((string)dr["Date"], "dd-MM-yyyy", timeCulture);
                         fromDate = ((nextDate < fromDate) ? (nextDate) : (fromDate));
                         toDate = (nextDate > toDate) ? (nextDate) : (toDate);
                         foreach (bool item in errorFlag)
@@ -855,7 +866,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                     catch (Exception e)
                     {
                         //developer errorlog
-                        m_ErrorLog.SetError("," + e.GetType() + ": Function: InsertWindFileGeneration,");
+                        m_ErrorLog.SetError(",File row <" + rowNumber + ">" + e.GetType() + ": Function: InsertWindFileGeneration " + e.Message + ",");
                         ErrorLog(",Exception Occurred In Function: InsertWindFileGeneration: " + e.Message + "");
                     }
                 }
@@ -992,7 +1003,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         bool skipRow = false;
                         addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : (string)dr["Date"];
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
-                        addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                        addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : DateTime.ParseExact(addUnit.date, "dd-MM-yyyy", timeCulture).ToString("yyyy-MM-dd");
 
                         addUnit.wtg = Convert.ToString(dr["WTG"]);
                         addUnit.wtg_id = Convert.ToInt32(equipmentId[addUnit.wtg]);//A
@@ -1802,8 +1813,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.month = string.IsNullOrEmpty((string)dr["Month"]) ? "Nil" : Convert.ToString(dr["Month"]);
                         addUnit.month_no = string.IsNullOrEmpty((string)dr["Month"]) ? 0 : Convert.ToInt32(MonthList[addUnit.month]);
                         if (addUnit.month_no == 0)
-                        { 
-                        addUnit.month_no = string.IsNullOrEmpty((string)dr["Month"]) ? 0 : Convert.ToInt32(longMonthList[addUnit.month]);
+                        {
+                            addUnit.month_no = string.IsNullOrEmpty((string)dr["Month"]) ? 0 : Convert.ToInt32(longMonthList[addUnit.month]);
                         }
                         errorFlag.Add(monthValidation(addUnit.month, addUnit.month_no, rowNumber));
 
@@ -3388,7 +3399,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             {
                 retVal = true;
             }
-            else if (!(equipmentId.ContainsKey(wtgId)))
+            else if (!(equipmentId.ContainsKey(wtg)))
             {
                 retVal = true;
                 m_ErrorLog.SetError(",File Row <" + rowNumber + "> Invalid WTG <" + wtg + "> is not found in master records");
@@ -3425,8 +3436,50 @@ namespace DGRA_V1.Areas.admin.Controllers
             bool retVal = false;
             try
             {
-                string dateValue = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
-                value = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
+                string dateChecker = string.Empty;
+                string day = string.Empty;
+                string month = string.Empty;
+                string year = string.Empty;
+                //try
+                //{
+                //    dateChecker = Convert.ToDateTime(value).ToString("dd-MM-yyyy");
+                //}
+                //catch (Exception)
+                //{
+                //    dateChecker = value;
+                //    day = dateChecker.Substring(0, 2);
+                //    if (dateChecker.Contains("/"))
+                //    {
+                //        month = dateChecker.Substring(dateChecker.IndexOf("/") + 1, 2);
+                //        year = dateChecker.Substring(dateChecker.LastIndexOf("/") + 1, 4);
+                //    }
+                //    if (dateChecker.Contains("-"))
+                //    {
+                //        month = dateChecker.Substring(dateChecker.IndexOf("-") + 1, 2);
+                //        year = dateChecker.Substring(dateChecker.LastIndexOf("-") + 1, 4);
+                //    }
+                //    value = month + "-" + day + "-" + year;
+                //}
+
+                //{
+                //    //restructuring date
+                //    day = value.Substring(0, 2);
+                //    if (value.Contains("/"))
+                //    {
+                //        month = value.Substring(value.IndexOf("/") + 1, 2);
+                //        year = value.Substring(value.LastIndexOf("/") + 1, 4);
+                //    }
+                //    if (dateChecker.Contains("-"))
+                //    {
+                //        month = value.Substring(value.IndexOf("-") + 1, 2);
+                //        year = value.Substring(value.LastIndexOf("-") + 1, 4);
+                //    }
+                //    value = month + "-" + day + "-" + year;
+                //}
+
+                //string dateValue = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
+                //value = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
+                string dateValue = DateTime.ParseExact(value, "dd-MM-yyyy", timeCulture).ToString("dd-MM-yyyy");
                 if (value == "Nil")
                 {
                     m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Cell value cannot be empty,");
@@ -3434,18 +3487,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 else if (value != dateValue)
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: MM-dd-yyyy,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy,");
                     retVal = true;
                 }
                 else if (value == DateTime.MinValue.ToString("dd-MM-yyyy"))
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: MM-dd-yyyy,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy,");
                     retVal = true;
                 }
             }
             catch (Exception e)
             {
-                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date conversion <" + value + ">. While feeding data use following format: MM-dd-yyyy " + e.Message + ", ");
+                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date conversion <" + value + ">. While feeding data use following format: dd-MM-yyyy " + e.Message + ", ");
                 retVal = true;
             }
             return retVal;
@@ -3531,7 +3584,10 @@ namespace DGRA_V1.Areas.admin.Controllers
         public bool monthValidation(string month, int monthNo, long rowNo)
         {
             bool retVal = false;
-
+            if (monthNo == 0)
+            {
+                monthNo = string.IsNullOrEmpty(month) ? 0 : Convert.ToInt32(longMonthList[month]);
+            }
             if (!(monthNo >= 1 && monthNo <= 12))
             {
                 retVal = true;
