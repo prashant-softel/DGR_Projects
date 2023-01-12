@@ -535,7 +535,7 @@
                                 </a>
                                 <ul class="nav nav-treeview">
                                     <li class="nav-item">
-                                        <a href="@Url.Action("WindSiteUserMaster", "Home" , new { Area = "" })" class="nav-link">
+                                        <a href="@Url.Action("SiteUserMaster", "Home" , new { Area = "" })" class="nav-link">
                                             <i class="far  nav-icon"></i>
                                             <p>Site User Master</p>
                                         </a>
@@ -543,6 +543,12 @@
                                 </ul>
                             </li>
                         }
+                        <li class="nav-item">
+                            <a href="@Url.Action("Logout", "Home"  , new { Area = "" })" class="nav-link">
+                                <i class="far fa-circle nav-icon"></i>
+                                <p>Sign Out</p>
+                            </a>
+                        </li>
                         @*<li class="nav-item">
             <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-book"></i>
@@ -785,14 +791,11 @@
     <script src="~/Content/theme/dist/js/demo.js"></script>
     <!-- for dashbord-->
     <!--  <script src="~/Content/theme/plugins/jquery-ui/jquery-ui.min.js"></script>
-      <script src="~/Content/theme/plugins/chart.js/Chart.min.js"></script>
-
-      <script src="~/Content/theme/plugins/sparklines/sparkline.js"></script>
-
-      <script src="~/Content/theme/plugins/jqvmap/jquery.vmap.min.js"></script>
-      <script src="~/Content/theme/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
-
-      <script src="~/Content/theme/plugins/jquery-knob/jquery.knob.min.js"></script>-->
+    <script src="~/Content/theme/plugins/chart.js/Chart.min.js"></script>
+    <script src="~/Content/theme/plugins/sparklines/sparkline.js"></script>
+    <script src="~/Content/theme/plugins/jqvmap/jquery.vmap.min.js"></script>
+    <script src="~/Content/theme/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+    <script src="~/Content/theme/plugins/jquery-knob/jquery.knob.min.js"></script>-->
     <!--<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
     <script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js"></script>-->
     <!--<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>

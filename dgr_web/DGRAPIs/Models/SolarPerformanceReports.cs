@@ -35,6 +35,7 @@ namespace DGRAPIs.Models
     public class SolarPerformanceReports1
     {
         public string site { get; set; }
+        public int site_id { get; set; }
         public string spv { get; set; }
         public double capacity { get; set; }
         public double dc_capacity { get; set; }
@@ -57,6 +58,7 @@ namespace DGRAPIs.Models
         public double act_iga { get; set; }
         public double tar_ega { get; set; }
         public double act_ega { get; set; }
+       
 
     }
     public class SolarPerformanceReports2
@@ -87,6 +89,7 @@ namespace DGRAPIs.Models
         public double tar_ega { get; set; }
         public double act_ega { get; set; }
         public double total_mw { get; set; }
+        public double revenue { get; set; }
     }
     public class SolarOpertionalHead
     {

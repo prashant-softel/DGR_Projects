@@ -105,7 +105,14 @@ namespace DGRAPIs.Models
         public string tracker_losses { get; set; }
         public double total_losses { get; set; }
         public double total_bd_hrs { get; set; }
-
+        public double lull_hrs_bd { get; set; }
+        public double usmh_bs { get; set; }
+        public double smh_bd { get; set; }
+        public double oh_bd { get; set; }
+        public double igbdh_bd { get; set; }
+        public double egbdh_bd { get; set; }
+        public double load_shedding_bd { get; set; }
+       // public double total_bd_hrs { get; set; }
     }
     public class SolarDailyGenReports2
     {

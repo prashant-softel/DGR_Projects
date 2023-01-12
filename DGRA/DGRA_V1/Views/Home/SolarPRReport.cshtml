@@ -248,7 +248,7 @@
                         let ma_var = 0;
                         let iga_var = 0;
                         let ega_var = 0;
-                        minr = ((result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif)/1000000;
+                        minr = ((result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif);
                         if (result[i].tar_kwh != 0) {
                             t_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
@@ -262,32 +262,34 @@
                             poa_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
                         }
                         if (result[i].tar_plf != 0) {
-                            plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                            plf_var = (result[i].act_plf - result[i].tar_plf);
                         }
                         if (result[i].tar_pr != 0) {
-                            pr_var = ((result[i].act_pr - result[i].tar_pr) / result[i].tar_pr) * 100;
+                            pr_var = (result[i].act_pr - result[i].tar_pr) ;
                         }
                         if (result[i].tar_ma != 0) {
-                            ma_var = ((result[i].act_ma - result[i].tar_ma) / result[i].tar_ma) * 100;
+                            ma_var = (result[i].act_ma - result[i].tar_ma) ;
                         }
                         if (result[i].tar_iga != 0) {
-                            iga_var = ((result[i].act_iga - result[i].tar_iga) / result[i].tar_iga) * 100;
+                            iga_var = (result[i].act_iga - result[i].tar_iga) ;
                         }
                         if (result[i].tar_ega != 0) {
-                            ega_var = ((result[i].act_ega - result[i].tar_ega) / result[i].tar_ega) * 100;
+                            ega_var = (result[i].act_ega - result[i].tar_ega) ;
                         }
 
-                        gain_tar = (result[i].tar_ghi / result[i].tar_poa) * 100;
-                        gain_act = (result[i].act_ghi / result[i].act_poa) * 100;
-                        gain_var = ((gain_act - gain_tar) / gain_tar) ;
+                        gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
+                        gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
+                        gain_var = (gain_act - gain_tar) ;
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';
                         tbl += '<td class="text-right" >' + result[i].capacity.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_kwh.toFixed(2)+ '</td>';
-                        tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2)+ '</td>';
+                       // tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">-</td>';
                         tbl += '<td class="text-right">' + result[i].act_kwh.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + t_var.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + e_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">-</td>';
+                        //tbl += '<td class="text-right">' + e_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + minr.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_ghi.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ghi.toFixed(2) + '</td>';
@@ -450,7 +452,7 @@
                         let ma_var = 0;
                         let iga_var = 0;
                         let ega_var = 0;
-                        minr = ((result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif)/1000000;
+                        minr = ((result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif);
                         if (result[i].tar_kwh != 0) {
                             t_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
@@ -464,32 +466,35 @@
                             poa_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
                         }
                         if (result[i].tar_plf != 0) {
-                            plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                           // plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                            plf_var = (result[i].act_plf - result[i].tar_plf);
                         }
                         if (result[i].tar_pr != 0) {
-                            pr_var = ((result[i].act_pr - result[i].tar_pr) / result[i].tar_pr) * 100;
+                            pr_var = (result[i].act_pr - result[i].tar_pr);
                         }
                         if (result[i].tar_ma != 0) {
-                            ma_var = ((result[i].act_ma - result[i].tar_ma) / result[i].tar_ma) * 100;
+                            ma_var = (result[i].act_ma - result[i].tar_ma);
                         }
                         if (result[i].tar_iga != 0) {
-                            iga_var = ((result[i].act_iga - result[i].tar_iga) / result[i].tar_iga) * 100;
+                            iga_var = (result[i].act_iga - result[i].tar_iga);
                         }
                         if (result[i].tar_ega != 0) {
-                            ega_var = ((result[i].act_ega - result[i].tar_ega) / result[i].tar_ega) * 100;
+                            ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
 
-                        gain_tar = (result[i].tar_ghi / result[i].tar_poa) * 100;
-                        gain_act = (result[i].act_ghi / result[i].act_poa) * 100;
-                        gain_var = ((gain_act - gain_tar) / gain_tar);
+                        gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
+                        gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
+                        gain_var = (gain_act - gain_tar);
                         tbl += '<tr>';
                         tbl += '<td>' + result[i].site + '</td>';
                         tbl += '<td class="text-right" >' + result[i].capacity.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_kwh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">-</td>';
                         tbl += '<td class="text-right">' + result[i].act_kwh.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + t_var.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + e_var.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + e_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">-</td>';
                         tbl += '<td class="text-right">' + minr.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_ghi.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ghi.toFixed(2) + '</td>';

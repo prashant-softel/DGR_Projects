@@ -79,6 +79,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         [HttpGet]
         public ActionResult Upload()
         {
+            TempData["notification"] = "";
             return View();
         }
         [HttpPost]
@@ -171,7 +172,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                             DataTable dt = null;
 
                             string _filePath = @"C:\TempFile\docupload.xlsx";
-                           // string _filePath = @"G:\TempFile\docupload.xlsx";
+                            //string _filePath = @"G:\TempFile\docupload.xlsx";
                             //string _filePath = env.ContentRootPath + @"\TempFile\docupload.xlsx";
                             dataSetMain = GetDataTableFromExcel(_filePath, true, ref fileSheets);
                             if (dataSetMain == null)
@@ -440,7 +441,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                             statusCode = await dgrWindImport(batchIdDGRAutomation);
                                             var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/CalculateDailyWindKPI?fromDate=" + Convert.ToDateTime(kpiArgs[0]).ToString("yyyy-MM-dd") + "&toDate=" + Convert.ToDateTime(kpiArgs[1]).ToString("yyyy-MM-dd") + "&site=" + (string)kpiArgs[2] + "";
                                             //remove after testing
-                                           // m_ErrorLog.SetInformation("Url" + url);
+                                            // m_ErrorLog.SetInformation("Url" + url);
                                             using (var client = new HttpClient())
                                             {
                                                 var response = await client.GetAsync(url);
@@ -679,12 +680,15 @@ namespace DGRA_V1.Areas.admin.Controllers
             string kpiSite = "";
             try
             {
-                fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
-                toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+                //fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+                //toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+                fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+                toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
             }
             catch (Exception e)
             {
-                m_ErrorLog.SetError(",File Row <2> column <Date> Invalid Date Format. Use format MM-dd-yyyy");
+                //m_ErrorLog.SetError(",File Row <2> column <Date> Invalid Date Format. Use format MM-dd-yyyy");
+                m_ErrorLog.SetError(",File Row <2> column <Date> Invalid Date Format. Use format dd-MM-yyyy");
                 fromDate = DateTime.MaxValue;
                 toDate = DateTime.MinValue;
             }
@@ -706,7 +710,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
 
-                        dateValidate = Convert.ToDateTime((string)dr["Date"], timeCulture);
+                        //dateValidate = Convert.ToDateTime((string)dr["Date"], timeCulture);
+                        dateValidate = Convert.ToDateTime((string)dr["Date"]);
                         errorFlag.Add((siteUserRole == "Admin") ? false : importDateValidation(dateValidate));
 
                         addUnit.site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
@@ -715,15 +720,21 @@ namespace DGRA_V1.Areas.admin.Controllers
                         objImportBatch.importSiteId = addUnit.site_id;//C
                         kpiSite = Convert.ToString(addUnit.site_id);
 
-                        nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
+                        //nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
+                        nextDate = Convert.ToDateTime(dr["Date"]);
                         fromDate = ((nextDate < fromDate) ? (nextDate) : (fromDate));
                         toDate = (nextDate > toDate) ? (nextDate) : (toDate);
 
                         addUnit.inverter = string.IsNullOrEmpty((string)dr["Inverter"]) ? "Nil" : Convert.ToString(dr["Inverter"]);
                         errorFlag.Add(solarInverterValidation(addUnit.inverter, "Inverter", rowNumber));
 
+                        // addUnit.inv_act = string.IsNullOrEmpty((string)dr["Inv_Act(KWh)"]) ? 0 : Convert.ToDouble(dr["Inv_Act(KWh)"]);
+                        // addUnit.plant_act = string.IsNullOrEmpty((string)dr["Plant_Act(kWh)"]) ? 0 : Convert.ToDouble(dr["Plant_Act(kWh)"]);
+                       
                         addUnit.inv_act = string.IsNullOrEmpty((string)dr["Inv_Act(KWh)"]) ? 0 : Convert.ToDouble(dr["Inv_Act(KWh)"]);
+                        errorFlag.Add(negativeNullValidation(addUnit.inv_act, "Inv_Act(KWh)", rowNumber));
                         addUnit.plant_act = string.IsNullOrEmpty((string)dr["Plant_Act(kWh)"]) ? 0 : Convert.ToDouble(dr["Plant_Act(kWh)"]);
+                        errorFlag.Add(negativeNullValidation(addUnit.plant_act, "Inv_Act(KWh)", rowNumber));
 
                         addUnit.pi = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["PI(%)"]), "PI(%)");
                         errorFlag.Add(solarValidation.validateGenerationData(rowNumber, addUnit.inverter, addUnit.inv_act, addUnit.plant_act));
@@ -779,18 +790,19 @@ namespace DGRA_V1.Areas.admin.Controllers
             int errorCount = 0;
             int responseCode = 400;
             DateTime dateValidate = DateTime.MinValue;
-            DateTime fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
-            DateTime toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+            DateTime fromDate;
+            DateTime toDate;
             DateTime nextDate = DateTime.MinValue;
             string site = "";
             try
             {
-                fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
-                toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
+                fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+                toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
             }
             catch (Exception e)
             {
-                m_ErrorLog.SetError(",File Row <2> column <Date> Invalid Date Format. Use format MM-dd-yyyy");
+                //m_ErrorLog.SetError(",File Row <2> column <Date> Invalid Date Format. Use format MM-dd-yyyy");
+                m_ErrorLog.SetError(",File Row <2> column <Date> Invalid Date Format. Use format dd-MM-yyyy");
                 fromDate = DateTime.MaxValue;
                 toDate = DateTime.MinValue;
             }
@@ -806,9 +818,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                         WindUploadingFileGeneration addUnit = new WindUploadingFileGeneration();
                         bool skipRow = false;
                         rowNumber++;
-                        addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : (string)(dr["Date"]);
+                        ErrorLog("Before date conversion\r\n");
+
+                        //addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToString((string)dr["Date"]);
+                        // errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
+                        //addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+
+                        addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToString((string)dr["Date"]);
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
-                        addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                        addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+
+
+
 
                         addUnit.wtg = dr["WTG"] is DBNull || string.IsNullOrEmpty((string)dr["WTG"]) ? "Nil" : Convert.ToString(dr["WTG"]);
                         addUnit.wtg_id = equipmentId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(equipmentId[addUnit.wtg]) : 0;
@@ -820,21 +841,33 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                         addUnit.wind_speed = string.IsNullOrEmpty((string)dr["Wind_Speed"]) ? 0 : Convert.ToDouble(dr["Wind_Speed"]);
                         errorFlag.Add(numericNullValidation(addUnit.wind_speed, "Wind_Speed", rowNumber));
+                       
+                        addUnit.operating_hrs = dr["Gen_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Gen_Hrs"]) ? 0 : Convert.ToDouble(dr["Gen_Hrs"]);
+                        //errorFlag.Add(numericNullValidation(addUnit.operating_hrs, "Gen_Hrs", rowNumber));
 
                         addUnit.kwh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
-                        errorFlag.Add(numericNullValidation(addUnit.kwh, "kWh", rowNumber));
+                        errorFlag.Add(kwhValidation(addUnit.kwh, addUnit.operating_hrs, "kWh", rowNumber));
 
-                        addUnit.operating_hrs = dr["Gen_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Gen_Hrs"]) ? 0 : Convert.ToDouble(dr["Gen_Hrs"]);
-                        errorFlag.Add(numericNullValidation(addUnit.operating_hrs, "Gen_Hrs", rowNumber));
+                       // addUnit.kwh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
+                       // errorFlag.Add(numericNullValidation(addUnit.kwh, "kWh", rowNumber));
+
+                       // addUnit.operating_hrs = dr["Gen_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Gen_Hrs"]) ? 0 : ////Convert.ToDouble(dr["Gen_Hrs"]);
+
+                        //errorFlag.Add(numericNullValidation(addUnit.operating_hrs, "Gen_Hrs", rowNumber));
+
 
                         addUnit.lull_hrs = dr["Lull_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Lull_Hrs"]) ? 0 : Convert.ToDouble(dr["Lull_Hrs"]);
                         addUnit.grid_hrs = dr["Grid_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Grid_Hrs"]) ? 0 : Convert.ToDouble(dr["Grid_Hrs"]);
                         site = Convert.ToString(addUnit.site_id);
                         errorFlag.Add(uniformWindSiteValidation(rowNumber, addUnit.site_id, addUnit.wtg));
-                        dateValidate = Convert.ToDateTime(addUnit.date, timeCulture);
+                        //dateValidate = Convert.ToDateTime(addUnit.date, timeCulture);
+                        ErrorLog("Before to date Validate");
+
+                        dateValidate = Convert.ToDateTime(addUnit.date);
                         errorFlag.Add((siteUserRole == "Admin") ? false : importDateValidation(dateValidate));
                         errorFlag.Add(validationObject.validateGenData(rowNumber, addUnit.date, addUnit.wtg, addUnit.wind_speed, addUnit.kwh, addUnit.operating_hrs, addUnit.lull_hrs, addUnit.grid_hrs));
-                        nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
+                        // nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
+                        nextDate = Convert.ToDateTime(dr["Date"]);
                         fromDate = ((nextDate < fromDate) ? (nextDate) : (fromDate));
                         toDate = (nextDate > toDate) ? (nextDate) : (toDate);
                         foreach (bool item in errorFlag)
@@ -1065,7 +1098,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         SolarUploadingPyranoMeter1Min addUnit = new SolarUploadingPyranoMeter1Min();
                         rowNumber++;
                         bool skipRow = false;
-                        addUnit.date_time = string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
+                        //addUnit.date_time = string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
+                        addUnit.date_time = string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
                         errorFlag.Add(stringNullValidation(addUnit.date_time, "Time stamp", rowNumber));
                         errorFlag.Add(dateNullValidation(addUnit.date_time, "Time stamp", rowNumber));
 
@@ -1145,7 +1179,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         SolarUploadingPyranoMeter15Min addUnit = new SolarUploadingPyranoMeter15Min();
                         rowNumber++;
                         bool skipRow = false;
-                        addUnit.date_time = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
+                        // addUnit.date_time = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
+                        addUnit.date_time = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
                         errorFlag.Add(stringNullValidation(addUnit.date_time, "Time stamp", rowNumber));
                         errorFlag.Add(dateNullValidation(addUnit.date_time, "Time stamp", rowNumber));
 
@@ -1234,7 +1269,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.FY = dr["FY"] is DBNull || string.IsNullOrEmpty((string)dr["FY"]) ? "Nil" : (string)(dr["FY"]);
                         errorFlag.Add(financialYearValidation(addUnit.FY, rowNumber));
 
-                        addUnit.JMR_date = (dr["JMR date"] is DBNull) ? "Nil" : Convert.ToDateTime(dr["JMR date"], timeCulture).ToString("yyyy-MM-dd");
+                        //addUnit.JMR_date = (dr["JMR date"] is DBNull) ? "Nil" : Convert.ToDateTime(dr["JMR date"], timeCulture).ToString("yyyy-MM-dd");
+                        addUnit.JMR_date = (dr["JMR date"] is DBNull) ? "Nil" : Convert.ToDateTime(dr["JMR date"]).ToString("yyyy-MM-dd");
                         errorFlag.Add(dateNullValidation(addUnit.JMR_date, "JMR date", rowNumber));
 
                         addUnit.JMR_Month = dr["JMR Month"] is DBNull || string.IsNullOrEmpty((string)dr["JMR Month"]) ? "Nil" : Convert.ToString(dr["JMR Month"]);
@@ -1247,22 +1283,22 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(stringNullValidation(addUnit.Plant_Section, "Plant Section", rowNumber));
 
                         addUnit.Controller_KWH_INV = Convert.ToDouble((dr["Controller KWH/INV KWH"] is DBNull) ? 0 : dr["Controller KWH/INV KWH"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Controller_KWH_INV, "Controller KWH/INV KWH", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.Controller_KWH_INV, "Controller KWH/INV KWH", rowNumber));
 
                         addUnit.Scheduled_Units_kWh = Convert.ToDouble(dr["Scheduled Units (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Scheduled Units (kWh)"]) ? 0 : dr["Scheduled Units (kWh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Scheduled_Units_kWh, "Scheduled Units (kWh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.Scheduled_Units_kWh, "Scheduled Units (kWh)", rowNumber));
 
                         addUnit.Export_kWh = Convert.ToDouble((dr["Export (kWh)"] is DBNull) ? 0 : dr["Export (kWh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Export_kWh, "Export (kWh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.Export_kWh, "Export (kWh)", rowNumber));
 
                         addUnit.Import_kWh = Convert.ToDouble((dr["Import (kWh)"] is DBNull) ? 0 : dr["Import (kWh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Import_kWh, "Import (kWh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.Import_kWh, "Import (kWh)", rowNumber));
 
                         addUnit.Net_Export_kWh = Convert.ToDouble((dr["Net Export (kWh)"] is DBNull) ? 0 : dr["Net Export (kWh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Net_Export_kWh, "Net Export (kWh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.Net_Export_kWh, "Net Export (kWh)", rowNumber));
 
                         addUnit.Net_Billable_kWh = Convert.ToDouble((dr["Net Billable (kWh)"] is DBNull) ? 0 : dr["Net Billable (kWh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Net_Billable_kWh, "Net Billable (kWh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.Net_Billable_kWh, "Net Billable (kWh)", rowNumber));
 
                         addUnit.Export_kVAh = Convert.ToDouble((dr["Export (kVAh)"] is DBNull) ? 0 : dr["Export (kVAh)"]);
                         errorFlag.Add(numericNullValidation(addUnit.Export_kVAh, "Export (kVAh)", rowNumber));
@@ -1390,25 +1426,25 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add((addUnit.rkvhPercent > 100 || addUnit.rkvhPercent < 0) ? true : false);
 
                         addUnit.controllerKwhInv = Convert.ToDouble(dr["Controller KWH/INV KWH"] is DBNull || string.IsNullOrEmpty((string)dr["Controller KWH/INV KWH"]) ? 0 : dr["Controller KWH/INV KWH"]);
-                        errorFlag.Add(numericNullValidation(addUnit.controllerKwhInv, "Controller KWH/INV KWH", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.controllerKwhInv, "Controller KWH/INV KWH", rowNumber));
 
                         addUnit.scheduledUnitsKwh = Convert.ToDouble(dr["Scheduled Units  (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Scheduled Units  (kWh)"]) ? 0 : dr["Scheduled Units  (kWh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.scheduledUnitsKwh, "Scheduled Units  (kWh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.scheduledUnitsKwh, "Scheduled Units  (kWh)", rowNumber));
 
                         addUnit.exportKwh = Convert.ToDouble(dr["Export (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Export (kWh)"]) ? 0 : dr["Export (kWh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.exportKwh, "Export (kWh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.exportKwh, "Export (kWh)", rowNumber));
 
                         addUnit.importKwh = Convert.ToDouble(dr["Import (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Import (kWh)"]) ? 0 : dr["Import (kWh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.importKwh, "Import (kWh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.importKwh, "Import (kWh)", rowNumber));
 
                         addUnit.netExportKwh = Convert.ToDouble(dr["Net Export (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Net Export (kWh)"]) ? 0 : dr["Net Export (kWh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.netExportKwh, "Net Export (kWh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.netExportKwh, "Net Export (kWh)", rowNumber));
 
                         addUnit.exportKvah = Convert.ToDouble(dr["Export (kVAh)"] is DBNull || string.IsNullOrEmpty((string)dr["Net Export (kWh)"]) ? 0 : dr["Export (kVAh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.exportKvah, "Export (kVAh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.exportKvah, "Export (kVAh)", rowNumber));
 
                         addUnit.importKvah = Convert.ToDouble(dr["Import (kVAh)"] is DBNull || string.IsNullOrEmpty((string)dr["Net Export (kWh)"]) ? 0 : dr["Import (kVAh)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.importKvah, "Import (kVAh)", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.importKvah, "Import (kVAh)", rowNumber));
 
                         addUnit.exportKvarhLag = Convert.ToDouble(dr["Export (kVArh lag)"] is DBNull || string.IsNullOrEmpty((string)dr["Export (kVArh lag)"]) ? 0 : dr["Export (kVArh lag)"]);
                         errorFlag.Add(numericNullValidation(addUnit.exportKvarhLag, "Export (kVArh lag)", rowNumber));
@@ -1707,7 +1743,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(numericNullValidation(addUnit.POA, "POA", rowNumber));
 
                         addUnit.kWh = Convert.ToDouble((dr[5] is DBNull) || string.IsNullOrEmpty((string)dr[5]) ? 0 : dr[5]);
-                        errorFlag.Add(numericNullValidation(addUnit.kWh, "kWh", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.kWh, "kWh", rowNumber));
 
                         addUnit.MA = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["MA (%)"]), "MA (%)");
                         errorFlag.Add((addUnit.MA > 100 || addUnit.MA < 0) ? true : false);
@@ -1816,7 +1852,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(numericNullValidation(addUnit.windSpeed, "WindSpeed", rowNumber));
 
                         addUnit.kwh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
-                        errorFlag.Add(numericNullValidation(addUnit.kwh, "kwh", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.kwh, "kwh", rowNumber));
 
                         addUnit.ma = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["MA%"]), "MA%");
                         errorFlag.Add((addUnit.ma > 100 || addUnit.ma < 0) ? true : false);
@@ -1922,7 +1958,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(numericNullValidation(addUnit.Permissible_Load_MW, " Permissible Load (MW)", rowNumber));
 
                         addUnit.Gen_loss_kWh = Convert.ToDouble(string.IsNullOrEmpty((string)dr["Generation loss in KWH due to Load shedding"]) ? 0 : dr["Generation loss in KWH due to Load shedding"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Gen_loss_kWh, "Generation loss in KWH due to Load shedding", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.Gen_loss_kWh, "Generation loss in KWH due to Load shedding", rowNumber));
 
                         foreach (bool item in errorFlag)
                         {
@@ -2019,7 +2055,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(numericNullValidation(addUnit.permLoad, " Permissible Load (MW)", rowNumber));
 
                         addUnit.genShedding = string.IsNullOrEmpty((string)dr["Generation loss in KWH due to Load shedding"]) ? 0 : Convert.ToDouble(dr["Generation loss in KWH due to Load shedding"]);
-                        errorFlag.Add(numericNullValidation(addUnit.genShedding, "Generation loss in KWH due to Load shedding", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.genShedding, "Generation loss in KWH due to Load shedding", rowNumber));
 
                         foreach (bool item in errorFlag)
                         {
@@ -2114,7 +2150,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(numericNullValidation(addUnit.POA, " POA", rowNumber));
 
                         addUnit.kWh = Convert.ToDouble((dr[5] is DBNull) ? 0 : dr[5]);
-                        errorFlag.Add(numericNullValidation(addUnit.kWh, "kwh", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.kWh, "kwh", rowNumber));
 
                         addUnit.MA = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["MA (%)"]), "MA (%)");
                         errorFlag.Add((addUnit.MA > 100 || addUnit.MA < 0) ? true : false);
@@ -2216,7 +2252,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(numericNullValidation(addUnit.WindSpeed, "WindSpeed", rowNumber));
 
                         addUnit.kWh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
-                        errorFlag.Add(numericNullValidation(addUnit.kWh, "kWh", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.kWh, "kWh", rowNumber));
 
                         addUnit.MA = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["MA%"]), "MA%");
                         errorFlag.Add((addUnit.MA > 100 || addUnit.MA < 0) ? true : false);
@@ -2424,7 +2460,9 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(numericNullValidation(addUnit.tarrif, "Tariff", rowNumber));
 
                         addUnit.gbi = string.IsNullOrEmpty((string)dr["GBI"]) ? 0 : Convert.ToDouble(dr["GBI"]);
-                        errorFlag.Add(numericNullValidation(addUnit.gbi, "GBI", rowNumber));
+                        // errorFlag.Add(numericNullValidation(addUnit.gbi, "GBI", rowNumber));
+                        //addUnit.gbi = Convert.ToDouble((string)dr["GBI"]);
+                        // errorFlag.Add(numericNullValidation(addUnit.gbi, "GBI", rowNumber));
 
                         addUnit.total_tarrif = string.IsNullOrEmpty((string)dr["Total_Tariff"]) ? 0 : Convert.ToDouble(dr["Total_Tariff"]);
                         errorFlag.Add(numericNullValidation(addUnit.total_tarrif, "Total_Tariff", rowNumber));
@@ -2645,7 +2683,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(numericNullValidation(addUnit.feeder, "Feeder", rowNumber));
 
                         addUnit.max_kwh_day = string.IsNullOrEmpty((string)dr["Max. kWh/Day"]) ? 0 : Convert.ToDouble(dr["Max. kWh/Day"]);
-                        errorFlag.Add(numericNullValidation(addUnit.max_kwh_day, "Max. kWh/Day", rowNumber));
+                        errorFlag.Add(negativeNullValidation(addUnit.max_kwh_day, "Max. kWh/Day", rowNumber));
 
                         //uniqueRecordCheckWtgWise();
                         foreach (bool item in errorFlag)
@@ -3418,11 +3456,20 @@ namespace DGRA_V1.Areas.admin.Controllers
         }
         public bool dateNullValidation(string value, string columnName, long rowNo)
         {
+            ErrorLog("Inside dateNullValidation");
+            ErrorLog("Date  Value :" + value + "T\r\n");
             bool retVal = false;
             try
             {
-                string dateValue = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
-                value = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
+                ErrorLog("Inside try block");
+                // string dateValue = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
+                //value = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
+                string dateValue = Convert.ToDateTime(value).ToString("dd-MM-yyyy");
+                ErrorLog("Inside try block 1");
+                value = Convert.ToDateTime(value).ToString("dd-MM-yyyy");
+                ErrorLog("Inside try block 2");
+                ErrorLog("Date  Value :" + dateValue + "Value :" + value + "T\r\n");
+                ErrorLog("Date  Tome Min :"  +DateTime.MinValue.ToString("dd-MM-yyyy"));
                 if (value == "Nil")
                 {
                     m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Cell value cannot be empty,");
@@ -3430,31 +3477,48 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
                 else if (value != dateValue)
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: MM-dd-yyyy,");
+                    //m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: MM-dd-yyyy,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy,");
                     retVal = true;
                 }
                 else if (value == DateTime.MinValue.ToString("dd-MM-yyyy"))
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: MM-dd-yyyy,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy,");
                     retVal = true;
                 }
             }
             catch (Exception e)
             {
-                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date conversion <" + value + ">. While feeding data use following format: MM-dd-yyyy " + e.Message + ", ");
+                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date conversion <" + value + ">. While feeding data use following format: dd-MM-yyyy " + e.Message + ", ");
                 retVal = true;
             }
             return retVal;
         }
+        /* public bool numericNullValidation(double value, string columnName, long rowNo)
+         {
+             bool retVal = false;
+             if (value == 0)
+             {
+                 m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : value <" + value + "> cannot be empty or zero,");
+                 retVal = true;
+             }
+             return retVal;
+         }*/
         public bool numericNullValidation(double value, string columnName, long rowNo)
         {
             bool retVal = false;
             if (value == 0)
             {
-                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : value <" + value + "> cannot be empty or zero,");
+                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : value <" + value + "> cannot be null or zero,");
+                retVal = true;
+            }
+            if (value < 0)
+            {
+                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : value <" + value + "> cannot be negative,");
                 retVal = true;
             }
             return retVal;
+
         }
 
         public bool stringNullValidation(string value, string columnName, long rowNo)
@@ -3504,8 +3568,10 @@ namespace DGRA_V1.Areas.admin.Controllers
             try
             {
                 //conversion error should throw format error
-                string standardTime = Convert.ToDateTime(timeValue, timeCulture).ToString("HH:mm:ss");
+                // string standardTime = Convert.ToDateTime(timeValue, timeCulture).ToString("HH:mm:ss");
+                string standardTime = Convert.ToDateTime(timeValue).ToString("HH:mm:ss");
                 //if cell empty then throw empty error
+                ErrorLog("Standatd  Time :" + standardTime + "TimeValue :" + timeValue + "T\r\n");
                 if (timeValue == "Nil")
                 {
                     m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + "> Cell value empty. Add valid time value in HH:mm:ss 24 hour format,");
@@ -3563,6 +3629,34 @@ namespace DGRA_V1.Areas.admin.Controllers
                 retVal = true;
             }
             return retVal;
+        }
+        public bool kwhValidation(double kwhValue, double prodHrsValue, string columnName, long rowNo)
+        {
+            bool retVal = false;
+            if (kwhValue == 0 && prodHrsValue != 0)
+            {
+                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : kWh value cannot be zero, because production hours is not zero,");
+                retVal = true;
+            }
+            string value = Convert.ToString(kwhValue);
+            if (kwhValue < 0 )
+            {
+                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : kWh value cannot be negative or null,");
+                retVal = true;
+            }
+            return retVal;
+        }
+        public bool negativeNullValidation(double value, string columnName, long rowNo)
+        {
+            bool retVal = false;
+            string checker = Convert.ToString(value);
+            if (value < 0)
+            {
+                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : value <" + value + "> cannot be null or negative,");
+                retVal = true;
+            }
+            return retVal;
+
         }
     }
 }

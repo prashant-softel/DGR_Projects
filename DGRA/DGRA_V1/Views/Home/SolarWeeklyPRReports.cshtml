@@ -1139,7 +1139,7 @@
                     borderColor: "#77CAE7",
                     backgroundColor: "#77CAE7",
                     data: target_wind,
-                    yAxisID: 'energy',
+                   // yAxisID: 'energy',
                     datalabels: {
                         anchor: 'end',
                         align: 'top',
@@ -1150,7 +1150,7 @@
                     borderColor: "#31576D",
                     backgroundColor: "#31576D",
                     data: actual_wind,
-                        yAxisID: 'energy',
+                       // yAxisID: 'energy',
                         datalabels: {
                             anchor: 'end',
                             align: 'top',
@@ -1839,7 +1839,7 @@
                             jmr_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
                         if (result[i].act_pr != 0 || result[i].tar_pr != 0) {
-                            pr_var = ((result[i].act_pr - result[i].tar_pr) / result[i].tar_pr) * 100;
+                            pr_var = (result[i].act_pr - result[i].tar_pr);
                         }
 
                         if (result[i].act_ghi != 0 || result[i].tar_ghi != 0) {
@@ -1849,7 +1849,7 @@
                             ghi_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
                         }
                         if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
-                            plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                            plf_var = (result[i].act_plf - result[i].tar_plf) ;
                         }
                         if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
                             ma_act_var = (result[i].act_ma - result[i].tar_ma);
@@ -1860,9 +1860,9 @@
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
                             ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
-                        gain_tar = (result[i].tar_ghi / result[i].tar_poa) * 100;
-                        gain_act = (result[i].act_ghi / result[i].act_poa) * 100;
-                        gain_var = ((gain_act - gain_tar) / gain_tar);
+                        gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
+                        gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
+                        gain_var = (gain_act - gain_tar);
                         let pasitive;
                         let negative;
 
@@ -2243,7 +2243,7 @@
                             jmr_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
                         if (result[i].act_pr != 0 || result[i].tar_pr != 0) {
-                            pr_var = ((result[i].act_pr - result[i].tar_pr) / result[i].tar_pr) * 100;
+                            pr_var = (result[i].act_pr - result[i].tar_pr);
                         }
 
                         if (result[i].act_ghi != 0 || result[i].tar_ghi != 0) {
@@ -2253,7 +2253,7 @@
                             ghi_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
                         }
                         if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
-                            plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                            plf_var = (result[i].act_plf - result[i].tar_plf);
                         }
                         if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
                             ma_act_var = (result[i].act_ma - result[i].tar_ma);
@@ -2264,9 +2264,9 @@
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
                             ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
-                        gain_tar = (result[i].tar_ghi / result[i].tar_poa) * 100;
-                        gain_act = (result[i].act_ghi / result[i].act_poa) * 100;
-                        gain_var = ((gain_act - gain_tar) / gain_tar);
+                        gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
+                        gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
+                        gain_var = (gain_act - gain_tar);
 
                         let pasitive;
                         let negative;

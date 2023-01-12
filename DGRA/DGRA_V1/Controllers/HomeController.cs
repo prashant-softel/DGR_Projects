@@ -141,10 +141,10 @@ namespace DGRA_V1.Controllers
             string line = "";
             string[] userList = username.Split("@");
             string last = userList[1];
-            if (last.Equals("herofutureenergies.com")) {
-                SSOLogin();
-            }
-            else {
+            //if (last.Equals("herofutureenergies.com")) {
+               // SSOLogin();
+           // }
+           // else {
                 bool login_status = false;
                 LoginModel model = new LoginModel();
                 //UserAccess usermodel = new UserAccess();
@@ -190,7 +190,7 @@ namespace DGRA_V1.Controllers
                 string message = ex.Message;
             }
            
-        }
+        //}
             // return Ok(model);
             //return RedirectToAction("Dashbord", "Home");
             return Content(line, "application/json");
@@ -215,90 +215,87 @@ namespace DGRA_V1.Controllers
         //[Authorize]
         public IActionResult Dashbord()
         {
-
-            
+            TempData["notification"] = "";
             return View();
             
         }
         
         public IActionResult WindDailyTargetKPIView()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindGenView()
         {
-           
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindMonthlyTargetKPIView()
         {
-           
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindMonthlyLinelossView()
         {
-           
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindMonthlyJMRView()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindDailyLoadSheddingView()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
 
         // Report Routs
         public IActionResult WindSiteMaster()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindLocationMaster()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindGenReport()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindBDReport()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindPRReport()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult WindWeeklyPRReports()
         {
-           
+            TempData["notification"] = "";
             return View();
         }
-        public IActionResult WindSiteUserMaster()
+        public IActionResult SiteUserMaster()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
-        public IActionResult WindUserRegister()
+        public IActionResult UserRegister()
         {
-            
+            TempData["notification"] = "";
             return View();
         }
 
         public IActionResult ImportApproval()
         {
-           
-          
-           
+            TempData["notification"] = "";
             return View();
         }
         public async Task<IActionResult> WindNewUserRegister(string fname,string useremail,string role,string userpass)
@@ -321,7 +318,7 @@ namespace DGRA_V1.Controllers
             }
             catch (Exception ex)
             {
-                TempData["notification"] = "Data Not Presents !";
+                TempData["notification"] = ""; 
             }
             return Content(line, "application/json");
 
@@ -346,7 +343,7 @@ namespace DGRA_V1.Controllers
             }
             catch (Exception ex)
             {
-                TempData["notification"] = "Data Not Presents !";
+                TempData["notification"] = "";
             }
             return Content(line, "application/json");
 
@@ -371,7 +368,7 @@ namespace DGRA_V1.Controllers
             }
             catch (Exception ex)
             {
-                TempData["notification"] = "Data Not Presents !";
+                TempData["notification"] = "";
             }
             return Content(line, "application/json");
 
@@ -404,7 +401,7 @@ namespace DGRA_V1.Controllers
             }
             catch (Exception ex)
             {
-                TempData["notification"] = "Data Not Presents !";
+                TempData["notification"] = "";
             }
             return Content(line, "application/json");
 
@@ -430,7 +427,7 @@ namespace DGRA_V1.Controllers
             }
             catch (Exception ex)
             {
-                TempData["notification"] = "Data Not Presents !";
+                TempData["notification"] = "";
             }
             return Content(line, "application/json");
 
@@ -467,7 +464,7 @@ namespace DGRA_V1.Controllers
             }
             catch (Exception ex)
             {
-                TempData["notification"] = "Data Not Presents !";
+                TempData["notification"] = "";
             }
             return Content(line, "application/json");
 
@@ -475,78 +472,78 @@ namespace DGRA_V1.Controllers
         
         public IActionResult SolarGenView()
         {
-		   
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarDailyTargetKPIView()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarDailyLoadSheddingView()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarMonthlyTargetKPIView()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarMonthlyLinelossView()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarMonthlyJMRView()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarAcDcCapacityView()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarGHIPOA1MinView()
         {
-
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarGHIPOA15MinView()
         {
-
+            TempData["notification"] = "";
             return View();
         }
         // Report Routs
         public IActionResult SolarGenReport()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarBDReport()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarSiteMaster()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarLocationMaster()
         {
-		
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarPRReport()
         {
-
+            TempData["notification"] = "";
             return View();
         }
         public IActionResult SolarWeeklyPRReports()
         {
-
+            TempData["notification"] = "";
             return View();
         }
         public ActionResult WindUserDetails(string id)
@@ -559,8 +556,7 @@ namespace DGRA_V1.Controllers
         }
         public async Task<ActionResult> Logout(string username, string pass)
         {
-
-
+            TempData["notification"] = "";
             //Response.Redirect("somepage.aspx");
             return RedirectToAction("Index", "Home");
             // return View();

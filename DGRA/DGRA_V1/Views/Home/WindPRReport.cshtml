@@ -272,7 +272,7 @@
                         let ega_var = 0;
                         let tar_mu = 0;
                         tar_mu = result[i].tar_kwh_mu / 1000000;
-                        revenue = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif)/1000000;
+                        revenue = ((result[i].act_jmr_kwh_mu - tar_mu) * result[i].total_tarrif);
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
                             jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
@@ -280,18 +280,19 @@
                             wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
                         }
                         if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
-                            plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                            //plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                            plf_var = (result[i].act_plf - result[i].tar_plf) ;
                         }
                         if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
-                            ma_act_var = (result[i].act_ma - result[i].tar_ma) * 100;
+                            ma_act_var = (result[i].act_ma - result[i].tar_ma);
                         }
                         if (result[i].act_iga != 0 || result[i].tar_iga != 0) {
-                            iga_var = (result[i].act_iga - result[i].tar_iga) * 100;
+                            iga_var = (result[i].act_iga - result[i].tar_iga);
                         }
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
-                            ega_var = (result[i].act_ega - result[i].tar_ega) * 100;
+                            ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
-                        revenue_arr.push(revenue.toFixed(2));
+                        //revenue_arr.push(revenue.toFixed(2));
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';
                         tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
@@ -442,7 +443,7 @@
                         let ega_var = 0;
                         let tar_mu = 0;
                         tar_mu = result[i].tar_kwh_mu / 1000000;
-                        revenue = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif)/100000;
+                        revenue = ((result[i].act_jmr_kwh_mu - tar_mu) * result[i].total_tarrif);
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
                             jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
@@ -450,16 +451,17 @@
                             wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
                         }
                         if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
-                            plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                           // plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                            plf_var = (result[i].act_plf - result[i].tar_plf);
                         }
                         if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
-                            ma_act_var = (result[i].act_ma - result[i].tar_ma) * 100;
+                            ma_act_var = (result[i].act_ma - result[i].tar_ma);
                         }
                         if (result[i].act_iga != 0 || result[i].tar_iga != 0) {
-                            iga_var = (result[i].act_iga - result[i].tar_iga) * 100;
+                            iga_var = (result[i].act_iga - result[i].tar_iga);
                         }
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
-                            ega_var = (result[i].act_ega - result[i].tar_ega) * 100;
+                            ega_var = (result[i].act_ega - result[i].tar_ega) ;
                         }
                         let pasitive;
                         let negative;

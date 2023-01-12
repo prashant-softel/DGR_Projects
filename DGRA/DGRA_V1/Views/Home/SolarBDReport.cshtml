@@ -556,8 +556,10 @@
                 if (result.length > 0) {
                     console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {
+                        var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                       
                         tbl += '<tr>';
-                        tbl += '<td>' + result[i].date + '</td>';
+                        tbl += '<td>' + formattedDate + '</td>';
                         tbl += '<td>' + result[i].country + '</td>';
                         tbl += '<td>' + result[i].state + '</td>';
                         tbl += '<td>' + result[i].spv + '</td>';

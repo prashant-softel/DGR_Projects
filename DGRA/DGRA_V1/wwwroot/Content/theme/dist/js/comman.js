@@ -31,6 +31,9 @@ function GetMonthDate(date) {
     let currentMonth = date.getMonth()+1;
     let enddate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
     let monthEndDate = enddate.getDate();
+    if (currentMonth < 10) {
+        currentMonth = '0' + currentMonth;
+    }
     return {
         "startdate": `${currentYear}-${currentMonth}-01`, "enddate": `${currentYear}-${currentMonth}-${monthEndDate}`
     };
