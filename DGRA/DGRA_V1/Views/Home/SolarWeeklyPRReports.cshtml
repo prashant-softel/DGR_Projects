@@ -342,8 +342,8 @@
                 else {
                     en_pasitive = energy_var_wk;
                 }
-                let cal_revenue_wk = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
-                revenue.push(cal_revenue_wk.toFixed(2));
+               // let cal_revenue_wk = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
+                revenue.push(result[0].revenue);
                 // Push Weekly Enery
                 actual_mu.push(act_energy_wk.toFixed(2));
                 target_mu.push(tar_energy_wk.toFixed(2));
@@ -566,8 +566,8 @@
                  else {
                     en_pasitive = energy_var_wk;
                 }
-                let cal_revenue_mn = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
-                revenue.push(cal_revenue_mn.toFixed(2));
+               // let cal_revenue_mn = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
+                revenue.push(result[0].revenue);
                  // Push Energy MU Monthly
 
                 actual_mu.push(act_energy_wk.toFixed(2));
@@ -768,8 +768,8 @@
                     en_pasitive = energy_var_wk;
                 }
 
-                let cal_revenue_yr = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
-                revenue.push(cal_revenue_yr.toFixed(2));
+               // let cal_revenue_yr = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
+                revenue.push(result[0].revenue);
                 // Push MU Yearly data
 
                 actual_mu.push(act_energy_wk.toFixed(2));

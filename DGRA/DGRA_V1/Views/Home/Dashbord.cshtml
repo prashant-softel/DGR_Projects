@@ -796,7 +796,7 @@
         var datelebels = [];
         $.ajax({
             type: "GET",
-            url: "/Dashboard/GetWindGraphData?startDate" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + site,
+            url: "/Dashboard/GetWindGraphData?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + site,
             contentType: "application/json; charset=utf-8",
 
             datatype: "html",

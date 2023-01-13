@@ -192,18 +192,17 @@
 
 <script type="text/javascript">
     $(document).ready(function () {
+
+       
         $('#daterange').daterangepicker(
             {
+                singleDatePicker: true,
                 locale: {
                     format: 'DD/MM/YYYY',
                 }
             });
-        $('#daterange1').daterangepicker(
-            {
-                locale: {
-                    format: 'DD/MM/YYYY',
-                }
-            });
+       
+       
     });
     window.onload = function () {
 
@@ -280,10 +279,13 @@
         var act_ega_wk = 0;
         var ega_var_wk = 0;
         var daterange = $('#daterange').val();
-        var arr1 = new Array();
-        arr1 = daterange.split("-");
-        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        console.log(daterange);
+        var seldate = new Date(daterange);
+        var fromDate = GetWeeklyDays(seldate);
+       // var arr1 = new Array();
+        //arr1 = daterange.split("-");
+        //var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        //var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var fy = $('select#fy option:selected').val();
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
 
@@ -400,8 +402,8 @@
                 var_ega_pos.push(ega_positive);
                 var_ega_neg.push(ega_negative);
 
-                GetOperationMonthlyPR();   //Call Function for get monthly Data
-                GetWindMajorBreakdown();
+                //GetOperationMonthlyPR();   //Call Function for get monthly Data
+               // GetWindMajorBreakdown();
             }
 
         });
@@ -428,15 +430,15 @@
         var ega_var_mn = 0;
 
         var daterange = $('#daterange').val();
-        var arr1 = new Array();
-        arr1 = daterange.split("-");
-        var selDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        //var arr1 = new Array();
+        //arr1 = daterange.split("-");
+        //var selDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
        
         //var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        let date = new Date(toDate);
-        var monthdate = GetMonthDate(date);
-        var fromDate = monthdate.startdate;
+       // var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+       // let date = new Date(toDate);
+       // var monthdate = GetMonthDate(date);
+        //var fromDate = monthdate.startdate;
         //var toDate = monthdate.enddate;
         var fy = $('select#fy option:selected').val();
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
@@ -849,7 +851,20 @@
                         display: true,
                         position: "bottom"
                     }
-                }
+                },
+                scales: {
+                   
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                           // beginAtZero: true,
+                            //steps: 10,
+                            //stepValue: 5,
+                            min :0,
+                            max: 100
+                        }
+                    }]
+                },
             }
             /*options: {
                 scales: {

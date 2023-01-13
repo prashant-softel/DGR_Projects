@@ -91,33 +91,34 @@
                 <div class="col-md-4">
                     @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
 
-                    <a href="../SampleFormat/Wind_DGR_Automation.xlsx" download>Wind_DGR_Automation.xlsx</a><br />
-
+                    <a href="@Url.Content("/SampleFormat/Wind_DGR_Automation.xlsx")" download>Wind DGR Automation</a><br />
+                   
                     @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                     {
 
-                        <a href="../SampleFormat/Wind_daily_LoadShedding.xlsx" download>Wind_daily_load_Shedding.xlsx</a><br />
-                        <a href="../SampleFormat/Daily_Target_KPI.xlsx" download>Wind_daily_Target_KPI.xlsx</a><br />
-                        <a href="../SampleFormat/Wind_MonTargetKPI.xlsx" download>Wind_Monthly_Target_KPI.xlsx</a><br />
-                        <a href="../SampleFormat/Wind_JMR_Template.xlsx" download>Wind_Monthly_JMR.xlsx</a><br />
-                        <a href="../SampleFormat/Wind_MonthlyLinLoss.xlsx" download>Wind_Monthly_Lineloss.xlsx</a><br />
-                        <a href="../SampleFormat/WindSiteMaster.xlsx" download>SiteMaster.xlsx</a><br />
-                        <a href="../SampleFormat/WindLocationMaster.xlsx" download>SiteLocation.xlsx</a><br />
+                        <a href="@Url.Content("/SampleFormat/Wind_daily_LoadShedding.xlsx")" download>Wind daily Loadshedding</a><br />
+                        <a href="@Url.Content("/SampleFormat/Wind_Daily_Target_KPI.xlsx")" download>Wind daily Target KPI</a><br />
+                        <a href="@Url.Content("/SampleFormat/Wind_MonTargetKPI.xlsx")" download>Wind monthly Target KPI</a><br />
+                        <a href="@Url.Content("/SampleFormat/Wind_JMR_Template.xlsx")" download>Wind monthly JMR</a><br />
+                        <a href="@Url.Content("/SampleFormat/Wind_MonthlyLinLoss.xlsx")" download>Wind monthly Lineloss</a><br />
+                        <a href="@Url.Content("/SampleFormat/WindSiteMaster.xlsx")" download>Wind Site Master</a><br />
+                        <a href="@Url.Content("/SampleFormat/WindLocationMaster.xlsx")" download>Wind Site Location</a><br />
                     }
                 </div>
                 <div class="col-md-4">
                     @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
-                    <a href="../SampleFormat/Solar_DGR_Automation.xlsx" download>Solar_DGR_Automation.xlsx</a><br />
+                    <a href="@Url.Content("/SampleFormat/Solar_DGR_Automation.xlsx")" download>Solar DGR Automation</a><br />
 
                     @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                     {
-                        <a href="../SampleFormat/Solar_Daily_LoadShedding.xlsx" download>Solar_daily_load_Shedding.xlsx</a><br />
-                        <a href="../SampleFormat/Solar_daily_Target_KPI.xlsx" download>Solar_daily_Target_KPI.xlsx</a><br />
-                        <a href="../SampleFormat/SolarMonthlyTargetKPI.xlsx" download>Solar_Monthly_Target_KPI.xlsx</a><br />
-                        <a href="../SampleFormat/Solar_Monthly_JMR.xlsx" download>Solar_Monthly_JMR.xlsx</a><br />
-                        <a href="../SampleFormat/Solar_Monthly_Lineloss.xlsx" download>Solar_Monthly_Lineloss.xlsx</a><br />
-                        <a href="../SampleFormat/SolarSiteMaster.xlsx" download>SiteMaster.xlsx</a><br />
-                        <a href="../SampleFormat/SolarLocationMaster.xlsx" download>SiteLocation.xlsx</a><br />
+                        <a href="@Url.Content("/SampleFormat/Solar_Daily_LoadShedding.xlsx")" download>Solar daily Loadshedding</a><br />
+                        <a href="@Url.Content("/SampleFormat/Solar_daily_Target_KPI.xlsx")" download>Solar daily Target KPI</a><br />
+                        <a href="@Url.Content("/SampleFormat/SolarMonthlyTargetKPI.xlsx")" download>Solar monthly Target KPI</a><br />
+                        <a href="@Url.Content("/SampleFormat/Solar_Monthly_JMR.xlsx")" download>Solar monthly JMR </a><br />
+                        <a href="@Url.Content("/SampleFormat/Solar_Monthly_Lineloss.xlsx")" download>Solar monthly Lineloss</a><br />
+                        <a href="@Url.Content("/SampleFormat/Solar_AC_DC.xlsx")" download>Solar AC DC Capacity</a><br />
+                        <a href="@Url.Content("/SampleFormat/SolarSiteMaster.xlsx")" download>Solar Site Master</a><br />
+                        <a href="@Url.Content("/SampleFormat/SolarLocationMaster.xlsx")" download>Solar Location Master</a><br />
                     }
                 </div>
                 <div class="col-md-3">

@@ -2271,7 +2271,7 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
             List<SolarPerformanceReports2> tempdata = new List<SolarPerformanceReports2>();
             tempdata = await Context.GetData<SolarPerformanceReports2>(qry2).ConfigureAwait(false);
 
-            string qry5 = "create or replace view temp_view2 as SELECT t1.date,t3.site,t3.site,(t3.ac_capacity*1000) as capacity,t3.total_tarrif,SUM(t1.inv_kwh) as kwh,t2.LineLoss,SUM(t1.inv_kwh)-SUM(t1.inv_kwh)*(t2.LineLoss/100) as kwh_afterloss,((SUM(t1.inv_kwh)-SUM(t1.inv_kwh)*(t2.LineLoss/100))/((t3.ac_capacity*1000)*24))*100 as plf_afterloss FROM `daily_gen_summary_solar` as t1 left join monthly_line_loss_solar as t2 on t2.site_id= t1.site_id and month_no=MONTH(t1.date) left join site_master_solar as t3 on t3.site_master_solar_id = t1.site_id " + filter1 + " group by t1.date ,t1.site";
+            string qry5 = "create or replace view temp_view2 as SELECT t1.date,t3.site,(t3.ac_capacity*1000) as capacity,t3.total_tarrif,SUM(t1.inv_kwh) as kwh,t2.LineLoss,SUM(t1.inv_kwh)-SUM(t1.inv_kwh)*(t2.LineLoss/100) as kwh_afterloss,((SUM(t1.inv_kwh)-SUM(t1.inv_kwh)*(t2.LineLoss/100))/((t3.ac_capacity*1000)*24))*100 as plf_afterloss FROM `daily_gen_summary_solar` as t1 left join monthly_line_loss_solar as t2 on t2.site_id= t1.site_id and month_no=MONTH(t1.date) left join site_master_solar as t3 on t3.site_master_solar_id = t1.site_id " + filter1 + " group by t1.date ,t1.site";
             try
             {
                 await Context.ExecuteNonQry<int>(qry5).ConfigureAwait(false);
@@ -2287,7 +2287,7 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
             List<SolarPerformanceReports2> newdata = new List<SolarPerformanceReports2>();
 
             newdata = await Context.GetData<SolarPerformanceReports2>(qry6).ConfigureAwait(false);
-            string qry7 = "SELECT SUM(a.revenue) as revenue FROM(select t1.*, ((t2.kwh_afterloss - t1.kwh) * total_tarrif) / 1000000 as revenue from temp_view as t1 join temp_view2 as t2 on t2.site = t1.site and t1.date = t2.date) as a";
+            string qry7 = "SELECT SUM(a.revenue) as revenue FROM(select t1.*, ((t2.kwh_afterloss/1000000 - t1.gen_nos) * total_tarrif) as revenue from temp_view as t1 join temp_view2 as t2 on t2.site = t1.site and t1.date = t2.date) as a";
             List<SolarPerformanceReports2> newdata1 = new List<SolarPerformanceReports2>();
 
             newdata1 = await Context.GetData<SolarPerformanceReports2>(qry7).ConfigureAwait(false);

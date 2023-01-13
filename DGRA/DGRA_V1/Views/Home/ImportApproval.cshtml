@@ -137,7 +137,7 @@
                                 <label class="col-sm-4 col-form-label text-left">Status : </label>
                                 <select class="form-control  col-sm-8" id="status" name="status" value="">
                                     <option value="-1">All</option>
-                                    <option value="0">Waiting for Approval</option>
+                                    <option value="0">Awaiting for Approval</option>
                                     <option value="1">Approved</option>
                                     <option value="2">Rejected</option>
                                 </select>
@@ -378,11 +378,11 @@
                         var status = "";
                         var isDisable = "";
                         if (result[i].is_approved == 0) {
-                            status = "Waiting for Approve";
+                            status = "Awaiting for Approval";
                             isDisable = "";
                         }
                         if (result[i].is_approved == 0 && result[i].imported_by == @HttpContextAccessor.HttpContext.Session.GetString("userid")) {
-                            status = "Waiting for Approve";
+                            status = "Awaiting for Approval";
                             isDisable = "disabled";
                         }
                         if (result[i].is_approved == 1) {

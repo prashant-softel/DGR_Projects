@@ -54,3 +54,15 @@ function GetLastTendays() {
    // return "abc";
 }
 
+function GetWeeklyDays(seldate) {
+    console.log(seldate);
+    var dd = String(seldate.getDate() - 1).padStart(2, '0');
+    var mm = String(seldate.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = seldate.getFullYear();
+    //today = mm + '/' + dd + '/' + yyyy;
+   let today = yyyy + '-' + mm + '-' + dd;
+    console.log(today);
+    // return "abc";
+}
+
+

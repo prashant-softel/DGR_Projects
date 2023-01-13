@@ -98,7 +98,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return View();
         }
-
+       
         public async Task<string> ExcelDataReaderAndUpload(IFormFile file, string fileUploadType)
         {
             var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
@@ -683,7 +683,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 //fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
                 //toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
                 fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
-                toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+                toDate = Convert.ToDateTime((ds.Tables[0].Rows[0]["Date"]));
             }
             catch (Exception e)
             {
@@ -798,6 +798,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             {
                 fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
                 toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
+
             }
             catch (Exception e)
             {
@@ -863,7 +864,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                         //dateValidate = Convert.ToDateTime(addUnit.date, timeCulture);
                         ErrorLog("Before to date Validate");
 
-                        dateValidate = Convert.ToDateTime(addUnit.date);
+                        //dateValidate = Convert.ToDateTime(addUnit.date);
+                        dateValidate = Convert.ToDateTime((string)dr["Date"]);
                         errorFlag.Add((siteUserRole == "Admin") ? false : importDateValidation(dateValidate));
                         errorFlag.Add(validationObject.validateGenData(rowNumber, addUnit.date, addUnit.wtg, addUnit.wind_speed, addUnit.kwh, addUnit.operating_hrs, addUnit.lull_hrs, addUnit.grid_hrs));
                         // nextDate = Convert.ToDateTime(dr["Date"], timeCulture);
@@ -1280,13 +1282,13 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(yearValidation(addUnit.JMR_Year, rowNumber));
 
                         addUnit.Plant_Section = dr["Plant Section"] is DBNull || string.IsNullOrEmpty((string)dr["Plant Section"]) ? "Nil" : Convert.ToString(dr["Plant Section"]);
-                        errorFlag.Add(stringNullValidation(addUnit.Plant_Section, "Plant Section", rowNumber));
+                        //errorFlag.Add(stringNullValidation(addUnit.Plant_Section, "Plant Section", rowNumber));
 
                         addUnit.Controller_KWH_INV = Convert.ToDouble((dr["Controller KWH/INV KWH"] is DBNull) ? 0 : dr["Controller KWH/INV KWH"]);
                         errorFlag.Add(negativeNullValidation(addUnit.Controller_KWH_INV, "Controller KWH/INV KWH", rowNumber));
 
                         addUnit.Scheduled_Units_kWh = Convert.ToDouble(dr["Scheduled Units (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Scheduled Units (kWh)"]) ? 0 : dr["Scheduled Units (kWh)"]);
-                        errorFlag.Add(negativeNullValidation(addUnit.Scheduled_Units_kWh, "Scheduled Units (kWh)", rowNumber));
+                       // errorFlag.Add(negativeNullValidation(addUnit.Scheduled_Units_kWh, "Scheduled Units (kWh)", rowNumber));
 
                         addUnit.Export_kWh = Convert.ToDouble((dr["Export (kWh)"] is DBNull) ? 0 : dr["Export (kWh)"]);
                         errorFlag.Add(negativeNullValidation(addUnit.Export_kWh, "Export (kWh)", rowNumber));
@@ -1307,16 +1309,16 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(numericNullValidation(addUnit.Import_kVAh, "Import (kVAh)", rowNumber));
 
                         addUnit.Export_kVArh_lag = Convert.ToDouble((dr["Export (kVArh lag)"] is DBNull) ? 0 : dr["Export (kVArh lag)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Export_kVArh_lag, "Export (kVArh lag)", rowNumber));
+                        //errorFlag.Add(numericNullValidation(addUnit.Export_kVArh_lag, "Export (kVArh lag)", rowNumber));
 
                         addUnit.Import_kVArh_lag = Convert.ToDouble((dr["Import (kVArh lag)"] is DBNull) ? 0 : dr["Import (kVArh lag)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Import_kVArh_lag, "Import (kVArh lag)", rowNumber));
+                        //errorFlag.Add(numericNullValidation(addUnit.Import_kVArh_lag, "Import (kVArh lag)", rowNumber));
 
                         addUnit.Export_kVArh_lead = Convert.ToDouble((dr["Export (kVArh lead)"] is DBNull) ? 0 : dr["Export (kVArh lead)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Export_kVArh_lead, "Export (kVArh lead)", rowNumber));
+                        //errorFlag.Add(numericNullValidation(addUnit.Export_kVArh_lead, "Export (kVArh lead)", rowNumber));
 
                         addUnit.Import_kVArh_lead = Convert.ToDouble((dr["Import (kVArh lead)"] is DBNull) ? 0 : dr["Import (kVArh lead)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.Import_kVArh_lead, "Import (kVArh lead)", rowNumber));
+                        //errorFlag.Add(numericNullValidation(addUnit.Import_kVArh_lead, "Import (kVArh lead)", rowNumber));
 
                         addUnit.LineLoss = Convert.ToDouble((dr["LineLoss"] is DBNull) ? 0 : dr["LineLoss"]);
                         errorFlag.Add(numericNullValidation(addUnit.LineLoss, "LineLoss", rowNumber));
@@ -1406,7 +1408,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         objImportBatch.importSiteId = addUnit.siteId;
 
                         addUnit.plantSection = string.IsNullOrEmpty((string)dr["Plant Section"]) ? "Nil" : Convert.ToString(dr["Plant Section"]);
-                        errorFlag.Add(stringNullValidation(addUnit.plantSection, "Plant Section", rowNumber));
+                        //errorFlag.Add(stringNullValidation(addUnit.plantSection, "Plant Section", rowNumber));
 
                         addUnit.jmrDate = string.IsNullOrEmpty((string)dr["JMR date"]) ? "Nil" : Convert.ToString(dr["JMR date"]);
                         errorFlag.Add(dateNullValidation(addUnit.jmrDate, "JMR date", rowNumber));
@@ -1429,7 +1431,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(negativeNullValidation(addUnit.controllerKwhInv, "Controller KWH/INV KWH", rowNumber));
 
                         addUnit.scheduledUnitsKwh = Convert.ToDouble(dr["Scheduled Units  (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Scheduled Units  (kWh)"]) ? 0 : dr["Scheduled Units  (kWh)"]);
-                        errorFlag.Add(negativeNullValidation(addUnit.scheduledUnitsKwh, "Scheduled Units  (kWh)", rowNumber));
+                        //errorFlag.Add(negativeNullValidation(addUnit.scheduledUnitsKwh, "Scheduled Units  (kWh)", rowNumber));
 
                         addUnit.exportKwh = Convert.ToDouble(dr["Export (kWh)"] is DBNull || string.IsNullOrEmpty((string)dr["Export (kWh)"]) ? 0 : dr["Export (kWh)"]);
                         errorFlag.Add(negativeNullValidation(addUnit.exportKwh, "Export (kWh)", rowNumber));
@@ -1447,16 +1449,16 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(negativeNullValidation(addUnit.importKvah, "Import (kVAh)", rowNumber));
 
                         addUnit.exportKvarhLag = Convert.ToDouble(dr["Export (kVArh lag)"] is DBNull || string.IsNullOrEmpty((string)dr["Export (kVArh lag)"]) ? 0 : dr["Export (kVArh lag)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.exportKvarhLag, "Export (kVArh lag)", rowNumber));
+                        //errorFlag.Add(numericNullValidation(addUnit.exportKvarhLag, "Export (kVArh lag)", rowNumber));
 
                         addUnit.importKvarhLag = Convert.ToDouble(dr["Import (kVArh lag)"] is DBNull || string.IsNullOrEmpty((string)dr["Import (kVArh lag)"]) ? 0 : dr["Import (kVArh lag)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.importKvarhLag, "Import (kVArh lag)", rowNumber));
+                        //errorFlag.Add(numericNullValidation(addUnit.importKvarhLag, "Import (kVArh lag)", rowNumber));
 
                         addUnit.exportKvarhLead = Convert.ToDouble(dr["Export (kVArh lead)"] is DBNull || string.IsNullOrEmpty((string)dr["Export (kVArh lead)"]) ? 0 : dr["Export (kVArh lead)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.exportKvarhLead, "Export (kVArh lead)", rowNumber));
+                        //errorFlag.Add(numericNullValidation(addUnit.exportKvarhLead, "Export (kVArh lead)", rowNumber));
 
                         addUnit.importKvarhLead = Convert.ToDouble(dr["Import (kVArh lead)"] is DBNull || string.IsNullOrEmpty((string)dr["Import (kVArh lead)"]) ? 0 : dr["Import (kVArh lead)"]);
-                        errorFlag.Add(numericNullValidation(addUnit.importKvarhLead, "Import (kVArh lead)", rowNumber));
+                        //errorFlag.Add(numericNullValidation(addUnit.importKvarhLead, "Import (kVArh lead)", rowNumber));
 
                         addUnit.lineLoss = Convert.ToDouble(dr["LineLoss"] is DBNull || string.IsNullOrEmpty((string)dr["LineLoss"]) ? 0 : dr["LineLoss"]);
                         errorFlag.Add(numericNullValidation(addUnit.lineLoss, "LineLoss", rowNumber));
@@ -1550,7 +1552,11 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(yearValidation(addUnit.year, rowNumber));
 
                         addUnit.LineLoss = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["Line Loss (%)"]), "Line Loss (%)");
-                        errorFlag.Add(addUnit.LineLoss > 100 || addUnit.LineLoss < 0 ? true : false);
+                        if (addUnit.LineLoss > 100)
+                        {
+                            m_ErrorLog.SetError("," + ": Line loss can not be more than 100,");
+                            errorFlag.Add(true);
+                        }
 
                         errorFlag.Add(uniqueRecordCheckSolarPerMonthYear_LineLoss(addUnit, addSet, rowNumber));
                         foreach (bool item in errorFlag)
@@ -1640,7 +1646,12 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.year = (addUnit.month_no > 3) ? finalYear : finalYear = +1;
 
                         addUnit.lineLoss = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["Line Loss%"]), "Line Loss%");
-                        errorFlag.Add((addUnit.lineLoss > 100 || addUnit.lineLoss < 0) ? true : false);
+                        //errorFlag.Add((addUnit.lineLoss > 100 || addUnit.lineLoss < 0) ? true : false);
+                        if (addUnit.lineLoss > 100)
+                        {
+                            m_ErrorLog.SetError("," + ": Line loss can not be more than 100,");
+                            errorFlag.Add(true);
+                        }
                         foreach (bool item in errorFlag)
                         {
                             if (item)
@@ -3401,17 +3412,18 @@ namespace DGRA_V1.Areas.admin.Controllers
             int dayOfWeek = (int)today.DayOfWeek;
             //for DayOfWeek function 
             //if it's not true that file-date is of previous day and today is from Tuesday-Friday
-            if (!(dayDiff.Days == 1 && dayOfWeek > 1 && dayOfWeek < 6))
+            //&& dayOfWeek > 1 && dayOfWeek < 6
+            if (!(dayDiff.Days >= 0 && dayDiff.Days <= 5 ))
             {
                 // file date is incorrect
                 invalidDate = true;
 
             }
             //if today is Monday and file-date is of day-before-yesterday or yesterday
-            else if (!(dayOfWeek == 1 && dayDiff.Days > 0 && dayDiff.Days <= 2))
+           /* else if (!(dayOfWeek == 1 && dayDiff.Days > 0 && dayDiff.Days <= 2))
             {
                 invalidDate = true;
-            }
+            }*/
             //Pending : log to error log file
             return invalidDate;
         }
@@ -3472,24 +3484,24 @@ namespace DGRA_V1.Areas.admin.Controllers
                 ErrorLog("Date  Tome Min :"  +DateTime.MinValue.ToString("dd-MM-yyyy"));
                 if (value == "Nil")
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Cell value cannot be empty,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Cell value cannot be empty 1,");
                     retVal = true;
                 }
                 else if (value != dateValue)
                 {
                     //m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: MM-dd-yyyy,");
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy 2,");
                     retVal = true;
                 }
                 else if (value == DateTime.MinValue.ToString("dd-MM-yyyy"))
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy 3,");
                     retVal = true;
                 }
             }
             catch (Exception e)
             {
-                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date conversion <" + value + ">. While feeding data use following format: dd-MM-yyyy " + e.Message + ", ");
+                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date conversion <" + value + ">. While feeding data use following format: dd-MM-yyyy  catch " + e.Message + ", ");
                 retVal = true;
             }
             return retVal;
@@ -3658,5 +3670,7 @@ namespace DGRA_V1.Areas.admin.Controllers
             return retVal;
 
         }
+
+       
     }
 }

@@ -19,6 +19,8 @@ using Microsoft.Extensions.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using DGRA_V1.Common;
+using Microsoft.Extensions.FileProviders;
+using System.IO;
 
 namespace DGRA_V1
 {
@@ -106,6 +108,13 @@ namespace DGRA_V1
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseStaticFiles(new StaticFileOptions()
+             {
+                 FileProvider = new PhysicalFileProvider(
+                 Path.Combine(Directory.GetCurrentDirectory(), @"SampleFormat")),
+                 RequestPath = new PathString("/SampleFormat")
+             });
+
 
             app.UseSession();
 

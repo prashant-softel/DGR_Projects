@@ -59,10 +59,10 @@ namespace DGRA_V1.Models
                 {
                     m_ErrorLog.SetError(",File Row <" + rowNo + "> Percentage value in column <" + columnName + "> exceeds 100% value");
                 }
-                else if (percentage < 0)
+                /*else if (percentage < 0)
                 {
                     m_ErrorLog.SetError(",File Row <" + rowNo + "> Percentage value in column <" + columnName + "> is negative");
-                }
+                }*/
             }
             else
             {
