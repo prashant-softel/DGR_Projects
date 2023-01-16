@@ -421,6 +421,15 @@ namespace DGRA_V1.Areas.admin.Controllers
                                         }
                                     }
                                 }
+                                else
+                                {
+
+                                    m_ErrorLog.SetError("Invalid Tab name <" + excelSheet + ">");
+                                        //responseCode = 400;
+                                    
+
+
+                                }
                             } // end of foreach (var excelSheet in fileSheets)
                             if (statusCode == 200)
                             {
@@ -435,7 +444,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                 {
                                     if (fileSheets.Contains("Uploading_File_Generation") || fileSheets.Contains("Uploading_File_Breakdown"))
                                     {
-                                        if (isGenValidationSuccess || isBreakdownValidationSuccess)
+                                        if (isGenValidationSuccess && isBreakdownValidationSuccess)
                                         {
                                             await importMetaData(fileUploadType, file.FileName);
                                             statusCode = await dgrWindImport(batchIdDGRAutomation);
@@ -683,7 +692,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 //fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
                 //toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"], timeCulture);
                 fromDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
-                toDate = Convert.ToDateTime((ds.Tables[0].Rows[0]["Date"]));
+                toDate = Convert.ToDateTime(ds.Tables[0].Rows[0]["Date"]);
             }
             catch (Exception e)
             {
@@ -962,10 +971,13 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                         addUnit.total_bd = validationObject.breakDownCalc(addUnit.from_bd, addUnit.to_bd, rowNumber);
                         addUnit.bd_remarks = dr["BDRemarks"] is DBNull || string.IsNullOrEmpty((string)dr["BDRemarks"]) ? "Nil" : Convert.ToString(dr["BDRemarks"]);
-                        addUnit.bd_type = dr["BDRemarks"] is DBNull || string.IsNullOrEmpty((string)dr["BDRemarks"]) ? "Nil" : Convert.ToString(dr["BDType"]);
+                        addUnit.bd_type = dr["BDType"] is DBNull || string.IsNullOrEmpty((string)dr["BDType"]) ? "Nil" : Convert.ToString(dr["BDType"]);
                         addUnit.bd_type_id = Convert.ToInt32(breakdownType[addUnit.bd_type]);//B
+                        errorFlag.Add(bdTypeValidation(addUnit.bd_type, rowNumber));
 
-                        addUnit.action_taken = dr["ActionTaken"] is DBNull || string.IsNullOrEmpty((string)dr["ActionTaken"]) ? "Nil" : Convert.ToString(dr["ActionTaken"]);
+                        string sActionTaken = dr["ActionTaken"] is DBNull || string.IsNullOrEmpty((string)dr["ActionTaken"]) ? "Nil" : Convert.ToString(dr["ActionTaken"]);
+                        sActionTaken = validateAndCleanSpChar(rowNumber, "Action_Taken", sActionTaken);
+                        addUnit.action_taken = sActionTaken;
                         errorFlag.Add(validationObject.validateBreakDownData(rowNumber, addUnit.from_bd, addUnit.to_bd, addUnit.igbd));
                         foreach (bool item in errorFlag)
                         {
@@ -1025,9 +1037,16 @@ namespace DGRA_V1.Areas.admin.Controllers
                         WindUploadingFileBreakDown addUnit = new WindUploadingFileBreakDown();
                         rowNumber++;
                         bool skipRow = false;
-                        addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : (string)dr["Date"];
+                        addUnit.date = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToString(dr["Date"]);
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                        if(addUnit.date == "" || addUnit.date == "Nil")
+                        {
+                            m_ErrorLog.SetError(",Row <" + rowNumber + "> column <Date> : Date field is empty <" + addUnit.date + ">");
+                            errorCount++;
+                            skipRow = true;
+                            continue;
+                        }
 
                         addUnit.wtg = Convert.ToString(dr["WTG"]);
                         addUnit.wtg_id = Convert.ToInt32(equipmentId[addUnit.wtg]);//A
@@ -1036,12 +1055,19 @@ namespace DGRA_V1.Areas.admin.Controllers
                         objImportBatch.importSiteId = addUnit.site_id;
                         addUnit.bd_type = Convert.ToString(dr["BD_Type"]);
                         addUnit.bd_type_id = Convert.ToInt32(breakdownType[addUnit.bd_type]);//B
+/*                        if (addUnit.bd_type_id == 0)
+                        {
+                            m_ErrorLog.SetError(",Row <" + rowNumber + "> column <BD_Type> : Invalid BD_Type <" + addUnit.bd_type + ">");
+                            errorFlag.Add(true);                                
+                        }*/
                         errorFlag.Add(bdTypeValidation(addUnit.bd_type, rowNumber));
                         addUnit.stop_from = Convert.ToDateTime(dr["Stop From"]).ToString("HH:mm:ss");
                         addUnit.stop_to = Convert.ToDateTime(dr["Stop To"]).ToString("HH:mm:ss");
                         addUnit.total_stop = ValidationObject.breakDownCalc(addUnit.stop_from, addUnit.stop_to);
                         addUnit.error_description = Convert.ToString(dr["Error description"]);
-                        addUnit.action_taken = Convert.ToString(dr["Action Taken"]);
+                        string sActionTaken = dr["Action Taken"] is DBNull || string.IsNullOrEmpty((string)dr["Action Taken"]) ? "Nil" : Convert.ToString(dr["Action Taken"]);
+                        sActionTaken = validateAndCleanSpChar(rowNumber, "Action Taken", sActionTaken);
+                        addUnit.action_taken = sActionTaken;
                         errorFlag.Add(ValidationObject.validateBreakDownData(rowNumber, addUnit.bd_type, addUnit.wtg, addUnit.stop_from, addUnit.stop_to));
                         foreach (bool item in errorFlag)
                         {
@@ -3671,6 +3697,25 @@ namespace DGRA_V1.Areas.admin.Controllers
 
         }
 
-       
+        public string Filter(long rowNumber, string colName, string str, List<char> charsToRemove)
+        {
+            foreach (char c in charsToRemove)
+            {
+                str = str.Replace(c.ToString(), string.Empty);
+//                m_ErrorLog.SetInformation(",Row <" + rowNumber + "> column <" + colName + "> : value <" + c.ToString() + "> removed from string,");
+            }
+
+            return str;
+        }
+        public string validateAndCleanSpChar(long rowNumber, string colName, string sActionTaken)
+        {
+            string retValue = "";
+            List<char> charsToRemove = new List<char>() { '\'', '@' };
+            retValue = Filter(rowNumber, colName, sActionTaken, charsToRemove);
+            return retValue;
+        }
+
+
+
     }
 }

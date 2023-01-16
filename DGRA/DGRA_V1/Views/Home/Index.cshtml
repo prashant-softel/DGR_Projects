@@ -75,14 +75,21 @@
              </div>
          </div>
      </div>
-     <div class="input-group mb-3">
-         <input type="password" name="pass" id="pass" class="form-control" placeholder="Password">
-         <div class="input-group-append">
-             <div class="input-group-text">
-                 <span class="fas fa-lock"> </span>
-             </div>
-         </div>
-     </div>
+                            <div class="input-group mb-3">
+                                <input type="password" name="pass" id="pass" class="form-control" placeholder="Password" onkeypress="Press(event);">
+
+
+                                <div class="input-group-append">
+                                    <div class="input-group-text" onclick="TogglePass();" style="background-color: rgb(225,239,254)">
+                                        <span class="fas fa-eye" > </span>
+                                    </div>
+                                </div>
+                                <div class="input-group-append">
+                                    <div class="input-group-text">
+                                        <span class="fas fa-lock"> </span>
+                                    </div>
+                                </div>
+                            </div>
      <div class="row">
          <!--<div class="col-8" style="font-size: 14px;">
         <label style="color: red; font-weight: unset;display:none" id="msg"></label>
@@ -117,6 +124,20 @@
     <script src="~/Content/theme/dist/js/adminlte.min.js"></script>
     <script src="~/Content/bootstrap.bundle.min.js"></script>
     <script type="text/javascript">
+        function Press(event) {
+            if (event.key == "Enter") {
+                Login();
+            }
+        }
+        function TogglePass() {
+            var a = document.getElementById("pass");
+            if (a.type == "password") {
+                a.type = "text";
+            } else {
+                a.type = "password";
+
+            }
+        }
         function Login() {
             var username = document.getElementById("username").value;
             var password = document.getElementById("pass").value;

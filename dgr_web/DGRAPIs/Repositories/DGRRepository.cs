@@ -67,7 +67,7 @@ namespace DGRAPIs.Repositories
                 }
 
             }
-            string qry = @"select Date,month(date)as month,year(date)as year,Site,(sum(wind_speed)/count(*))as Wind,sum(kwh)as KWH,(select  replace(line_loss,'%','')as line_loss from monthly_uploading_line_losses where fy='" + FY + "' and month=DATE_FORMAT(t1.date, '%b') and site=t1.site order by monthly_uploading_line_losses_id desc limit 1) as line_loss,sum(kwh)-(sum(kwh)*((select  replace(line_loss,'%','')as line_loss from monthly_uploading_line_losses where fy='" + FY + "' and month=DATE_FORMAT(t1.date, '%b') and site=t1.site order by monthly_uploading_line_losses_id desc limit 1)/100))as jmrkwh,(select (kwh*1000000)as tarkwh from daily_target_kpi where site=t1.site and date=t1.date order by daily_target_kpi_id desc limit 1)as tarkwh ,(select (sum(wind_speed)/(select count(*) from daily_target_kpi where site=t2.site and date=t2.date))as tarwind from daily_target_kpi t2  where site=t1.site and date=t1.date)as tarwind from daily_gen_summary t1 where  " + filter + " group by Site,date order by date desc";
+            string qry = @"select Date,month(date)as month,year(date)as year,Site,(sum(wind_speed)/count(*))as Wind,sum(kwh)as KWH,(select  replace(line_loss,'%','')as line_loss from monthly_uploading_line_losses where fy='" + FY + "' and month=DATE_FORMAT(t1.date, '%b') and site=t1.site order by monthly_uploading_line_losses_id desc limit 1) as line_loss,sum(kwh)-(sum(kwh)*((select  replace(line_loss,'%','')as line_loss from monthly_uploading_line_losses where fy='" + FY + "' and month=DATE_FORMAT(t1.date, '%b') and site=t1.site order by monthly_uploading_line_losses_id desc limit 1)/100))as jmrkwh,(select (kwh*1000000)as tarkwh from daily_target_kpi where site=t1.site and date=t1.date order by daily_target_kpi_id desc limit 1)as tarkwh ,(select (sum(wind_speed)/(select count(*) from daily_target_kpi where site=t2.site and date=t2.date))as tarwind from daily_target_kpi t2  where site=t1.site and date=t1.date)as tarwind from daily_gen_summary t1 where  " + filter + " group by Site,date order by date asc";
 
 
             //t1 where t1.approve_status="+approve_status+" and " + filter + " group by Site,date order by date desc";
@@ -92,7 +92,7 @@ namespace DGRAPIs.Repositories
             //string qry = @"select t1.Date,month(t1.date) as month,year(t1.date) as year,t1.Site, (sum(t1.wind_speed) / count(*)) as Wind, sum(t1.kwh) - (sum(t1.kwh) * replace(t2.line_loss, '%', '') / 100) as jmrkwh, (t3.kwh * 1000000) as tarkwh, avg(t3.wind_speed) as tarwind from daily_gen_summary t1 left join monthly_uploading_line_losses t2 on t2.site_id = t1.site_id and t2.fy ='" + FY + "' left join daily_target_kpi t3 on t3.site_id = t1.site_id and t3.date = t1.date where " + filter + " group by t1.date order by t1.date desc";
             // string qry = @"select t1.Date,month(t1.date) as month,year(t1.date) as year,t1.Site, (sum(t1.wind_speed) / count(*)) as Wind, sum(kwh_afterlineloss) as jmrkwh, (t3.kwh * 1000000) as tarkwh, avg(t3.wind_speed) as tarwind from daily_gen_summary t1 left join monthly_uploading_line_losses t2 on t2.site_id = t1.site_id and t2.fy ='" + FY + "' left join daily_target_kpi t3 on t3.site_id = t1.site_id and t3.date = t1.date where " + filter + " group by t1.date order by t1.date desc";
 
-            string qry = @"select t1.site_id,t1.Date,month(t1.date) as month,year(t1.date) as year,t1.Site, (sum(t1.wind_speed) / count(*)) as Wind, sum(kwh_afterlineloss) as jmrkwh, (t2.kwh) as tarkwh, avg(t2.wind_speed) as tarwind from daily_gen_summary t1 left join daily_target_kpi as t2 on t2.site_id = t1.site_id and t2.date = t1.date and t2.fy = '" + FY + "' where " + filter + " group by t1.date order by t1.date desc";
+            string qry = @"select t1.site_id,t1.Date,month(t1.date) as month,year(t1.date) as year,t1.Site, (sum(t1.wind_speed) / count(*)) as Wind, sum(kwh_afterlineloss) as jmrkwh, (t2.kwh) as tarkwh, avg(t2.wind_speed) as tarwind from daily_gen_summary t1 left join daily_target_kpi as t2 on t2.site_id = t1.site_id and t2.date = t1.date and t2.fy = '" + FY + "' where " + filter + " group by t1.date order by t1.date asc";
 
             List<WindDashboardData1> _WindDashboardData = await Context.GetData<WindDashboardData1>(qry).ConfigureAwait(false);
             return _WindDashboardData;
@@ -415,7 +415,7 @@ namespace DGRAPIs.Repositories
 
             }
             string qry = @"select Date,month(date)as month,year(date)as year,Site,(sum(poa)/count(*))as IR,sum(inv_kwh)as inv_kwh,(select  replace(lineloss,'%','')as line_loss
-from monthly_line_loss_solar where fy='" + FY + "' and month=DATE_FORMAT(t1.date, '%b') and site=t1.site order by monthly_line_loss_solar_id desc limit 1) as line_loss,sum(inv_kwh)-(sum(inv_kwh)*((select  replace(lineloss,'%','')as line_loss  from monthly_line_loss_solar where fy='" + FY + "' and month=DATE_FORMAT(t1.date, '%b')  and site=t1.site order by monthly_line_loss_solar_id desc limit 1)/100))as jmrkwh, (select (gen_nos*1000000)as tarkwh from daily_target_kpi_solar where site=t1.site and date=t1.date    order by daily_target_kpi_solar_id desc limit 1)as tarkwh , (select (sum(poa)/(select count(*) from daily_target_kpi_solar where site=t1.site and date=t2.date order by daily_target_kpi_solar_id desc limit 1))as tarwind  from daily_target_kpi_solar t2  where site=t1.site and date=t1.date)as tarIR from daily_gen_summary_solar t1 where " + filter + " group by Site,date order by date desc";
+from monthly_line_loss_solar where fy='" + FY + "' and month=DATE_FORMAT(t1.date, '%b') and site=t1.site order by monthly_line_loss_solar_id desc limit 1) as line_loss,sum(inv_kwh)-(sum(inv_kwh)*((select  replace(lineloss,'%','')as line_loss  from monthly_line_loss_solar where fy='" + FY + "' and month=DATE_FORMAT(t1.date, '%b')  and site=t1.site order by monthly_line_loss_solar_id desc limit 1)/100))as jmrkwh, (select (gen_nos*1000000)as tarkwh from daily_target_kpi_solar where site=t1.site and date=t1.date    order by daily_target_kpi_solar_id desc limit 1)as tarkwh , (select (sum(poa)/(select count(*) from daily_target_kpi_solar where site=t1.site and date=t2.date order by daily_target_kpi_solar_id desc limit 1))as tarwind  from daily_target_kpi_solar t2  where site=t1.site and date=t1.date)as tarIR from daily_gen_summary_solar t1 where " + filter + " group by Site,date order by date asc";
 
             //from daily_target_kpi_solar t2  where site=t1.site and date=t1.date)as tarIR from daily_gen_summary_solar t1 where t1.approve_status="+approve_status+" and " + filter + " group by Site,date order by date desc";
 
@@ -450,7 +450,7 @@ from monthly_line_loss_solar where fy='" + FY + "' and month=DATE_FORMAT(t1.date
                 filter += " and t1.site_id in(" + sites + ")";
 
             }
-            string qry = @"select t1.date,sum(inv_kwh) as inv_kwh,avg(t1.poa) as IR,(t2.gen_nos * 1000000) as tarkwh, avg(t2.poa) as tarIR from daily_gen_summary_solar t1 left join daily_target_kpi_solar t2 on t2.sites = t1.site and t2.date = t1.date where " + filter + " group by t1.date order by t1.date desc";
+            string qry = @"select t1.date,sum(inv_kwh) as inv_kwh,avg(t1.poa) as IR,(t2.gen_nos * 1000000) as tarkwh, avg(t2.poa) as tarIR from daily_gen_summary_solar t1 left join daily_target_kpi_solar t2 on t2.sites = t1.site and t2.date = t1.date where " + filter + " group by t1.date order by t1.date asc";
 
             List<SolarDashboardData1> _SolarDashboardData = await Context.GetData<SolarDashboardData1>(qry).ConfigureAwait(false);
             return _SolarDashboardData;
@@ -4650,7 +4650,7 @@ FROM daily_bd_loss_solar where   " + datefilter;
                         }
                     }
                     monthnames = monthnames.TrimEnd(',');
-                    filter += " and month in(" + monthnames + ")";
+                    filter += " month in(" + monthnames + ")";
                     chkfilter = 1;
                 }
 
