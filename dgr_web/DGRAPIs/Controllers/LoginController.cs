@@ -54,6 +54,21 @@ namespace Login.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Route("UpdatePassword")]
+        [HttpGet]
+        public async Task<IActionResult> UpdatePassword(int loginid, string updatepass)
+        {
+            try
+            {
+                var data = await _loginBs.UpdatePassword(loginid, updatepass);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
         [Route("GetWindUserInformation")]
         [HttpGet]
         // public async Task<IActionResult> UserLogin(string username, string password)

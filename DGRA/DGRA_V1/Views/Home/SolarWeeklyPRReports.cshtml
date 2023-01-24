@@ -43,6 +43,10 @@
 
     .card-body {
     }
+    hr {
+        margin-top: -10px !important;
+    }
+   
 </style>
 
 <div class="content-wrapper">
@@ -61,19 +65,19 @@
             <div class="tab-content" id="custom-tabs-two-tabContent">
                 <div class="tab-pane fade show active" id="custom-tabs-two-op" role="tabpanel" aria-labelledby="custom-tabs-two-op-tab">
                     <div class="row">
+                        <!--<div class="col-sm-4">
+            <div class="form-group">
+                <div class="row">
+                    <label class="col-sm-4 col-form-label text-right">FY : </label>
+                    <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                        <option value="">Select Financial Year</option>
+                    </select>
+                </div>
+            </div>
+        </div>-->
                         <div class="col-sm-4">
-                            <div class="form-group">
-                                <div class="row">
-                                    <label class="col-sm-4 col-form-label text-right">FY : </label>
-                                    <select class="form-control  col-sm-8" id="fy" name="fy" value="">
-                                        <option value="">Select Financial Year</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-sm-4">
-                            <div class="input-group " style="margin-left: -5px; width: 104%;">
-                                <label class="col-sm-4 col-form-label text-right">Date : </label>
+                            <div class="input-group " >
+                                <label class="col-sm-2 col-form-label text-left">Date : </label>
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">
                                         <i class="far fa-calendar-alt"></i>
@@ -82,13 +86,14 @@
                                 <input type="text" class="form-control float-right" id="daterange" name="daterange">
                             </div>
                         </div>
-                        <div class="col-sm-2"></div>
+
                         <div class="col-sm-2">
                             <button type="button" class="btn btn-block btn-primary" onclick="GetOperationWKPR();">Search</button>
                         </div>
-                        <hr>
+                        <div class="col-sm-6"></div>
 
                     </div>
+                    <br>
                     <hr>
                     <div class="row" id="wk_head" style="display:none">
                         <div class="col-sm-5 text-center" id="wk_head_sec1">
@@ -100,6 +105,7 @@
                         <div class="col-sm-4" id="wk_head_sec3">
 
                         </div>
+
                     </div>
                     <hr>
                     <div class="row">
@@ -128,23 +134,7 @@
                         </div>
                     </div>
                     <hr>
-                    <br>
-                    <div class="card-header">
-                        <h3 class="card-title text-center">Performance By SPV</h3>
-                    </div>
-                    <div id="reportsDailySPV" style="overflow-x: auto;" class="reportsDailySPV"></div>
-                    <br>
-                    <div class="row" id="sitewisechart">
-                        <div class="chart col-sm-6 text-center">
-                            <h5>Energy (MUs) </h5>
-                            <canvas id="energy_chart_pr_spv" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
-                        </div>
-                        <div class="chart col-sm-6 text-center">
-                            <h5>PR (%)</h5>
-                            <canvas id="wind_chart_pr_spv" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
-                        </div>
 
-                    </div>
                     <br>
                     <div class="card-header">
                         <h3 class="card-title text-center">Performance By Site</h3>
@@ -154,12 +144,29 @@
                     <br>
                     <div class="row" id="sitewisechart">
                         <div class="chart col-sm-6 text-center">
-                            <h5>Energy (MUs) </h5>
+                            <!--<h5>Energy (MUs) </h5>-->
                             <canvas id="energy_chart_pr_site" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
                         </div>
                         <div class="chart col-sm-6 text-center">
-                            <h5>PR (%)</h5>
+                            <!--<h5>PR (%)</h5>-->
                             <canvas id="wind_chart_pr_site" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                        </div>
+
+                    </div>
+                    <br>
+                    <div class="card-header">
+                        <h3 class="card-title text-center">Performance By SPV</h3>
+                    </div>
+                    <div id="reportsDailySPV" style="overflow-x: auto;" class="reportsDailySPV"></div>
+                    <br>
+                    <div class="row" id="sitewisechart">
+                        <div class="chart col-sm-6 text-center">
+                            <!--<h5>Energy (MUs) </h5>-->
+                            <canvas id="energy_chart_pr_spv" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
+                        </div>
+                        <div class="chart col-sm-6 text-center">
+                            <!--<h5>PR (%)</h5>-->
+                            <canvas id="wind_chart_pr_spv" style="min-height: 350px; height: 350px; max-height: 350px; max-width: 100%;"></canvas>
                         </div>
 
                     </div>
@@ -210,6 +217,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0-rc"></script>
 
 <script type="text/javascript">
+    var fyear ="";
     $(document).ready(function () {
         $('#daterange').daterangepicker(
             {
@@ -221,8 +229,9 @@
         
     });
     window.onload = function () {
-
-        getYear();
+        var today = new Date();
+        fyear = getFinancialYear(today);
+        //getYear();
     }
     var actual_mu = [];
     var target_mu = [];
@@ -258,7 +267,7 @@
     var var_ega_pos = [];
     var var_ega_neg = [];
     var revenue = [];
-    function getYear() {
+    /*function getYear() {
     $.ajax({
         type: "GET",
         url: "/WindReport/GetFinacialYear",
@@ -280,7 +289,7 @@
             })
         }
     });
-    }
+    }*/
 
 
     function GetOperationWKPR() {
@@ -316,7 +325,7 @@
         var seldate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
         var fromDate = GetWeeklyDays(seldate);
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
-        var fy = $('select#fy option:selected').val();
+        var fy = fyear;//$('select#fy option:selected').val();
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
 
         $.ajax({
@@ -517,7 +526,7 @@
         //console.log("Start Date :", monthdate.startdate);
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
         var fromDate = monthdate.startdate;
-        var fy = $('select#fy option:selected').val();
+        var fy = fyear;//$('select#fy option:selected').val();
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
@@ -709,7 +718,7 @@
         var act_ega_yr = 0;
         var ega_var_yr = 0;
 
-        var fy = $('select#fy option:selected').val();
+        var fy = fyear;//$('select#fy option:selected').val();
         var daterange = $('#daterange').val();
         const dateArr = daterange.split("/");
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
@@ -925,7 +934,7 @@
                  sec2 += '</table>';
 
 
-                 sec3 += '<table class="table table-bordered table-striped">';
+                 sec3 += '<table class="table table-bordered table-striped" style="line-height: 15px;">';
                  sec3 += '<thead class="tbl-head"><tr>';
                  sec3 += '<th>Period</th><th>Energy Gain/Loss (MUs)	</th><th>Revenue(MINR)</th></tr ></thead> ';
                  sec3 += '<tr><td>WK</td><td style="text-align: right;">' + actual_mu[0] + '</td><td style="text-align: right;">' + revenue[0].toFixed(1) + '</td></tr>';
@@ -963,8 +972,17 @@
                     data: target_mu,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'en_mu',
@@ -975,8 +993,17 @@
                     data: actual_mu,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                     }, {
                     yAxisID: 'mu_var',
@@ -1013,7 +1040,8 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: "Energy(MUs)"
+                        text: "Energy(MUs)",
+
                     },
 
                     legend: {
@@ -1061,8 +1089,17 @@
                     data: target_wind,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'ir_en',
@@ -1073,8 +1110,17 @@
                     data: actual_wind,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'ir_var',
@@ -1172,8 +1218,17 @@
                     data: actual_plf,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'plf_var',
@@ -1258,8 +1313,17 @@
                     data: target_ma,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'ma_en',
@@ -1270,8 +1334,17 @@
                     data: actual_ma,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'ma_var',
@@ -1283,8 +1356,17 @@
                     fill: false,
                     order: 0,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'ma_var',
@@ -1356,8 +1438,17 @@
                     data: target_iga,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'iga_en',
@@ -1368,8 +1459,17 @@
                     data: actual_iga,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                     }, {
                     yAxisID: 'iga_var',
@@ -1381,8 +1481,17 @@
                     fill: false,
                     order: 0,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                     }, {
                     yAxisID: 'iga_var',
@@ -1454,8 +1563,17 @@
                     data: target_ega,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'ega_en',
@@ -1466,8 +1584,17 @@
                     data: actual_ega,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'ega_var',
@@ -1540,11 +1667,11 @@
         var seldate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
         var fromDate = GetWeeklyDays(seldate);
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
-        var fyear = $('select#fy option:selected').val();
+        var fyear1 = fyear; //$('select#fy option:selected').val();
 
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetSolarMajorBreakdown", "SolarReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            url: '@Url.Action("GetSolarMajorBreakdown", "SolarReport")' + '?fy=' + fyear1 + '&fromDate=' + fromDate + '&toDate=' + toDate,
             //url: "/WindReport/GetWindPRReportSPVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
 
@@ -1633,7 +1760,7 @@
         var seldate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
         var fromDate = GetWeeklyDays(seldate);
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
-        var fyear = $('select#fy option:selected').val();
+        var fyear1 = fyear;//$('select#fy option:selected').val();
 
         var actual_energy = [];
         var target_energy = [];
@@ -1650,7 +1777,7 @@
         var reporthead = "SPV Wise Reports";
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetSolarPRReportSPVWise", "SolarReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            url: '@Url.Action("GetSolarPRReportSPVWise", "SolarReport")' + '?fy=' + fyear1 + '&fromDate=' + fromDate + '&toDate=' + toDate,
             //url: "/WindReport/GetWindPRReportSPVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
 
@@ -1735,7 +1862,7 @@
                             ghi_var = ((result[i].act_ghi - result[i].tar_ghi) / result[i].tar_ghi) * 100;
                         }
                         if (result[i].act_poa != 0 || result[i].tar_poa != 0) {
-                            ghi_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
+                            poa_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
                         }
                         if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
                             plf_var = (result[i].act_plf - result[i].tar_plf) ;
@@ -1749,6 +1876,7 @@
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
                             ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
+                        let act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
                         gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
                         gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
                         gain_var = (gain_act - gain_tar);
@@ -1771,22 +1899,30 @@
                         let p_pr_negative;
                         if (pr_var < 0) {
                             pr_negative = pr_var.toFixed(2);
-                            p_pr_negative = pr_var.toFixed(1);
+                           // p_pr_negative = pr_var.toFixed(1);
                         }
                         else {
                             pr_pasitive = pr_var.toFixed(2);
+                           
+                        }
+                        if (poa_var < 0) {
+                            p_pr_negative = pr_var.toFixed(1);
+                        }
+                        else {
                             p_pr_pasitive = pr_var.toFixed(1);
                         }
-
-
                         console.log(result[i].tar_kwh);
                         target_energy.push((result[i].tar_kwh).toFixed(1));
                         actual_energy.push(result[i].act_kwh.toFixed(1));
                         pas_energy_var.push(j_pasitive);
                         neg_energy_var.push(j_negative);
 
-                        target_pr.push(result[i].tar_pr.toFixed(1));
-                        actual_pr.push(result[i].act_pr.toFixed(1));
+                        //target_pr.push(result[i].tar_pr.toFixed(1));
+                        //actual_pr.push(result[i].act_pr.toFixed(1));
+                        //pas_pr_var.push(p_pr_pasitive);
+                        //neg_pr_var.push(p_pr_negative);
+                        target_pr.push(result[i].tar_poa.toFixed(1));
+                        actual_pr.push(result[i].act_poa.toFixed(1));
                         pas_pr_var.push(p_pr_pasitive);
                         neg_pr_var.push(p_pr_negative);
 
@@ -1815,7 +1951,7 @@
                         tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].act_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + act_prval.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
@@ -1900,8 +2036,17 @@
                     data: target_energy,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'spv_en',
@@ -1912,8 +2057,17 @@
                         data: actual_energy,
                        order: 1,
                         datalabels: {
-                            anchor: 'end',
+                            anchor: 'center',
                             align: 'top',
+                            color: 'white',
+                            labels: {
+                                title: {
+                                    font: {
+                                        weight: 'bold'
+
+                                    }
+                                },
+                            },
                         },
                     }, {
                     yAxisID: 'spv_var',
@@ -1996,26 +2150,44 @@
                 labels: Levels,
                 datasets: [{
                     yAxisID: 'pr',
-                    label: "Target " + label,
+                    label: "Target Irr ",
                     type: "bar",
                     backgroundColor: "#77CAE7",
                     data: target_wind,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'pr',
-                    label: "Actual " + label,
+                    label: "Actual Irr ",
                     type: "bar",
                     backgroundColor: "#31576D",
                     backgroundColorHover: "#3e95cd",
                     data: actual_wind,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'pr_var',
@@ -2051,7 +2223,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: "PR (%)"
+                        text: "Irradiance (kWh/m^2)"
                     },
                     legend: {
                         display: true,
@@ -2087,7 +2259,7 @@
         var seldate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
         var fromDate = GetWeeklyDays(seldate);
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
-        var fyear = $('select#fy option:selected').val();
+        var fyear1 = fyear;//$('select#fy option:selected').val();
         var reporthead = "Site Wise Reports";
         var Energy_Dataset = [];
         var Wind_Dataset = [];
@@ -2104,7 +2276,7 @@
 
         $.ajax({
             type: "GET",
-              url: '@Url.Action("GetSolarPRReportSiteWise", "SolarReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+              url: '@Url.Action("GetSolarPRReportSiteWise", "SolarReport")' + '?fy=' + fyear1 + '&fromDate=' + fromDate + '&toDate=' + toDate,
             //url: "/WindReport/GetWindPRReportSiteWise?fy=" + fyear+" &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
@@ -2186,7 +2358,7 @@
                             ghi_var = ((result[i].act_ghi - result[i].tar_ghi) / result[i].tar_ghi) * 100;
                         }
                         if (result[i].act_poa != 0 || result[i].tar_poa != 0) {
-                            ghi_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
+                            poa_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
                         }
                         if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
                             plf_var = (result[i].act_plf - result[i].tar_plf);
@@ -2200,6 +2372,7 @@
                         if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
                             ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
+                        let act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
                         gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
                         gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
                         gain_var = (gain_act - gain_tar);
@@ -2222,13 +2395,19 @@
                         let pr_negative_p;
                         if (pr_var < 0) {
                             pr_negative = pr_var.toFixed(2);
-                            pr_negative_p = pr_var.toFixed(1)
+                            
                         }
                         else {
                             pr_pasitive = pr_var.toFixed(2);
-                            pr_pasitive_p = pr_var.toFixed(1)
+                            
                         }
 
+                        if (poa_var < 0) {
+                            pr_negative_p = pr_var.toFixed(1)
+                        }
+                        else {
+                            pr_pasitive_p = pr_var.toFixed(1)
+                        }
 
                         console.log(result[i].tar_kwh);
                         target_energy.push((result[i].tar_kwh).toFixed(1));
@@ -2237,8 +2416,13 @@
                         neg_energy_var.push(negative);
                         Levels.push(result[i].site);
 
-                        target_pr.push(result[i].tar_pr.toFixed(1));
-                        actual_pr.push(result[i].act_pr.toFixed(1));
+                        //target_pr.push(result[i].tar_pr.toFixed(1));
+                        //actual_pr.push(result[i].act_pr.toFixed(1));
+                        //pas_pr_var.push(pr_pasitive);
+                        //neg_pr_var.push(pr_negative);
+
+                        target_pr.push(result[i].tar_poa.toFixed(1));
+                        actual_pr.push(result[i].act_poa.toFixed(1));
                         pas_pr_var.push(pr_pasitive);
                         neg_pr_var.push(pr_negative);
 
@@ -2272,7 +2456,7 @@
 
 
                         tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].act_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + act_prval.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
 
 
@@ -2363,8 +2547,17 @@
                     data: target_energy,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'pr_en_p',
@@ -2375,8 +2568,17 @@
                     data: actual_energy,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'pr_var_p',
@@ -2414,7 +2616,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: "PR (%)"
+                        text: "Energy (MUs)"
                     },
 
                     legend: {
@@ -2457,26 +2659,44 @@
                 labels: Levels,
                 datasets: [{
                     yAxisID: 'pr_en_s',
-                    label: "Target " + label,
+                    label: "Target Irr",
                     type: "bar",
                     backgroundColor: "#77CAE7",
                     data: target_wind,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'pr_en_s',
-                    label: "Actual " + label,
+                    label: "Actual Irr ",
                     type: "bar",
                     backgroundColor: "#31576D",
                     backgroundColorHover: "#3e95cd",
                     data: actual_wind,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'pr_var_s',
@@ -2512,7 +2732,7 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: "PR (%)"
+                        text: "Irrdiance (kWh/m^2)"
                     },
 
                     legend: {

@@ -12,6 +12,8 @@ namespace DGRAPIs.Models
         public int importSiteId { get; set; }
         public string importType { get; set; }
         public string importLogName { get; set; }
+        public int importFileType { get; set; }
+        public string automationDataDate { get; set; }
     }
 
     public class BatchIdImport

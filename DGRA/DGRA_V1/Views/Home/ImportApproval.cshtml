@@ -11,6 +11,14 @@
     var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
 
 }
+
+@{
+    bool windAccess = false;
+    bool solarAccess = false;
+
+
+}
+
 @for (int i = 0; i < @usermodel.access_list.Count; i++)
 {
 
@@ -22,6 +30,27 @@
     if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
     {
         solarUserSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+}
+
+
+@if (@HttpContextAccessor.HttpContext.Session.GetString("role") != "Admin")
+{
+    var usermodel_1 = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+    for (int i = 0; i < @usermodel_1.access_list.Count; i++)
+    {
+        Console.WriteLine(usermodel_1.access_list);
+
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel_1.access_list[i].site_type == 2)
+        {
+            windAccess = true;
+        }
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel_1.access_list[i].site_type == 1)
+        {
+            solarAccess = true;
+        }
+
+
     }
 }
 
@@ -100,9 +129,20 @@
                             <div class="row">
                                 <label class="col-sm-4 col-form-label text-left">Import Type : </label>
                                 <select class="form-control  col-sm-8" id="importType" name="importType" value="" onchange="getSiteList()">
-                                    <option value="0">Select Import Type</option>
-                                    <option value="2">Solar</option>
-                                    <option value="1">Wind</option>
+                                    <option value="0">Select Import Type </option>
+                                    @if (windAccess == true)
+                                    {
+                                        <option value="2">Solar</option>
+                                    }
+                                    @if (solarAccess == true)
+                                    {
+                                        <option value="1">Wind</option>
+                                    }
+                                    @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                                    {
+                                        <option value="2">Solar</option>
+                                        <option value="1">Wind</option>
+                                    }
                                 </select>
                             </div>
                         </div>
@@ -151,8 +191,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-1"></div>
-                    <div class="col-md-2"><button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button></div>
+                    <div class="col-md-2"></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-block btn-primary" onclick="getReport()" style=" width:5rem " >Search</button></div>
                     <div class="col-md-5"></div>
                 </div>
                 <br>
@@ -376,6 +416,7 @@
                 tbl += '<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th style="width:100px">Import Date</th>';
+                tbl += '<th style="width:100px">Data Date</th>';
                 tbl += '<th>Impo. By</th>';
                 tbl += '<th>Status</th>';
                 tbl += '<th>Verified By Date</th>';
@@ -386,6 +427,7 @@
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         var formattedDate = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        var formattedDate1 = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         var status = "";
                         var isDisable = "";
                         if (result[i].is_approved == 0) {
@@ -408,6 +450,7 @@
                         tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style="margin-left:0.5rem;    margin-top: -6px;" ' + isDisable + '></td>';
                         tbl += '<td>' + result[i].site_name + '</td>';
                         tbl += '<td>' + formattedDate + '</td>';
+                        tbl += '<td>' + formattedDate1 + '</td>';
                         tbl += '<td>' + result[i].import_by_name + '</td>';
                         tbl += '<td>' + status + '</td>';
                         var approval_name = "";
@@ -529,6 +572,7 @@
                 tbl += '<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th style="width:100px">Import Date</th>';
+                tbl += '<th style="width:100px">Data Date</th>';
                 tbl += '<th>Impo. By</th>';
                 tbl += '<th>Status</th>';
                 tbl += '<th>Verified By Date</th>';
@@ -541,6 +585,7 @@
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         var formattedDate = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        var formattedDate1 = moment(result[i].data_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         var status = "";
                         var isDisable = "";
                         if (result[i].is_approved == 0) {
@@ -563,6 +608,7 @@
                         tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style="margin-left:0.5rem;    margin-top: -6px;" ' + isDisable + '></td>';
                         tbl += '<td>' + result[i].site_name + '</td>';
                         tbl += '<td>' + formattedDate + '</td>';
+                        tbl += '<td>' + formattedDate1 + '</td>';
                         tbl += '<td>' + result[i].import_by_name + '</td>';
                         tbl += '<td>' + status + '</td>';
                         

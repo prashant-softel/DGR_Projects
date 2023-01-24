@@ -14,7 +14,7 @@ namespace DGRAPIs.BS
         //Task<List<UserLogin>> GetUserLogin(string username, string password);
         Task<UserLogin> GetUserLogin(string username, string password);
         Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass);
-      
+        Task<int> UpdatePassword(int loginid, string updatepass);
         Task<List<UserInfomation>> GetWindUserInformation(int login_id);
         Task<List<UserInfomation>> GetSolarUserInformation(int login_id);
         Task<List<HFEPage>> GetPageList(int login_id, int site_type);
@@ -30,6 +30,22 @@ namespace DGRAPIs.BS
         public LoginBS(DatabaseProvider dbProvider)
         {
             databaseProvider = dbProvider;
+        }
+
+        public async Task<int> UpdatePassword(int loginid, string updatepass)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.UpdatePassword(loginid, updatepass);
+
+                }
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
         }
 
         //public async Task<List<UserLogin>> GetUserLogin(string username, string password)

@@ -323,6 +323,32 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
+        public async Task<IActionResult> UpdatePassword(int loginid, string updatepass)
+        {
+            string line = "";
+            try
+            {
+                /// var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
+                //var url = "http://localhost:23835/api/Login/WindUserRegistration?fname=" + fname + "&useremail=" + useremail + "&role=" + role+ "&created_on="+ created_on + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/UpdatePassword?loginid=" + loginid + "&updatepass=" + updatepass +"";
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "";
+            }
+            return Content(line, "application/json");
+
+        }
+
         public async Task<IActionResult> GetWindUserInfo(int login_id)
         {
             string line = "";

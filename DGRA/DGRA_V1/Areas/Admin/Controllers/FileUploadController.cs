@@ -53,6 +53,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         string windBreakJson = string.Empty;
         ArrayList kpiArgs = new ArrayList();
         List<int> windSiteUserAccess = new List<int>();
+        List<int> solarSiteUserAccess = new List<int>();
         List<string> fileSheets = new List<string>();
         List<string> inverterList = new List<string>();
         ErrorLog m_ErrorLog;
@@ -109,6 +110,10 @@ namespace DGRA_V1.Areas.admin.Controllers
                 if (usermodel.access_list[i].page_type == 3 && usermodel.access_list[i].site_type == 1)
                 {
                     windSiteUserAccess.Add(Convert.ToInt32(usermodel.access_list[i].identity));
+                }
+                if (usermodel.access_list[i].page_type == 3 && usermodel.access_list[i].site_type == 2)
+                {
+                    solarSiteUserAccess.Add(Convert.ToInt32(usermodel.access_list[i].identity));
                 }
             }
             //windSiteList = HttpContextAccessor.HttpContext.Session.GetString("UserAccess");
@@ -726,8 +731,14 @@ namespace DGRA_V1.Areas.admin.Controllers
                         SolarUploadingFileGeneration addUnit = new SolarUploadingFileGeneration();
                         rowNumber++;
                         bool skipRow = false;
-
-                        addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToString((string)dr["Date"]);
+                        bool isdateEmpty = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]);
+                        if(isdateEmpty)
+                        {
+                            m_ErrorLog.SetInformation(", Date value is empty. The row would be skiped.");
+                            continue;
+                        }
+                        addUnit.date = isdateEmpty ? "Nil" : Convert.ToString((string)dr["Date"]);
+                        
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         
                         addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
@@ -736,6 +747,11 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
                         addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);
                         errorFlag.Add(siteValidation(addUnit.site, addUnit.site_id, rowNumber));
+                        if (siteUserRole != "Admin")
+                        {
+                            errorFlag.Add(uniformWindSiteValidation(rowNumber, addUnit.site_id, ""));
+                        }
+                           
                         objImportBatch.importSiteId = addUnit.site_id;//C
                         kpiSite = Convert.ToString(addUnit.site_id);
                         if (rowNumber == 2)
@@ -865,7 +881,13 @@ namespace DGRA_V1.Areas.admin.Controllers
                             continue;
                         }
 
-                        addUnit.date = string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToString((string)dr["Date"]);
+                        bool isdateEmpty = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]);
+                        if (isdateEmpty)
+                        {
+                            m_ErrorLog.SetInformation(", Date value is empty. The row would be skiped.");
+                            continue;
+                        }
+                        addUnit.date = isdateEmpty ? "Nil" : Convert.ToString((string)dr["Date"]);
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
                         
@@ -876,7 +898,11 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.site_id = eqSiteId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(eqSiteId[addUnit.wtg]) : 0;
                         addUnit.site_name = siteName.ContainsKey(addUnit.site_id) ? (string)(siteName[addUnit.site_id]) : "Nil";
                         site = Convert.ToString(addUnit.site_id);
-                        errorFlag.Add(uniformWindSiteValidation(rowNumber, addUnit.site_id, addUnit.wtg));
+                        if (siteUserRole != "Admin")
+                        {
+                            errorFlag.Add(uniformWindSiteValidation(rowNumber, addUnit.site_id, addUnit.wtg));
+                        }
+                            
                         objImportBatch.importSiteId = addUnit.site_id;
                         //dateValidate = Convert.ToDateTime((string)dr["Date"]).ToString("yyyy-MM-dd");
                         if (rowNumber == 2)
@@ -977,7 +1003,13 @@ namespace DGRA_V1.Areas.admin.Controllers
                         SolarUploadingFileBreakDown addUnit = new SolarUploadingFileBreakDown();
                         rowNumber++;
                         bool skipRow = false;
-                        addUnit.date = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : (string)dr["Date"];
+                        bool isdateEmpty = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]);
+                        if (isdateEmpty)
+                        {
+                            m_ErrorLog.SetInformation(", Date value is empty. The row would be skiped.");
+                            continue;
+                        }
+                        addUnit.date = isdateEmpty ? "Nil" : (string)dr["Date"];
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
 
@@ -1097,7 +1129,13 @@ namespace DGRA_V1.Areas.admin.Controllers
                         WindUploadingFileBreakDown addUnit = new WindUploadingFileBreakDown();
                         rowNumber++;
                         bool skipRow = false;
-                        addUnit.date = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]) ? "Nil" : Convert.ToString(dr["Date"]);
+                        bool isdateEmpty = dr["Date"] is DBNull || string.IsNullOrEmpty((string)dr["Date"]);
+                        if (isdateEmpty)
+                        {
+                            m_ErrorLog.SetInformation(", Date value is empty. The row would be skiped.");
+                            continue;
+                        }
+                        addUnit.date =  isdateEmpty ? "Nil" : Convert.ToString(dr["Date"]);
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
 
@@ -1204,7 +1242,13 @@ namespace DGRA_V1.Areas.admin.Controllers
                         rowNumber++;
                         bool skipRow = false;
                         //addUnit.date_time = string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
-                        addUnit.date_time = string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
+                        bool isdateEmpty = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]);
+                        if (isdateEmpty)
+                        {
+                            m_ErrorLog.SetInformation(", Date value is empty. The row would be skiped.");
+                            continue;
+                        }
+                        addUnit.date_time = isdateEmpty ? "Nil" : Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
                         errorFlag.Add(stringNullValidation(addUnit.date_time, "Time stamp", rowNumber));
                         errorFlag.Add(dateNullValidation(addUnit.date_time, "Time stamp", rowNumber));
 
@@ -1285,7 +1329,13 @@ namespace DGRA_V1.Areas.admin.Controllers
                         rowNumber++;
                         bool skipRow = false;
                         // addUnit.date_time = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"], timeCulture).ToString("yyyy-MM-dd HH:mm:ss");
-                        addUnit.date_time = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]) ? "Nil" : Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
+                        bool isdateEmpty = dr["Time stamp"] is DBNull || string.IsNullOrEmpty((string)dr["Time stamp"]);
+                        if (isdateEmpty)
+                        {
+                            m_ErrorLog.SetInformation(", Date value is empty. The row would be skiped.");
+                            continue;
+                        }
+                        addUnit.date_time = isdateEmpty ? "Nil" : Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
                         errorFlag.Add(stringNullValidation(addUnit.date_time, "Time stamp", rowNumber));
                         errorFlag.Add(dateNullValidation(addUnit.date_time, "Time stamp", rowNumber));
 
@@ -3480,6 +3530,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         public bool uniformWindSiteValidation(long rowNo, int siteId, string wtg)
         {
             bool invalidSiteUniformity = false;
+
             if (rowNo == 2)
             {
                 previousSite = siteId;
@@ -3489,10 +3540,28 @@ namespace DGRA_V1.Areas.admin.Controllers
                     {
                         m_ErrorLog.SetError(",File Row <" + rowNo + "> Invalid Site Id: " + siteId + " due to invalid wtg: " + wtg);
                     }
+                    //else if (windSiteUserAccess.IndexOf(siteId)<-1)
+                    else if (windSiteUserAccess.Contains(siteId))
+                    {
+                        //add error log : user has access to site
+                        //m_ErrorLog.SetInformation(", User has access to site : " + siteName[siteId] + ",");
+                    }
+                    else
+                    {
+                        //add error log : user does not have access to site
+                        m_ErrorLog.SetError(", User does not have access to site : " + siteName[siteId] + ",");
+                        invalidSiteUniformity = true;
+                    }
+                    
                 }
-                else
+                else if(fileSheets.Contains("Uploading_File_Generation") && importData[0] == "Solar")
                 {
-                    if (windSiteUserAccess.Contains(siteId))
+                    if (siteId == 0)
+                    {
+                        m_ErrorLog.SetError(",File Row <" + rowNo + "> Invalid Site Id: " + siteId + " due to invalid wtg: " + wtg);
+                    }
+                    //else if (solarSiteUserAccess.IndexOf(siteId) < -1)
+                    else if (solarSiteUserAccess.Contains(siteId))
                     {
                         //add error log : user has access to site
                         m_ErrorLog.SetInformation(", User has access to site : " + siteName[siteId] + ",");
@@ -3503,6 +3572,20 @@ namespace DGRA_V1.Areas.admin.Controllers
                         m_ErrorLog.SetError(", User does not have access to site : " + siteName[siteId] + ",");
                         invalidSiteUniformity = true;
                     }
+                }
+                else
+                {
+                   /*if (windSiteUserAccess.Contains(siteId))
+                    {
+                        //add error log : user has access to site
+                        m_ErrorLog.SetInformation(", User has access to site : " + siteName[siteId] + ",");
+                    }
+                    else
+                    {
+                        //add error log : user does not have access to site
+                        m_ErrorLog.SetError(", User does not have access to site : " + siteName[siteId] + ",");
+                        invalidSiteUniformity = true;
+                    }*/
                 }
                 //valdiate if the user has access to this site
                 //Collection of site for upload access
@@ -3571,11 +3654,11 @@ namespace DGRA_V1.Areas.admin.Controllers
                     {
                         if (siteUserRole == "Admin")
                         {
-                            m_ErrorLog.SetInformation(",Data for <" + Convert.ToDateTime(importDate).ToString("yyyy-MM-dd") + "> exist is database and is already approved but the admin user can reimport it.");
+                            m_ErrorLog.SetInformation(",Data for <" + Convert.ToDateTime(importDate).ToString("yyyy-MM-dd") + "> exist in database and is already approved but the admin user can reimport it.");
                         }
                         else
                         {
-                            m_ErrorLog.SetError(",Data for <" + Convert.ToDateTime(importDate).ToString("yyyy-MM-dd") + "> exist is database and is already approved. The site user cannot reimport it.");
+                            m_ErrorLog.SetError(",Data for <" + Convert.ToDateTime(importDate).ToString("yyyy-MM-dd") + "> exist in database and is already approved. The site user cannot reimport it.");
                             retValue = true;
                         }
                     }
@@ -3624,20 +3707,20 @@ namespace DGRA_V1.Areas.admin.Controllers
         }
         public bool dateNullValidation(string value, string columnName, long rowNo)
         {
-            ErrorLog("Inside dateNullValidation");
-            ErrorLog("Date  Value :" + value + "T\r\n");
+            //ErrorLog("Inside dateNullValidation");
+            //ErrorLog("Date  Value :" + value + "T\r\n");
             bool retVal = false;
             try
             {
-                ErrorLog("Inside try block");
+                //ErrorLog("Inside try block");
                 // string dateValue = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
                 //value = Convert.ToDateTime(value, timeCulture).ToString("dd-MM-yyyy");
                 string dateValue = Convert.ToDateTime(value).ToString("dd-MM-yyyy");
-                ErrorLog("Inside try block 1");
+                //ErrorLog("Inside try block 1");
                 value = Convert.ToDateTime(value).ToString("dd-MM-yyyy");
-                ErrorLog("Inside try block 2");
-                ErrorLog("Date  Value :" + dateValue + "Value :" + value + "T\r\n");
-                ErrorLog("Date  Tome Min :"  +DateTime.MinValue.ToString("dd-MM-yyyy"));
+                //ErrorLog("Inside try block 2");
+                //ErrorLog("Date  Value :" + dateValue + "Value :" + value + "T\r\n");
+                //ErrorLog("Date  Tome Min :"  +DateTime.MinValue.ToString("dd-MM-yyyy"));
                 if (value == "Nil")
                 {
                     m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Cell value cannot be empty 1,");
@@ -3646,18 +3729,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                 else if (value != dateValue)
                 {
                     //m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: MM-dd-yyyy,");
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy 2,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: yyyy-mm-dd,");
                     retVal = true;
                 }
                 else if (value == DateTime.MinValue.ToString("dd-MM-yyyy"))
                 {
-                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format: dd-MM-yyyy 3,");
+                    m_ErrorLog.SetError(",File row<" + rowNo + "> column <" + columnName + ">: Incorrect date format <" + value + ">. While feeding data use following format:  yyyy-mm-dd,");
                     retVal = true;
                 }
             }
             catch (Exception e)
             {
-                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date conversion <" + value + ">. While feeding data use following format: dd-MM-yyyy  catch " + e.Message + ", ");
+                m_ErrorLog.SetError(",File row<" + rowNo + "> column<" + columnName + ">: Incorrect date conversion <" + value + ">. While feeding data use following format:  yyyy-mm-dd catch " + e.Message + ", ");
                 retVal = true;
             }
             return retVal;

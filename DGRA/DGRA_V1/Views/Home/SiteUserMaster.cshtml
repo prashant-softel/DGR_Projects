@@ -89,6 +89,7 @@
             tbl += '<th>Email</th>';
             tbl += '<th>Role</th>';
             tbl += '<th>Status</th>';
+            tbl += '<th>Change Password</th>';
             tbl += '<th>Wind Access</th>';
             tbl += '<th>Solar Access</th>';
 
@@ -109,10 +110,12 @@
                     //tbl += '<td>' + result[i].created_on + '</td>';
                     tbl += '<td>' + status + '</td>';
                     if (result[i].user_role != "Admin") {
+                        tbl += '<td class="text-center"><div style="display: flex; justify-content: center; align-items: center;"><button id="cng_btn ' + result[i].login_id + '" class="btn btn-dark" onclick="ChangePass(' + result[i].login_id + ')" style="background-color: #31576d; padding: 0.15rem 0.75rem;width: 80%;display: inline;" >Update Password</button><div id="hide ' + result[i].login_id + '" style="display: none; flex-direction: column; justify-content: center; align-items: center;"><input id="changePass ' + result[i].login_id + '" type="text" placeholder="Enter New Password" style="margin-top: 10px"/><div id="validation_' + result[i].login_id + '" style="display: none">Please Enter Password.</div><button onclick="ChangeSubmit(' + result[i].login_id +')" class="btn btn-success" style="margin-top: 10px; padding: 0.15rem 0.75rem;width: 50%;">Submit</button></div></div></td>';
                         tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="ViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
                         tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="SolarViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
                     }
                     else {
+                        tbl += '<td>&nbsp;</td>';
                         tbl += '<td>&nbsp;</td>';
                         tbl += '<td>&nbsp;</td>';
                     }
@@ -176,6 +179,56 @@
         $.post("/Home/SolarUserDetails", { id: login_id }, function (data) {
             window.location.href = "/Home/SolarUserView?id=" + login_id;
         });
+    }
+
+    function ChangePass(login_id) {
+        var btnId = "cng_btn " + login_id;
+        var chgBtn = document.getElementById(btnId);
+        chgBtn.style.display = "none";
+        var ele = "hide " + login_id;
+        var a = document.getElementById(ele);
+        if (a.style.display == "none") {
+            a.style.display = "flex";
+        } else {
+            a.style.display = "none";
+        }
+    }
+    function ChangeSubmit(login_id) {
+        var btnId = "cng_btn " + login_id;
+        var tempVal = "validation_" + login_id;
+
+        var a1 = document.getElementById(tempVal);
+        var chgBtn = document.getElementById(btnId);
+        var ele = "hide " + login_id;
+        var a = document.getElementById(ele);
+
+        var updatePassword = "changePass " + login_id;
+        var changePassword = document.getElementById(updatePassword).value;
+        console.log(changePassword);
+        if (changePassword == "") {
+            a1.style.display = "block";
+        } else {
+            a.style.display = "none";
+            $.ajax({
+            type: "POST",
+            url: '@Url.Action("UpdatePassword", "Home")' + '?loginid=' + login_id + '&updatepass=' + changePassword,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+                if (result > 0) {
+                    alert("Password Changed successfully!");
+                    location.href = "/Home/SiteUserMaster";
+                } else {
+                    alert("Password changed failed!");
+                    location.href = "/Home/SiteUserMaster";
+                }
+            }
+            });
+            a.style.display = "none";
+            chgBtn.style.display = "block";
+        }
+        
+        
     }
 
 

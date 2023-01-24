@@ -9,7 +9,7 @@
     ViewData["Title"] = "Wind Daily Load Shedding";
 }
 @{
-    string windSiteList = "";
+    string solarSiteList = "";
 
     var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
 
@@ -17,9 +17,9 @@
 @for (int i = 0; i < @usermodel.access_list.Count; i++)
 {
 
-    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
     {
-        windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+        solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
     }
 
 
@@ -136,7 +136,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-right">Site : </label>
-                                                        <select class="form-control  col-sm-8" id="site" name="site[]" value="" onchange="GetInverter()" multiple></select>
+                                                        <select class="form-control  col-sm-8" id="site" name="site[]" value="" onchange="GetInverter(true)" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -165,7 +165,7 @@
 
                                             </div>
                                             <div class="col-sm-2 text-center">
-                                                <button type="button" class="btn btn-block btn-primary" onclick="GetDailyGenReport();">Search</button>
+                                                <button type="button" class="btn btn-block btn-primary" onclick="GetDailyGenReport();" style=" width: 5rem;">Search</button>
                                             </div>
                                             <div class="col-sm-5 text-center"></div>
                                         </div>
@@ -243,7 +243,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-right">Site : </label>
-                                                        <select class="form-control  col-sm-9" id="siteM" name="siteM[]" value="" onchange="GetInverterM()" multiple></select>
+                                                        <select class="form-control  col-sm-9" id="siteM" name="siteM[]" value="" onchange="GetInverterM(true)" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -260,7 +260,7 @@
                                             </div>
                                             <div class="col-sm-1"></div>
                                             <div class="col-sm-2">
-                                                <button type="button" class="btn btn-block btn-primary" onclick="GetMonthlyGenReport();">Search</button>
+                                                <button type="button" class="btn btn-block btn-primary" onclick="GetMonthlyGenReport();" style=" width: 5rem;">Search</button>
                                             </div>
                                             <div class="col-sm-5"></div>
                                         </div>
@@ -329,7 +329,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-right">Site : </label>
-                                                        <select class="form-control  col-sm-9" id="siteY" name="siteY[]" value="" onchange="GetInverterY()" multiple></select>
+                                                        <select class="form-control  col-sm-9" id="siteY" name="siteY[]" value="" onchange="GetInverterY(true)" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -357,7 +357,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-sm-2 text-center">
-                                                <button type="button" class="btn btn-block btn-primary" onclick="GetYearlyGenReport();">Search</button>
+                                                <button type="button" class="btn btn-block btn-primary" onclick="GetYearlyGenReport();" style="width: 5rem;">Search</button>
                                             </div>
                                             <div class="col-sm-5 text-center"></div>
                                         </div>
@@ -440,11 +440,12 @@
             "placeholder": "Select country",
             filter: true
         });
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
         var selcountry = $('select#country option:selected').val();
         $.ajax({
             type: "GET",
            // url: "/WindReport/GetStateList?countryname=" + selcountry,
-            url: '@Url.Action("GetStateList", "SolarReport")' + '?countryname=' + selcountry,
+            url: '@Url.Action("GetStateList", "SolarReport")' + '?countryname=' + selcountry + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -520,11 +521,12 @@
             });
             state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
         }
+         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
             ///url: "/WindReport/GetSPVList?state=" + val,
 
-            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state_id,
+            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state_id + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -557,16 +559,17 @@
             state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
 
         }
+         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
             ///url: "/WindReport/GetSPVList?state=" + val,
 
-            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state_id,
+            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state_id + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
-             
+
                 var options = "";
                 for (var j = 0; j < result.length; j++) {
                     options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
@@ -586,22 +589,23 @@
         let state_id = "";
         if($('#state').val())
         {
-           
+
             $('select#state option:selected').each(function () {
                 state_id += "'"+$(this).val() + "',";
              });
             state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
-           
+
         }
+         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
             ///url: "/WindReport/GetSPVList?state=" + val,
-            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state_id,
+            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state_id + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
-              
+
                 var options = "";
                 for (var j = 0; j < result.length; j++) {
                     options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
@@ -615,7 +619,7 @@
                     filter:true
                 });
 
-               
+
             }
         });
         GetSite();
@@ -627,32 +631,32 @@
 
         $('select#state option:selected').each(function () {
             state_id += $(this).val() + ",";
-           
+
         });
         state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
-       
+
 
         let spv = "";
 
         $('select#spv option:selected').each(function () {
             spv += $(this).val() + ",";
-           
+
         });
         spv = spv != "" ? spv.slice(0, -1) : spv;
-      
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
         $.ajax({
             type: "POST",
             //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
 
-            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state_id + '&spv=' + spv,
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state_id + '&spv=' + spv + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
                 var options = "";
-               
+
                 for (var k = 0; k < result.length; k++) {
-                    
+
                     options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
 
                 }
@@ -665,40 +669,40 @@
                 });
             }
         });
-         GetInverter();
+         GetInverter(false);
     }
     function GetSiteM() {
         let state_id = "";
 
         $('select#stateM option:selected').each(function () {
             state_id += $(this).val() + ",";
-           
+
         });
         state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
-      
+
 
         let spv = "";
 
         $('select#spvM option:selected').each(function () {
             spv += $(this).val() + ",";
-            
+
         });
         spv = spv != "" ? spv.slice(0, -1) : spv;
-        
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
 
         $.ajax({
             type: "POST",
             //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
 
-            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state_id + '&spv=' + spv,
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state_id + '&spv=' + spv + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
                 var options = "";
-               
+
                 for (var k = 0; k < result.length; k++) {
-                    
+
                     options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
 
                 }
@@ -711,40 +715,40 @@
                 });
             }
         });
-         GetInverterM();
+         GetInverterM(false);
     }
      function GetSiteY() {
        let state_id = "";
 
         $('select#stateY option:selected').each(function () {
             state_id += $(this).val() + ",";
-            
+
         });
         state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
-      
+
 
         let spv = "";
 
         $('select#spvY option:selected').each(function () {
             spv += $(this).val() + ",";
-           
+
         });
         spv = spv != "" ? spv.slice(0, -1) : spv;
-       
+         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
 
         $.ajax({
             type: "POST",
             //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
 
-            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state_id + '&spv=' + spv,
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state_id + '&spv=' + spv + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
                 var options = "";
-               
+
                 for (var k = 0; k < result.length; k++) {
-                    
+
                     options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
 
                 }
@@ -757,29 +761,35 @@
                 });
             }
         });
-         GetInverterY();
+         GetInverterY(false);
     }
-    function GetInverter() {
+    function GetInverter(fliterVal) {
         let state = "";
         $('select#state option:selected').each(function () {
             state += $(this).val() + ",";
-          
+
         });
-       
+
         let spv = "";
         $('select#spv option:selected').each(function () {
             spv += $(this).val() + ",";
            // console.log($(this).val());
 
         });
-      
-        let site = "";
-        $('select#site option:selected').each(function () {
-            site += $(this).val() + ",";
-            //console.log($(this).val());
 
-        });
-       
+        let site = "";
+        if (fliterVal == false) {
+            site = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        }
+        else {
+            $('select#site option:selected').each(function () {
+                site += $(this).val() + ",";
+                //console.log($(this).val());
+
+            });
+        }
+
+
         $.ajax({
             type: "GET",
 
@@ -803,27 +813,32 @@
         });
     }
 
-    function GetInverterM() {
+    function GetInverterM(fliterVal) {
         let state = "";
         $('select#stateM option:selected').each(function () {
             state += $(this).val() + ",";
-          
+
         });
-      
+
         let spv = "";
         $('select#spvM option:selected').each(function () {
             spv += $(this).val() + ",";
            // console.log($(this).val());
 
         });
-       
-        let site = "";
-        $('select#siteM option:selected').each(function () {
-            site += $(this).val() + ",";
-            //console.log($(this).val());
 
-        });
-      
+        let site = "";
+        if (fliterVal == false) {
+            site = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        }
+        else {
+            $('select#siteM option:selected').each(function () {
+                site += $(this).val() + ",";
+                //console.log($(this).val());
+
+            });
+        }
+
         $.ajax({
             type: "GET",
 
@@ -846,11 +861,11 @@
             }
         });
     }
-    function GetInverterY() {
+    function GetInverterY(fliterVal) {
        let state = "";
         $('select#stateY option:selected').each(function () {
             state += $(this).val() + ",";
-         
+
         });
         console.log(state);
         let spv = "";
@@ -859,14 +874,19 @@
            // console.log($(this).val());
 
         });
-       
-        let site = "";
-        $('select#siteY option:selected').each(function () {
-            site += $(this).val() + ",";
-            //console.log($(this).val());
 
-        });
-    
+        let site = "";
+        if (fliterVal == false) {
+            site = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        }
+        else {
+            $('select#siteY option:selected').each(function () {
+                site += $(this).val() + ",";
+                //console.log($(this).val());
+
+            });
+        }
+
         $.ajax({
             type: "GET",
 
@@ -919,7 +939,7 @@
             //console.log($(this).val());
         });
         site = site != "" ? site.slice(0, -1) : site;
-       
+
         if(!site){
             $('select#state option:selected').each(function () {
                 state +=  $(this).val() + ",";
@@ -934,7 +954,7 @@
               //  console.log($(this).val());
             });
             spv = spv != "" ? spv.slice(0, -1) : spv;
-           
+
         }
 
 
@@ -998,7 +1018,7 @@
                 tbl += '<th>LULL Loss</th>';
                 tbl += '<th>Total Loss</th>';
                 tbl += '</tr></thead>';
-              
+
                 if (result.length > 0) {
                     console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {
@@ -1118,26 +1138,26 @@
             //console.log($(this).val());
         });
         site = site != "" ? site.slice(0, -1) : site;
-       
+
         if (!site) {
             $('select#state option:selected').each(function () {
                 state += $(this).val() + ",";
-              
+
             });
             state = state != "" ? state.slice(0, -1) : state;
-          
+
             $('select#spv option:selected').each(function () {
                 spv += $(this).val() + ",";
                 //  console.log($(this).val());
             });
             spv = spv != "" ? spv.slice(0, -1) : spv;
-           
+
         }
 
 
         $('select#inv option:selected').each(function () {
             inv += $(this).val() + ",";
-           
+
         });
         var reportType = "Site";
         var reporthead = "Site Wise Report";
@@ -1149,7 +1169,7 @@
 
             datatype: "JSON",
             success: function (result, status, xhr) {
-              
+
                // var tbl = '<div class="text-center"><h5></h5></div>';
                var  tbl = '<table id="example1"  class="table table-bordered table-striped" style="width:285%">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -1160,7 +1180,7 @@
                 tbl += '<th>Country</th>';
                 tbl += '<th>State</th>';
                 tbl += '<th>SPV</th>';
-               
+
                 tbl += '<th>DC Capacity (MW)</th>';
                 tbl += '<th>AC Capacity (MW)</th>';
                 tbl += '<th>GHI</th>';
@@ -1194,9 +1214,9 @@
                 tbl += '<th>LULL Loss</th>';
                 tbl += '<th>Total Loss</th>';
                 tbl += '</tr></thead>';
-               
+
                 if (result.length > 0) {
-                   
+
                     for (var i = 0; i < result.length; i++) {
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
@@ -1204,11 +1224,11 @@
                        // tbl += '<td class="text-left">' + result[i].month + '</td>';
                         tbl += '<td class="text-left">' + formattedDate + '</td>';
                         tbl += '<td class="text-left">' + result[i].site + '</td>';
-                       
+
                         tbl += '<td class="text-left">' + result[i].country + '</td>';
                         tbl += '<td class="text-left">' + result[i].state + '</td>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';
-                        
+
                         tbl += '<td class="text-right">' + result[i].dc_capacity.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].ac_capacity.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].ghi.toFixed(2) + '</td>';
@@ -1328,28 +1348,28 @@
             site += $(this).val() + ",";
         });
         site = site != "" ? site.slice(0, -1) : site;
-       
+
         if(!site){
             $('select#stateM option:selected').each(function () {
                 state +=  $(this).val() + ",";
-           
+
             });
             state = state != "" ? state.slice(0, -1) : state;
-         
+
             $('select#spvM option:selected').each(function () {
                 spv += $(this).val() + ",";
-            
+
             });
             spv = spv != "" ? spv.slice(0, -1) : spv;
-           
+
         }
 
         $('select#invM option:selected').each(function () {
             inv +=  $(this).val() + ",";
-         
+
         });
         inv = inv != "" ? inv.slice(0, -1) : inv;
-        
+
         var country = $('select#countryM option:selected').val();
         var year = $('select#fyM option:selected').val();
         //var month = $('select#monthM option:selected').val();
@@ -1378,7 +1398,7 @@
                 }
             }
         }) */
-      
+
         var reportType = "INV";
         var reporthead = "Inverter Wise Report";
         $.ajax({
@@ -1574,13 +1594,13 @@
              //   console.log($(this).val());
             });
             state = state != "" ? state.slice(0, -1) : state;
-          
+
             $('select#spvM option:selected').each(function () {
                 spv += $(this).val() + ",";
               //  console.log($(this).val());
             });
             spv = spv != "" ? spv.slice(0, -1) : spv;
-           
+
         }
 
 
@@ -1589,7 +1609,7 @@
             //console.log($(this).val());
         });
         inv = inv != "" ? inv.slice(0, -1) : inv;
-       
+
 
 
 
@@ -1598,7 +1618,7 @@
         var fyyear = $('select#fyM option:selected').val();
         let month = "";
         $('select#monthM option:selected').each(function () {
-           
+
             month+= $(this).val()+",";
         });
         month = month != "" ? month.slice(0, -1) : month;
@@ -1802,7 +1822,7 @@
             site += $(this).val() + ",";
         });
         site = site != "" ? site.slice(0, -1) : site;
-        
+
         if (!site) {
             $('select#stateY option:selected').each(function () {
                 state += $(this).val() + ",";
@@ -1817,7 +1837,7 @@
                 //  console.log($(this).val());
             });
             spv = spv != "" ? spv.slice(0, -1) : spv;
-           
+
         }
 
         $('select#invY option:selected').each(function () {
@@ -1825,7 +1845,7 @@
             //console.log($(this).val());
         });
         inverter = inverter != "" ? inverter.slice(0, -1) : inverter;
-      
+
         var fyyear = $('select#fyY option:selected').val();
         //var month = $('select#monthM option:selected').val();
         var arr1 = new Array();
@@ -1850,7 +1870,7 @@
 
             datatype: "JSON",
             success: function (result, status, xhr) {
-              
+
               //  var tbl = '<div class="text-center"><h5></h5></div>';
                var  tbl = '<table id="example3"  class="table table-bordered table-striped" style="width:285%">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -1897,9 +1917,9 @@
                 tbl += '<th>LULL Loss</th>';
                 tbl += '<th>Total Loss</th>';
                 tbl += '</tr></thead>';
-               
+
                 if (result.length > 0) {
-                    
+
                     for (var i = 0; i < result.length; i++) {
                        // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
@@ -2020,7 +2040,7 @@
             site += $(this).val() + ",";
         });
         site = site != "" ? site.slice(0, -1) : site;
-       
+
         if (!site) {
             let state = "";
             $('select#stateY option:selected').each(function () {
@@ -2036,7 +2056,7 @@
                 //  console.log($(this).val());
             });
             spv = spv != "" ? spv.slice(0, -1) : spv;
-           
+
         }
 
         $('select#invY option:selected').each(function () {
@@ -2044,7 +2064,7 @@
             //console.log($(this).val());
         });
         inv = inv != "" ? inv.slice(0, -1) : inv;
-      
+
         var fyyear = $('select#fyY option:selected').val();
         //var month = $('select#monthM option:selected').val();
         var arr1 = new Array();
@@ -2065,7 +2085,7 @@
 
             datatype: "JSON",
             success: function (result, status, xhr) {
-             
+
                 var tbl = '<div class="text-center"><h5></h5></div>';
                 tbl += '<table id="example3"  class="table table-bordered table-striped" style="width:285%">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -2111,7 +2131,7 @@
                 tbl += '<th>LULL Loss</th>';
                 tbl += '<th>Total Loss</th>';
                 tbl += '</tr></thead>';
-               
+
                 if (result.length > 0) {
                     console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {

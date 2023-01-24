@@ -126,7 +126,7 @@
                     </div>
                     <div class="col-sm-1"></div>
                     <div class="col-sm-2 text-center">
-                        <button type="button" class="btn btn-block btn-primary" onclick="GetReport();" style=" width: 6rem;">Search</button>
+                        <button type="button" class="btn btn-block btn-primary" onclick="GetReport();" style=" width: 5rem;">Search</button>
                     </div>
 
                 </div>
@@ -301,13 +301,13 @@
                         <div class="form-group row">
                             <div class="col-sm-6">
                                 <div class="custom-control custom-radio ">
-                                    <input class="custom-control-input" type="radio" id="customRadio1" name="customRadio" onclick="chartSelection(1)" checked>
+                                    <input class="custom-control-input" type="radio" id="customRadio1" name="customRadio" value="1" onclick="chartSelection(1)" checked>
                                     <label for="customRadio1" class="custom-control-label">Last 10 Days</label>
                                 </div>
                             </div>
                             <div class="col-sm-6">
                                 <div class="custom-control custom-radio ">
-                                    <input class="custom-control-input" type="radio" id="customRadio2" name="customRadio" onclick="chartSelection(2)">
+                                    <input class="custom-control-input" type="radio" id="customRadio2" name="customRadio" value="2" onclick="chartSelection(2)">
                                     <label for="customRadio2" class="custom-control-label">Monthly</label>
                                 </div>
                             </div>
@@ -524,7 +524,7 @@
     }
 
     function GetReport() {
-        chartTitle = "Last 10 Days";
+       
         if (userRole == "User" && !wsite_list && !ssite_list) {
             return;
         }
@@ -532,18 +532,45 @@
             if (userRole == "User") {
                 if (ssite_list) {
                     GetSolarDataByLastDay();
-                    GetSolarData(tendays, chartTitle);
+                    if ($("#customRadio1").is(":checked")) {
+                        chartTitle = "Last 10 Days";
+                        setTimeout(GetSolarData(tendays, chartTitle), 5000);
+                    }
+                    if ($("#customRadio2").is(":checked")) {
+                        chartTitle = "Monthly";
+                        setTimeout(GetSolarData(monthdate, chartTitle)
+                            , 5000);
+                    }
                 }
                 if (wsite_list) {
                     GetWindDataByLastDay();
-                    GetWindChartData(tendays, chartTitle);
+                    
+                    if ($("#customRadio1").is(":checked")) {
+                        chartTitle = "Last 10 Days";
+                        GetWindChartData(tendays, chartTitle);
+                    }
+                    if ($("#customRadio2").is(":checked")) {
+                        chartTitle = "Monthly";
+                        GetWindChartData(monthdate, chartTitle);
+                    }
                 }
             }
             else {
                 GetWindDataByLastDay();
-                GetWindChartData(tendays, chartTitle);
+               
                 GetSolarDataByLastDay();
-                GetSolarData(tendays, chartTitle);
+                
+                if ($("#customRadio1").is(":checked")) {
+                    chartTitle = "Last 10 Days";
+                    GetWindChartData(tendays, chartTitle);
+                    GetSolarData(tendays, chartTitle);
+                }
+                if ($("#customRadio2").is(":checked")) {
+                    chartTitle = "Monthly";
+                    GetWindChartData(monthdate, chartTitle);
+                    setTimeout(GetSolarData(monthdate, chartTitle)
+                        , 5000);
+                }
             }
         }
 
@@ -1115,7 +1142,7 @@
                 datasets: [
                     {
                         yAxisID: 'A',
-                        label: "Target Energy",
+                        label: "Target Energy (GWh)",
                         type: "bar",
                         backgroundColor: "#77CAE7",
                         data: target_energy,
@@ -1135,7 +1162,7 @@
                     }, {
 
                         yAxisID: 'A',
-                        label: "Actual Energy",
+                        label: "Actual Energy (GWh)",
                         type: "bar",
                         backgroundColor: "#31576D",
                         backgroundColorHover: "#3e95cd",
@@ -1157,7 +1184,7 @@
                     }, {
 
                         yAxisID: 'B',
-                        label: "Target Wind",
+                        label: "Target Wind (m/s)",
                         type: "line",
                         borderColor: "#86C466",
                         data: taget_wind,
@@ -1174,7 +1201,7 @@
                     {
                         order: 0,
                         yAxisID: 'B',
-                        label: "Actual Wind",
+                        label: "Actual Wind (m/s)",
                         type: "line",
                         borderColor: "#FFCA5A",
                         data: actual_wind,
@@ -1195,7 +1222,9 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: title
+                        //text: title
+                         text: ""
+
                     },
 
                     legend: {
@@ -1327,7 +1356,7 @@
                 datasets: [
                     {
                     yAxisID: 'A',
-                    label: "Target Energy",
+                        label: "Target Energy (GWh)",
                     type: "bar",
                     order: 1,
                     backgroundColor: "#77CAE7",
@@ -1347,7 +1376,7 @@
                     },
                 }, {
                     yAxisID: 'A',
-                    label: "Actual Energy",
+                    label: "Actual Energy (GWh)",
                     type: "bar",
                     order: 1,
                     backgroundColor: "#31576D",
@@ -1370,7 +1399,7 @@
                     {
                         yAxisID: 'B',
                         order: 0,
-                        label: "Target IR",
+                        label: "Target IR (kWh/m^2)",
                         type: "line",
                         borderColor: "#86C466",
                         data: target_ir,
@@ -1387,7 +1416,7 @@
                     }, {
                         order: 0,
                         yAxisID: 'B',
-                        label: "Actual IR",
+                        label: "Actual IR (kWh/m^2)",
                         type: "line",
                         borderColor: "#FFCA5A",
                         data: actual_ir,
@@ -1408,7 +1437,8 @@
                 plugins: {
                     title: {
                         display: true,
-                        text: title
+                       // text: title
+                        text: ""
                     },
 
                     legend: {

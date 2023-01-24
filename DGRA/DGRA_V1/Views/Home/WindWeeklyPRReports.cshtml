@@ -41,6 +41,9 @@
 
     .card-body {
     }
+    hr {
+        margin-top: -5px !important;
+    }
 </style>
 
 <div class="content-wrapper">
@@ -59,18 +62,18 @@
                 <div class="tab-content" id="custom-tabs-two-tabContent">
                     <div class="tab-pane fade show active" id="custom-tabs-two-op" role="tabpanel" aria-labelledby="custom-tabs-two-op-tab">
                         <div class="row">
+                            <!--<div class="col-sm-4">
+        <div class="form-group">
+            <div class="row">
+                <label class="col-sm-2 col-form-label text-left">FY : </label>
+                <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                    <option value="">Select Financial Year</option>
+                </select>
+            </div>
+        </div>
+    </div>-->
                             <div class="col-sm-4">
-                                <div class="form-group">
-                                    <div class="row">
-                                        <label class="col-sm-2 col-form-label text-left">FY : </label>
-                                        <select class="form-control  col-sm-8" id="fy" name="fy" value="">
-                                            <option value="">Select Financial Year</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-sm-4">
-                                <div class="input-group " style="margin-left: -5px; width: 104%;">
+                                <div class="input-group ">
                                     <label class="col-sm-2 col-form-label text-left">Date : </label>
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">
@@ -84,9 +87,10 @@
                             <div class="col-sm-2">
                                 <button type="button" class="btn btn-block btn-primary" onclick="GetOperationWKPR();">Search</button>
                             </div>
-                            <div class="col-sm-2"></div>
-                            <hr>
+                            <div class="col-sm-6"></div>
 
+                            <br><br>
+                            <hr>
                         </div>
                         <hr>
                         <div class="row" id="wk_head" style="display:none">
@@ -169,7 +173,7 @@
 
             </div>
         </div>
-</div>
+
 
     </section>
 
@@ -196,6 +200,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0-rc"></script>
 
 <script type="text/javascript">
+    var fyear = "";
     $(document).ready(function () {
 
 
@@ -210,8 +215,9 @@
 
     });
     window.onload = function () {
-
-        getYear();
+        var today = new Date();
+        fyear = getFinancialYear(today);
+       // getYear();
     }
     var actual_mu = [];
     var target_mu = [];
@@ -243,7 +249,7 @@
     var var_ega_pos = [];
     var var_ega_neg = [];
     var revenue = [];
-    function getYear() {
+    /*function getYear() {
     $.ajax({
         type: "GET",
         url: "/WindReport/GetFinacialYear",
@@ -266,7 +272,7 @@
             });
         }
     });
-    }
+    }*/
 
 
     function GetOperationWKPR() {
@@ -300,7 +306,7 @@
         //arr1 = daterange.split("-");
         //var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         //var toDate = moment(dateArr, 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var fy = $('select#fy option:selected').val();
+        var fy = fyear;//$('select#fy option:selected').val();
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
 
         $.ajax({
@@ -452,7 +458,7 @@
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
         var fromDate = monthdate.startdate;
         //var toDate = monthdate.enddate;
-        var fy = $('select#fy option:selected').val();
+        var fy = fyear;//$('select#fy option:selected').val();
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
@@ -597,7 +603,7 @@
        // arr1 = daterange.split("-");
 
        // var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var fy = $('select#fy option:selected').val();
+        var fy = fyear;//$('select#fy option:selected').val();
         var daterange = $('#daterange').val();
         const dateArr = daterange.split("/");
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
@@ -766,7 +772,7 @@
                  sec2 += '</table>';
 
 
-                 sec3 += '<table class="table table-bordered table-striped">';
+                 sec3 += '<table class="table table-bordered table-striped" style="line-height: 15px;">';
                  sec3 += '<thead class="tbl-head"><tr>';
                  sec3 += '<th>Period</th><th>Energy Gain/Loss (MUs)	</th><th>Revenue(MINR)</th></tr ></thead> ';
                  sec3 += '<tr><td>WK</td><td style="text-align: right;">' + actual_mu[0] + '</td><td style="text-align: right;">' + revenue[0].toFixed(1) + '</td></tr>';
@@ -807,8 +813,17 @@
                     data: target_mu,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'en',
@@ -819,8 +834,17 @@
                     data: actual_mu,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'en_var',
@@ -905,8 +929,17 @@
                     data: target_wind,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
 
                 },{
@@ -918,8 +951,17 @@
                     data: actual_wind,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'w_var',
@@ -1005,8 +1047,17 @@
                     data: target_plf,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'plf_en',
@@ -1017,8 +1068,17 @@
                     data: actual_plf,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'plf_var',
@@ -1102,8 +1162,17 @@
                     data: target_ma,
                     order:1 ,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'ma_en',
@@ -1114,8 +1183,17 @@
                     data: actual_ma,
                     order: 1,
                         datalabels: {
-                            anchor: 'end',
+                            anchor: 'center',
                             align: 'top',
+                            color: 'white',
+                            labels: {
+                                title: {
+                                    font: {
+                                        weight: 'bold'
+
+                                    }
+                                },
+                            },
                         },
                 },{
                     yAxisID: 'ma_var',
@@ -1199,8 +1277,17 @@
                     data: target_iga,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'iga_en',
@@ -1211,8 +1298,17 @@
                     data: actual_iga,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                         },
                 },{
                     yAxisID: 'iga_var',
@@ -1296,8 +1392,17 @@
                     data: target_ega,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
 
@@ -1309,8 +1414,17 @@
                     data: actual_ega,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'ega_var',
@@ -1398,7 +1512,7 @@
         var seldate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
         var fromDate = GetWeeklyDays(seldate);
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
-        var fyear = $('select#fy option:selected').val();
+        var fyear1 = fyear;//$('select#fy option:selected').val();
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
 
         var leble = [];
@@ -1406,7 +1520,7 @@
         var reporthead = "SPV Wise Reports";
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetWindPRReportSPVWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            url: '@Url.Action("GetWindPRReportSPVWise", "WindReport")' + '?fy=' + fyear1 + '&fromDate=' + fromDate + '&toDate=' + toDate,
             //url: "/WindReport/GetWindPRReportSPVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
 
@@ -1638,7 +1752,7 @@
         var seldate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
         var fromDate = GetWeeklyDays(seldate);
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
-        var fyear = $('select#fy option:selected').val();
+        var fyear1 = fyear;//$('select#fy option:selected').val();
         var reporthead = "Site Wise Reports";
         var Energy_Dataset = [];
         var Wind_Dataset = [];
@@ -1657,7 +1771,7 @@
         //var Energy_var_Dataset = [];
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetWindPRReportSiteWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate + '&sitelist=' + site_ids,
+            url: '@Url.Action("GetWindPRReportSiteWise", "WindReport")' + '?fy=' + fyear1 + '&fromDate=' + fromDate + '&toDate=' + toDate + '&sitelist=' + site_ids,
             //url: "/WindReport/GetWindPRReportSiteWise?fy=" + fyear+" &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
@@ -1854,8 +1968,17 @@
                     data: target_energy,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 }, {
                     yAxisID: 'en_site',
@@ -1866,8 +1989,17 @@
                     data: actual_energy,
                     order: 1,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
                     },
                 },{
                     yAxisID: 'var_site',
@@ -1953,8 +2085,17 @@
                     order: 1,
                     fill: false,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
 
                     },
 
@@ -1968,8 +2109,17 @@
                     order: 1,
                     fill: false,
                     datalabels: {
-                        anchor: 'end',
+                        anchor: 'center',
                         align: 'top',
+                        color: 'white',
+                        labels: {
+                            title: {
+                                font: {
+                                    weight: 'bold'
+
+                                }
+                            },
+                        },
 
                     },
                 },{

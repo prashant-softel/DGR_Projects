@@ -100,11 +100,11 @@
                     </div>
                     <div class="col-sm-2">
                         <div class="row">
-                            <div class="col-sm-3 text-center"></div>
-                            <div class="col-sm-6 text-center">
-                                <button type="button" class="btn btn-block btn-primary" onclick="GetPRReport();">Search</button>
+                            <div class="col-sm-1 text-center"></div>
+                            <div class="col-sm-1 text-center">
+                                <button type="button" class="btn btn-block btn-primary" onclick="GetPRReport();" style="width: 5rem;">Search</button>
                             </div>
-                            <div class="col-sm-3 text-center"></div>
+                            <div class="col-sm-1 text-center"></div>
                         </div>
                     </div>
                     <div class="col-sm-3"></div>
@@ -306,7 +306,7 @@
                         if (result[i].tar_ega != 0) {
                             ega_var = (result[i].act_ega - result[i].tar_ega) ;
                         }
-
+                        let act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
                         gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
                         gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
                         gain_var = (gain_act - gain_tar) ;
@@ -334,7 +334,7 @@
                         tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].act_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + act_prval.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + pr_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
@@ -512,7 +512,7 @@
                         if (result[i].tar_ega != 0) {
                             ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
-
+                        let act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
                         gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
                         gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
                         gain_var = (gain_act - gain_tar);
@@ -540,7 +540,7 @@
                         tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + result[i].act_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + act_prval.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + pr_var.toFixed(2) + '</td>';
 
                         tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';

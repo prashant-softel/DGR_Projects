@@ -14,6 +14,7 @@ namespace DGRAPIs.Models
         public int site_id { get; set; }
         public string site_name { get; set; }
         public DateTime import_date { get; set; }
+        public dynamic data_date { get; set; }
         public int imported_by { get; set; }
         public string import_by_name { get; set; }
         public DateTime approval_date { get; set; }

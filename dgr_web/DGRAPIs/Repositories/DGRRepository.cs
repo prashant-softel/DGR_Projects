@@ -2360,6 +2360,7 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
             {
                 filter += " and site_id in (" + site + ")";
             }
+            filter += " and smb='Nil' and strings='Nil'";
             string query = " select date, site, icr, inv, total_bd, bd_remarks from uploading_file_breakdown_solar where HOUR(total_bd)>=1 " + filter;
             List<SolarUploadingFileBreakDown> data = new List<SolarUploadingFileBreakDown>();
             data = await Context.GetData<SolarUploadingFileBreakDown>(query).ConfigureAwait(false);
@@ -3268,7 +3269,10 @@ bd_remarks, action_taken
             meta.importFilePath = meta.importFilePath.Replace("\\", "\\\\");
 
             //query = "insert into import_log (file_name, import_type, log_filename) values ('" + meta.importFilePath + "','" + meta.importType + "','" + meta.importLogName + "');";
-            query = "insert into import_batches (file_name, import_type, log_filename, site_id, import_date, imported_by, import_by_name) values ('" + meta.importFilePath + "','" + meta.importType + "','" + meta.importLogName + "','" + meta.importSiteId + "',NOW(),'" + userId + "','" + userName + "');";
+            //query = "insert into import_batches (file_name, import_type, log_filename, site_id, import_date, imported_by, import_by_name) values ('" + meta.importFilePath + "','" + meta.importType + "','" + meta.importLogName + "','" + meta.importSiteId + "',NOW(),'" + userId + "','" + userName + "');";
+           // return await Context.ExecuteNonQry<int>(query).ConfigureAwait(false);
+
+            query = "insert into import_batches (file_name, import_type, import_file_type, data_date, log_filename, site_id, import_date, imported_by, import_by_name) values ('" + meta.importFilePath + "','" + meta.importType + "','" + meta.importFileType + "','" + meta.automationDataDate + "','" + meta.importLogName + "','" + meta.importSiteId + "',NOW(),'" + userId + "','" + userName + "');";
             return await Context.ExecuteNonQry<int>(query).ConfigureAwait(false);
         }
 
@@ -5485,12 +5489,12 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             if (importType == 1)
             {
                 // query = "select ib.*,sm.site as site_name from import_batches as ib join site_master_solar as sm on sm.site_master_id=ib.site_id join uploading_file_generation as t3 on t3.import_batch_id=ib.import_batch_id where DATE(ib.import_date)>='" + importFromDate + "' and DATE(ib.import_date) <='" + importToDate + "'and `file_name` like '%DGR_Automation%' and ib.import_type=" + importType + "" + filter + "";
-                query = "select ib.*,sm.site as site_name from import_batches as ib join site_master as sm on sm.site_master_id=ib.site_id join uploading_file_generation as t3 on t3.import_batch_id=ib.import_batch_id where DATE(ib.import_date)>='" + importFromDate + "' and DATE(ib.import_date) <='" + importToDate + "'and `file_name` like '%DGR_Automation%' and ib.import_type=" + importType + "" + filter + " order by is_approved";
+                query = "select ib.*,sm.site as site_name from import_batches as ib join site_master as sm on sm.site_master_id=ib.site_id join uploading_file_generation as t3 on t3.import_batch_id=ib.import_batch_id where DATE(ib.import_date)>='" + importFromDate + "' and DATE(ib.import_date) <='" + importToDate + "' and ib.import_file_type=1 and ib.import_type=" + importType + "" + filter + " order by is_approved";
 
             }
             else if (importType == 2)
             {
-                query = "select ib.*,sm.site as site_name from import_batches as ib join site_master_solar as sm on sm.site_master_solar_id = ib.site_id join uploading_file_generation_solar as t3 on t3.import_batch_id = ib.import_batch_id where DATE(ib.import_date) >= '" + importFromDate + "' and DATE(ib.import_date) <='" + importToDate + "' and `file_name` like '%DGR_Automation%' and ib.import_type =" + importType + "" + filter + " order by is_approved";
+                query = "select ib.*,sm.site as site_name from import_batches as ib join site_master_solar as sm on sm.site_master_solar_id = ib.site_id join uploading_file_generation_solar as t3 on t3.import_batch_id = ib.import_batch_id where DATE(ib.import_date) >= '" + importFromDate + "' and DATE(ib.import_date) <='" + importToDate + "' and ib.import_file_type=1 and ib.import_type =" + importType + "" + filter + " order by is_approved";
 
                
             }

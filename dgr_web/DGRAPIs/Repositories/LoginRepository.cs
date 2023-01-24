@@ -34,7 +34,7 @@ namespace DGRAPIs.Repositories
             }
             return _UserLogin;
            */
-            qry = "SELECT login_id,username,useremail,user_role FROM `login` where `useremail`='" + username + "' and `password` ='" + password + "' and `active_user` = 1 ;";
+            qry = "SELECT login_id,username,useremail,user_role FROM `login` where `useremail`='" + username + "' and `password` = md5('" + password + "') and `active_user` = 1 ;";
             var _UserLogin = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
             if (_UserLogin.Count > 0)
             {
@@ -46,8 +46,17 @@ namespace DGRAPIs.Repositories
         }
         internal async Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass)
         {
-            string qry = "insert into login (`username`,`useremail`,`user_role`,`password`) VALUES('" + fname + "','" + useremail + "','"+ role + "','"+userpass+"')";
+            string qry = "insert into login (`username`,`useremail`,`user_role`,`password`) VALUES('" + fname + "','" + useremail + "','"+ role + "', MD5('"+userpass+"'))";
             //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
+            
+        }
+
+        internal async Task<int> UpdatePassword(int loginid, string updatepass)
+        {
+            string qry = "update login set password=MD5('" + updatepass + "') where login_id=" + loginid + "";
+            //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+           // string a = qry;
             return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
 
         }

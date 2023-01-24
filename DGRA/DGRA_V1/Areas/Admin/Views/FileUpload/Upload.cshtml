@@ -25,11 +25,11 @@
     {
         Console.WriteLine(usermodel.access_list);
 
-        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
         {
             windAccess = true;
         }
-        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
         {
             solarAccess = true;
         }
@@ -98,14 +98,14 @@
                                         <option value="Wind">Wind</option>
 
                                         }
-                                        else if (solarAccess == true)
+                                        @if (solarAccess == true)
                                         {
                                         <option value="Solar">Solar</option>
                                         }
-                                        else
+                                        @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                                         {
-                                        <option value="Wind">Wind</option>
-                                        <option value="Solar">Solar</option>
+                                            <option value="Wind">Wind</option>
+                                            <option value="Solar">Solar</option>
                                         }
 
                                         @*foreach (var fileUploadType in FileUploadType.All)
