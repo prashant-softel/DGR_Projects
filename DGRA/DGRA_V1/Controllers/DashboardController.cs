@@ -152,9 +152,35 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
+        public async Task<IActionResult> GetTotalMWforDashbord(string w_site, string s_site)
+        {
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindAndSolarMW?w_site=" + w_site + "&s_site=" + s_site;
+                WebRequest request = WebRequest.Create(url);
+
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "Data Not Presents !";
+            }
+            return Content(line, "application/json");
+
+        }
 
         //public async Task<IActionResult> GetWindDashboardDataByLastDay(string startDate, string endDate, string FY, string sites, string date)
-         public async Task<IActionResult> GetWindDashboardDataByLastDay(string FY, string sites, string date)
+        public async Task<IActionResult> GetWindDashboardDataByLastDay(string FY, string sites, string date)
         {
             string line = "";
             try
@@ -180,12 +206,12 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
-        public async Task<IActionResult> GetWindGraphData(string startDate, string endDate, string FY, string sites)
+        public async Task<IActionResult> GetWindGraphData(string startDate, string endDate, string FY, string sites,bool monthly)
         {
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindDashboardData?startDate=" + startDate + "&endDate=" + endDate+ "&FY="+ FY + "&sites="+ sites;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindDashboardData?startDate=" + startDate + "&endDate=" + endDate+ "&FY="+ FY + "&sites="+ sites+ "&monthly="+ monthly ;
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
@@ -258,12 +284,12 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
-        public async Task<IActionResult> GetSolarDashboardData(string startDate, string endDate, string FY, string sites)
+        public async Task<IActionResult> GetSolarDashboardData(string startDate, string endDate, string FY, string sites,bool monthly)
         {
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarDashboardData?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + sites;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarDashboardData?startDate=" + startDate + "&endDate=" + endDate + "&FY=" + FY + "&sites=" + sites+"&monthly="+ monthly;
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())

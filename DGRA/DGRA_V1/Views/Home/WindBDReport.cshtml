@@ -35,6 +35,10 @@
 @*<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">*@
 
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
 
 <div class="content-wrapper">
 
@@ -191,11 +195,16 @@
 
         }
         function GetState() {
-        var selcountry = $('select#country option:selected').val();
+        $('select#country').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
+            var selcountry = $('select#country option:selected').val();
+             var site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
            // url: "/WindReport/GetStateList?countryname=" + selcountry,
-            url: '@Url.Action("GetStateList", "WindReport")' + '?countryname=' + selcountry,
+            url: '@Url.Action("GetStateList", "WindReport")' + '?countryname=' + selcountry + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -206,9 +215,10 @@
                     options += '<option value="' + result[i].state + '">' + result[i].state + '</option>';
                 }
                 $("#state").html(options);
-                $('#state').multipleSelect({
+                $('select#state').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select State(s)",
+                    filter:true
                 });
                 $('#spv').multipleSelect('destroy');
                 GetSPV();
@@ -227,10 +237,11 @@
             let statelist = stateData.join(',');
            // stateData = stateData != "" ? stateData.slice(0, -1) : stateData;
             console.log(statelist);
+              var site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
            // url: "/WindReport/GetSPVList?state=" + val,
-            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + stateData,
+            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + stateData + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -242,9 +253,10 @@
                 }
                 $("#spv").html(options);
                 $('#spv').multipleSelect('destroy');
-                $('#spv').multipleSelect({
+                $('select#spv').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select SPV(s)",
+                    filter:true
                 });
                // $('#site').multipleSelect('destroy');
                 getSite(false);
@@ -269,7 +281,9 @@
             spvlist += $(this).val() + ",";
         });
         spvlist = spvlist != "" ? spvlist.slice(0, -1) : spvlist;
-
+        if (spvlist != "") {
+             site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+        }
         $.ajax({
             type: "POST",
             url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + statelist + '&spv=' + spvlist + '&sitelist=' + site_ids,
@@ -284,9 +298,10 @@
                 }
                 $("#site").html(options);
                 $('#site').multipleSelect('destroy');
-                $('#site').multipleSelect({
+                $('select#site').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
 
                 GetWTG(false);
@@ -321,9 +336,10 @@
                 }
                 $("#wtg").html(options);
                 $('#wtg').multipleSelect('destroy');
-                $('#wtg').multipleSelect({
+                $('select#wtg').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select WTG(s)",
+                    filter:true
                 });
             }
         });

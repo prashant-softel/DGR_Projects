@@ -7,16 +7,36 @@
     var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
     //bool upload_access = false;
     int ucnt = 0;
+    int windView = 0;
+    int windReport = 0;
+    int solarView = 0;
+    int solarReport = 0;
 }
 
 @for (int i = 0; i < @usermodel.access_list.Count; i++)
 {
-    
+
     if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].upload_access == 1)
     {
         ucnt++;
     }
-     
+    if (@usermodel.access_list[i].page_type == 1 && @usermodel.access_list[i].site_type == 1)
+    {
+        windView++;
+    }
+    if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 1)
+    {
+        windReport++;
+    }
+    if (@usermodel.access_list[i].page_type == 1 && @usermodel.access_list[i].site_type == 2)
+    {
+        solarView++;
+    }
+    if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 2)
+    {
+        solarReport++;
+    }
+
 }
 
 <html>
@@ -33,6 +53,17 @@
     <link href="~/Content/theme/plugins/fontawesome-free/css/all.min.css" rel="stylesheet" />
     <!-- Theme style -->
     <link rel="stylesheet" href="~/Content/theme/dist/css/adminlte.min.css">
+    <style>
+        .os-content-arrange{
+            height:unset !important;
+        }
+        .os-content-glue {
+            height: unset !important;
+        }
+        .os-viewport {
+            overflow-x: unset !important;
+        }
+        </style>
 </head>
 <body class="hold-transition sidebar-mini">
 
@@ -43,10 +74,10 @@
                 <li class="nav-item">
                     <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
                 </li>
-                <li class="nav-item d-none d-sm-inline-block">
-                    <a href="@Url.Action("Index", "Home")" class="nav-link">Home</a>
-                </li>
-              
+                <!--<li class="nav-item d-none d-sm-inline-block">
+        <a href="@Url.Action("Index", "Home")" class="nav-link">Home</a>
+    </li>-->
+
             </ul>
 
             <!-- Right navbar links -->
@@ -58,7 +89,7 @@
 
                 <li class="nav-item dropdown">
                     <a class="nav-link" data-toggle="dropdown" href="#">
-                        <div class="user-panel">
+                        <div class="user-panel" style="margin-right: -1.2rem;">
                             <div class="image">
                                 <img src="~/Content/theme/dist/img/avatar5.png" class="img-circle elevation-2" alt="User Image" style="width: 1.5rem !important;">
                             </div>
@@ -66,68 +97,68 @@
                         </div>
                     </a>
 
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="right: -2rem; top: 1.8rem;">
                         <span class="dropdown-item dropdown-header">User Details</span>
                         <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas  mr-2"></i> @HttpContextAccessor.HttpContext.Session.GetString("DisplayName")
-                            <span class="float-right text-muted text-sm"> </span>
-                        </a>
+                        <span class="dropdown-item">
+                            @HttpContextAccessor.HttpContext.Session.GetString("DisplayName") &nbsp;(@HttpContextAccessor.HttpContext.Session.GetString("role"))
+
+                        </span>
+                        <!--<div class="dropdown-divider"></div>
+    <a href="#" class="dropdown-item">
+        <i class=" mr-2"></i>Role Name
+        <span class="float-right text-muted text-sm"></span>
+    </a>-->
                         <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class=" mr-2"></i>Role Name
-                            <span class="float-right text-muted text-sm">@HttpContextAccessor.HttpContext.Session.GetString("role")</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="~/Home/Logout" class="dropdown-item">
-                            <i class="mr-2"></i> Sign Out
-                            <span class="float-right text-muted text-sm"></span>
+                        <a href="~/Home/Logout" class="dropdown-item text-center">
+                            <span class=""> Sign Out</span>
+                            
                         </a>
 
                     </div>
                 </li>
                 @*}*@
                 <!-- Messages Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-comments"></i>
-                        <span class="badge badge-danger navbar-badge">3</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <a href="#" class="dropdown-item">
+                <!--<li class="nav-item dropdown">
+        <a class="nav-link" data-toggle="dropdown" href="#">
+            <i class="far fa-comments"></i>
+            <span class="badge badge-danger navbar-badge">3</span>
+        </a>
+        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+            <a href="#" class="dropdown-item">
 
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-                    </div>
-                </li>
+            </a>
+            <div class="dropdown-divider"></div>
+            <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+        </div>
+    </li>-->
                 <!-- Notifications Dropdown Menu -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link" data-toggle="dropdown" href="#">
-                        <i class="far fa-bell"></i>
-                        <span class="badge badge-warning navbar-badge">15</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                        <span class="dropdown-item dropdown-header">15 Notifications</span>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-envelope mr-2"></i> 4 new messages
-                            <span class="float-right text-muted text-sm">3 mins</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-users mr-2"></i> 8 friend requests
-                            <span class="float-right text-muted text-sm">12 hours</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item">
-                            <i class="fas fa-file mr-2"></i> 3 new reports
-                            <span class="float-right text-muted text-sm">2 days</span>
-                        </a>
-                        <div class="dropdown-divider"></div>
-                        <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                    </div>
-                </li>
+                <!-- <li class="nav-item dropdown">
+         <a class="nav-link" data-toggle="dropdown" href="#">
+             <i class="far fa-bell"></i>
+             <span class="badge badge-warning navbar-badge">15</span>
+         </a>
+         <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+             <span class="dropdown-item dropdown-header">15 Notifications</span>
+             <div class="dropdown-divider"></div>
+             <a href="#" class="dropdown-item">
+                 <i class="fas fa-envelope mr-2"></i> 4 new messages
+                 <span class="float-right text-muted text-sm">3 mins</span>
+             </a>
+             <div class="dropdown-divider"></div>
+             <a href="#" class="dropdown-item">
+                 <i class="fas fa-users mr-2"></i> 8 friend requests
+                 <span class="float-right text-muted text-sm">12 hours</span>
+             </a>
+             <div class="dropdown-divider"></div>
+             <a href="#" class="dropdown-item">
+                 <i class="fas fa-file mr-2"></i> 3 new reports
+                 <span class="float-right text-muted text-sm">2 days</span>
+             </a>
+             <div class="dropdown-divider"></div>
+             <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+         </div>
+     </li>-->
                 <!--<li class="nav-item">
         <a class="nav-link" data-widget="fullscreen" href="#" role="button">
             <i class="fas fa-expand-arrows-alt"></i>
@@ -217,33 +248,35 @@
                                 </p>
                             </a>
                         </li>
+                        @if (windView > 0)
+                        {
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon fas fa-copy"></i>
+                                    <p>
+                                        Wind Views
+                                        <i class="fas fa-angle-left right"></i>
 
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-copy"></i>
-                                <p>
-                                    Wind Views
-                                    <i class="fas fa-angle-left right"></i>
-
-                                </p>
-                            </a>
-                            @for (int i = 0; i < @usermodel.access_list.Count; i++)
-                            {
-                                if (@usermodel.access_list[i].page_type == 1 && @usermodel.access_list[i].site_type == 1)
+                                    </p>
+                                </a>
+                                @for (int i = 0; i < @usermodel.access_list.Count; i++)
                                 {
+                                    if (@usermodel.access_list[i].page_type == 1 && @usermodel.access_list[i].site_type == 1)
+                                    {
 
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            <a href="@Url.Action(@usermodel.access_list[i].action_url,@usermodel.access_list[i].controller_name, new { Area = "" })" class="nav-link">
-                                                <i class="far  nav-icon"></i>
-                                                <p>@usermodel.access_list[i].display_name</p>
-                                            </a>
-                                        </li>
-                                    </ul>
+                                        <ul class="nav nav-treeview">
+                                            <li class="nav-item">
+                                                <a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name, new { Area = "" })" class="nav-link">
+                                                    <i class="far  nav-icon"></i>
+                                                    <p>@usermodel.access_list[i].display_name</p>
+                                                </a>
+                                            </li>
+                                        </ul>
 
+                                    }
                                 }
-                            }
-                        </li>
+                            </li>
+                        }
                         @*<li class="nav-item">
             <a href="#" class="nav-link">
                 <i class="nav-icon fas fa-copy"></i>
@@ -293,31 +326,33 @@
                 </li>
             </ul>
         </li>*@
-
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-copy"></i>
-                                <p>
-                                    Solar Views
-                                    <i class="fas fa-angle-left right"></i>
-                                </p>
-                            </a>
-                            @for (int i = 0; i < @usermodel.access_list.Count; i++)
-                            {
-                                if (@usermodel.access_list[i].page_type == 1 && @usermodel.access_list[i].site_type == 2)
+                        @if (solarView > 0)
+                        {
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon fas fa-copy"></i>
+                                    <p>
+                                        Solar Views
+                                        <i class="fas fa-angle-left right"></i>
+                                    </p>
+                                </a>
+                                @for (int i = 0; i < @usermodel.access_list.Count; i++)
                                 {
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            @*<a href="~/@usermodel.access_list[i].controller_name/@usermodel.access_list[i].action_url" class="nav-link">*@
-                                            <a href="@Url.Action(@usermodel.access_list[i].action_url,@usermodel.access_list[i].controller_name, new { Area = "" })" class="nav-link">
-                                                <i class="far  nav-icon"></i>
-                                                <p>@usermodel.access_list[i].display_name</p>
-                                            </a>
-                                        </li>
-                                    </ul>
+                                    if (@usermodel.access_list[i].page_type == 1 && @usermodel.access_list[i].site_type == 2)
+                                    {
+                                        <ul class="nav nav-treeview">
+                                            <li class="nav-item">
+                                                @*<a href="~/@usermodel.access_list[i].controller_name/@usermodel.access_list[i].action_url" class="nav-link">*@
+                                                <a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name, new { Area = "" })" class="nav-link">
+                                                    <i class="far  nav-icon"></i>
+                                                    <p>@usermodel.access_list[i].display_name</p>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    }
                                 }
-                            }
-                        </li>
+                            </li>
+                        }
                         @*<ul class="nav nav-treeview">
                 <li class="nav-item">
                     <a href="~/Home/SolarGenView" class="nav-link">
@@ -430,59 +465,183 @@
                 </li>
             </ul>
         </li>*@
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-book"></i>
-                                <p>
-                                    Wind Reports
-                                    <i class="fas fa-angle-left right"></i>
+                        @if (windReport > 0)
+                        {
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon fas fa-book"></i>
+                                    <p>
+                                        Wind Reports
+                                        <i class="fas fa-angle-left right"></i>
 
-                                </p>
-                            </a>
-                            @for (int i = 0; i < @usermodel.access_list.Count; i++)
-                            {
-                                if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 1)
+                                    </p>
+                                </a>
+                                @for (int i = 0; i < @usermodel.access_list.Count; i++)
                                 {
+                                    if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 1)
+                                    {
+                                        <ul class="nav nav-treeview">
+                                            <li class="nav-item">
+                                                @*<a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name)" class="nav-link">*@
+
+                                                <a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name, new { Area = "" })" class="nav-link">
+                                                    <i class="far  nav-icon"></i>
+                                                    <p>@usermodel.access_list[i].display_name</p>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    }
+                                }
+                            </li>
+                        }
+                        @if (solarReport > 0)
+                        {
+                            <li class="nav-item">
+                                <a href="#" class="nav-link">
+                                    <i class="nav-icon fas fa-book"></i>
+                                    <p>
+                                        Solar Reports
+                                        <i class="fas fa-angle-left right"></i>
+
+                                    </p>
+                                </a>
+                                @for (int i = 0; i < @usermodel.access_list.Count; i++)
+                                {
+                                    if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 2)
+                                    {
+                                        <ul class="nav nav-treeview">
+                                            <li class="nav-item">
+                                                @*<a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name)" class="nav-link">*@
+                                                <a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name, new { Area = "" })" class="nav-link">
+                                                    <i class="far  nav-icon"></i>
+                                                    <p>@usermodel.access_list[i].display_name</p>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    }
+                                }
+                            </li>
+                        }
+                            @*<ul class="nav nav-treeview">
+
+                        <li class="nav-item">
+                            <a href="@Url.Action("SolarSiteMaster", "Home")" class="nav-link">
+                                <i class="far  nav-icon"></i>
+                                <p>Solar Site Master</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="@Url.Action("SolarLocationMaster", "Home")" class="nav-link">
+                                <i class="far  nav-icon"></i>
+                                <p>Solar Location Master</p>
+                            </a>
+                        </li>
+
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarGenReport", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Generation Reports</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarBDReport", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Breakdown Reports</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarPRReport", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Performance Reports</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarWeeklyPRReports", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Weekly PR Reports</p>
+                        </a>
+                    </li>
+
+                </ul>
+            </li>*@
+                            @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                            {
+                                <li class="nav-item">
+                                    <a href="#" class="nav-link">
+                                        <i class="nav-icon fas fa-server"></i>
+                                        <p>
+                                            Administration
+                                            <i class="right fas fa-angle-left"></i>
+                                        </p>
+                                    </a>
                                     <ul class="nav nav-treeview">
                                         <li class="nav-item">
-                                            @*<a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name)" class="nav-link">*@
-
-                                            <a href="@Url.Action(@usermodel.access_list[i].action_url,@usermodel.access_list[i].controller_name, new { Area = "" })" class="nav-link">
+                                            <a href="@Url.Action("SiteUserMaster", "Home" , new { Area = "" })" class="nav-link">
                                                 <i class="far  nav-icon"></i>
-                                                <p>@usermodel.access_list[i].display_name</p>
+                                                <p>Site User Master</p>
                                             </a>
                                         </li>
                                     </ul>
-                                }
+                                </li>
                             }
-                        </li>
-                        <li class="nav-item">
-                            <a href="#" class="nav-link">
-                                <i class="nav-icon fas fa-book"></i>
-                                <p>
-                                    Solar Reports
-                                    <i class="fas fa-angle-left right"></i>
+                            <li class="nav-item">
+                                <a href="@Url.Action("Logout", "Home"  , new { Area = "" })" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Sign Out</p>
+                                </a>
+                            </li>
+                            @*<li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-book"></i>
+                    <p>
+                        Solar Reports
+                        <i class="fas fa-angle-left right"></i>
 
-                                </p>
-                            </a>
-                            @for (int i = 0; i < @usermodel.access_list.Count; i++)
-                            {
-                                if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 2)
-                                {
-                                    <ul class="nav nav-treeview">
-                                        <li class="nav-item">
-                                            @*<a href="@Url.Action(@usermodel.access_list[i].action_url, @usermodel.access_list[i].controller_name)" class="nav-link">*@
-                                            <a href="@Url.Action(@usermodel.access_list[i].action_url,@usermodel.access_list[i].controller_name, new { Area = "" })" class="nav-link">
-                                                <i class="far  nav-icon"></i>
-                                                <p>@usermodel.access_list[i].display_name</p>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                }
-                            }
-                        </li>
-                        @*<ul class="nav nav-treeview">
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarReport", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Reports</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarBDReport", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Breakdown Reports</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarPRReport", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Performance Reports</p>
+                        </a>
+                    </li>
 
+                </ul>
+            </li>*@
+                            @*<li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="nav-icon fas fa-server"></i>
+                    <p>
+                        Administration
+                        <i class="right fas fa-angle-left"></i>
+                    </p>
+                </a>
+                <ul class="nav nav-treeview">
+                    <li class="nav-item">
+                        <a href="@Url.Action("WindSiteMaster", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Wind Site Master</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("WindLocationMaster", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Wind Location Master</p>
+                        </a>
+                    </li>
                     <li class="nav-item">
                         <a href="@Url.Action("SolarSiteMaster", "Home")" class="nav-link">
                             <i class="far  nav-icon"></i>
@@ -495,247 +654,129 @@
                             <p>Solar Location Master</p>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("WindFileUpload", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Wind File Upload</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarFileUpload", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Solar File Upload</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("WindSiteUserMaster", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Wind Site User Master</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarSiteUserMaster", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Solar Site User Master</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("WindDataApproval", "Admin")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Wind Data Approval Form</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarDataApproval", "Home")" class="nav-link">
+                            <i class="far nav-icon"></i>
+                            <p>Solar Data Apprival Form</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("WindWeeklyPFReport", "Home")" class="nav-link">
+                            <i class="far  nav-icon"></i>
+                            <p>Wind Weekly PF Reports</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="@Url.Action("SolarWeeklyPFReport", "Home")" class="nav-link">
+                            <i class="far nav-icon"></i>
+                            <p>Solar Weekly PF Reports</p>
+                        </a>
+                    </li>
+                </ul>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("Settings", "Home")" class="nav-link">
+                    <i class="nav-icon fas fa-cog"></i>
+                    <p>
+                        Settings
 
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarGenReport", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Generation Reports</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarBDReport", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Breakdown Reports</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarPRReport", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Performance Reports</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarWeeklyPRReports", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Weekly PR Reports</p>
-                    </a>
-                </li>
-
-            </ul>
-        </li>*@
-                        @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
-                        {
-                            <li class="nav-item">
-                                <a href="#" class="nav-link">
-                                    <i class="nav-icon fas fa-server"></i>
-                                    <p>
-                                        Administration
-                                        <i class="right fas fa-angle-left"></i>
-                                    </p>
-                                </a>
-                                <ul class="nav nav-treeview">
-                                    <li class="nav-item">
-                                        <a href="@Url.Action("SiteUserMaster", "Home" , new { Area = "" })" class="nav-link">
-                                            <i class="far  nav-icon"></i>
-                                            <p>Site User Master</p>
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                        }
-                        <li class="nav-item">
-                            <a href="@Url.Action("Logout", "Home"  , new { Area = "" })" class="nav-link">
-                                <i class="far fa-circle nav-icon"></i>
-                                <p>Sign Out</p>
-                            </a>
-                        </li>
-                        @*<li class="nav-item">
+                    </p>
+                </a>
+            </li>*@
+                            <!--<li class="nav-item">
             <a href="#" class="nav-link">
-                <i class="nav-icon fas fa-book"></i>
+                <i class="nav-icon fas fa-chart-pie"></i>
                 <p>
-                    Solar Reports
-                    <i class="fas fa-angle-left right"></i>
-
-                </p>
-            </a>
-            <ul class="nav nav-treeview">
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarReport", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Reports</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarBDReport", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Breakdown Reports</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarPRReport", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Performance Reports</p>
-                    </a>
-                </li>
-
-            </ul>
-        </li>*@
-                        @*<li class="nav-item">
-            <a href="#" class="nav-link">
-                <i class="nav-icon fas fa-server"></i>
-                <p>
-                    Administration
+                    Charts
                     <i class="right fas fa-angle-left"></i>
                 </p>
             </a>
             <ul class="nav nav-treeview">
                 <li class="nav-item">
-                    <a href="@Url.Action("WindSiteMaster", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Wind Site Master</p>
+                    <a href="@Url.Action("ChartJS", "Home")" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>ChartJS</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="@Url.Action("WindLocationMaster", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Wind Location Master</p>
+                    <a href="@Url.Action("FlotCharts", "Home")" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Flot</p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarSiteMaster", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Solar Site Master</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarLocationMaster", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Solar Location Master</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("WindFileUpload", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Wind File Upload</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarFileUpload", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Solar File Upload</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("WindSiteUserMaster", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Wind Site User Master</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarSiteUserMaster", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Solar Site User Master</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("WindDataApproval", "Admin")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Wind Data Approval Form</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarDataApproval", "Home")" class="nav-link">
-                        <i class="far nav-icon"></i>
-                        <p>Solar Data Apprival Form</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("WindWeeklyPFReport", "Home")" class="nav-link">
-                        <i class="far  nav-icon"></i>
-                        <p>Wind Weekly PF Reports</p>
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="@Url.Action("SolarWeeklyPFReport", "Home")" class="nav-link">
-                        <i class="far nav-icon"></i>
-                        <p>Solar Weekly PF Reports</p>
-                    </a>
-                </li>
-            </ul>
-        </li>
-        <li class="nav-item">
-            <a href="@Url.Action("Settings", "Home")" class="nav-link">
-                <i class="nav-icon fas fa-cog"></i>
-                <p>
-                    Settings
 
+            </ul>
+        </li>-->
+                            <!--<li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-table"></i>
+                <p>
+                    Tables
+                    <i class="fas fa-angle-left right"></i>
                 </p>
             </a>
-        </li>*@
-                        <!--<li class="nav-item">
-        <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-chart-pie"></i>
-            <p>
-                Charts
-                <i class="right fas fa-angle-left"></i>
-            </p>
-        </a>
-        <ul class="nav nav-treeview">
-            <li class="nav-item">
-                <a href="@Url.Action("ChartJS", "Home")" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>ChartJS</p>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="@Url.Action("FlotCharts", "Home")" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Flot</p>
-                </a>
-            </li>
+            <ul class="nav nav-treeview">
 
-        </ul>
-    </li>-->
-                        <!--<li class="nav-item">
-        <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-table"></i>
-            <p>
-                Tables
-                <i class="fas fa-angle-left right"></i>
-            </p>
-        </a>
-        <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="@Url.Action("DataTable", "Home")" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>DataTables</p>
+                    </a>
+                </li>
 
-            <li class="nav-item">
-                <a href="@Url.Action("DataTable", "Home")" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>DataTables</p>
-                </a>
-            </li>
+            </ul>
+        </li>
 
-        </ul>
-    </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link">
+                <i class="nav-icon fas fa-book"></i>
+                <p>
+                    Pages
+                    <i class="fas fa-angle-left right"></i>
+                </p>
+            </a>
+            <ul class="nav nav-treeview">
 
-    <li class="nav-item">
-        <a href="#" class="nav-link">
-            <i class="nav-icon fas fa-book"></i>
-            <p>
-                Pages
-                <i class="fas fa-angle-left right"></i>
-            </p>
-        </a>
-        <ul class="nav nav-treeview">
+                <li class="nav-item">
+                    <a href="@Url.Action("Profile", "Home")" class="nav-link">
+                        <i class="far fa-circle nav-icon"></i>
+                        <p>Profile</p>
+                    </a>
+                </li>
 
-            <li class="nav-item">
-                <a href="@Url.Action("Profile", "Home")" class="nav-link">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Profile</p>
-                </a>
-            </li>
-
-        </ul>
-    </li>-->
-                    </ul>
+            </ul>
+        </li>-->
+                        </ul>
 
                 </nav>
                 <!-- /.sidebar-menu -->

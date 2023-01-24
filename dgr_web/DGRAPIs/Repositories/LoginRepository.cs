@@ -119,7 +119,7 @@ namespace DGRAPIs.Repositories
             string qry = "";
             if (role == "Admin")
             {
-                qry = "SELECT Site_Type as site_type,Page_type as page_type,display_name,Action_url,Controller_name FROM `hfe_pages`";
+                qry = "SELECT Site_Type as site_type,Page_type as page_type,display_name,Action_url,Controller_name FROM `hfe_pages` where Visible=1 order by Order_no";
             }
             else
             {

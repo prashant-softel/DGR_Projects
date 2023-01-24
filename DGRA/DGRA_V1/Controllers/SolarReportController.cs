@@ -80,13 +80,13 @@ namespace DGRA_V1.Controllers
             return View(countrylist);
         }
         // State List
-        public async Task<IActionResult> GetStateList(string countryname)
+        public async Task<IActionResult> GetStateList(string countryname,string sitelist)
         {
             //countryname = "India";
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetStateListSolar?country=" + countryname + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetStateListSolar?country=" + countryname + "&site="+ sitelist;
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
@@ -106,13 +106,13 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
         // SPV List
-        public async Task<IActionResult> GetSPVList(string state)
+        public async Task<IActionResult> GetSPVList(string state,string sitelist)
         {
             string line = "";
             // state = "RJ";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSPVSolarList?state=" + state + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSPVSolarList?state=" + state + "&site="+ sitelist;
                 // var url = "http://localhost:23835/api/DGR/GetSPVList?state=" + state + "";
                 WebRequest request = WebRequest.Create(url);
 
@@ -240,13 +240,13 @@ namespace DGRA_V1.Controllers
             }
             return Content(line, "application/json");
         }
-        public async Task<IActionResult> GetSolarSiteMaster()
+        public async Task<IActionResult> GetSolarSiteMaster(string sitelist)
         {
           
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarSiteMaster";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarSiteMaster?site="+ sitelist;
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
@@ -292,12 +292,12 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
 
-        public async Task<IActionResult> GetSolarPRReportSPVWise(string fy, string fromDate, string toDate)
+        public async Task<IActionResult> GetSolarPRReportSPVWise(string fy, string fromDate, string toDate,string sitelist)
         {
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarPerformanceReportBySPVWise?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarPerformanceReportBySPVWise?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "&site="+ sitelist;
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
@@ -317,12 +317,12 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
 
-        public async Task<IActionResult> GetSolarPRReportSiteWise(string fy, string fromDate, string toDate)
+        public async Task<IActionResult> GetSolarPRReportSiteWise(string fy, string fromDate, string toDate,string sitelist)
         {
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarPerformanceReportBySiteWise?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarPerformanceReportBySiteWise?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "&site="+ sitelist;
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())
@@ -369,13 +369,13 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
 
-        public async Task<IActionResult> GetMontlyOperation(string fy, string fromDate, string toDate, string site)
+        public async Task<IActionResult> GetMontlyOperation(string fy, string fromDate, string toDate, string site,int cnt)
         {
 
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetSolarPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "&cnt="+cnt;
                 //var url = "http://localhost:23835/api/DGR/GetWindDailyBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" +country+ "&state=" +state+ "&spv=" +spv+ "&site=" +site+ "&wtg=" +wtg+"";
                 WebRequest request = WebRequest.Create(url);
 

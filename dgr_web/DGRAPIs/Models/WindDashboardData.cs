@@ -15,10 +15,11 @@ namespace DGRAPIs.Models
         public double Wind{ get; set; }
 
         public double KWH { get; set; }
-        public string line_loss { get; set; }
+        public double line_loss { get; set; }
         public double jmrkwh { get; set; }
         public double tarkwh { get; set; }
         public double tarwind { get; set; }
+        public string tar_date { get; set; }
     }
     public class WindDashboardData1
     {

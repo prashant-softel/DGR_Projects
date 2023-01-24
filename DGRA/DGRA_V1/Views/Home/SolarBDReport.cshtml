@@ -1,13 +1,31 @@
-﻿
-@using Newtonsoft.Json;
+﻿@using Newtonsoft.Json;
 @using Microsoft.AspNetCore.Http;
+
 @inject IHttpContextAccessor HttpContextAccessor
 @model DGRA_V1.Models.CountryList
 @{
     ViewData["Title"] = "Wind Generation Reports";
 }
 @{
-    ViewData["Title"] = "Solar Approval";
+    
+    string solarSiteList = "";
+
+
+}
+
+@if (@HttpContextAccessor.HttpContext.Session.GetString("role") != "Admin")
+{
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+    for (int i = 0; i < @usermodel.access_list.Count; i++)
+    {
+
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+        {
+            solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+        }
+
+
+    }
 }
 
 <!--<link rel="stylesheet" href="/path/to/cdn/bootstrap.min.css" />
@@ -44,6 +62,10 @@
 @*<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">*@
 <link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
 <style>
     table th {
         padding: 0.5rem !important;
@@ -219,7 +241,7 @@
                         <div class="form-group">
                             <div class="row">
                                 <label class="col-sm-3 col-form-label text-right">Site : </label>
-                                <select class="form-control  col-sm-8" id="site" name="site[]" value="" onchange="GetInverter()" multiple>
+                                <select class="form-control  col-sm-8" id="site" name="site[]" value="" onchange="GetInverter(true)" multiple>
                                 </select>
                             </div>
                         </div>
@@ -326,11 +348,12 @@
             });
     });
     window.onload = function () {
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
         var selcountry = $('select#country option:selected').val();
         $.ajax({
             type: "GET",
             //url: "/SolarReport/GetStateList?countryname=" + selcountry,
-            url: '@Url.Action("GetStateList", "SolarReport")' + '?countryname=' + selcountry,
+            url: '@Url.Action("GetStateList", "SolarReport")' + '?countryname=' + selcountry + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -340,9 +363,10 @@
                     options += '<option value="' + result[i].state + '">' + result[i].state + '</option>';
                 }
                 $("#state").html(options);
-                $('#state').multipleSelect({
+                $('select#state').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select State(s)",
+                    filter:true
                 });
             }
         });
@@ -374,12 +398,13 @@
 
         });
         state = state != "" ? state.slice(0, -1) : state;
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
        // console.log(state);
         $.ajax({
             type: "GET",
             //url: "/SolarReport/GetSPVList?state=" + val,
 
-            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state,
+            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -391,9 +416,10 @@
                 }
                 $("#spv").multipleSelect('destroy');
                 $("#spv").html(options);
-                $('#spv').multipleSelect({
+                $('select#spv').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select SPV(s)",
+                    filter:true
                 });
             }
         });
@@ -401,6 +427,7 @@
     }
     function GetSite() {
         let state = "";
+          var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
         $('select#state option:selected').each(function () {
             state += $(this).val() + ",";
            // console.log($(this).val());
@@ -416,7 +443,7 @@
         //console.log(spv);
         $.ajax({
             type: "POST",
-            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state + '&spv=' + spv,
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state + '&spv=' + spv + '&sitelist=' + site_ids,
             //url: "/SolarReport/GetSiteList?state=" + state + "&spv=" + spv,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
@@ -430,15 +457,16 @@
                 }
                 $("#site").multipleSelect('destroy');
                 $("#site").html(options);
-                $('#site').multipleSelect({
+                $('select#site').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
             }
         });
-        GetInverter();
+        GetInverter(false);
     }
-    function GetInverter() {
+    function GetInverter(fliterVal) {
         let state = "";
         $('select#state option:selected').each(function () {
             state += $(this).val() + ",";
@@ -454,11 +482,18 @@
         });
        // console.log(spv);
         let site = "";
-        $('select#site option:selected').each(function () {
-            site += $(this).val() + ",";
-            //console.log($(this).val());
+       
+        if (fliterVal == false) {
+            site = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        }
+        else {
+            $('select#site option:selected').each(function () {
+                site += $(this).val() + ",";
+                //console.log($(this).val());
 
-        });
+            });
+        }
+        
         //console.log(site);
 
         $.ajax({
@@ -477,9 +512,10 @@
                 }
                 $("#inv").multipleSelect('destroy');
                 $("#inv").html(options);
-                $('#inv').multipleSelect({
+                $('select#inv').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Inverter(s)",
+                    filter:true
                 });
             }
         });
@@ -557,7 +593,7 @@
                     console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                       
+
                         tbl += '<tr>';
                         tbl += '<td>' + formattedDate + '</td>';
                         tbl += '<td>' + result[i].country + '</td>';

@@ -63,6 +63,7 @@ namespace DGRAPIs.Models
         public double egbdh { get; set; }
         public double load_shedding { get; set; }
         public double total_losses { get; set; }
-      
+        public int import_batch_id { get; set; }
+
     }
 }

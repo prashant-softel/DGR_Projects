@@ -81,7 +81,9 @@ namespace DGRAPIs.Models
         public dynamic egbdh { get; set; }
         public dynamic load_shedding { get; set; }
         public double capacity_kw { get; set; }
-       
+        public int import_batch_id { get; set; }
+        
+
     }
     public class WindUploadingFilegeneration
     {

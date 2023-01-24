@@ -29,27 +29,25 @@ namespace DGRA_V1.Common
             "Uploading_File_Generation", "Uploading_File_Breakdown", "Uploading_PyranoMeter1Min", "Uploading_PyranoMeter15Min", "Monthly_JMR_Input_and_Output", "Monthly_LineLoss", "Monthly_Target_KPI", "Load_Shedding_Uploading_Format", "Daily_JMR_Input_and_Output", "Daily_Target_KPI", "Site_Master", "Location_Master", "Solar_AC_DC_Capacity" 
         };
 
-        //private static readonly List<SelectListItem> items;
+        public enum FileImportType
+        {
+            imporFileType_Invalid = 0,
+            imporFileType_Automation = 1,
+            imporFileType_Monthly_JMR_Input_and_Output,
+            imporFileType_Monthly_LineLoss,
+            imporFileType_Monthly_Target_KPI,
+            imporFileType_Daily_Load_Shedding,
+            imporFileType_Daily_JMR_Input_and_Output,
+            imporFileType_Daily_Target_KPI,
+            imporFileType_Site_Master,
+            imporFileType_Location_Master,
+            imporFileType_Solar_AC_DC_Capacity
+        }
 
-        //public static SelectList SelectListItems
-        //{
-        //    get { return new SelectList(items, "Value", "Text"); }
-        //}
+        enum uiPageType
+        {
+            page_type
 
-        //public static readonly string[] All = {
-        //  Uploading_File_Generation,
-        //  Uploading_File_Breakdown,
-        //  Uploading_PyranoMeter1Min,
-        //  Uploading_PyranoMeter15Min,
-        //  Monthly_JMR_Input_and_Output,
-        //  Daily_Load_Shedding,
-        //  Monthly_LineLoss,
-        //  Monthly_Target_KPI,
-        //  Daily_JMR_Input_and_Output
-        //};
-        //static FileSheetType()
-        //{
-        //    items = All.Select(s => new SelectListItem { Value = s, Text = s }).ToList();
-        //}
+        }
     }
 }

@@ -18,4 +18,11 @@ namespace DGRAPIs.Models
     { 
         public int import_batch_id{ get; set; }
     }
+
+    public class ImportBatchStatus
+    {
+        public int import_batch_id { get; set; }
+        public int is_approved { get; set; }
+    }
+
 }

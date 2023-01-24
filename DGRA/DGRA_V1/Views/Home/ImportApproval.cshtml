@@ -36,6 +36,10 @@
 @*<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">*@
 <link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
 <style>
     table th {
         padding: 0.5rem !important;
@@ -48,8 +52,11 @@
     .dataTables_filter {
         margin-top: -2.6% !important; 
     }
-    
-    </style>
+    select {
+        width: 50%;
+        height: 36px;
+    }
+</style>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
 
@@ -94,8 +101,8 @@
                                 <label class="col-sm-4 col-form-label text-left">Import Type : </label>
                                 <select class="form-control  col-sm-8" id="importType" name="importType" value="" onchange="getSiteList()">
                                     <option value="0">Select Import Type</option>
-                                    <option value="1">Solar</option>
-                                    <option value="2">Wind</option>
+                                    <option value="2">Solar</option>
+                                    <option value="1">Wind</option>
                                 </select>
                             </div>
                         </div>
@@ -254,16 +261,18 @@
 
     function getSiteList() {
         var importType = $('select#importType option:selected').val();
-        if (importType == 1) {
+        if (importType == 2) {
+            console.log("importType", importType);
             GetSolarSite();
             document.getElementById("normal_site").style.display = 'none';
             document.getElementById("multple_site").style.display = 'block';
 
         }
-        else if (importType == 2) {
+        else if (importType == 1) {
             document.getElementById("normal_site").style.display = 'none';
             document.getElementById("multple_site").style.display = 'block';
             GetWindSite();
+            console.log("importType", importType);
         }
     }
     // Wind Site
@@ -286,10 +295,12 @@
                 for (var k = 0; k < result.length; k++) {
                     options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
                 }
+                $("#site").multipleSelect('destroy');
                 $("#site").html(options);
-                $('#site').multipleSelect({
+                $('select#site').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Wind Site(s)",
+                    filter:true
                 });
             }
         });
@@ -311,21 +322,23 @@
                     solar_total_mw += result[i].ac_capacity;
                     options += '<option value="' + result[i].site_master_solar_id + '">' + result[i].site + '</option>';
                 }
+                $("#site").multipleSelect('destroy');
                 $("#site").html(options);
-                $('#site').multipleSelect({
+                $('select#site').multipleSelect({
                    "minimumCountSelected": 2,
-                   "placeholder":"Select Solar Site(s)",
+                   "placeholder": "Select Solar Site(s)",
+                   filter:true
                 });
             }
         });
     }
     function getReport() {
         var importType = $('select#importType option:selected').val();
-        if (importType == 1) {
+        if (importType == 2) {
             getSolarReport();
 
         }
-        else if (importType == 2) {
+        else if (importType == 1) {
 
             getWindReport();
         }
@@ -365,10 +378,8 @@
                 tbl += '<th style="width:100px">Import Date</th>';
                 tbl += '<th>Impo. By</th>';
                 tbl += '<th>Status</th>';
-                tbl += '<th>App. Date</th>';
-                tbl += '<th>App. By</th>';
-                tbl += '<th>Rej Date</th>';
-                tbl += '<th>Rej. By</th>';
+                tbl += '<th>Verified By Date</th>';
+                tbl += '<th>Verified By</th>';
                 tbl += '<th>Action</th>';
                 tbl += '</tr></thead>';
 
@@ -399,36 +410,35 @@
                         tbl += '<td>' + formattedDate + '</td>';
                         tbl += '<td>' + result[i].import_by_name + '</td>';
                         tbl += '<td>' + status + '</td>';
-                        if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
-                            var formattedDate1 = '';
-                        }
-                        else {
-                            var formattedDate1 = moment(result[i].approval_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                        }
                         var approval_name = "";
-                        if (result[i].approved_by == 0) {
-                            approval_name = "";
+                        var verified_date = "";
+                        var verified_name = "";
+                        if (result[i].is_approved == 1) {
+                            //approval_name = "";
+                            verified_name = result[i].approved_by_name;
+                            if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
+                                verified_date = '';
+                            }
+                            else {
+                                verified_date = moment(result[i].approval_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                            }
+                        }
+                        else if (result[i].is_approved == 2) {
+                            // approval_name = result[i].approved_by_name;
+                            verified_name = result[i].rejected_by_name;
+                            if (result[i].rejected_date == '0001-01-01T00:00:00' || result[i].rejected_date == null) {
+                                verified_date = '';
+                            }
+                            else {
+                                verified_date = moment(result[i].rejected_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                            }
                         }
                         else {
-                            approval_name = result[i].approved_by_name;
+                            verified_name = "";
                         }
-                        if (result[i].rejected_date == '0001-01-01T00:00:00' || result[i].rejected_date == null) {
-                            var formattedDate2 = '';
-                        }
-                        else {
-                            var formattedDate2 = moment(result[i].rejected_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                        }
-                        var rejected_name = "";
-                        if (result[i].rejected_by == 0) {
-                            rejected_name = "";
-                        }
-                        else {
-                            rejected_name = result[i].rejected_by_name;
-                        }
-                        tbl += '<td>' + formattedDate1 + '</td>';
-                        tbl += '<td>' + approval_name + '</td>';
-                        tbl += '<td>' + formattedDate2 + '</td>';
-                        tbl += '<td>' + rejected_name + '</td>';
+
+                        tbl += '<td>' + verified_date + '</td>';
+                        tbl += '<td>' + verified_name + '</td>';
                         tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem">G</a></div>';
                         tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >B</a></div>';
                         //enter filenames paths
@@ -453,6 +463,7 @@
                     ordering: true,
                     info: true,
                     autoWidth: false,
+                    pageLength: 50,
                     buttons: [
                         {
                             extend: 'excel',
@@ -533,11 +544,11 @@
                         var status = "";
                         var isDisable = "";
                         if (result[i].is_approved == 0) {
-                            status = "Waiting for Approve";
+                            status = "Awaiting for Approval";
                             isDisable = "";
                         }
                         if (result[i].is_approved == 0 && result[i].imported_by == @HttpContextAccessor.HttpContext.Session.GetString("userid")) {
-                            status = "Waiting for Approve";
+                            status = "Awaiting for Approval";
                             isDisable = "disabled";
                         }
                         if (result[i].is_approved == 1) {
@@ -674,22 +685,22 @@
         var uri = "";
         var importType = $('select#importType option:selected').val();
 
-        if (importType == 2 && actionType == 1) {
+        if (importType == 1 && actionType == 1) {
             var Approvestatus = 1;
             uri= '@Url.Action("DataApproved", "WindView")' + '?data=' + values + '&approvedBy=' + approved_by + '&approvedByName=' + approved_by_name + '&status=' + Approvestatus + '&actionType=' + actionType
 
         }
-        if (importType == 2 && actionType == 2) {
+        if (importType == 1 && actionType == 2) {
             var Rejectstatus = 2;
             uri= '@Url.Action("DataReject", "WindView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
 
         }
-        if (importType == 1 && actionType == 1) {
+        if (importType == 2 && actionType == 1) {
             var Approvestatus = 1;
             uri= '@Url.Action("DataApproved", "SolarView")' + '?data=' + values + '&approvedBy=' + approved_by + '&approvedByName=' + approved_by_name + '&status=' + Approvestatus + '&actionType=' + actionType
 
         }
-        if (importType == 1 && actionType == 2) {
+        if (importType == 2 && actionType == 2) {
             var Rejectstatus = 2;
             uri= '@Url.Action("DataReject", "SolarView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
 

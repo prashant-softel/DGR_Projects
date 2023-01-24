@@ -1,6 +1,26 @@
-﻿@model DGRA_V1.Models.CountryList
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+
+@inject IHttpContextAccessor HttpContextAccessor
+@model DGRA_V1.Models.CountryList
 @{
-    ViewData["Title"] = "Wind Performance Reports";
+    ViewData["Title"] = "Wind Performance Summary";
+}
+@{
+    string windSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    {
+        windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+
 }
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -11,6 +31,11 @@
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+
 
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
 <style>
@@ -18,6 +43,7 @@
         font-size: 0.7rem;
         font-weight: bold;
     }
+
     .scrolledTable {
         overflow-y: auto;
         clear: both;
@@ -46,7 +72,7 @@
     <section class="content">
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title text-center">Wind Performance Reports</h3>
+                <h3 class="card-title text-center">Wind Performance Summary</h3>
 
                 <!--<div class="card-tools">
                     <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
@@ -187,11 +213,12 @@
                     options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
                 }
 
-               
+
             }
             $("#fy").html(options);
-
-
+            $('select#fy').multipleSelect({
+                filter: true,
+            });
         }
     });
     }
@@ -209,6 +236,7 @@
     }
     // Daily Gen Report SPV WIse
     function GetWindPRReportSPVWise() {
+        var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         var daterange = $('#daterange').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
@@ -220,7 +248,7 @@
         var reporthead = "SPV Wise Reports";
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetWindPRReportSPVWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            url: '@Url.Action("GetWindPRReportSPVWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate + '&sitelist=' + site_ids,
             //url: "/WindReport/GetWindPRReportSPVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
 
@@ -361,17 +389,18 @@
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
-               
+
             }
         });
 
 
     }
-    
+
    // -----------------------------------------------
 
     // Daily Gen Report Site WIse
     function GetWindPRReportSiteWise() {
+         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         var daterange = $('#daterange').val();
         var arr1 = new Array();
         arr1 = daterange.split("-");
@@ -386,7 +415,7 @@
         //var Energy_var_Dataset = [];
         $.ajax({
             type: "GET",
-              url: '@Url.Action("GetWindPRReportSiteWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            url: '@Url.Action("GetWindPRReportSiteWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate + '&sitelist=' + site_ids,
             //url: "/WindReport/GetWindPRReportSiteWise?fy=" + fyear+" &fromDate=" + fromDate + "&toDate=" + toDate,
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
@@ -516,7 +545,7 @@
                         tbl += '</tr>';
                     }
 
-                  
+
                 }
                 else {
                     console.log("Data not available");
@@ -561,10 +590,10 @@
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
 
                 $('#example2').wrap("<div class='scrolledTable'></div>");
-               
+
             }
         });
     }
-   
+
 
 </script>

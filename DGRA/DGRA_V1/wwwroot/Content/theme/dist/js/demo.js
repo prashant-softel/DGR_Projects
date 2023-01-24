@@ -167,8 +167,11 @@
       $(window).trigger('resize')
     }
   })
+    $sidebar_fixed_checkbox.prop('checked', true)
+    $('body').addClass('layout-fixed')
   var $sidebar_fixed_container = $('<div />', { class: 'mb-1' }).append($sidebar_fixed_checkbox).append('<span>Fixed</span>')
   $container.append($sidebar_fixed_container)
+   
 
   var $sidebar_mini_checkbox = $('<input />', {
     type: 'checkbox',

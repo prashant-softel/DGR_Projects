@@ -423,10 +423,23 @@
             });
     });
     window.onload = function () {
-        $('#monthM').multipleSelect({
+        $('select#monthM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Month(s)",
-                });
+                    filter: true
+        });
+        $('select#country').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
+        $('select#countryY').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
+        $('select#countryM').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
         var selcountry = $('select#country option:selected').val();
         $.ajax({
             type: "GET",
@@ -445,17 +458,20 @@
                 $("#state").html(options);
                 $("#stateM").html(options);
                 $("#stateY").html(options);
-                $('#state').multipleSelect({
+                $('select#state').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select State(s)",
+                    filter:true
                 });
-                $('#stateM').multipleSelect({
+                $('select#stateM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select State(s)",
+                    filter:true
                 });
-                $('#stateY').multipleSelect({
+                $('select#stateY').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select State(s)",
+                    filter:true
                 });
             }
         });
@@ -480,6 +496,15 @@
             }
             $("#fyM").html(options);
             $("#fyY").html(options);
+            $('select#fyM').multipleSelect({
+                "placeholder": "Select month",
+                filter: true
+            });
+            $('select#fyY').multipleSelect({
+                "placeholder": "Select year",
+                filter: true
+            });
+
         }
     });
     }
@@ -510,9 +535,10 @@
                 }
                 $("#spvY").multipleSelect('destroy');
                 $("#spvY").html(options);
-                $('#spvY').multipleSelect({
+                $('select#spvY').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select SPV(s)",
+                    filter:true
                 });
             }
         });
@@ -547,9 +573,10 @@
                 }
                 $("#spvM").multipleSelect('destroy');
                 $("#spvM").html(options);
-                $('#spvM').multipleSelect({
+                $('select#spvM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select SPV(s)",
+                    filter:true
                 });
             }
         });
@@ -582,9 +609,10 @@
                 $("#spv").multipleSelect('destroy');
 
                 $("#spv").html(options);
-                $('#spv').multipleSelect({
+                $('select#spv').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select SPV(s)",
+                    filter:true
                 });
 
                
@@ -630,9 +658,10 @@
                 }
                 $("#site").multipleSelect('destroy');
                 $("#site").html("").html(options);
-                $('#site').multipleSelect({
+                $('select#site').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
             }
         });
@@ -675,9 +704,10 @@
                 }
                 $("#siteM").multipleSelect('destroy');
                 $("#siteM").html("").html(options);
-                $('#siteM').multipleSelect({
+                $('select#siteM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
             }
         });
@@ -720,9 +750,10 @@
                 }
                 $("#siteY").multipleSelect('destroy');
                 $("#siteY").html("").html(options);
-                $('#siteY').multipleSelect({
+                $('select#siteY').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
             }
         });
@@ -763,9 +794,10 @@
                 }
                 $("#inv").multipleSelect('destroy');
                 $("#inv").html(options);
-                $('#inv').multipleSelect({
+                $('select#inv').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Inverter(s)",
+                    filter:true
                 });
             }
         });
@@ -806,9 +838,10 @@
                 }
                 $("#invM").multipleSelect('destroy');
                 $("#invM").html(options);
-                $('#invM').multipleSelect({
+                $('select#invM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Inverter(s)",
+                    filter:true
                 });
             }
         });
@@ -848,9 +881,10 @@
                 }
                 $("#invY").multipleSelect('destroy');
                 $("#invY").html(options);
-                $('#invY').multipleSelect({
+                $('select#invY').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Inverter(s)",
+                    filter:true
                 });
             }
         });
@@ -931,8 +965,8 @@
                 tbl += '<th>SPV</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Inverter</th>';
-                tbl += '<th>DC Capacity (MW)</th>';
-                tbl += '<th>AC Capacity (MW)</th>';
+                tbl += '<th>DC Capacity (kWp)</th>';
+                tbl += '<th>AC Capacity (kW)</th>';
                 tbl += '<th>GHI</th>';
                 tbl += '<th>POA</th>';
                 tbl += '<th>Expected_kwh</th>';
@@ -1367,8 +1401,8 @@
                 tbl += '<th>SPV</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Inverter</th>';
-                tbl += '<th>DC Capacity (MW)</th>';
-                tbl += '<th>AC Capacity (MW)</th>';
+                tbl += '<th>DC Capacity (kWp)</th>';
+                tbl += '<th>AC Capacity (kW)</th>';
                 tbl += '<th>GHI</th>';
                 tbl += '<th>POA</th>';
                 tbl += '<th>Expected_kwh</th>';
@@ -1826,8 +1860,8 @@
                 tbl += '<th>SPV</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Inverter</th>';
-                tbl += '<th>DC Capacity (MW)</th>';
-                tbl += '<th>AC Capacity (MW)</th>';
+                tbl += '<th>DC Capacity (kWp)</th>';
+                tbl += '<th>AC Capacity (kW)</th>';
                 tbl += '<th>GHI</th>';
                 tbl += '<th>POA</th>';
                 tbl += '<th>Expected_kwh</th>';

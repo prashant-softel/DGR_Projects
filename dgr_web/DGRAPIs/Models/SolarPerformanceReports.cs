@@ -98,4 +98,11 @@ namespace DGRAPIs.Models
         public double capacity { get; set; }
 
     }
+    public class SolarOpertionalHead1
+    {
+
+        public double wind_total_mw { get; set; }
+        public double solar_total_ac_mw { get; set; }
+
+    }
 }

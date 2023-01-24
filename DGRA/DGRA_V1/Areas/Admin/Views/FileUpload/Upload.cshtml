@@ -1,10 +1,41 @@
 ﻿@using DGRA_V1.Common;
+@using Newtonsoft.Json;
 @using Microsoft.AspNetCore.Http;
+@using DGRA_V1.Models;
+
 
 @inject IHttpContextAccessor HttpContextAccessor
 
 @{
     ViewData["Title"] = "Upload DGR File Page";
+}
+
+@{
+    bool windAccess = false;
+    bool solarAccess = false;
+
+
+}
+
+
+@if (@HttpContextAccessor.HttpContext.Session.GetString("role") != "Admin")
+{
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+    for (int i = 0; i < @usermodel.access_list.Count; i++)
+    {
+        Console.WriteLine(usermodel.access_list);
+
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+        {
+            windAccess = true;
+        }
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+        {
+            solarAccess = true;
+        }
+
+
+    }
 }
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -62,10 +93,26 @@
                                 <div class="col-sm-9 input-group date" id="reservationdate" data-target-input="nearest">
                                     <select class="form-control custom-select" style="width: 100%;" name="FileUpload">
                                         @*<option value="0">Please select</option>*@
-                                        @foreach (var fileUploadType in FileUploadType.All)
+                                        @if (windAccess == true)
+                                        {
+                                        <option value="Wind">Wind</option>
+
+                                        }
+                                        else if (solarAccess == true)
+                                        {
+                                        <option value="Solar">Solar</option>
+                                        }
+                                        else
+                                        {
+                                        <option value="Wind">Wind</option>
+                                        <option value="Solar">Solar</option>
+                                        }
+
+                                        @*foreach (var fileUploadType in FileUploadType.All)
                                         {
                                             <option value="@fileUploadType">@fileUploadType</option>
-                                        }
+                                        }*@
+
                                     </select>
                                 </div>
                             </div>
@@ -91,8 +138,13 @@
                 <div class="col-md-4">
                     @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
 
-                    <a href="@Url.Content("/SampleFormat/Wind_DGR_Automation.xlsx")" download>Wind DGR Automation</a><br />
-                   
+                    @if (windAccess == true)
+                    {
+                        <a href="@Url.Content("/SampleFormat/Wind_DGR_Automation.xlsx")" download>Wind DGR Automation</a><br />
+                    }
+
+
+
                     @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                     {
 
@@ -107,7 +159,11 @@
                 </div>
                 <div class="col-md-4">
                     @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
-                    <a href="@Url.Content("/SampleFormat/Solar_DGR_Automation.xlsx")" download>Solar DGR Automation</a><br />
+
+                    @if (solarAccess == true)
+                    {
+                        <a href="@Url.Content("/SampleFormat/Solar_DGR_Automation.xlsx")" download>Solar DGR Automation</a><br />
+                    }
 
                     @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                     {

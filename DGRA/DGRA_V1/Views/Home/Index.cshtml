@@ -68,7 +68,7 @@
                         <p class="login-box-msg"> Sign in</p>
                         <form action="@Url.Action("SSOLOgin","Home")" method="post">
                             <div class="input-group mb-3">
-         <input type="email" name="username" id="username" class="form-control" placeholder="Username">
+         <input type="email" name="username" id="username" class="form-control" onkeypress="UserEnter(event);" placeholder="Username" autofocus>
          <div class="input-group-append">
              <div class="input-group-text">
                  <span class="fas fa-envelope"> </span>
@@ -80,7 +80,7 @@
 
 
                                 <div class="input-group-append">
-                                    <div class="input-group-text" onclick="TogglePass();" style="background-color: rgb(225,239,254)">
+                                    <div class="input-group-text" onmouseover="MouseOut();" onmouseout="MouseOver();" style="">
                                         <span class="fas fa-eye" > </span>
                                     </div>
                                 </div>
@@ -129,13 +129,30 @@
                 Login();
             }
         }
-        function TogglePass() {
+        function UserEnter(event) {
+            if (event.key == "Enter") {
+                console.log("clicked Enter");
+                console.log("Inside If");
+                var a = document.getElementById("pass");
+                if (a.value == "") {
+                    a.focus();
+                } else {
+                    Login();
+                }
+                
+            }
+        }
+
+        function MouseOut() {
             var a = document.getElementById("pass");
             if (a.type == "password") {
                 a.type = "text";
-            } else {
+            }
+        }
+        function MouseOver() {
+            var a = document.getElementById("pass");
+            if (a.type == "text") {
                 a.type = "password";
-
             }
         }
         function Login() {

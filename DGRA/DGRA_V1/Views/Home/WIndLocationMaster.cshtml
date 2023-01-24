@@ -1,6 +1,26 @@
-﻿@model DGRA_V1.Models.CountryList
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+
+@inject IHttpContextAccessor HttpContextAccessor;
+@model DGRA_V1.Models.CountryList
 @{
     ViewData["Title"] = "Wind Location Master Reports";
+}
+@{
+    string windSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    {
+        windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+
 }
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
@@ -79,9 +99,10 @@
         getLocationData();
     }
     function getLocationData() {
+         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetLocationMaster", "WindReport")',
+            url: '@Url.Action("GetLocationMaster", "WindReport")' + '?sitelist=' + site_ids,
            // url: "/WindReport/GetLocationMaster",
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',

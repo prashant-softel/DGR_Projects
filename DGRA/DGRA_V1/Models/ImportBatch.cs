@@ -12,9 +12,17 @@ namespace DGRA_V1.Models
         public int importSiteId { get; set; }
         public string importType { get; set; }
         public string importLogName { get; set; }
+        public int importFileType { get; set; }
+        public string automationDataDate { get; set; }
     }
     public class BatchIdImport
     {
         public int import_batch_id { get; set; }
     }
+    public class ImportBatchStatus
+    {
+        public int import_batch_id { get; set; }
+        public int is_approved { get; set; }
+    }
+
 }

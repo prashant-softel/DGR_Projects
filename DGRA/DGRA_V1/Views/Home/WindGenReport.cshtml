@@ -35,6 +35,11 @@
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
 <link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+
 
 
 <link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
@@ -120,7 +125,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-2 col-form-label text-right">State : </label>
-                                                        <select class="form-control  col-sm-8" id="state" name="state[]" value="" onchange="GetSPV();" multiple></select>
+                                                        <select class="form-control  col-sm-8" id="state" name="state[]" value="" onchange="GetSPV(true);" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -131,7 +136,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-2 col-form-label text-left">SPV : </label>
-                                                        <select class="form-control  col-sm-10" id="spv" name="spv[]" value="" onchange="getSite()" multiple></select>
+                                                        <select class="form-control  col-sm-10" id="spv" name="spv[]" value="" onchange="getSite(true)" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -140,7 +145,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-right">Site : </label>
-                                                        <select class="form-control  col-sm-8" id="site" name="site[]" value="" onchange="GetWTG()" multiple></select>
+                                                        <select class="form-control  col-sm-8" id="site" name="site[]" value="" onchange="GetWTG(true)" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -230,7 +235,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-2 col-form-label text-left">State : </label>
-                                                        <select class="form-control  col-sm-9" id="stateM" name="stateM" value="" onchange="GetSPVM();" multiple></select>
+                                                        <select class="form-control  col-sm-9" id="stateM" name="stateM" value="" onchange="GetSPVM(true);" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -239,7 +244,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-right">SPV : </label>
-                                                        <select class="form-control  col-sm-9" id="spvM" name="spvM[]" value="" onchange="getSiteM()" multiple></select>
+                                                        <select class="form-control  col-sm-9" id="spvM" name="spvM[]" value="" onchange="getSiteM(true)" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -248,7 +253,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-right">Site : </label>
-                                                        <select class="form-control  col-sm-9" id="siteM" name="siteM[]" value="" onchange="GetWTGM()" multiple></select>
+                                                        <select class="form-control  col-sm-9" id="siteM" name="siteM[]" value="" onchange="GetWTGM(true)" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -314,7 +319,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-2 col-form-label text-right">State : </label>
-                                                        <select class="form-control  col-sm-9" id="stateY" name="stateY[]" value="" onchange="GetSPVY();" multiple></select>
+                                                        <select class="form-control  col-sm-9" id="stateY" name="stateY[]" value="" onchange="GetSPVY(true);" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -326,7 +331,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-2 col-form-label text-left">SPV : </label>
-                                                        <select class="form-control  col-sm-9" id="spvY" name="spvY[]" value="" onchange="getSiteY()" multiple></select>
+                                                        <select class="form-control  col-sm-9" id="spvY" name="spvY[]" value="" onchange="getSiteY(true)" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -334,7 +339,7 @@
                                                 <div class="form-group">
                                                     <div class="row">
                                                         <label class="col-sm-3 col-form-label text-right">Site : </label>
-                                                        <select class="form-control  col-sm-9" id="siteY" name="siteY[]" value="" onchange="GetWTGY()" multiple></select>
+                                                        <select class="form-control  col-sm-9" id="siteY" name="siteY[]" value="" onchange="GetWTGY(true)" multiple></select>
                                                     </div>
                                                 </div>
                                             </div>
@@ -428,14 +433,29 @@
             });
     });
     window.onload = function () {
-        $('#monthM').multipleSelect({
+        $('select#monthM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Month(s)",
-                });
+                    filter:true
+        });
+        $('select#country').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
+        $('select#countryY').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
+        $('select#countryM').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
         var selcountry = $('select#country option:selected').val();
+        var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetStateList", "WindReport")' + '?countryname=' + selcountry,
+            url: '@Url.Action("GetStateList", "WindReport")' + '?countryname=' + selcountry + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
@@ -449,24 +469,27 @@
                 $("#state").html(options);
                 $("#stateM").html(options);
                 $("#stateY").html(options);
-                $('#state').multipleSelect({
+                $('select#state').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select State(s)",
+                    filter:true
                 });
-                $('#stateM').multipleSelect({
+                $('select#stateM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select State(s)",
+                    filter:true
                 });
-                $('#stateY').multipleSelect({
+                $('select#stateY').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select State(s)",
+                    filter:true
                 });
             }
         });
         getYear();
-        GetSPV();
-        GetSPVM();
-        GetSPVY();
+        GetSPV(false);
+        GetSPVM(false);
+        GetSPVY(false);
     }
     function getYear() {
     $.ajax({
@@ -483,42 +506,42 @@
             }
             $("#fyM").html(options);
             $("#fyY").html(options);
+            $('select#fyM').multipleSelect({
+                "placeholder": "Select month",
+                filter: true
+            });
+            $('select#fyY').multipleSelect({
+                "placeholder": "Select year",
+                filter: true
+            });
         }
     });
     }
-    /*function GetCountry(val) {
-        $.ajax({
-            type: "GET",
-            url: "/WindReport/GetStateList?countryname=" + val,
-            contentType: "application/json; charset=utf-8",
-            //data: '{"countryname":"' + selcountry + '"}',
-            datatype: "html",
-            success: function (result, status, xhr) {
-                var options = "";
-                options += '<option value="">Select State</option>';
-                for (var i = 0; i < result.length; i++) {
-                    options += '<option value="' + result[i].state + '">' + result[i].state + '</option>';
-                }
-                $("#state").html(options);
-            }
-        });
-    }*/
-    function GetSPVY() {
+
+    function GetSPVY(fliterVal) {
         let state_id = "";
+
+        let site_ids = "";
+         if (fliterVal == false) {
+            site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
         if($('#stateY').val())
         {
             $('select#stateY option:selected').each(function () {
                 state_id += "'"+$(this).val() + "',";
             });
-            state_id = state_id != "" ? state_id.slice(0, -1) : state_id; 
+            state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
+        }
+        if (state_id != "") {
+             site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         }
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + state_id,
+            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + state_id + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
-               
+
                 var options = "";
                 for (var j = 0; j < result.length; j++) {
                     options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
@@ -526,16 +549,21 @@
                 $("#spvY").multipleSelect('destroy');
 
                 $("#spvY").html(options);
-                $('#spvY').multipleSelect({
+                $('select#spvY').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select SPV(s)",
+                    filter:true
                 });
             }
         });
-        getSiteY();
+        getSiteY(false);
     }
-    function GetSPVM() {
+    function GetSPVM(fliterVal) {
         let state_id = "";
+        let site_ids = "";
+         if (fliterVal == false) {
+             site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
         if($('#stateM').val())
         {
             $('select#stateM option:selected').each(function () {
@@ -543,30 +571,39 @@
             });
             state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
         }
+        if (state_id != "") {
+             site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
         $.ajax({
             type: "GET",
-            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + state_id,
+            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + state_id + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
-               
+
                 var options = "";
                 for (var j = 0; j < result.length; j++) {
                     options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
                 }
                 $("#spvM").multipleSelect('destroy');
-                
+
                 $("#spvM").html(options);
-                $('#spvM').multipleSelect({
+                $('select#spvM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select SPV(s)",
+                    filter:true
                 });
             }
         });
-        getSiteM();
+        getSiteM(false);
     }
-    function GetSPV() {
+    function GetSPV(fliterVal) {
         let state_id = "";
+        let site_ids = "";
+       
+        if (fliterVal == false) {
+            site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
         if($('#state').val())
         {
             $('select#state option:selected').each(function () {
@@ -574,30 +611,38 @@
             });
             state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
         }
+        if (state_id != "") {
+             site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
         $.ajax({
             type: "GET",
             ///url: "/WindReport/GetSPVList?state=" + val,
-            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + state_id,
+            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + state_id + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
-           
+
                 var options = "";
                 for (var j = 0; j < result.length; j++) {
                     options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
                 }
                 $("#spv").multipleSelect('destroy');
                 $("#spv").html(options);
-                $('#spv').multipleSelect({
+                $('select#spv').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select SPV(s)",
+                    filter:true
                 });
 
             }
         });
-        getSite();
+        getSite(false);
     }
-    function getSite() {
+    function getSite(fliterVal) {
+        var site_ids = "";
+        if (fliterVal == false) {
+            site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
         let state_id = "";
         $('select#state option:selected').each(function () {
             state_id += $(this).val() + ",";
@@ -609,10 +654,12 @@
             spv += $(this).val() + ",";
         });
         spv = spv != "" ? spv.slice(0, -1) : spv;
-       
+        if (state_id != "" || spv != "") {
+             site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
         $.ajax({
             type: "POST",
-            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state_id + '&spv=' + spv,
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state_id + '&spv=' + spv + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
@@ -623,32 +670,39 @@
                 $("#site").multipleSelect('destroy');
                 $("#site").html("").html(options);
 
-                $('#site').multipleSelect({
+                $('select#site').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
             }
         });
-         GetWTG();
+         GetWTG(false);
     }
-    function getSiteM() {
+    function getSiteM(fliterVal) {
         let state_id = "";
+        var site_ids = "";
+        if (fliterVal == false) {
+            site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
          $('select#stateM option:selected').each(function () {
             state_id += $(this).val() + ",";
             console.log($(this).val());
         });
         state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
-        
+
         let spv = "";
 
         $('select#spvM option:selected').each(function () {
             spv += $(this).val() + ",";
         });
         spv = spv != "" ? spv.slice(0, -1) : spv;
-        
+        if (state_id != "" || spv != "") {
+             site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
         $.ajax({
             type: "POST",
-            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state_id + '&spv=' + spv,
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state_id + '&spv=' + spv+ '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -659,31 +713,35 @@
                 }
                 $("#siteM").multipleSelect('destroy');
                 $("#siteM").html("").html(options);
-                $('#siteM').multipleSelect({
+                $('select#siteM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
             }
         });
-         GetWTGM();
+         GetWTGM(false);
     }
-     function getSiteY() {
+    function getSiteY(fliterVal) {
         let state_id = "";
-
+        var site_ids = "";
+        if (fliterVal == false) {
+            site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        }
         $('select#stateY option:selected').each(function () {
             state_id += $(this).val() + ",";
         });
         state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
-        
+
         let spv = "";
         $('select#spvY option:selected').each(function () {
             spv += $(this).val() + ",";
         });
         spv = spv != "" ? spv.slice(0, -1) : spv;
-        
+
         $.ajax({
             type: "POST",
-            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state_id + '&spv=' + spv,
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + state_id + '&spv=' + spv + '&sitelist=' + site_ids,
             contentType: "application/json; charset=utf-8",
             // data: '{"state":"' + val + '"}',
             datatype: "html",
@@ -694,21 +752,31 @@
                 }
                 $("#siteY").multipleSelect('destroy');
                 $("#siteY").html("").html(options);
-                $('#siteY').multipleSelect({
+                $('select#siteY').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
             }
         });
-        GetWTGY();
+        GetWTGY(false);
     }
-     function GetWTG() {
+    function GetWTG(fliterVal) {
         let siteid = "";
-        $('select#site option:selected').each(function () {
-            siteid += $(this).val() + ",";
-        });
-        siteid = siteid != "" ? siteid.slice(0, -1) : siteid;
-       
+        //$('select#site option:selected').each(function () {
+        //    siteid += $(this).val() + ",";
+        //});
+        //siteid = siteid != "" ? siteid.slice(0, -1) : siteid;
+
+         if (fliterVal == false) {
+             siteid = "@Html.Raw(windSiteList.TrimEnd(','))";
+            }
+            else {
+             $('select#site option:selected').each(function () {
+                 siteid += $(this).val() + ",";
+                 });
+                siteid = siteid != "" ? siteid.slice(0, -1) : siteid;
+            }
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWTGList", "WindReport")' + '?siteid=' + siteid,
@@ -722,22 +790,32 @@
                 }
                 $("#wtg").multipleSelect('destroy');
                 $("#wtg").html("").html(options);
-                $('#wtg').multipleSelect({
+                $('select#wtg').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
-                
+
             }
         });
     }
-       function GetWTGM() {
+    function GetWTGM(fliterVal) {
         let siteid = "";
-        $('select#siteM option:selected').each(function () {
-            siteid += $(this).val() + ",";
+        //$('select#siteM option:selected').each(function () {
+        //    siteid += $(this).val() + ",";
 
-        });
-        siteid = siteid != "" ? siteid.slice(0, -1) : siteid;
-       
+        //});
+        //siteid = siteid != "" ? siteid.slice(0, -1) : siteid;
+
+         if (fliterVal == false) {
+             siteid = "@Html.Raw(windSiteList.TrimEnd(','))";
+            }
+            else {
+             $('select#siteM option:selected').each(function () {
+                 siteid += $(this).val() + ",";
+                 });
+                siteid = siteid != "" ? siteid.slice(0, -1) : siteid;
+            }
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWTGList", "WindReport")' + '?siteid=' + siteid,
@@ -751,20 +829,30 @@
                 }
                 $("#wtgM").multipleSelect('destroy');
                 $("#wtgM").html("").html(options);
-                $('#wtgM').multipleSelect({
+                $('select#wtgM').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
             }
         });
     }
-      function GetWTGY() {
-        let siteid = "";
-        $('select#siteY option:selected').each(function () {
-            siteid += $(this).val() + ",";
-        });
-        siteid = siteid != "" ? siteid.slice(0, -1) : siteid;
-        
+    function GetWTGY(fliterVal) {
+        var siteid = "";
+         if (fliterVal == false) {
+             siteid = "@Html.Raw(windSiteList.TrimEnd(','))";
+            }
+            else {
+                $('select#siteY option:selected').each(function () {
+                    siteid += $(this).val() + ",";
+                 });
+                siteid = siteid != "" ? siteid.slice(0, -1) : siteid;
+            }
+       // $('select#siteY option:selected').each(function () {
+         //   siteid += $(this).val() + ",";
+        //});
+
+
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWTGList", "WindReport")' + '?siteid=' + siteid,
@@ -778,9 +866,10 @@
                 }
                 $("#wtgY").multipleSelect('destroy');
                 $("#wtgY").html("").html(options);
-                $('#wtgY').multipleSelect({
+                $('select#wtgY').multipleSelect({
                     "minimumCountSelected": 2,
                     "placeholder": "Select Site(s)",
+                    filter:true
                 });
             }
         });
@@ -821,7 +910,7 @@
                 state +=  $(this).val() + ",";
             });
             state = state != "" ? state.slice(0, -1) : state;
-        
+
             $('select#spv option:selected').each(function () {
                 spv += $(this).val() + ",";
             });
@@ -832,7 +921,7 @@
             wtg +=  $(this).val() + ",";
         });
         wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
-        
+
         var reportType = "WTG";
         var reporthead = "WTG Wise Report";
         $.ajax({
@@ -841,7 +930,7 @@
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
             success: function (result, status, xhr) {
-            
+
                 //var tbl = '<div class="text-center"><h5></h5></div>';
                 var tbl = '<table id="example1"  class="table table-bordered table-striped" style="width: 150%;">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -867,7 +956,7 @@
                 tbl += '<th>EGBDH</th>';
                 tbl += '<th>Load Shedding</th>';
                 tbl += '</tr></thead>';
-               
+
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
@@ -1013,7 +1102,7 @@
                 tbl += '<th>EGBDH</th>';
                 tbl += '<th>Load Shedding</th>';
                 tbl += '</tr></thead>';
-                
+
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
@@ -1089,7 +1178,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                 //$('#example1').removeClass('dataTable');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
-               
+
             }
         });
     }
@@ -1119,31 +1208,31 @@
             site += $(this).val() + ",";
         });
         site = site != "" ? site.slice(0, -1) : site;
-       
+
         if(!site){
             let state = "";
             $('select#stateM option:selected').each(function () {
                 state +=  $(this).val() + ",";
             });
             state = state != "" ? state.slice(0, -1) : state;
-           
+
             $('select#spvM option:selected').each(function () {
                 spv += $(this).val() + ",";
             });
             spv = spv != "" ? spv.slice(0, -1) : spv;
-           
+
         }
 
         $('select#wtgM option:selected').each(function () {
             wtg +=  $(this).val() + ",";
         });
         wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
-       
+
         var country = $('select#countryM option:selected').val();
         var year = $('select#fyM option:selected').val();
         let month = "";
         $('select#monthM option:selected').each(function () {
-          
+
             month+= $(this).val()+",";
         });
         month = month != "" ? month.slice(0, -1) : month;
@@ -1151,7 +1240,7 @@
         var arr1 = new Array();
         arr1 = year.split("-");
         var fromDate = "";
-       
+
         var reportType = "WTG";
         var reporthead = "WTG Wise Report";
         $.ajax({
@@ -1160,7 +1249,7 @@
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
             success: function (result, status, xhr) {
-            
+
                 //var tbl = '<div class="text-center"><h5></h5></div>';
                 var tbl = '<table id="example2"  class="table table-bordered table-striped" style="width: 150%;">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -1187,7 +1276,7 @@
                 tbl += '<th>EGBDH</th>';
                 tbl += '<th>Load Shedding</th>';
                 tbl += '</tr></thead>';
-                
+
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
@@ -1278,14 +1367,14 @@
             site += $(this).val() + ",";
         });
         site = site != "" ? site.slice(0, -1) : site;
-       
+
         if(!site){
             let state = "";
             $('select#stateM option:selected').each(function () {
                 state +=  $(this).val() + ",";
              });
             state = state != "" ? state.slice(0, -1) : state;
-          
+
             $('select#spvM option:selected').each(function () {
                 spv += $(this).val() + ",";
             });
@@ -1296,12 +1385,12 @@
             wtg +=  $(this).val() + ",";
           });
         wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
-        
+
         var country = $('select#countryM option:selected').val();
         var fyyear = $('select#fyM option:selected').val();
         let month = "";
         $('select#monthM option:selected').each(function () {
-           
+
             month+= $(this).val()+",";
         });
         month = month != "" ? month.slice(0, -1) : month;
@@ -1317,7 +1406,7 @@
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
             success: function (result, status, xhr) {
-              
+
                 //var tbl = '<div class="text-center"><h5></h5></div>';
                 var tbl = '<table id="example2"  class="table table-bordered table-striped" style="width: 150%;">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -1447,26 +1536,26 @@
             site += $(this).val() + ",";
         });
         site = site != "" ? site.slice(0, -1) : site;
-       
+
         if (!site) {
             let state = "";
             $('select#stateY option:selected').each(function () {
                 state += $(this).val() + ",";
             });
             state = state != "" ? state.slice(0, -1) : state;
-          
+
             $('select#spvY option:selected').each(function () {
                 spv += $(this).val() + ",";
            });
             spv = spv != "" ? spv.slice(0, -1) : spv;
-          
+
         }
 
         $('select#wtgY option:selected').each(function () {
             wtg += $(this).val() + ",";
         });
         wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
-        
+
         var fyyear = $('select#fyY option:selected').val();
         //var month = $('select#monthM option:selected').val();
         var arr1 = new Array();
@@ -1486,7 +1575,7 @@
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
             success: function (result, status, xhr) {
-              
+
                // var tbl = '<div class="text-center"><h5></h5></div>';
                 var tbl = '<table id="example3"  class="table table-bordered table-striped" style="width: 150%;">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -1512,9 +1601,9 @@
                 tbl += '<th>EGBDH</th>';
                 tbl += '<th>Load Shedding</th>';
                 tbl += '</tr></thead>';
-               
+
                 if (result.length > 0) {
-                   
+
                     for (var i = 0; i < result.length; i++) {
                        // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
@@ -1604,28 +1693,28 @@
             site += $(this).val() + ",";
         });
         site = site != "" ? site.slice(0, -1) : site;
-        
+
         if (!site) {
             let state = "";
             $('select#stateY option:selected').each(function () {
                 state += $(this).val() + ",";
             });
             state = state != "" ? state.slice(0, -1) : state;
-            
+
             $('select#spvY option:selected').each(function () {
                 spv += $(this).val() + ",";
-              
+
             });
             spv = spv != "" ? spv.slice(0, -1) : spv;
-           
+
         }
 
         $('select#wtgY option:selected').each(function () {
             wtg += $(this).val() + ",";
-          
+
         });
         wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
-        
+
         var fyyear = $('select#fyY option:selected').val();
         //var month = $('select#monthM option:selected').val();
         var arr1 = new Array();
@@ -1642,7 +1731,7 @@
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
             success: function (result, status, xhr) {
-               
+
                 //var tbl = '<div class="text-center"><h5></h5></div>';
                 var tbl = '<table id="example3"  class="table table-bordered table-striped" style="width: 150%;">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -1668,9 +1757,9 @@
                 tbl += '<th>EGBDH</th>';
                 tbl += '<th>Load Shedding</th>';
                 tbl += '</tr></thead>';
-                
+
                 if (result.length > 0) {
-                    
+
                     for (var i = 0; i < result.length; i++) {
                         // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';

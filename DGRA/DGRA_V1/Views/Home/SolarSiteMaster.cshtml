@@ -1,10 +1,27 @@
-﻿@using System.Security.Principal
+﻿@using Newtonsoft.Json;
 @using Microsoft.AspNetCore.Http;
 @inject IHttpContextAccessor HttpContextAccessor
 @model DGRA_V1.Models.CountryList
 @{
     ViewData["Title"] = "Solar Site Master Reports";
 }
+@{
+    string solarSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+    {
+        solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+
+}
+
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
 <!-- Font Awesome -->
 <link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
@@ -72,9 +89,11 @@
     }
     function getSiteData() {
         var userRole = "@Html.Raw(@HttpContextAccessor.HttpContext.Session.GetString("role"))";
+         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
         $.ajax({
             type: "GET",
-            url: "/SolarReport/GetSolarSiteMaster",
+            url: '@Url.Action("GetSolarSiteMaster", "SolarReport")' + '?sitelist=' + site_ids,
+            //url: "/SolarReport/GetSolarSiteMaster",
             contentType: "application/json; charset=utf-8",
             //data: '{"countryname":"' + selcountry + '"}',
             datatype: "html",
