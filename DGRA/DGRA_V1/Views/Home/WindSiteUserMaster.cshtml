@@ -1,0 +1,188 @@
+﻿
+@model DGRA_V1.Models.CountryList
+@{
+    ViewData["Title"] = "Site User Master";
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+       
+    </section>
+
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title  text-center">Site User Master</h3>
+
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-10"></div>
+                    <div class="col-md-2"><a href="@Url.Action("WindUserRegister", "Home" )" class="btn btn-block btn-success">Add New User</a></div>
+                    </div>
+                    <hr>
+                    <div id="userData" style="overflow-x: auto;" class="userData"></div>
+
+                </div>
+            </div>
+   
+
+     
+    </section>
+
+</div>
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<!--Datatable -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+
+    window.onload = function () {
+
+        getUserData();
+    }
+    function getUserData() {
+       var  loginid = 0;
+    $.ajax({
+        type: "GET",
+       // url: "/Home/GetWindUserInfo?login_id=" + loginid,
+        url: '@Url.Action("GetWindUserInfo", "Home")' + '?login_id=' + loginid ,
+        contentType: "application/json; charset=utf-8",
+        //data: '{"countryname":"' + selcountry + '"}',
+        datatype: "html",
+        success: function (result, status, xhr) {
+
+            console.log(result);
+            var tbl = '<table id="example1" class="table table-bordered table-striped">';
+            tbl += '<thead class="tbl-head"><tr>';
+            tbl += '<th>User Name</th>';
+            tbl += '<th>Email</th>';
+            tbl += '<th>Role</th>';
+            tbl += '<th>Status</th>';
+            tbl += '<th>Wind Access</th>';
+            tbl += '<th>Solar Access</th>';
+
+            tbl += '</tr></thead>';
+            if (result.length > 0) {
+                for (var i = 0; i < result.length; i++) {
+                    var status = "";
+                    if (result[i].active_user == 1) {
+                        status = "Active";
+                    }
+                    if (result[i].active_user == 0) {
+                        status = "InActive";
+                    }
+                    tbl += '<tr>';
+                    tbl += '<td>' + result[i].username + '</td>';
+                    tbl += '<td>' + result[i].useremail + '</td>';
+                    tbl += '<td>' + result[i].user_role + '</td>';
+                    //tbl += '<td>' + result[i].created_on + '</td>';
+                    tbl += '<td>' + status + '</td>';
+                    if (result[i].user_role != "Admin") {
+                        tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="ViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
+                        tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="SolarViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
+                    }
+                    else {
+                        tbl += '<td>&nbsp;</td>';
+                        tbl += '<td>&nbsp;</td>';
+                    }
+                   
+
+
+                    tbl += '</tr>';
+                }
+            }
+            else {
+
+                // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
+            }
+            tbl += '</table>';
+            $("#userData").html(tbl);
+            $('#example1').DataTable({
+                dom: 'Bfrtip',
+                title: 'ImportApproval',
+                responsive: false,
+                lengthChange: false,
+                autoWidth: false,
+                paging: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                buttons: [
+                    {
+                        extend: 'excel',
+                        title: 'Site User Master',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        title: 'Site User Master',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    'colvis'
+                ]
+                /* "buttons": [
+                     'copy', 'excel', 'csv', 'colvis'
+                 ]*/
+            });
+            $(".dt-buttons").addClass('btn-group flex-wrap');
+            $(".dt-buttons > button").addClass('btn btn-secondary');
+            $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+            $('#example2').removeClass('dataTable');
+        }
+    });
+    }
+    function ViewUser(login_id) {
+        $.post("/Home/WindUserDetails", { id: login_id}, function (data) {
+            window.location.href = "/Home/WindUserView?id=" + login_id ;
+        });
+    }
+    function SolarViewUser(login_id) {
+        $.post("/Home/SolarUserDetails", { id: login_id }, function (data) {
+            window.location.href = "/Home/SolarUserView?id=" + login_id;
+        });
+    }
+
+
+</script>

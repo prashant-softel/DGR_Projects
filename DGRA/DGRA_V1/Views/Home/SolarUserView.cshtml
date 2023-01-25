@@ -1,0 +1,429 @@
+﻿@*@using DGRA_V1.Common;*@
+
+
+@{
+    ViewData["Title"] = "Solar Site User Master";
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+    </section>
+
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title  text-center">Solar Site User Master</h3>
+
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Full Name : </label>
+                                <input type="text" class="form-control  col-sm-8" id="fullname" name="fullname" disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">User Email : </label>
+                                <input type="text" class="form-control  col-sm-8" id="useremail" name="useremail" disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Role : </label>
+                                <select class="form-control  col-sm-8" id="userrole" name="userrole" value="" disabled />
+                                <option value="">Select user role</option>
+                                <option value="User">User</option>
+                                <option value="Admin">Admin</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col-sm-9"></div>
+                    <div class="col-sm-2">
+                        <INPUT type="button" class="btn btn-block btn-success" value="Add Site" onclick="addRow('dataTable')" />
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-10">
+                        <table class="table table-bordered table-striped" id="dataTable">
+                            <tr>
+                                <th>Site Name</th>
+                                <th>Upload Access</th>
+                                <th>Action</th>
+                            </tr>
+                            <tr class="site-row">
+                                <td>
+                                    <select disabled="disabled" class="form-control  col-sm-8  site" id="site1" name="site" value="">
+                                        <option disabled="disabled" value="">Select Site</option>
+                                    </select>
+                                </td>
+                                <td> <input type="checkbox" disabled="disabled" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left: 15px; margin-top: -6px;"></td>
+                                <td>
+                                    <!--<input type="button" disabled="disabled" class="btn btn-block btn-danger delete_btn" name="button1" value="Delete" style="width: 50%; margin-left: 25px;">-->
+                                    <input type="hidden" id="rowcnt" value="1">
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-sm-1"></div>
+                </div>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-5">
+
+                    <div id="views"></div>
+                 
+                </div>
+                <div class="col-sm-5">
+                    <div id="reports"></div>
+                   
+                </div>
+                <div class="col-sm-1"></div>
+            </div>
+        </div>
+       
+        <div class="col-sm-6"></div>
+</div>
+<div class="row"><p><br></p></div>
+<div class="row">
+    <div class="col-sm-4"></div>
+
+    <div class="col-sm-2"><button type="button" id="Edit" class="btn btn-block btn-success" onclick="Edit()">Edit</button></div>
+    <div class="col-sm-2"> <button type="button" class="btn btn-block btn-danger" onclick="Cancel()">Cancel</button></div>
+    <div class="col-sm-4"></div>
+</div>
+<div class="row"><p><br></p></div>
+    </div>
+
+    </section>
+
+    </div>
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<!--Datatable -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+    id = 0;
+    var rcont = 1;
+    window.onload = function () {
+
+        function GetURLParameter(sParam) {
+            var sPageURL = window.location.search.substring(1);
+            var sURLVariables = sPageURL.split('&');
+            for (var i = 0; i < sURLVariables.length; i++) {
+                var sParameterName = sURLVariables[i].split('=');
+                if (sParameterName[0] == sParam) {
+                    return decodeURIComponent(sParameterName[1]);
+                }
+            }
+        }
+
+        id = GetURLParameter('id');
+        console.log(id);
+        //GetUserAccess(id);
+
+        GetDetails(id);
+
+        getSite();
+    }
+
+    function GetDetails(loginid) {
+        $.ajax({
+            type: "GET",
+            //url: "/Home/GetWindUserInfo?login_id=" + loginid,
+            url: '@Url.Action("GetSolarUserInfo", "Home")' + '?login_id=' + loginid,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+               // console.log(result);
+                document.getElementById("fullname").value = result[0].username;
+                document.getElementById("useremail").value = result[0].useremail;
+                document.getElementById("userrole").value = result[0].user_role;
+
+            }
+        });
+    }
+
+    function getSite() {
+        var state = "";
+        var spv = "";
+        var sitelist = "";
+        console.log("Outside");
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?sitelist=' + sitelist,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+
+            datatype: "html",
+            success: function (result, status, xhr) {
+                //console.log('Inside');
+                //console.log(result);
+                var options = "";
+                options += '<option value="">Select Site</option>';
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
+                }
+                $(".site").html(options);
+            }
+        });
+        getPageList(id);
+    }
+    function getPageList(id) {
+
+        $.ajax({
+            type: "POST",
+           // url: "/Home/GetPageList?login_id=" + id,
+            url: '@Url.Action("GetPageList", "Home")' + '?login_id=' + id + '&site_type=2',
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                //console.log(result);
+
+                if (result.length > 0) {
+                    var tbl1 = '<table class="table table-bordered table-striped views-page">';
+                    tbl1 += '<tr><th>&nbsp;&nbsp;</th>';
+                    tbl1 += '<th>Pages</th></tr>';
+                    var tbl2 = '<table class="table table-bordered table-striped reports-page">';
+                    tbl2 += '<tr><th>&nbsp;&nbsp;</th>';
+                    tbl2 += '<th>Reports</th></tr>';
+                    for (var i = 0; i < result.length; i++) {
+                        if (result[i].page_type == 1) {
+                            tbl1 += '<tr><td><input type="checkbox"  disabled="disabled" class="form-check-input view-pages" id="pages" name="pages" data-pageid =' + result[i].id + ' style="margin-left: 15px; margin-top: -6px;"></td>';
+                            tbl1 += '<td>' + result[i].display_name + '</td>';
+                            tbl1 += '</tr > ';
+                        }
+                        if (result[i].page_type == 2) {
+                            tbl2 += '<tr><td><input type="checkbox"  disabled="disabled" class="form-check-input report-pages" id="pages" name="pages" data-pageid =' + result[i].id + ' style="margin-left: 15px; margin-top: -6px;"></td>';
+                            tbl2 += '<td>' + result[i].display_name + '</td>';
+                            tbl2 += '</tr > ';
+                        }
+                    }
+                    tbl1 += '</table > ';
+                    $("#views").html(tbl1);
+                    tbl2 += '</table > ';
+                    $("#reports").html(tbl2);
+                }
+            }
+        });
+        GetUserAccess(id);
+    }
+    function GetUserAccess(loginid) {
+        $.ajax({
+            type: "GET",
+            //url: "/Home/GetUserAccess?login_id=" + loginid,
+            url: '@Url.Action("GetUserAccess", "Home")' + '?login_id=' + loginid,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+                if (result.length > 0) {
+                    var SiteCnt = 0;
+                    for (var i = 0; i < result.length; i++) {
+
+                        if (result[i].page_type == 3 && result[i].site_type == 2 ) {
+                            var upload_access = (result[i].upload_access == 1) ? true : false;
+                            if (SiteCnt > 0) {
+                                addRow('dataTable');
+                            }
+
+                            //addRow('dataTable');
+                            console.log('Result: ' + result[i].identity);
+                            $('.site:eq(' + SiteCnt + ')').val(result[i].identity).change();
+                            //$('.site:eq(' + SiteCnt + ')').val("Test").change();
+
+                            $('.upload_access:eq(' + SiteCnt + ')').attr('checked', upload_access);
+                            SiteCnt++;
+                        }
+                        else {
+                            $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
+                        }
+                        $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
+                        $("data-pageid").attr("disabled", true);
+
+
+                    }
+                    //$("input.view-pages").attr("disabled", true);
+                    //$("input.report-pages").attr("disabled", true);
+
+                    //$('.site').prop('disabled', false);
+                    //$("input.upload_access").attr("disabled", true);
+
+
+                }
+            }
+        });
+    }
+    function Edit() {
+        var a = document.getElementById("Edit").innerHTML;
+        if (a == "Update") {
+            var b = $(".site").val();
+
+            console.log(b);
+
+            if (b == "" || b == undefined) {
+                alert("Please select Site");
+                return
+            }
+            SubmitDetials();
+        }
+        document.getElementById("Edit").innerHTML = "Update";
+        $("input.view-pages").attr("disabled", false);
+        $("input.report-pages").attr("disabled", false);
+
+        $('.site').prop('disabled', false);
+        $("input.upload_access").attr("disabled", false);
+        $("input.delete_btn").attr("disabled", false);
+
+    }
+    function addRow(tableID) {
+        var cnt = rcont;
+
+        var table = document.getElementById(tableID);
+        var site_options = $('.site').first().html();
+        // console.log(site_options);
+
+        var row = '<tr class="site-row"><td><select disabled="disabled" class="form-control   col-sm-8 site" id="site" name="site" value="">' + site_options + '</select></td>';
+        row += '<td><input type="checkbox" disabled="disabled" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left: 15px; margin-top: -6px;"></td>';
+        row += '<td><input type="button"  disabled="disabled" class="btn btn-block btn-danger delete_btn" name="button1" value="Delete" style="width: 50%; margin-left: 25px;"></td></tr >';
+        $(table).find('tbody').append(row);
+        rcont++;
+        // var rowCount = table.rows.length;
+        //var row = table.insertRow(row);
+        //Column 1
+        /* debugger;
+         var cell1 = row.insertCell(0);
+         var element1 = document.createElement("input");
+         element1.type = "button";
+         var btnName = "button" + (rowCount + 1);
+         element1.name = btnName;
+         element1.setAttribute('value', 'Delete'); // or element1.value = "button";
+         element1.onclick = function () {
+             removeRow(btnName);
+         }
+         cell1.appendChild(element1);
+         //Column 2
+         var cell2 = row.insertCell(1);
+         cell2.innerHTML = rowCount + 1;
+         //Column 3
+         var cell3 = row.insertCell(2);
+         var element3 = document.createElement("input");
+         element3.type = "text";
+         cell3.appendChild(element3);*/
+    }
+
+    $('table').on('click', '.delete_btn', function () {
+
+        $(this).closest('tr').remove();
+    });
+   function removeRow(btnName) {
+        try {
+            var table = document.getElementById('dataTable');
+            var rowCount = table.rows.length;
+            for (var i = 0; i < rowCount; i++) {
+                var row = table.rows[i];
+                var rowObj = row.cells[0].childNodes[0];
+                if (rowObj.name == btnName) {
+                    table.deleteRow(i);
+                    rowCount--;
+                }
+            }
+        } catch (e) {
+            alert(e);
+        }
+    }
+    function SubmitDetials() {
+
+        let site_arr = {};
+
+        $('.site-row').each(function () {
+            var sid = $(this).find('.site').val();
+            var access = $(this).find('.upload_access').is(":checked");
+            site_arr[sid] = access;
+        });
+        //console.log(site_arr);
+        let page_arr = {};
+        let report_arr = {};
+        $('.view-pages').each(function () {
+        var page_id = $(this).attr('data-pageid');
+        var isSet = $(this).is(":checked");
+            page_arr[page_id] = isSet;
+        });
+
+        $('.report-pages').each(function () {
+            var page_id = $(this).attr('data-pageid');
+            var isSet = $(this).is(":checked");
+            report_arr[page_id] = isSet;
+        });
+
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("SubmitAccess", "Home")' + '?login_id=' + id + '&site=' + JSON.stringify(site_arr) + '&pages=' + JSON.stringify(page_arr) + '&reports=' + JSON.stringify(report_arr)+'&site_type=2',
+           // url: "/Home/SubmitAccess?login_id=" + id + "&site=" + JSON.stringify(site_arr) + "&pages=" + JSON.stringify(page_arr) + "&reports=" + JSON.stringify(report_arr),
+           // url: "/Home/SubmitAccess",
+            //url: '@Url.Action("SubmitAccess", "Home")',
+            contentType: 'application/json; charset=utf-8',
+            //data: '{"login_id":"' + id + '","site":"' + JSON.stringify(site_arr) + '","pages":"' + JSON.stringify(page_arr) + '","reports":"' + JSON.stringify(report_arr) + '"}',
+            //data: "{'login_id':'" + id + "','site':'" + JSON.stringify(site_arr) + "','pages':'" + JSON.stringify(page_arr) + "','reports':'" + JSON.stringify(report_arr) + "'}",
+            dataType: 'json',
+            success: function (result, status, xhr) {
+                alert("Success");
+               // location.href = "/Home/WindSiteUserMaster";
+                location.href = '@Url.Action("SiteUserMaster", "Home")';
+            }
+        });
+    }
+
+</script>

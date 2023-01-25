@@ -11,8 +11,8 @@ namespace DGRAPIs.Models
         public int site_master_id { get; set; }
         public string site { get; set; }
         public string wtg { get; set; }
-        public double feeder { get; set; }
-        public double max_kwh_day { get; set; }
+        public float feeder { get; set; }
+        public float max_kwh_day { get; set; }
          
     }
 }

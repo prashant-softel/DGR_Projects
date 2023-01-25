@@ -1,23 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {}
+    "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {}
   },
   "projects": {
-    "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {
+    "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
+        "projectUniqueName": "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
         "projectName": "DGRAPIs",
-        "projectPath": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
-        "packagesPath": "C:\\Users\\bemladmin\\.nuget\\packages\\",
-        "outputPath": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\obj\\",
+        "projectPath": "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
+        "packagesPath": "C:\\Users\\sujit\\.nuget\\packages\\",
+        "outputPath": "G:\\solarproject\\Finalcode\\DGR_Projects\\dgr_web\\DGRAPIs\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
-        ],
         "configFilePaths": [
-          "C:\\Users\\bemladmin\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\sujit\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
@@ -50,6 +47,14 @@
             "MySql.Data": {
               "target": "Package",
               "version": "[8.0.28, )"
+            },
+            "Nancy": {
+              "target": "Package",
+              "version": "[2.0.0, )"
+            },
+            "Newtonsoft.Json": {
+              "target": "Package",
+              "version": "[13.0.1, )"
             }
           },
           "imports": [
@@ -70,7 +75,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.413\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.412\\RuntimeIdentifierGraph.json"
         }
       }
     }

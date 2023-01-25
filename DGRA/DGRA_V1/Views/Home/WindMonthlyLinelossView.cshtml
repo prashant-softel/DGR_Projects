@@ -1,0 +1,304 @@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Wind Monthly LineLoss";
+}
+@{
+    string windSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    {
+        windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <!-- <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Wind Monthly LineLoss</li>
+                    </ol>
+                </div>
+            </div>
+        </div>-->
+    </section>
+
+
+    <section class="content">
+
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Wind Monthly Line Loss</h3>
+
+
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label text-left">FY: </label>
+                                <select class="form-control  col-sm-10" id="fy" name="fy[]" value="" multiple>
+                                    <option value="">Select Financial Year</option>
+                                    <!--<option value="2020-21">2020-21</option>
+                    <option value="2021-22">2021-22</option>
+                    <option value="2022-23">2022-23</option>-->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label text-left">Month : </label>
+                                <select class="form-control  col-sm-9" id="month" name="month[]" value="" multiple>
+                           
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-1">
+
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-block btn-primary" onclick="getReport()" style="width: 5rem;">Search</button>
+                    </div>
+                </div>
+            
+            <hr>
+            <div id="MontlyLonelossView" style="overflow-x: auto;" class="MontlyLonelossView"></div>
+        </div>
+</section>
+
+</div>
+<!-- /.content-wrapper -->
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<!--<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="~/Content/theme/plugins/select2/js/select2.full.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap4-duallistbox/jquery.bootstrap-duallistbox.min.js"></script>-->
+<!--Date Range -->
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<!-- DataTables  & Plugins -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+
+<script type="text/javascript">
+
+    window.onload = function () {
+
+    var options = "";
+        options += '<option value = "Jan">January</option ><option value="Feb">February</option>';
+        options += '<option value="Mar">March</option><option value="Apr">April</option><option value="May">May</option><option value="Jun">June</option>';
+        options += '<option value="Jul">July</option><option value="Aug">August</option><option value="Sep">September</option>';
+        options += '<option value="Oct">October</option><option value="Nov">November</option><option value="Dec">December</option>';
+        $("#month").html(options);
+        $('select#month').multipleSelect({
+            "minimumCountSelected": 2,
+            "placeholder": "Select Month(s)",
+            filter:true
+        });
+    var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "GET",
+            //url: "/WindReport/GetFinacialYear",
+            url: '@Url.Action("GetFinacialYear", "WindReport")',
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
+                }
+                $("#fy").html(options);
+                $('select#fy').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select FY(s)",
+                    filter:true
+                });
+            }
+        });
+        $.ajax({
+            type: "POST",
+            //url: "/WindReport/GetSiteList",
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").html(options);
+                $('select#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                    filter:true
+                });
+            }
+
+        });
+    }
+    function getReport() {
+        let year = "";
+        $('select#fy option:selected').each(function () {
+            year += $(this).val() + ",";
+            // console.log($(this).val());
+        });
+        year = year != "" ? year.slice(0, -1) : year;
+        console.log(year);
+
+        let month = "";
+        $('select#month option:selected').each(function () {
+            month += $(this).val() + ",";
+            // console.log($(this).val());
+
+        });
+        month = month != "" ? month.slice(0, -1) : month;
+        console.log(month);
+	    let site_id = "";
+
+        $('select#site option:selected').each(function () {
+            site_id += $(this).val() + ",";
+           // console.log($(this).val());
+        });
+        site_id = site_id!= ""?site_id.slice(0, -1) : site_id;
+        console.log(site_id);
+        // var year = "2021-22";
+        //var month = "Apr";
+        $.ajax({
+            type: "GET",
+           // url: "/WindView/GetMonthlyLinelossView?year=" + year + "&month=" + month,
+             url: '@Url.Action("GetMonthlyLinelossView", "WindView")' + '?site=' +site_id +'&year=' + year + '&month=' + month,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<table id="example1"  class="table table-bordered table-striped">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>FY</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Month</th>';
+                tbl += '<th style="width: 150px;">Line Losses (%)</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + result[i].fy + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lineLoss.toFixed(2) + '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+
+                    //tbl += '<tr><th colspan="4" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+               // $("#MontlyLonelossView").html(tbl);
+                $("#MontlyLonelossView").html("").html(tbl);
+                $.fn.DataTable.ext.pager.numbers_length = 6;
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    responsive: false,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Wind Monthly Lineloss View',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Wind Monthly Lineloss View',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+
+                $('#example1').removeClass('dataTable');
+            }
+        });
+    }
+</script>

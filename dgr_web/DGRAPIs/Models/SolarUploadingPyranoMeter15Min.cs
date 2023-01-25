@@ -7,22 +7,40 @@ namespace DGRAPIs.Models
 {
     public class SolarUploadingPyranoMeter15Min
     {
-        public string Time_stamp { get; set; }
-        public string GHI_1 { get; set; }
-        public string GHI_2 { get; set; }
-        public string POA_1 { get; set; }
-        public string POA_2 { get; set; }
-        public string POA_3 { get; set; }
-        public string POA_4 { get; set; }
-        public string POA_5 { get; set; }
-        public string POA_6 { get; set; }
-        public string POA_7 { get; set; }
-        public string Average_GHI { get; set; }
-        public string Average_POA { get; set; }
-        public string Ambient_Temp { get; set; }
-        public string Module_Temp { get; set; }
-         
-
-
+        public string date_time { get; set; }
+        public int site_id { get; set; }
+        public dynamic ghi_1 { get; set; }
+        public dynamic ghi_2 { get; set; }
+        public dynamic poa_1 { get; set; }
+        public dynamic poa_2 { get; set; }
+        public dynamic poa_3 { get; set; }
+        public dynamic poa_4 { get; set; }
+        public dynamic poa_5 { get; set; }
+        public dynamic poa_6 { get; set; }
+        public dynamic poa_7 { get; set; }
+        public dynamic avg_ghi { get; set; }
+        public dynamic avg_poa { get; set; }
+        public dynamic amb_temp { get; set; }
+        public dynamic mod_temp { get; set; }
+    }
+    public class SolarUploadingPyranoMeter15Min_1
+    {
+        public dynamic date_time { get; set; }
+        public int site_id { get; set; }
+        public string site { get; set; }
+        public dynamic ghi_1 { get; set; }
+        public dynamic ghi_2 { get; set; }
+        public dynamic poa_1 { get; set; }
+        public dynamic poa_2 { get; set; }
+        public dynamic poa_3 { get; set; }
+        public dynamic poa_4 { get; set; }
+        public dynamic poa_5 { get; set; }
+        public dynamic poa_6 { get; set; }
+        public dynamic poa_7 { get; set; }
+        public dynamic avg_ghi { get; set; }
+        public dynamic avg_poa { get; set; }
+        public dynamic amb_temp { get; set; }
+        public dynamic mod_temp { get; set; }
+        public string weather_type { get; set; }
     }
 }

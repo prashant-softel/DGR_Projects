@@ -1,0 +1,263 @@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@model DGRA_V1.Models.DailyGenSummary
+
+@{
+    ViewData["Title"] = "GHI POA 1Min";
+}
+@{
+    string solarSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+    {
+        solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+
+}
+@{
+    ViewData["Title"] = "Solar Location Master Reports";
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <!--<div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Wind Location Master</li>
+                    </ol>
+                </div>
+            </div>
+        </div>-->
+    </section>
+
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Solar Location Master</h3>
+
+                <!-- <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                </div>-->
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-10" id="site" name="site[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-block btn-primary" onclick="getLocationData()" style=" width: 5rem;">Search</button>
+                    </div>
+                    <div class="col-md-7"></div>
+                </div>
+                <div id="locationData" style="overflow-x: auto;" class="locationData"></div>
+            </div>
+        </div>
+    </section>
+</div>
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<!--Datatable -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+
+<script type="text/javascript">
+
+    window.onload = function () {
+     var state = "";
+        var spv = "";
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "POST",
+            //url: "/WindReport/GetSiteList",
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").html(options);
+                $('select#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                    filter:true
+                });
+            }
+
+        });
+       // getLocationData();
+    }
+    function getLocationData() {
+        let site_id = "";
+        var site = $('select#site option:selected').each(function () {
+            site_id += $(this).val() + ",";
+        });
+        site_id = site_id != "" ? site_id.slice(0, -1) : site_id;
+        $.ajax({
+            type: "GET",
+
+             url: '@Url.Action("GetLocationMaster", "SolarReport")' + '?site='+ site_id,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<table id="example1" class="table table-bordered table-striped" style="width: 150%;">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>Country</td>';
+                tbl += '<th>Site</td>';
+                tbl += '<th>EG</td>';
+                tbl += '<th>IG</td>';
+                tbl += '<th>ICR/INV</td>';
+                tbl += '<th>ICR</td>';
+                tbl += '<th>INV</td>';
+                tbl += '<th>SMB</td>';
+                tbl += '<th>String</td>';
+                tbl += '<th>Str Conf.</td>';
+                tbl += '<th>Total Str Cur.(amp)</td>';
+                tbl += '<th>Total Str vol.</td>';
+                tbl += '<th>Modules</td>';
+                tbl += '<th>Wp</td>';
+                tbl += '<th>Capacity (kWp)</td>';
+                tbl += '<th>Module Make</td>';
+                tbl += '<th>Module Mod No.</td>';
+                tbl += '<th>Module Type</td>';
+                tbl += '<th>String/Central Inv</td>';
+                tbl += '</tr></thead>';
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        let inverterStatus = "";
+                        if (result[i].string_inv_central_inv == 1) {
+                            inverterStatus = "String Inverter";
+                        }
+                        if (result[i].string_inv_central_inv == 2) {
+                            inverterStatus = "Central Inverter";
+                        }
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left" style="width: 5%;">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].eg + '</td>';
+                        tbl += '<td class="text-left">' + result[i].ig + '</td>';
+                        tbl += '<td class="text-left">' + result[i].icr_inv+ '</td>';
+                        tbl += '<td class="text-left">' + result[i].icr+ '</td>';
+                        tbl += '<td class="text-left">' + result[i].inv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].smb + '</td>';
+                        tbl += '<td class="text-left">' + result[i].strings + '</td>';
+                        tbl += '<td class="text-left">' + result[i].string_configuration + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_string_current.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_string_voltage.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].modules_quantity + '</td>';
+                        tbl += '<td class="text-right">' + result[i].wp.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].capacity.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-left">' + result[i].module_make + '</td>';
+                        tbl += '<td  class="text-left">' + result[i].module_model_no + '</td>';
+                        tbl += '<td  class="text-left">' + result[i].module_type + '</td>';
+                        tbl += '<td  class="text-left">' + inverterStatus+ '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+
+                    // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#locationData").html(tbl);
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    responsive: false,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Location Master Report',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Location Master Report',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+               // $('#example1').removeClass('dataTable');
+
+            }
+        });
+    }
+</script>

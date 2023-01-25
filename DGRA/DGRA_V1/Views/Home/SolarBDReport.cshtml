@@ -1,0 +1,667 @@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+
+@inject IHttpContextAccessor HttpContextAccessor
+@model DGRA_V1.Models.CountryList
+@{
+    ViewData["Title"] = "Wind Generation Reports";
+}
+@{
+    
+    string solarSiteList = "";
+
+
+}
+
+@if (@HttpContextAccessor.HttpContext.Session.GetString("role") != "Admin")
+{
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+    for (int i = 0; i < @usermodel.access_list.Count; i++)
+    {
+
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+        {
+            solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+        }
+
+
+    }
+}
+
+<!--<link rel="stylesheet" href="/path/to/cdn/bootstrap.min.css" />
+<script src="/path/to/cdn/jquery.min.js"></script>
+<script src="/path/to/cdn/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">-->
+<!-- Font Awesome -->
+<!--<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">-->
+<!-- daterange picker -->
+<!--<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">-->
+<!-- DataTables -->
+<!--<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>-->
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+@*<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">*@
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+<style>
+    table th {
+        padding: 0.5rem !important;
+        font-size: 15px !important;
+    }
+
+    table td {
+        padding: 0.2rem !important;
+        font-size: 15px !important;
+    }
+</style>
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <!--<div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Solar Approval</li>
+                    </ol>
+                </div>
+            </div>
+        </div>-->
+    </section>
+
+
+    <section class="content">
+
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Solar Breakdown Report</h3>
+
+
+            </div>
+            <div class="card-body">
+                <!--<div class="row">
+                    <label for="date" class="col-2 col-form-label">Date</label>
+                    <div class="col-2">
+                        <div class="input-group date" id="datepicker">
+                            <input type="text" class="form-control" id="date" />
+                            <span class="input-group-append">
+                                <span class="input-group-text bg-light d-block">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    <label for="date" class="col-2 col-form-label">Date</label>
+                    <div class="col-2">
+                        <div class="input-group date" id="datepicker">
+                            <input type="text" class="form-control" id="date" />
+                            <span class="input-group-append">
+                                <span class="input-group-text bg-light d-block">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                    <label for="date" class="col-2 col-form-label">Date</label>
+                    <div class="col-2">
+                        <div class="input-group date" id="datepicker">
+                            <input type="text" class="form-control" id="date" />
+                            <span class="input-group-append">
+                                <span class="input-group-text bg-light d-block">
+                                    <i class="fa fa-calendar"></i>
+                                </span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <br>-->
+                <!--<div class="row">
+                    <div class="col-sm-4">
+
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">From Date : </label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control datetimepicker-input " data-target="" />
+                                    <div class="input-group-append" data-target="" data-toggle="datetimepicker">
+                                        <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">To Date : </label>
+                                <input type="text" class="form-control datetimepicker-input col-sm-6" data-target="" />
+                                <div class="input-group-append" data-target="" data-toggle="datetimepicker">
+                                    <span class="input-group-text"><i class="fa fa-calendar"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Country : </label>
+                                <select class="form-control  col-sm-8" id="country" name="country" value="">
+
+                                    <option value="india" selected>India</option>
+
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>-->
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group " style="margin-left: -13%; width: 115%;">
+                            <label class="col-sm-3 col-form-label text-left" style="padding-left: 10%; ">Date : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label text-right">Country : </label>
+                                <select class="form-control  col-sm-8" id="country" name="country" value="">
+
+                                    <option value="india" selected>India</option>
+
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label text-left">State : </label>
+                                <select class="form-control  col-sm-8" id="state" name="state[]" value="" onchange="GetSPV()" multiple></select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label text-left">SPV : </label>
+                                <select class="form-control  col-sm-10" id="spv" name="spv[]" value="" onchange="GetSite()" multiple></select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label text-right">Site : </label>
+                                <select class="form-control  col-sm-8" id="site" name="site[]" value="" onchange="GetInverter(true)" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label text-right">Inverter: </label>
+                                <select class="form-control  col-sm-8" id="inv" name="inv[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-8"></div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-5 text-center"></div>
+                    <div class="col-sm-2 text-center">
+                        <button type="button" class="btn btn-block btn-primary" onclick="GetBreakdownReport();" style="margin-left:-5rem; width: 5rem;">Search</button>
+                    </div>
+                    <div class="col-sm-5 text-center"></div>
+                </div>
+                <hr>
+                <div id="bdreport" style="overflow-x: auto;" class="bdreport"></div>
+                <!--<table id="example1" class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Country</th>
+                            <th>State</th>
+                            <th>SPV</th>
+                            <th>Site</th>
+                            <th>WTG</th>
+                            <th>BD Type</th>
+                            <th>Start From</th>
+                            <th>Stop To</th>
+                            <th>Total Stop</th>
+                            <th>Reason of Breakdown</th>
+                            <th>Action Taken</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+
+                        </tr>
+                    </tbody>
+                </table>-->
+
+            </div>
+
+
+
+        </div>
+
+
+    </section>
+
+</div>
+
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+<!--Date Range -->
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+    window.onload = function () {
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        var selcountry = $('select#country option:selected').val();
+        $.ajax({
+            type: "GET",
+            //url: "/SolarReport/GetStateList?countryname=" + selcountry,
+            url: '@Url.Action("GetStateList", "SolarReport")' + '?countryname=' + selcountry + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].state + '">' + result[i].state + '</option>';
+                }
+                $("#state").html(options);
+                $('select#state').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select State(s)",
+                    filter:true
+                });
+            }
+        });
+        GetSPV();
+    }
+    /*function GetCountry(val) {
+        $.ajax({
+            type: "GET",
+            url: "/WindReport/GetStateList?countryname=" + val,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                options += '<option value="">Select State</option>';
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].state + '">' + result[i].state + '</option>';
+                }
+                $("#state").html(options);
+            }
+        });
+    }*/
+
+    function GetSPV() {
+        let state = "";
+        $('select#state option:selected').each(function () {
+            state += "'" + $(this).val() + "',";
+           // console.log($(this).val());
+
+        });
+        state = state != "" ? state.slice(0, -1) : state;
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+       // console.log(state);
+        $.ajax({
+            type: "GET",
+            //url: "/SolarReport/GetSPVList?state=" + val,
+
+            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                //console.log(result);
+                var options = "";
+                for (var j = 0; j < result.length; j++) {
+                    options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
+                }
+                $("#spv").multipleSelect('destroy');
+                $("#spv").html(options);
+                $('select#spv').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select SPV(s)",
+                    filter:true
+                });
+            }
+        });
+        GetSite();
+    }
+    function GetSite() {
+        let state = "";
+          var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        $('select#state option:selected').each(function () {
+            state += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+        //console.log(state);
+        let spv = "";
+        $('select#spv option:selected').each(function () {
+            spv += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+        //console.log(spv);
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state + '&spv=' + spv + '&sitelist=' + site_ids,
+            //url: "/SolarReport/GetSiteList?state=" + state + "&spv=" + spv,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                //console.log(result);
+
+                var options = "";
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").multipleSelect('destroy');
+                $("#site").html(options);
+                $('select#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                    filter:true
+                });
+            }
+        });
+        GetInverter(false);
+    }
+    function GetInverter(fliterVal) {
+        let state = "";
+        $('select#state option:selected').each(function () {
+            state += $(this).val() + ",";
+            //console.log($(this).val());
+
+        });
+        //console.log(state);
+        let spv = "";
+        $('select#spv option:selected').each(function () {
+            spv += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+       // console.log(spv);
+        let site = "";
+       
+        if (fliterVal == false) {
+            site = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        }
+        else {
+            $('select#site option:selected').each(function () {
+                site += $(this).val() + ",";
+                //console.log($(this).val());
+
+            });
+        }
+        
+        //console.log(site);
+
+        $.ajax({
+            type: "GET",
+            //url: "/SolarReport/GetWTGList?siteid=" + siteid,
+
+            url: '@Url.Action("GetInvList", "SolarReport")' + '?siteid=' + site + '&state=' + state + '&spv=' + spv,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+               // console.log(result);
+                var options = "";
+                for (var k = result.length-1; k >=0 ; k--) {
+                    options += '<option value="' + result[k].icr_inv + '">' + result[k].icr_inv + '</option>';
+                }
+                $("#inv").multipleSelect('destroy');
+                $("#inv").html(options);
+                $('select#inv').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Inverter(s)",
+                    filter:true
+                });
+            }
+        });
+    }
+
+    function GetBreakdownReport() {
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var country = $('select#country option:selected').val();
+
+        let state = "";
+        $('select#state option:selected').each(function () {
+            state += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+        //console.log(state);
+
+        let spv = "";
+        $('select#spv option:selected').each(function () {
+            spv += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+        //console.log(spv);
+
+        let site = "";
+        $('select#site option:selected').each(function () {
+            site += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+       // console.log(site);
+
+        let inv = "";
+        $('select#inv option:selected').each(function () {
+            inv += $(this).val() + ",";
+            //console.log($(this).val());
+
+        });
+        //console.log(inv);
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarBreakdownReport", "SolarReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&inv=' + inv,
+            //url: "/SolarReport/GetSolarBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"fromDate":"' + fromDate + '","toDate":"' + toDate + '","country":"' + country + '","state":"' + state + '","spv":"' + spv + '","site":"' + site + '","wtg":"' + wtg+'" }',
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline" style="width: 132%;">';
+                tbl += '<thead  class="tbl-head"><tr>';
+                tbl += '<th>Date</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>BD Type</th>';
+                tbl += '<th>ICR</th>';
+                tbl += '<th>INV</th>';
+                tbl += '<th>SMB</th>';
+                tbl += '<th>Strings</th>';
+                tbl += '<th>Start From</th>';
+                tbl += '<th>Stop To</th>';
+                tbl += '<th>Total Stop</th>';
+                tbl += '<th>Reason of Breakdown</th>';
+                tbl += '<th>Action Taken</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+
+                        tbl += '<tr>';
+                        tbl += '<td>' + formattedDate + '</td>';
+                        tbl += '<td>' + result[i].country + '</td>';
+                        tbl += '<td>' + result[i].state + '</td>';
+                        tbl += '<td>' + result[i].spv + '</td>';
+                        tbl += '<td>' + result[i].site + '</td>';
+                        tbl += '<td>' + result[i].bd_type + '</td>';
+                        tbl += '<td>' + result[i].icr + '</td>';
+                        tbl += '<td>' + result[i].inv + '</td>';
+                        tbl += '<td>' + result[i].smb + '</td>';
+                        tbl += '<td>' + result[i].strings + '</td>';
+                        tbl += '<td>' + result[i].from_bd['hours'] + ':' + result[i].from_bd['minutes']+ '</td>';
+                        tbl += '<td>' + result[i].to_bd['hours'] + ':' + result[i].to_bd['minutes']+ '</td>';
+                        tbl += '<td>' + result[i].total_stop['hours'] + ':' + result[i].total_stop['minutes']+ '</td>';
+                        tbl += '<td>' + result[i].bd_remarks + '</td>';
+                        tbl += '<td>' + result[i].action_taken + '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                    tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#bdreport").html("").html(tbl);
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Breakdown Reports',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Breakdown Reports',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+               // $('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+
+            }
+        });
+
+    }
+
+</script>

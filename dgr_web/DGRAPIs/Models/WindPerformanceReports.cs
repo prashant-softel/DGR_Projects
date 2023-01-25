@@ -15,6 +15,8 @@ namespace DGRAPIs.Models
         public double act_jmr_kwh { get; set; }
         public double act_jmr_kwh_mu { get; set; }
         public double total_tarrif { get; set; }
+        public double capacity { get; set; }
+        public dynamic date { get; set; }
         
         public double tar_wind { get; set; }
         public double act_Wind { get; set; }
@@ -26,6 +28,14 @@ namespace DGRAPIs.Models
         public double act_iga { get; set; }
         public double tar_ega { get; set; }
         public double act_ega { get; set; }
-         
+        public double revenue { get; set; }
+       
+    }
+    public class WindOpertionalHead
+    {
+        
+        public float spv_count { get; set; }
+        public double capacity { get; set; }
+
     }
 }

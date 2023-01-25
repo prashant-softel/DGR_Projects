@@ -59,6 +59,44 @@ namespace DGRAPIs.Helper
 
             }
         }
+        internal async Task<dynamic> FetchData(string qry) 
+        {
+            try
+            {
+                using (MySqlConnection conn = TheConnection)
+                {
+                    using (MySqlCommand cmd = getQryCommand(qry, conn))
+                    {
+                        await conn.OpenAsync();
+
+                        //MySqlCommand cmd1 = new MySqlCommand("set net_write_timeout=99999; set net_read_timeout=99999", conn); // Setting tiimeout on mysqlServer
+                        //cmd1.ExecuteNonQuery();
+                        cmd.CommandTimeout = 99999;
+                        cmd.CommandType = CommandType.Text;
+
+
+
+                        using (DbDataReader dataReader = await cmd.ExecuteReaderAsync(CommandBehavior.CloseConnection))
+                        {
+                            DataTable dt = new DataTable();
+                            dt.Load(dataReader);
+                            cmd.Parameters.Clear();
+                            return dt;
+                        }
+                    }
+                }
+            }
+            catch (MySqlException sqlex)
+            {
+                throw sqlex;
+                throw new Exception("GetData =" + Environment.NewLine, sqlex);
+            }
+            finally
+            {
+
+
+            }
+        }
 
         internal async Task<int> CheckGetData(string qry)
         {
@@ -246,6 +284,11 @@ namespace DGRAPIs.Helper
         private int GetConnectionTimeOut()
         {
             return 600;
+        }
+
+        internal void getQryCommand(string qry)
+        {
+            throw new NotImplementedException();
         }
     }
 }

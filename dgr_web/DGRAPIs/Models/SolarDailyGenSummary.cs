@@ -12,6 +12,7 @@ namespace DGRAPIs.Models
         public string site { get; set; }
         public string date { get; set; }
         public string location_name { get; set; }
+        public int total_strings { get; set; }
         public double ghi { get; set; }
         public double poa { get; set; }
         public double expected_kwh { get; set; }
@@ -69,7 +70,9 @@ namespace DGRAPIs.Models
             public double dc_capacity { get; set; }
 
         public double ac_capacity { get; set; }
-          
+        public string inverter { get; set; }
+
+
     }
 
 }

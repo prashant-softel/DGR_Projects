@@ -1,0 +1,211 @@
+﻿@using DGRA_V1.Common;
+@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@using DGRA_V1.Models;
+
+
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Upload DGR File Page";
+}
+
+@{
+    bool windAccess = false;
+    bool solarAccess = false;
+
+
+}
+
+
+@if (@HttpContextAccessor.HttpContext.Session.GetString("role") != "Admin")
+{
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+    for (int i = 0; i < @usermodel.access_list.Count; i++)
+    {
+        Console.WriteLine(usermodel.access_list);
+
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+        {
+            windAccess = true;
+        }
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+        {
+            solarAccess = true;
+        }
+
+
+    }
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <!-- <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Upload DGR</li>
+                    </ol>
+                </div>
+            </div>
+        </div>-->
+    </section>
+
+
+    <section class="content">
+
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Upload DGR File</h3>
+
+                <!--<div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>-->
+            </div>
+            <form action="@Url.Action("Upload","FileUpload")" method="post" enctype="multipart/form-data">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group row">
+                                <label class="col-sm-3 col-form-label text-right">Site Type:</label>
+                                <div class="col-sm-9 input-group date" id="reservationdate" data-target-input="nearest">
+                                    <select class="form-control custom-select" style="width: 100%;" name="FileUpload">
+                                        @*<option value="0">Please select</option>*@
+                                        @if (windAccess == true)
+                                        {
+                                        <option value="Wind">Wind</option>
+
+                                        }
+                                        @if (solarAccess == true)
+                                        {
+                                        <option value="Solar">Solar</option>
+                                        }
+                                        @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                                        {
+                                            <option value="Wind">Wind</option>
+                                            <option value="Solar">Solar</option>
+                                        }
+
+                                        @*foreach (var fileUploadType in FileUploadType.All)
+                                        {
+                                            <option value="@fileUploadType">@fileUploadType</option>
+                                        }*@
+
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="custom-file form-group row">
+                                <input type="file" class="custom-file-input" id="customFile" name="Path">
+                                <label class="custom-file-label" for="customFile">Choose file</label>
+                            </div>
+                        </div>
+                        <div class="col-md-2"><button type="submit" class="btn btn-block btn-success">Upload</button></div>
+                        <div class="col-md-2"><button type="button" class="btn btn-block btn-danger">Cancel</button></div>
+                    </div>
+                </div>
+                
+            </form>
+            <div class="col-md-12">
+                <h3>Templates</h3>
+            </div>
+            <hr>
+            <div class="row">
+                <div class="col-md-1"></div>
+                <div class="col-md-4">
+                    @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
+
+                    @if (windAccess == true)
+                    {
+                        <a href="@Url.Content("/SampleFormat/Wind_DGR_Automation.xlsx")" download>Wind DGR Automation</a><br />
+                    }
+
+
+
+                    @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                    {
+
+                        <a href="@Url.Content("/SampleFormat/Wind_daily_LoadShedding.xlsx")" download>Wind daily Loadshedding</a><br />
+                        <a href="@Url.Content("/SampleFormat/Wind_Daily_Target_KPI.xlsx")" download>Wind daily Target KPI</a><br />
+                        <a href="@Url.Content("/SampleFormat/Wind_MonTargetKPI.xlsx")" download>Wind monthly Target KPI</a><br />
+                        <a href="@Url.Content("/SampleFormat/Wind_JMR_Template.xlsx")" download>Wind monthly JMR</a><br />
+                        <a href="@Url.Content("/SampleFormat/Wind_MonthlyLinLoss.xlsx")" download>Wind monthly Lineloss</a><br />
+                        <a href="@Url.Content("/SampleFormat/WindSiteMaster.xlsx")" download>Wind Site Master</a><br />
+                        <a href="@Url.Content("/SampleFormat/WindLocationMaster.xlsx")" download>Wind Site Location</a><br />
+                    }
+                </div>
+                <div class="col-md-4">
+                    @*<a href="#">Wind_DGR_Automation.xlxs</a><br />*@
+
+                    @if (solarAccess == true)
+                    {
+                        <a href="@Url.Content("/SampleFormat/Solar_DGR_Automation.xlsx")" download>Solar DGR Automation</a><br />
+                    }
+
+                    @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                    {
+                        <a href="@Url.Content("/SampleFormat/Solar_Daily_LoadShedding.xlsx")" download>Solar daily Loadshedding</a><br />
+                        <a href="@Url.Content("/SampleFormat/Solar_daily_Target_KPI.xlsx")" download>Solar daily Target KPI</a><br />
+                        <a href="@Url.Content("/SampleFormat/SolarMonthlyTargetKPI.xlsx")" download>Solar monthly Target KPI</a><br />
+                        <a href="@Url.Content("/SampleFormat/Solar_Monthly_JMR.xlsx")" download>Solar monthly JMR </a><br />
+                        <a href="@Url.Content("/SampleFormat/Solar_Monthly_Lineloss.xlsx")" download>Solar monthly Lineloss</a><br />
+                        <a href="@Url.Content("/SampleFormat/Solar_AC_DC.xlsx")" download>Solar AC DC Capacity</a><br />
+                        <a href="@Url.Content("/SampleFormat/SolarSiteMaster.xlsx")" download>Solar Site Master</a><br />
+                        <a href="@Url.Content("/SampleFormat/SolarLocationMaster.xlsx")" download>Solar Location Master</a><br />
+                    }
+                </div>
+                <div class="col-md-3">
+
+                </div>
+            </div>
+            <hr>
+            <div class="col-md-12 text-center">
+                <br>You can download these templates and update data in that and upload.<br>
+                <b>Note :</b> Please do not change the name of the tab name in the template file.<br>
+                Date format must be "YYYY-MM-DD" or "YYYY-MM-DD HH:MM:SS" or HH:MM:SS (13:30:55) as application in excel sheets. </p>
+            </div>
+            <div class="card-footer">
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+</div>
+<script src="~/Content/theme/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- bs-custom-file-input -->
+<script src="~/Content/theme/plugins/bs-custom-file-input/bs-custom-file-input.min.js"></script>
+
+
+<script>
+    $(function () {
+        bsCustomFileInput.init();
+    });</script>
+<!-- /.content-wrapper -->

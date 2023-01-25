@@ -1,0 +1,214 @@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+
+@inject IHttpContextAccessor HttpContextAccessor;
+@model DGRA_V1.Models.CountryList
+@{
+    ViewData["Title"] = "Wind Site Master Reports";
+}
+@{
+    string windSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    {
+        windSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+    </section>
+
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title  text-center">Wind Site Master</h3>
+
+            </div>
+            <div class="card-body">
+                <div id="siteData" style="overflow-x: auto;" class="siteData"></div>
+                <div id="DailyTargetKPIView" style="overflow-x: auto;" class="DailyTargetKPIView"></div>
+            </div>
+        </div>
+
+
+
+    </section>
+
+</div>
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<!--Datatable -->
+<!-- DataTables  & Plugins -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+<script type="text/javascript">
+
+    window.onload = function () {
+
+
+        getSiteData();
+    }
+    function getSiteData() {
+        var userRole = "@Html.Raw(@HttpContextAccessor.HttpContext.Session.GetString("role"))";
+        var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
+    $.ajax({
+        type: "GET",
+       // url: "/WindReport/GetSiteMaster",
+        url: '@Url.Action("GetSiteMaster", "WindReport")' + '?sitelist=' + site_ids,
+        contentType: "application/json; charset=utf-8",
+        //data: '{"countryname":"' + selcountry + '"}',
+        datatype: "html",
+        success: function (result, status, xhr) {
+
+            console.log(result);
+            var tbl = '<table id="example1"  class="table table-bordered table-striped dataTable dtr-inline">';
+            tbl += '<thead class="tbl-head"><tr>';
+            tbl += '<th>Country</th>';
+            tbl += '<th style="width: 11%;">Site</th>';
+            tbl += '<th>SPV</th>';
+            tbl += '<th>State</th>';
+            tbl += '<th>Model</th>';
+            tbl += '<th>Capacity (MW)</th>';
+            tbl += '<th>WTG</th>';
+            tbl += '<th>Total MW</th>';
+            tbl += '<th>Tariff</th>';
+            tbl += '<th>GBI</th>';
+            tbl += '<th>Total Tariff</th>';
+            tbl += '<th>LL Compensation (%)</th>';
+            if (userRole == "Admin") {
+                tbl += '<th style="width:10%">Action</th>';
+            }
+
+            tbl += '</tr></thead>';
+            if (result.length > 0) {
+                for (var i = 0; i < result.length; i++) {
+
+
+                    tbl += '<tr>';
+                    tbl += '<td class="text-left">' + result[i].country + '</td>';
+                    tbl += '<td class="text-left">' + result[i].site + '</td>';
+                    tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                    tbl += '<td class="text-left">' + result[i].state + '</td>';
+                    tbl += '<td class="text-left">' + result[i].model + '</td>';
+                    tbl += '<td class="text-right">' + result[i].capacity_mw.toFixed(2) + '</td>';
+                    tbl += '<td class="text-right">' + result[i].wtg + '</td>';
+                    tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
+                    tbl += '<td class="text-right">' + result[i].tarrif.toFixed(2) + '</td>';
+                    tbl += '<td class="text-right">' + result[i].gbi.toFixed(2)+'</td>';
+                    tbl += '<td class="text-right">' + result[i].total_tarrif.toFixed(2)+'</td>';
+                    tbl += '<td class="text-right">' + result[i].ll_compensation.toFixed(2) + '</td>';
+                    if (userRole == "Admin") {
+                        tbl += '<td class="text-center"><a href="#"  class="btn btn-block btn-danger" onclick="DeleteWindSite(' + result[i].site_master_id + ')"  style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >Delete</a></td>';
+                    }
+                    tbl += '</tr>';
+                }
+            }
+            else {
+
+                // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
+            }
+            tbl += '</table>';
+           // $("#siteData").html(tbl);
+            $("#siteData").html("").html(tbl);
+            $.fn.DataTable.ext.pager.numbers_length = 6;
+            $('#example1').DataTable({
+                dom: 'Bfrtip',
+                responsive: true,
+                lengthChange: true,
+                autoWidth: true,
+                paging: true,
+                lengthChange: true,
+                searching: true,
+                ordering: true,
+                info: true,
+                autoWidth: false,
+                responsive: true,
+                pageLength: 50,
+
+                buttons: [
+                    {
+                        extend: 'excel',
+                        title: 'Wind Site Master',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    {
+                        extend: 'csv',
+                        title: 'Wind Site Master',
+                        exportOptions: {
+                            columns: ':visible'
+                        }
+                    },
+                    'colvis'
+                ]
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $(".dt-buttons").addClass('btn-group flex-wrap');
+            $(".dt-buttons > button").addClass('btn btn-secondary');
+            $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+
+            $('#example1').removeClass('dataTable');
+        }
+    });
+    }
+
+    function DeleteWindSite(siteid) {
+      $.ajax({
+        type: "GET",
+       // url: "/WindReport/GetSiteMaster",
+          url: '@Url.Action("DeleteWindSite", "WindReport")' + '?siteid=' + siteid,
+        contentType: "application/json; charset=utf-8",
+        //data: '{"countryname":"' + selcountry + '"}',
+        datatype: "html",
+        success: function (result, status, xhr) {
+            if (result > 0) {
+                alert("Record Delete Successfully");
+                location.reload();
+            }
+            else {
+                alert("Record Not Delete Please Try Again");
+            }
+        }
+    });
+    }
+
+</script>

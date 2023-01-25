@@ -7,9 +7,9 @@ namespace DGRAPIs.Models
 {
     public class WindDailyJMR
     {
-        public string Date { get; set; }
-        public string Site { get; set; }
-        public string JMR_KWH { get; set; }
+        public string date { get; set; }
+        public string site { get; set; }
+        public string jmr_kwh { get; set; }
          
     }
 }

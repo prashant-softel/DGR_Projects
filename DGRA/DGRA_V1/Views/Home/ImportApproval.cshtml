@@ -1,0 +1,1229 @@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+
+@{
+    ViewData["Title"] = "Import Approval";
+}
+@{
+    string windUserSiteList = "";
+    string solarUserSiteList = "";
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+
+@{
+    bool windAccess = false;
+    bool solarAccess = false;
+
+
+}
+
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    {
+        windUserSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+    {
+        solarUserSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+}
+
+
+@if (@HttpContextAccessor.HttpContext.Session.GetString("role") != "Admin")
+{
+    var usermodel_1 = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+    for (int i = 0; i < @usermodel_1.access_list.Count; i++)
+    {
+        Console.WriteLine(usermodel_1.access_list);
+
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel_1.access_list[i].site_type == 2)
+        {
+            windAccess = true;
+        }
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel_1.access_list[i].site_type == 1)
+        {
+            solarAccess = true;
+        }
+
+
+    }
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+@*<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">*@
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+<style>
+    table th {
+        padding: 0.5rem !important;
+        font-size: 15px !important;
+    }
+    table td {
+        padding: 0.2rem !important;
+        font-size: 15px !important;
+    }
+    .dataTables_filter {
+        margin-top: -2.6% !important; 
+    }
+    select {
+        width: 50%;
+        height: 36px;
+    }
+</style>
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <!--<div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Import Data Approval</li>
+                    </ol>
+                </div>
+            </div>
+        </div>-->
+    </section>
+
+
+    <section class="content">
+
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Import Data Approval</h3>
+
+                <!--<div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>-->
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-left">Import Type : </label>
+                                <select class="form-control  col-sm-8" id="importType" name="importType" value="" onchange="getSiteList()">
+                                    <option value="0">Select Import Type </option>
+                                    @if (windAccess == true)
+                                    {
+                                        <option value="2">Solar</option>
+                                    }
+                                    @if (solarAccess == true)
+                                    {
+                                        <option value="1">Wind</option>
+                                    }
+                                    @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                                    {
+                                        <option value="2">Solar</option>
+                                        <option value="1">Wind</option>
+                                    }
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-group" id="multple_site" style="display:none;">
+                            <div class="row" >
+                                <label class="col-sm-4 col-form-label text-right">Site : </label>
+                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group"  id="normal_site" style="display:block;">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Site : </label>
+                                <select class="form-control  col-sm-8" id="site_n" name="site_n">
+                                    <option value="">Please Select Site</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="input-group row">
+                            <label class="col-sm-3 col-form-label text-right">Date : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange" style="max-width: 270px;">
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-left">Status : </label>
+                                <select class="form-control  col-sm-8" id="status" name="status" value="">
+                                    <option value="-1">All</option>
+                                    <option value="0">Awaiting for Approval</option>
+                                    <option value="1">Approved</option>
+                                    <option value="2">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2"></div>
+                    <div class="col-md-2"><button type="button" class="btn btn-block btn-primary" onclick="getReport()" style=" width:5rem " >Search</button></div>
+                    <div class="col-md-5"></div>
+                </div>
+                <br>
+                @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                {
+                   
+                    <div class="row" id="approvebtn" style="display:none">
+                        <div class="col-md-2"><button type="button" class="btn btn-block btn-success" onclick="DataApproved(1)">Approved</button></div>
+                        <div class="col-md-2"><button type="button" class="btn btn-block btn-danger" onclick="DataApproved(2)">Reject</button></div>
+                        <div class="col-md-8"></div>
+                    </div>
+                }
+                <hr>
+                <div id="LogData"></div>
+
+            </div>
+
+
+
+        </div>
+        <div class="modal fade" id="modal-xl">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title text-center" id="title" style="width: 90%;">Genereration View</h6>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="importedData" style="max-height: 500px; overflow: auto;"></div>
+
+                    </div>
+                    <div class="modal-footer justify-content-between">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+
+    </section>
+
+</div>
+<!-- /.content-wrapper -->
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+<!--Date Range -->
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- DataTables  & Plugins -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+
+
+<script type="text/javascript">
+
+
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+
+    window.onload = function () {
+      @* var state = "";
+        var spv = "";
+         var site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "GET",
+
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").html(options);
+                $('#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Wind Site(s)",
+                });
+            }
+        });*@
+    }
+
+
+
+    function getSiteList() {
+        var importType = $('select#importType option:selected').val();
+        if (importType == 2) {
+            console.log("importType", importType);
+            GetSolarSite();
+            document.getElementById("normal_site").style.display = 'none';
+            document.getElementById("multple_site").style.display = 'block';
+
+        }
+        else if (importType == 1) {
+            document.getElementById("normal_site").style.display = 'none';
+            document.getElementById("multple_site").style.display = 'block';
+            GetWindSite();
+            console.log("importType", importType);
+        }
+    }
+    // Wind Site
+    function GetWindSite() {
+
+         var state = "";
+        var spv = "";
+         var site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "GET",
+           // url: "/WindReport/GetSiteList",
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                //options += '<option value="">Select Site</option>';
+                //options += '<option value="0">All Site</option>';
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").multipleSelect('destroy');
+                $("#site").html(options);
+                $('select#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Wind Site(s)",
+                    filter:true
+                });
+            }
+        });
+    }
+     // Solar Site
+    function GetSolarSite() {
+        var site_ids = "@Html.Raw(solarUserSiteList.TrimEnd(','))";
+        var solar_total_mw = 0;
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarSiteList", "Dashboard")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+               // console.log(result);
+                var options = "";
+
+                for (var i = 0; i < result.length; i++) {
+                    solar_total_mw += result[i].ac_capacity;
+                    options += '<option value="' + result[i].site_master_solar_id + '">' + result[i].site + '</option>';
+                }
+                $("#site").multipleSelect('destroy');
+                $("#site").html(options);
+                $('select#site').multipleSelect({
+                   "minimumCountSelected": 2,
+                   "placeholder": "Select Solar Site(s)",
+                   filter:true
+                });
+            }
+        });
+    }
+    function getReport() {
+        var importType = $('select#importType option:selected').val();
+        if (importType == 2) {
+            getSolarReport();
+
+        }
+        else if (importType == 1) {
+
+            getWindReport();
+        }
+    }
+    // WInd Import Reports
+    function getWindReport() {
+        let site = "";
+        $('select#site option:selected').each(function () {
+            site += $(this).val() + ",";
+
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+        if (site == "" || site == null) {
+            alert("Please select site ");
+            return false;
+        }
+        console.log(site);
+        var status = $('select#status option:selected').val();
+        var importType = $('select#importType option:selected').val();
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        // var fromDate = "2021-04-14";
+        //var toDate = "2021-04-20";
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetImportBatches", "WindView")' + '?importFromDate=' + fromDate + '&importToDate=' + toDate + '&siteId=' + site + '&importType=' + importType + '&status='+status,
+            contentType: "application/json; charset=utf-8",
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th style="width:100px">Import Date</th>';
+                tbl += '<th style="width:100px">Data Date</th>';
+                tbl += '<th>Impo. By</th>';
+                tbl += '<th>Status</th>';
+                tbl += '<th>Verified By Date</th>';
+                tbl += '<th>Verified By</th>';
+                tbl += '<th>Action</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        var formattedDate = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        var formattedDate1 = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        var status = "";
+                        var isDisable = "";
+                        if (result[i].is_approved == 0) {
+                            status = "Awaiting for Approval";
+                            isDisable = "";
+                        }
+                        if (result[i].is_approved == 0 && result[i].imported_by == @HttpContextAccessor.HttpContext.Session.GetString("userid")) {
+                            status = "Awaiting for Approval";
+                            isDisable = "disabled";
+                        }
+                        if (result[i].is_approved == 1) {
+                            status = "Approved";
+                            isDisable = "disabled";
+                        }
+                        if (result[i].is_approved == 2) {
+                            status = "Rejected";
+                            isDisable = "disabled";
+                        }
+                        tbl += '<tr>';
+                        tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style="margin-left:0.5rem;    margin-top: -6px;" ' + isDisable + '></td>';
+                        tbl += '<td>' + result[i].site_name + '</td>';
+                        tbl += '<td>' + formattedDate + '</td>';
+                        tbl += '<td>' + formattedDate1 + '</td>';
+                        tbl += '<td>' + result[i].import_by_name + '</td>';
+                        tbl += '<td>' + status + '</td>';
+                        var approval_name = "";
+                        var verified_date = "";
+                        var verified_name = "";
+                        if (result[i].is_approved == 1) {
+                            //approval_name = "";
+                            verified_name = result[i].approved_by_name;
+                            if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
+                                verified_date = '';
+                            }
+                            else {
+                                verified_date = moment(result[i].approval_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                            }
+                        }
+                        else if (result[i].is_approved == 2) {
+                            // approval_name = result[i].approved_by_name;
+                            verified_name = result[i].rejected_by_name;
+                            if (result[i].rejected_date == '0001-01-01T00:00:00' || result[i].rejected_date == null) {
+                                verified_date = '';
+                            }
+                            else {
+                                verified_date = moment(result[i].rejected_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                            }
+                        }
+                        else {
+                            verified_name = "";
+                        }
+
+                        tbl += '<td>' + verified_date + '</td>';
+                        tbl += '<td>' + verified_name + '</td>';
+                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem">G</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >B</a></div>';
+                        //enter filenames paths
+                       // tbl += '<div style="width: 25%;float: left;"><a href="C:\LogFile\\'+ result[i].log_filename +'" title=" View Log File" class="btn  btn-info" download>F</a></div>';
+                       // tbl += '<div style="width: 25%;float: left;"><a href="C:\ImportedFile\"' + result[i].file_name + '" title=" View Imported File" class="btn  btn-info" download>L</a></div>';
+                        tbl += '</td ></tr>';
+                    }
+                }
+                else {
+                    //tbl += '<tr><th colspan="7" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#LogData").html("").html(tbl);
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Import Approval',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Import Approval',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });//.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+                $('#example1').removeClass('dataTable');
+
+                document.getElementById("approvebtn").style.display = 'flex';
+            }
+        });
+
+    }
+
+    // SOlar Import Report
+    function getSolarReport() {
+        let site = "";
+        $('select#site option:selected').each(function () {
+            site += $(this).val() + ",";
+
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+        if (site == "" || site == null) {
+            alert("Please select site ");
+            return false;
+        }
+
+        var status = $('select#status option:selected').val();
+        var importType = $('select#importType option:selected').val();
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetImportBatches", "SolarView")' + '?importFromDate=' + fromDate + '&importToDate=' + toDate + '&siteId=' + site + '&importType=' + importType + '&status='+status,
+            contentType: "application/json; charset=utf-8",
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th>&nbsp;&nbsp;&nbsp;&nbsp;</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th style="width:100px">Import Date</th>';
+                tbl += '<th style="width:100px">Data Date</th>';
+                tbl += '<th>Impo. By</th>';
+                tbl += '<th>Status</th>';
+                tbl += '<th>Verified By Date</th>';
+                tbl += '<th>Verified By</th>';
+                //tbl += '<th>Rej Date</th>';
+                //tbl += '<th>Rej. By</th>';
+                tbl += '<th>Action</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        var formattedDate = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        var formattedDate1 = moment(result[i].data_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        var status = "";
+                        var isDisable = "";
+                        if (result[i].is_approved == 0) {
+                            status = "Awaiting for Approval";
+                            isDisable = "";
+                        }
+                        if (result[i].is_approved == 0 && result[i].imported_by == @HttpContextAccessor.HttpContext.Session.GetString("userid")) {
+                            status = "Awaiting for Approval";
+                            isDisable = "disabled";
+                        }
+                        if (result[i].is_approved == 1) {
+                            status = "Approved";
+                            isDisable = "disabled";
+                        }
+                        if (result[i].is_approved == 2) {
+                            status = "Rejected";
+                            isDisable = "disabled";
+                        }
+                        tbl += '<tr>';
+                        tbl += '<td><input type="checkbox" class="form-check-input" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style="margin-left:0.5rem;    margin-top: -6px;" ' + isDisable + '></td>';
+                        tbl += '<td>' + result[i].site_name + '</td>';
+                        tbl += '<td>' + formattedDate + '</td>';
+                        tbl += '<td>' + formattedDate1 + '</td>';
+                        tbl += '<td>' + result[i].import_by_name + '</td>';
+                        tbl += '<td>' + status + '</td>';
+                        
+                        var approval_name = "";
+                        var verified_date = "";
+                        var verified_name = "";
+                        if (result[i].is_approved == 1) {
+                            //approval_name = "";
+                            verified_name = result[i].approved_by_name;
+                            if (result[i].approval_date == '0001-01-01T00:00:00' || result[i].approval_date == null) {
+                                verified_date = '';
+                            }
+                            else {
+                                verified_date = moment(result[i].approval_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                            }
+                        }
+                        else if (result[i].is_approved == 2) {
+                           // approval_name = result[i].approved_by_name;
+                            verified_name = result[i].rejected_by_name;
+                            if (result[i].rejected_date == '0001-01-01T00:00:00' || result[i].rejected_date == null) {
+                                verified_date = '';
+                            }
+                            else {
+                                verified_date = moment(result[i].rejected_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                            }
+                        }
+                        else {
+                            verified_name = "";
+                        }
+                        
+                       
+                        /*var rejected_name = "";
+                        if (result[i].rejected_by == 0) {
+                            rejected_name = "";
+                        }
+                        else {
+                            rejected_name = result[i].rejected_by_name;
+                        }*/
+                        tbl += '<td>' + verified_date + '</td>';
+                        tbl += '<td>' + verified_name + '</td>';
+                       // tbl += '<td>' + formattedDate2 + '</td>';
+                        //tbl += '<td>' + rejected_name + '</td>';
+                        tbl += '<td style="width:250px"><div style="width: 25%;float: left;"><a href="#" title=" View Generation Data" class="btn btn-info" onclick="ViewSolarGenData(' + result[i].import_batch_id + ')"  data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem">G</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Breakdown Data" class="btn  btn-info" onclick="ViewSolarBreakdownData(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >B</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Pyranometer 1Min Data" class="btn  btn-info" onclick="ViewPY1Data(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >P1</a></div>';
+                        tbl += '<div style="width: 25%;float: left;"><a href="#" title=" View Pyranometer 15Min Data" class="btn  btn-info" onclick="ViewPY15Data(' + result[i].import_batch_id + ')" data-toggle="modal" data-target="#modal-xl" style="padding: 0rem 0.75rem" >P15</a></div>';
+                        //enter filenames paths
+                       // tbl += '<div style="width: 25%;float: left;"><a href="C:\LogFile\\'+ result[i].log_filename +'" title=" View Log File" class="btn  btn-info" download>F</a></div>';
+                       // tbl += '<div style="width: 25%;float: left;"><a href="C:\ImportedFile\"' + result[i].file_name + '" title=" View Imported File" class="btn  btn-info" download>L</a></div>';
+                        tbl += '</td ></tr>';
+                    }
+                }
+                else {
+                    //tbl += '<tr><th colspan="7" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#LogData").html("").html(tbl);
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: false,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: false,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Import Approval',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Import Approval',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });//.buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+                $('#example1').removeClass('dataTable');
+
+                document.getElementById("approvebtn").style.display = 'flex';
+            }
+        });
+
+    }
+
+    //   Approved Data
+    function DataApproved(actionType) {
+        var values = '';
+        $.each($("input[class='form-check-input']:checked"), function () {
+            if (values == '') {
+                values = $(this).attr('data-id');
+            }
+            else {
+                values = values + "," + $(this).attr('data-id');
+            }
+        });
+        if (values == "") {
+            alert("Please select data");
+            return false;
+        }
+        var approved_by ="@HttpContextAccessor.HttpContext.Session.GetString("userid")";
+        var approved_by_name = "@HttpContextAccessor.HttpContext.Session.GetString("DisplayName")";
+
+        var uri = "";
+        var importType = $('select#importType option:selected').val();
+
+        if (importType == 1 && actionType == 1) {
+            var Approvestatus = 1;
+            uri= '@Url.Action("DataApproved", "WindView")' + '?data=' + values + '&approvedBy=' + approved_by + '&approvedByName=' + approved_by_name + '&status=' + Approvestatus + '&actionType=' + actionType
+
+        }
+        if (importType == 1 && actionType == 2) {
+            var Rejectstatus = 2;
+            uri= '@Url.Action("DataReject", "WindView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
+
+        }
+        if (importType == 2 && actionType == 1) {
+            var Approvestatus = 1;
+            uri= '@Url.Action("DataApproved", "SolarView")' + '?data=' + values + '&approvedBy=' + approved_by + '&approvedByName=' + approved_by_name + '&status=' + Approvestatus + '&actionType=' + actionType
+
+        }
+        if (importType == 2 && actionType == 2) {
+            var Rejectstatus = 2;
+            uri= '@Url.Action("DataReject", "SolarView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
+
+        }
+
+        $.ajax({
+            type: "POST",
+            url: uri,
+            contentType: "application/json; charset=utf-8",
+            success: function (result, status, xhr) {
+                if (result > 0) {
+                    if (actionType == 1) {
+                        alert("Data Approved Successfully !");
+                    }
+                    if (actionType == 2) {
+                        alert("Data Rejected Successfully !");
+                    }
+
+                    location.reload();
+                }
+                else {
+                    alert("Faild Please try again !");
+                }
+            }
+        });
+    }
+    function ViewImportFile() {
+
+    }
+    function ViewGenData(importlogId) {
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetGenerationImportData", "WindView")' + '?importId=' + importlogId,
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl1 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:100%">';
+                tbl1 += '<thead class="tbl-head"><tr>';
+                tbl1 += '<th style="font-size: 12px;width:8%;">Date</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center; ">Site</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">WTG</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Wind(m/s)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">kWh</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">MA(Act)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">MA(Con)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">IGA</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">EGA</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">PLF</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Grid Hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Lull Hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Prod Hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">USMH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">SMH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Oth Hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">IGBDH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">EGBDH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Load Sh.</th>';
+                tbl1 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1);
+                    for (var j = 0; j < result1.length; j++) {
+                        //debugger;
+                        //console.log("Un Array :"+result1[j]);
+                        let unsch_hrs = 0;
+                        let sch_hrs = 0;
+                        let other = 0;
+                        let igbdh = 0;
+                        let egbdh = 0;
+                        let load_shedding = 0;
+                        if (result1[j].unschedule_hrs != null) {
+                            unsch_hrs = result1[j].unschedule_hrs['totalHours'];
+                            //unsch_hrs =  moment.utc(result1[j].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss');
+                        }
+                        if (result1[j].schedule_hrs != null) {
+                            //sch_hrs = moment.utc(result1[j].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss');
+                            sch_hrs = result1[j].schedule_hrs['totalHours'];
+                        }
+                        if (result1[j].others != null) {
+                            //other = moment.utc(result1[j].others['totalSeconds'] * 1000).format('HH:mm:ss');
+                           other = result1[j].others['totalHours'] ;
+                        }
+                        if (result1[j].igbdh != null) {
+                           // igbdh = moment.utc(result1[j].igbdh['totalSeconds'] * 1000).format('HH:mm:ss');
+                            igbdh = result1[j].igbdh['totalHours'] ;
+                        }
+                        if (result1[j].egbdh != null) {
+                            //egbdh = moment.utc(result1[j].egbdh['totalSeconds'] * 1000).format('HH:mm:ss');
+                            egbdh = result1[j].egbdh['totalHours'];
+                        }
+                        if (result1[j].load_shedding != null) {
+                            //load_shedding = moment.utc(result1[j].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss');
+                            load_shedding = result1[j].load_shedding['totalHours'];
+                        }
+
+                        var formattedDate = moment(result1[j].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl1 += '<tr>';
+                        tbl1 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site_name + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].wtg + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].wind_speed.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].kwh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ma_actual.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ma_contractual.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].iga.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ega.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].plf.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].grid_hrs.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].lull_hrs.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].operating_hrs.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + unsch_hrs.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + sch_hrs.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + other.toFixed(2)+ '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + igbdh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + egbdh.toFixed(2)+ '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + load_shedding.toFixed(2)+ '</td>';
+                        tbl1 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl1 += '</table>';
+                document.getElementById("title").innerHTML = "Wind Generation View";
+                $("#importedData").html(tbl1);
+
+            }
+        });
+    }
+    function ViewBreakdownData(importlogId) {
+        $.ajax({
+            type: "POST",
+            //url: "/WindView/GetBrekdownImportData?importId=" + importlogId,
+             url: '@Url.Action("GetBrekdownImportData", "WindView")' + '?importId=' + importlogId,
+            // url: "/WindView/DataApproved",
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl2 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:100%">';
+                tbl2 += '<thead class="tbl-head"><tr>';
+                tbl2 += '<th style="font-size: 12px;">Date</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Site</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">WTG</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">DB Type</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Start From</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Start To</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Total Stop</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Reason of Breakdown</th>';
+
+                tbl2 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1.length);
+                    for (var j = 0; j < result1.length; j++) {
+                        //console.log("Inside For Loop");
+                        var formattedDate = moment(result1[j].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl2 += '<tr>';
+                        tbl2 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].wtg + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].bd_type_name + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].stop_from + '</td>';
+                        tbl2 += '<td style="font-size: 12px; text-align: center;">' + result1[j].stop_to + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_stop + '</td>';
+                        tbl2 += '<td style="font-size: 12px;">' + result1[j].error_description + '</td>';
+                        tbl2 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl2 += '</table>';
+                document.getElementById("title").innerHTML = "Wind Breakdown View";
+                $("#importedData").html(tbl2);
+            }
+        });
+    }
+
+    function ViewSolarGenData(importlogId) {
+    $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSolarGenerationImportData", "SolarView")' + '?importId=' + importlogId,
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl1 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:230%">';
+                tbl1 += '<thead class="tbl-head"><tr>';
+                tbl1 += '<th style="font-size: 12px;width:5%;">Date</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;width:5%; ">Site</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Location Name</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">GHI</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">POA</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Exp kWh</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Inv kWh</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Plant kWh</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Inv PR (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Plant PR (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">MA (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">IGA (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">EGA (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Inv Plf AC (%)</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">PI</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Prod_hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Lull_hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">USMH BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">SMH BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Oth_hrs BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">IGBDH BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">EGBDH BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Load She.BD</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Total BD Hrs</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">USMH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">SMH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">OH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">IGBDH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">EGBDH</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Load She.</th>';
+                tbl1 += '<th style="font-size: 12px;text-align: center;">Total Losses</th>';
+
+                tbl1 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1);
+                    for (var j = 0; j < result1.length; j++) {
+                        //debugger;
+                        //console.log("Un Array :"+result1[j]);
+                        let unsch_hrs = 0;
+                        let sch_hrs = 0;
+                        let other = 0;
+                        let igbdh = 0;
+                        let egbdh = 0;
+                        let load_shedding = 0;
+
+
+                        var formattedDate = moment(result1[j].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl1 += '<tr>';
+                        tbl1 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inverter + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].expected_kwh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inv_act.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].plant_act.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inv_pr.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].plant_pr.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ma.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].iga.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ega.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inv_plf_ac.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].pi + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].prod_hrs.toFixed(2)+ '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].lull_hrs_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].usmh_bd.toFixed(2)+ '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].smh_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].oh_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].igbdh_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].egbdh_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].load_shedding_bd.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_bd_hrs.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].usmh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].smh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].oh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].igbdh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].egbdh.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].load_shedding.toFixed(2) + '</td>';
+                        tbl1 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_losses.toFixed(2) + '</td>';
+                        tbl1 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl1 += '</table>';
+                document.getElementById("title").innerHTML = "Solar Generation View";
+                $("#importedData").html(tbl1);
+
+            }
+        });
+    }
+    function ViewSolarBreakdownData(importlogId) {
+        $.ajax({
+            type: "POST",
+            //url: "/WindView/GetBrekdownImportData?importId=" + importlogId,
+             url: '@Url.Action("GetSolarBrekdownImportData", "SolarView")' + '?importId=' + importlogId,
+            // url: "/WindView/DataApproved",
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl2 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:150%">';
+                tbl2 += '<thead class="tbl-head"><tr>';
+                tbl2 += '<th style="font-size: 12px;">Date</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Site</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">ICR</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Inverter</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">SMB</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">String</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">BD Type</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Start To</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Total Stop</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Ext/Int BD</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">IGBD</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Remarks</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Action Taken</th>';
+
+                tbl2 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1.length);
+                    for (var j = 0; j < result1.length; j++) {
+                        //console.log("Inside For Loop");
+                        var formattedDate = moment(result1[j].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl2 += '<tr>';
+                        tbl2 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].icr + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inv + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].smb + '</td>';
+                        tbl2 += '<td style="font-size: 12px; text-align: center;">' + result1[j].strings + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].from_bd['hours'] + ':' + result1[j].from_bd['minutes'] + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].to_bd['hours'] + ':' + result1[j].to_bd['minutes'] + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_bd['hours'] + ':' + result1[j].total_bd['minutes'] + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ext_int_bd + '</td>';
+                        tbl2 += '<td style="font-size: 12px;">' + result1[j].igbd + '</td>';
+                        tbl2 += '<td style="font-size: 12px;">' + result1[j].bd_remarks + '</td>';
+                        tbl2 += '<td style="font-size: 12px;">' + result1[j].action_taken + '</td>';
+                        tbl2 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl2 += '</table>';
+                document.getElementById("title").innerHTML = "Solar Breakdown View";
+                $("#importedData").html(tbl2);
+            }
+        });
+    }
+
+    function ViewPY1Data(importlogId) {
+        $.ajax({
+            type: "POST",
+            //url: "/WindView/GetBrekdownImportData?importId=" + importlogId,
+             url: '@Url.Action("GetSolarP1ImportData", "SolarView")' + '?importId=' + importlogId,
+            // url: "/WindView/DataApproved",
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl2 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:150%">';
+                tbl2 += '<thead class="tbl-head"><tr>';
+                tbl2 += '<th style="font-size: 12px;">Date Time</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Site</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">GHI 1</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">GHI 2</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 1</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 2</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 3</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 4</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 5</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 6</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 7</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">AVG GHI</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">AVG POA</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Amb Temp</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Mod Temp</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Weather Type</th>';
+
+                tbl2 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1.length);
+                    for (var j = 0; j < result1.length; j++) {
+                        //console.log("Inside For Loop");
+                        var formattedDate = moment(result1[j].date_time, 'YYYY-MM-DD hh:mm:ss ').format('DD-MM-YYYY HH:mm:ss');
+                        tbl2 += '<tr>';
+                        tbl2 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi_1.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi_2.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_1.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_2.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_3.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_4.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_5.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_6.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_7.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].avg_ghi.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].avg_poa.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].amb_temp.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].mod_temp.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].weather_type + '</td>';
+                       
+                        tbl2 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl2 += '</table>';
+                document.getElementById("title").innerHTML = "Solar Pyranometer 1Min View";
+                $("#importedData").html(tbl2);
+            }
+        });
+    }
+    function ViewPY15Data(importlogId) {
+        $.ajax({
+            type: "POST",
+            //url: "/WindView/GetBrekdownImportData?importId=" + importlogId,
+             url: '@Url.Action("GetSolarP15ImportData", "SolarView")' + '?importId=' + importlogId,
+            // url: "/WindView/DataApproved",
+            contentType: "application/json; charset=utf-8",
+            success: function (result1, status, xhr) {
+                console.log(result1);
+
+                var tbl2 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:150%">';
+                tbl2 += '<thead class="tbl-head"><tr>';
+                tbl2 += '<th style="font-size: 12px;">Date Time</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Site</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">GHI 1</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">GHI 2</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 1</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 2</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 3</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 4</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 5</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 6</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">POA 7</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">AVG GHI</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">AVG POA</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Amb Temp</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Mod Temp</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Weather Type</th>';
+
+                tbl2 += '</tr></thead>';
+
+                if (result1.length > 0) {
+                    console.log(result1.length);
+                    for (var j = 0; j < result1.length; j++) {
+                        var formattedDate = moment(result1[j].date_time, 'YYYY-MM-DD hh:mm:ss ').format('DD-MM-YYYY HH:mm:ss');
+                        tbl2 += '<tr>';
+                        tbl2 += '<td style="font-size: 12px;">' + formattedDate + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].site + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi_1.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].ghi_2.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_1.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_2.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_3.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_4.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_5.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_6.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].poa_7.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].avg_ghi.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].avg_poa.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].amb_temp.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].mod_temp.toFixed(2) + '</td>';
+                        tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].weather_type + '</td>';
+                        tbl2 += '</tr>';
+                        // console.log(j);
+                    }
+                }
+                else {
+
+                }
+                tbl2 += '</table>';
+                document.getElementById("title").innerHTML = "Solar Pyranometer 15Min View";;
+                $("#importedData").html(tbl2);
+            }
+        });
+    }
+</script>

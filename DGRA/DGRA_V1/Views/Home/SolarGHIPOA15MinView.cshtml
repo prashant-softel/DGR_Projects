@@ -1,0 +1,281 @@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@model DGRA_V1.Models.DailyGenSummary
+
+@{
+    ViewData["Title"] = "Solar Gen Summary";
+}
+@{
+    string solarSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+    {
+        solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+@*<style>
+    .tbodydata {
+        font-size: 12px;
+    }
+
+    .theaddata {
+        font-size: 12px;
+        font-weight: bold;
+    }
+</style>*@
+
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Solar GHI & POA 15 Minute</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label text-left">Site : </label>
+                                <select class="form-control  col-sm-8" id="site" name="site[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="input-group row">
+                            <label class="col-sm-3 col-form-label">Date Range : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                        </div>
+                    </div>
+                    <div class="col-md-1"></div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-block btn-primary" onclick="getReport()" style="margin-left:-5rem; width: 5rem;">Search</button>
+                    </div>
+                    <div class="col-md-1"></div>
+                </div>
+               
+                <hr>
+                <div id="DailyGenView" style="overflow-x: auto;" class="DailyGenView"></div>
+            </div>
+        </div>
+    </section>
+
+</div>
+<!-- /.content-wrapper -->
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<!--Date Range -->
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+
+<!-- DataTables  & Plugins -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+
+@*------------------------------------------------------------------------------------------------------------------------------------------------*@
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+    window.onload = function () {
+        var state = "";
+        var spv = "";
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "POST",
+            //url: "/WindReport/GetSiteList",
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").html(options);
+                $('select#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                    filter:true
+                });
+            }
+
+        });
+    }
+
+    function getReport() {
+
+        let site_id = "";
+        var site = $('select#site option:selected').each(function () {
+            site_id += $(this).val() + ",";
+        });
+        site_id = site_id!= ""?site_id.slice(0, -1) : site_id;
+        console.log(site_id);
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("SolarGhi_Poa_15Min", "SolarView")' + '?site='+ site_id + '&fromDate=' + fromDate + '&toDate=' + toDate,
+            contentType: "application/json; charset=utf-8",
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<table id="example1" class="table table-bordered table-striped" style="width: 120%;">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th style="width: 12%;">Date Time</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>GHI 1</th>';
+                tbl += '<th>GHI 2</th>';
+                tbl += '<th>POA 1</th>';
+                tbl += '<th>POA 2</th>';
+                tbl += '<th>POA 3</th>';
+                tbl += '<th>POA 4</th>';
+                tbl += '<th>POA 5</th>';
+                tbl += '<th>POA 6</th>';
+                tbl += '<th>POA 7</th>';
+                tbl += '<th>AVG GHI</th>';
+                tbl += '<th>AVG POA</th>';
+                tbl += '<th>Amb Temp </th>';
+                tbl += '<th>Mod Temp</th>';
+                tbl += '<th>Weather Type</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+                        let weather = "";
+                        if (result[i].weather_type == null) {
+                            weather = "-";
+                        }
+                        else {
+                            weather = result[i].weather_type;
+                        }
+                        //var tempDate = new Date(result[i].date);
+                        //var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
+                        var formattedDate = moment(result[i].date_time, 'YYYY-MM-DD hh:mm:ss ').format('DD-MM-YYYY HH:mm:ss');
+                        tbl += '<tr>';
+                        tbl += '<td  class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td  class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].ghi_1.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].ghi_2.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_1.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_2.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_3.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_4.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_5.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_6.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa_7.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].avg_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].avg_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].amb_temp.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].mod_temp.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left" >' + weather + '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+
+                    // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+               // $("#DailyGenView").html(tbl);
+                $("#DailyGenView").html("").html(tbl);
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    responsive: false,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Generation Summary',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Generation Summary',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+                //$('#example1').removeClass('dataTable');
+            }
+        });
+    }
+
+
+
+</script>
+
+
+
+

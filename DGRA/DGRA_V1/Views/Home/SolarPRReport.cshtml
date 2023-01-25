@@ -1,0 +1,609 @@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+
+@inject IHttpContextAccessor HttpContextAccessor
+
+@model DGRA_V1.Models.CountryList
+@{
+    ViewData["Title"] = "Solar Performance Reports";
+}
+@{
+
+    string solarSiteList = "";
+}
+
+@if (@HttpContextAccessor.HttpContext.Session.GetString("role") != "Admin")
+{
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+    for (int i = 0; i < @usermodel.access_list.Count; i++)
+    {
+
+        if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+        {
+            solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+        }
+ }
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <!--<div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Wind Performance Reports</li>
+                    </ol>
+                </div>
+            </div>
+        </div>-->
+    </section>
+
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Solar Performance Summary</h3>
+                <!--<div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                <i class="fas fa-minus"></i>
+                </button>
+                </div>-->
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label text-left">FY : </label>
+                                <select class="form-control  col-sm-10" id="fy" name="fy" value="">
+                                    <option value="">Select Financial Year</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="input-group " style="margin-left: -5px; width: 104%;">
+                            <label class="col-sm-2 col-form-label text-left">Date : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                        </div>
+                    </div>
+                    <div class="col-sm-2">
+                        <div class="row">
+                            <div class="col-sm-1 text-center"></div>
+                            <div class="col-sm-1 text-center">
+                                <button type="button" class="btn btn-block btn-primary" onclick="GetPRReport();" style="width: 5rem;">Search</button>
+                            </div>
+                            <div class="col-sm-1 text-center"></div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3"></div>
+                </div>
+                <div class="row" style="margin-top: -2%;">
+                    <div class="col-sm-5">
+                        <div class="card-body table-responsive pad" style="margin-left: -4%; padding-bottom: 2px;">
+                            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                <label class="btn bg-olive">
+                                    <input type="radio" name="reportType" value="Site" id="pr_b1" autocomplete="off" checked> Site Wise Report
+                                </label>
+                                <label class="btn bg-olive">
+                                    <input type="radio" name="reportType" value="SPV" id="pr_b2" autocomplete="off"> SPV Wise Report
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-2 text-center">
+
+                    </div>
+                    <div class="col-sm-5 text-center"></div>
+                </div>
+                <hr>
+                <div id="pr_reports" style="overflow-x: auto;" class="pr_reports"></div>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<!--Datatable -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+<script src="~/Content/theme/plugins/chart.js/Chart.min.js"></script>
+<script src="~/Content/theme/dist/js/comman.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+
+    window.onload = function () {
+        getYear();
+    }
+    function getYear() {
+        $.ajax({
+            type: "GET",
+            url: "/SolarReport/GetFinancialYear",
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                options += '<option value="">Select Financial Year</option>';
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
+                }
+                $("#fy").html(options);
+                $('select#fy').multipleSelect({
+                    filter: true
+                });
+            }
+        });
+    }
+
+    function GetPRReport() {
+        var ReportType = $("input[name='reportType']:checked").val();
+        if (ReportType == "SPV") {
+            GetSolarPRReportSPVWise();
+        }
+        else {
+            GetSolarPRReportSiteWise();
+        }
+    }
+
+    // Daily Gen Report SPV WIse
+    function GetSolarPRReportSPVWise() {
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var fyear = $('select#fy option:selected').val();
+        var reporthead = "SPV Wise Report";
+        $.ajax({
+            type: "GET",
+
+            //url: "/SolarReport/GetSolarPRReportINVWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
+            url: '@Url.Action("GetSolarPRReportSPVWise", "SolarReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                //var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                var tbl = '<table id="example1"  class="table table-bordered table-striped" style="width:150%">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th rowspan="2">SPV</th><th rowspan="2">Capacity <br> (MW)</th>';
+                tbl += '<th colspan="5" class="text-center"> Energy (in MU)</th >';
+                tbl += '<th>Revenue</th><th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th>';
+                tbl += '<th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th>';
+                tbl += '<th colspan="3" class="text-center">GHI Vs POA Gain (%)</th>';
+                tbl += '<th colspan="3" class="text-center">PLF (%)</th>';
+                tbl += '<th colspan="3" class="text-center">PR (%)</th>';
+                tbl += '<th colspan="3" class="text-center">MA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">IGA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr > ';
+                tbl += '<tr>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Exp</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>T.Var (%)</th>';
+                tbl += '<th>E.Var (%)</th>';
+                tbl += '<th>(MINR)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar </th>';
+                tbl += '<th>Act </th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar (%)</th>';
+                tbl += '<th>Act (%)</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+
+                    for (var i = 0; i < result.length; i++) {
+                        let t_var = 0;
+                        let e_var = 0;
+                        let minr = 0;
+                        let ghi_var = 0;
+                        let poa_var = 0;
+                        let gain_tar = 0;
+                        let gain_act = 0;
+                        let gain_var = 0;
+                        let plf_var = 0;
+                        let pr_var = 0;
+                        let ma_var = 0;
+                        let iga_var = 0;
+                        let ega_var = 0;
+                        minr = ((result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif);
+                        if (result[i].tar_kwh != 0) {
+                            t_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
+                        }
+                        if (result[i].tar_kwh != 0) {
+                            e_var = ((result[i].expected_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
+                        }
+                        if (result[i].tar_ghi != 0) {
+                            ghi_var = ((result[i].act_ghi - result[i].tar_ghi) / result[i].tar_ghi) * 100;
+                        }
+                        if (result[i].tar_poa != 0) {
+                            poa_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
+                        }
+                        if (result[i].tar_plf != 0) {
+                            plf_var = (result[i].act_plf - result[i].tar_plf);
+                        }
+                        if (result[i].tar_pr != 0) {
+                            pr_var = (result[i].act_pr - result[i].tar_pr) ;
+                        }
+                        if (result[i].tar_ma != 0) {
+                            ma_var = (result[i].act_ma - result[i].tar_ma) ;
+                        }
+                        if (result[i].tar_iga != 0) {
+                            iga_var = (result[i].act_iga - result[i].tar_iga) ;
+                        }
+                        if (result[i].tar_ega != 0) {
+                            ega_var = (result[i].act_ega - result[i].tar_ega) ;
+                        }
+                        let act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
+                        gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
+                        gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
+                        gain_var = (gain_act - gain_tar) ;
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-right" >' + result[i].capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_kwh.toFixed(2)+ '</td>';
+                       // tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">' + result[i].act_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + t_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">-</td>';
+                        //tbl += '<td class="text-right">' + e_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + minr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ghi_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + poa_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_tar.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_act.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + act_prval.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + pr_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ma_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + iga_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ega_var.toFixed(2) + '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+
+                }
+                tbl += '</table>';
+                $("#pr_reports").html(tbl);
+                $.fn.DataTable.ext.pager.numbers_length = 6;
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    responsive: false,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Performance Reports SPV Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Performance Reports SPV Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+                //$('#example1').removeClass('dataTable');
+
+                //document.getElementById("reportsDaily").style.display = 'block';
+                ///document.getElementById("reportsMonthly").style.display = 'block';
+                // document.getElementById("reportsYearly").style.display = 'block';
+            }
+        });
+
+    }
+    // -----------------------------------------------
+
+    // Daily Gen Report Site WIse
+    function GetSolarPRReportSiteWise() {
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var fyear = $('select#fy option:selected').val();
+        var reporthead = "Site Wise Report";
+        $.ajax({
+            type: "GET",
+           // url: "/WindReport/GetWindPRReportSiteWise?fy=" + fyear + " &fromDate=" + fromDate + "&toDate=" + toDate,
+            url: '@Url.Action("GetSolarPRReportSiteWise", "SolarReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+               // var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                var tbl = '<table id="example1"  class="table table-bordered table-striped" style="width:150%">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th rowspan="2" style="width: 5%;">Site</th><th rowspan="2">Capacity <br>(MW)</th>';
+                tbl += '<th colspan="5" class="text-center"> Energy (in MU)</th >';
+                tbl += '<th>Revenue</th><th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th>';
+                tbl += '<th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th>';
+                tbl += '<th colspan="3" class="text-center">GHI Vs POA Gain (%)</th>';
+                tbl += '<th colspan="3" class="text-center">PLF (%)</th>';
+                tbl += '<th colspan="3" class="text-center">PR (%)</th>';
+                tbl += '<th colspan="3" class="text-center">MA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">IGA (%)</th>';
+                tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr > ';
+
+                tbl += '<tr>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Exp</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>T.Var (%)</th>';
+                tbl += '<th>E.Var (%)</th>';
+                tbl += '<th>(MINR)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar </th>';
+                tbl += '<th>Act </th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '<th>Tar</th>';
+                tbl += '<th>Act</th>';
+                tbl += '<th>Var (%)</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+
+                        let t_var    = 0;
+                        let e_var    = 0;
+                        let minr     = 0;
+                        let ghi_var  = 0;
+                        let poa_var  = 0;
+                        let gain_tar = 0;
+                        let gain_act = 0;
+                        let gain_var = 0;
+                        let plf_var  = 0;
+                        let pr_var = 0;
+                        let ma_var = 0;
+                        let iga_var = 0;
+                        let ega_var = 0;
+                        minr = ((result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif);
+                        if (result[i].tar_kwh != 0) {
+                            t_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
+                        }
+                        if (result[i].tar_kwh != 0) {
+                            e_var = ((result[i].expected_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
+                        }
+                        if (result[i].tar_ghi != 0) {
+                            ghi_var = ((result[i].act_ghi - result[i].tar_ghi) / result[i].tar_ghi) * 100;
+                        }
+                        if (result[i].tar_poa != 0) {
+                            poa_var = ((result[i].act_poa - result[i].tar_poa) / result[i].tar_poa) * 100;
+                        }
+                        if (result[i].tar_plf != 0) {
+                           // plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
+                            plf_var = (result[i].act_plf - result[i].tar_plf);
+                        }
+                        if (result[i].tar_pr != 0) {
+                            pr_var = (result[i].act_pr - result[i].tar_pr);
+                        }
+                        if (result[i].tar_ma != 0) {
+                            ma_var = (result[i].act_ma - result[i].tar_ma);
+                        }
+                        if (result[i].tar_iga != 0) {
+                            iga_var = (result[i].act_iga - result[i].tar_iga);
+                        }
+                        if (result[i].tar_ega != 0) {
+                            ega_var = (result[i].act_ega - result[i].tar_ega);
+                        }
+                        let act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
+                        gain_tar = (result[i].tar_poa / result[i].tar_ghi) * 100;
+                        gain_act = (result[i].act_poa / result[i].act_ghi) * 100;
+                        gain_var = (gain_act - gain_tar);
+                        tbl += '<tr>';
+                        tbl += '<td>' + result[i].site + '</td>';
+                        tbl += '<td class="text-right" >' + result[i].capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_kwh.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">' + result[i].act_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + t_var.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + e_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">-</td>';
+                        tbl += '<td class="text-right">' + minr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ghi_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + poa_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + gain_tar.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + gain_act.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + gain_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + plf_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + act_prval.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + pr_var.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].tar_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ma.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ma_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + iga_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].tar_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].act_ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + ega_var.toFixed(2) + '</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+
+                }
+                tbl += '</table>';
+                $("#pr_reports").html(tbl);
+                $.fn.DataTable.ext.pager.numbers_length = 6;
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    lengthChange: false,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    responsive: false,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Performance Reports Site Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Performance Reports SIte Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+               // $('#example1').removeClass('dataTable');
+
+            }
+        });
+    }
+
+
+
+</script>

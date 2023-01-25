@@ -1,0 +1,2284 @@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@model DGRA_V1.Models.CountryList
+@{
+    ViewData["Title"] = "Solar Generation Reports";
+}
+@{
+    ViewData["Title"] = "Wind Daily Load Shedding";
+}
+@{
+    string solarSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 2)
+    {
+        solarSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+
+
+}
+<link rel="stylesheet" href="/path/to/cdn/bootstrap.min.css" />
+<script src="/path/to/cdn/jquery.min.js"></script>
+<script src="/path/to/cdn/bootstrap.min.js"></script>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+    </section>
+
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">Solar Generation Reports</h3>
+
+
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-12 col-sm-12">
+                        <div class="card card-primary card-outline card-tabs">
+                            <div class="p-0 pt-1 border-bottom-0">
+                                <!--<div class="card-header p-0 pt-1 border-bottom-0">-->
+                                <ul class="nav nav-tabs" id="custom-tabs-three-tab" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link active" id="custom-tabs-three-daily-tab" data-toggle="pill" href="#custom-tabs-three-daily" role="tab" aria-controls="custom-tabs-three-daily" aria-selected="true">Daily Gen Report</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="custom-tabs-three-monthly-tab" data-toggle="pill" href="#custom-tabs-three-monthly" role="tab" aria-controls="custom-tabs-three-monthly" aria-selected="false">Monthly Gen Report</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="nav-link" id="custom-tabs-three-yearly-tab" data-toggle="pill" href="#custom-tabs-three-yearly" role="tab" aria-controls="custom-tabs-three-yearly" aria-selected="false">Yearly Gen Report</a>
+                                    </li>
+
+
+
+                                </ul>
+
+                            </div>
+
+                            <div class="card-body">
+                                <div class="tab-content" id="custom-tabs-three-tabContent">
+                                    <div class="tab-pane fade show active" id="custom-tabs-three-daily" role="tabpanel" aria-labelledby="custom-tabs-three-daily-tab">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="input-group " style="margin-left: -13%; width: 115%;">
+                                                    <label class="col-sm-3 col-form-label text-left" style="padding-left: 10%; ">Date : </label>
+                                                    <div class="input-group-prepend">
+                                                        <span class="input-group-text">
+                                                            <i class="far fa-calendar-alt"></i>
+                                                        </span>
+                                                    </div>
+                                                    <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">Country : </label>
+                                                        <select class="form-control  col-sm-8" id="country" name="country" value="">
+
+                                                            <option value="india" selected>India</option>
+
+
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">State : </label>
+                                                        <select class="form-control  col-sm-8" id="state" name="state[]" value="" onchange="GetSPV();" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-2 col-form-label text-lefft">SPV : </label>
+                                                        <select class="form-control  col-sm-10" id="spv" name="spv[]" value="" onchange="GetSite()" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">Site : </label>
+                                                        <select class="form-control  col-sm-8" id="site" name="site[]" value="" onchange="GetInverter(true)" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">Inverter : </label>
+                                                        <select class="form-control  col-sm-8" id="inv" name="inv[]" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-5 text-left">
+                                                <div class="table-responsive pad">
+                                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                                        <label class="btn bg-olive">
+                                                            <input type="radio" name="daily" value="WTG" id="daily_b1" autocomplete="off" checked> Inverter Wise Report
+                                                        </label>
+                                                        <label class="btn bg-olive">
+                                                            <input type="radio" name="daily" value="Site" id="daily_b2" autocomplete="off"> Site Wise Report
+                                                        </label>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                            <div class="col-sm-2 text-center">
+                                                <button type="button" class="btn btn-block btn-primary" onclick="GetDailyGenReport();" style=" width: 5rem;">Search</button>
+                                            </div>
+                                            <div class="col-sm-5 text-center"></div>
+                                        </div>
+
+                                        <hr>
+                                        <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
+
+                                    </div>
+                                    <div class="tab-pane fade" id="custom-tabs-three-monthly" role="tabpanel" aria-labelledby="custom-tabs-three-monthly-tab">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-left">FY : </label>
+                                                        <select class="form-control  col-sm-9" id="fyM" name="fyM" value="">
+                                                            <option value="">Select Financial Year</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">Month : </label>
+                                                        <select class="form-control  col-sm-9" id="monthM" name="monthM[]" value="" multiple>
+                                                            <option value="04">April</option>
+                                                            <option value="05">May</option>
+                                                            <option value="06">June</option>
+                                                            <option value="07">July</option>
+                                                            <option value="08">August</option>
+                                                            <option value="09">September</option>
+                                                            <option value="10">October</option>
+                                                            <option value="11">November</option>
+                                                            <option value="12">December</option>
+                                                            <option value="01">January</option>
+                                                            <option value="02">February</option>
+                                                            <option value="03">March</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">Country : </label>
+                                                        <select class="form-control  col-sm-9" id="countryM" name="countryM" value="">
+                                                            <option value="india" selected>India</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-left">State : </label>
+                                                        <select class="form-control  col-sm-9" id="stateM" name="stateM[]" value="" onchange="GetSPVM();" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">SPV : </label>
+                                                        <select class="form-control  col-sm-9" id="spvM" name="spvM[]" value="" onchange="GetSiteM()" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">Site : </label>
+                                                        <select class="form-control  col-sm-9" id="siteM" name="siteM[]" value="" onchange="GetInverterM(true)" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-left">Inverter : </label>
+                                                        <select class="form-control  col-sm-9" id="invM" name="invM[]" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-1"></div>
+                                            <div class="col-sm-2">
+                                                <button type="button" class="btn btn-block btn-primary" onclick="GetMonthlyGenReport();" style=" width: 5rem;">Search</button>
+                                            </div>
+                                            <div class="col-sm-5"></div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-5">
+                                                <div class="table-responsive pad">
+                                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                                        <label class="btn bg-olive">
+                                                            <input type="radio" name="monthly" value="WTG" id="monthly_b1" autocomplete="off" checked> Inverter Wise Report
+                                                        </label>
+                                                        <label class="btn bg-olive">
+                                                            <input type="radio" name="monthly" value="Site" id="monthly_b2" autocomplete="off"> Site Wise Report
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-7"></div>
+                                        </div>
+
+                                        <hr>
+                                        <div id="reportsMonthly" style="overflow-x: auto;" class="reportsMonthly"></div>
+                                    </div>
+                                    <div class="tab-pane fade" id="custom-tabs-three-yearly" role="tabpanel" aria-labelledby="custom-tabs-three-yearly-tab">
+                                        <div class="row">
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-2 col-form-label text-left">FY : </label>
+                                                        <select class="form-control  col-sm-9" id="fyY" name="fyY" value="">
+                                                            <option value="">Select Financial Year</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">Country : </label>
+                                                        <select class="form-control  col-sm-9" id="countryY" name="countryY" value="">
+                                                            <option value="india" selected>India</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">State : </label>
+                                                        <select class="form-control  col-sm-9" id="stateY" name="stateY[]" value="" onchange="GetSPVY();" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-sm-4">
+
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-2 col-form-label text-left">SPV : </label>
+                                                        <select class="form-control  col-sm-9" id="spvY" name="spvY[]" value="" onchange="GetSiteY()" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">Site : </label>
+                                                        <select class="form-control  col-sm-9" id="siteY" name="siteY[]" value="" onchange="GetInverterY(true)" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <div class="form-group">
+                                                    <div class="row">
+                                                        <label class="col-sm-3 col-form-label text-right">Inverter : </label>
+                                                        <select class="form-control  col-sm-9" id="invY" name="invY[]" multiple></select>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="row">
+                                            <div class="col-sm-5 text-left">
+                                                <div class="table-responsive pad">
+                                                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                                                        <label class="btn bg-olive">
+                                                            <input type="radio" name="yearly" value="WTG" id="yearly_b1" autocomplete="off" checked> Inverter Wise Report
+                                                        </label>
+                                                        <label class="btn bg-olive">
+                                                            <input type="radio" name="yearly" value="Site" id="yearly_b2" autocomplete="off"> Site Wise Report
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-sm-2 text-center">
+                                                <button type="button" class="btn btn-block btn-primary" onclick="GetYearlyGenReport();" style="width: 5rem;">Search</button>
+                                            </div>
+                                            <div class="col-sm-5 text-center"></div>
+                                        </div>
+
+                                        <hr>
+                                        <div id="reportsYearly" style="overflow-x: auto;" class="reportsYearly"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+                            <!-- /.card -->
+                        </div>
+                    </div>
+
+                    <!-- <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
+                                        <div id="reportsMonthly" style="overflow-x: auto;" class="reportsMonthly"></div>
+                                        <div id="reportsYearly" style="overflow-x: auto; " class="reportsYearly"></div>
+                    -->
+
+                </div>
+
+                <!--<div class="card-footer">
+                    Footer
+                </div>-->
+
+            </div>
+
+
+    </section>
+
+</div>
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+<!--Date Range -->
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+    window.onload = function () {
+        $('select#monthM').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Month(s)",
+                    filter: true
+        });
+        $('select#country').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
+        $('select#countryY').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
+        $('select#countryM').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        var selcountry = $('select#country option:selected').val();
+        $.ajax({
+            type: "GET",
+           // url: "/WindReport/GetStateList?countryname=" + selcountry,
+            url: '@Url.Action("GetStateList", "SolarReport")' + '?countryname=' + selcountry + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].state + '">' + result[i].state + '</option>';
+                }
+
+
+                $("#state").html(options);
+                $("#stateM").html(options);
+                $("#stateY").html(options);
+                $('select#state').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select State(s)",
+                    filter:true
+                });
+                $('select#stateM').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select State(s)",
+                    filter:true
+                });
+                $('select#stateY').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select State(s)",
+                    filter:true
+                });
+            }
+        });
+        getYear();
+        GetSPV();
+        GetSPVM();
+        GetSPVY();
+    }
+    function getYear() {
+    $.ajax({
+        type: "GET",
+        url: "/WindReport/GetFinacialYear",
+        url: '@Url.Action("GetFinacialYear", "WindReport")',
+        contentType: "application/json; charset=utf-8",
+        //data: '{"countryname":"' + selcountry + '"}',
+        datatype: "html",
+        success: function (result, status, xhr) {
+            var options = "";
+            options += '<option value="">Select Financial Year</option>';
+            for (var i = 0; i < result.length; i++) {
+                options += '<option value="' + result[i].financial_year + '">' + result[i].financial_year + '</option>';
+            }
+            $("#fyM").html(options);
+            $("#fyY").html(options);
+            $('select#fyM').multipleSelect({
+                "placeholder": "Select month",
+                filter: true
+            });
+            $('select#fyY').multipleSelect({
+                "placeholder": "Select year",
+                filter: true
+            });
+
+        }
+    });
+    }
+    function GetSPVY() {
+         let state_id = "";
+        if($('#stateY').val())
+        {
+            //alert("StateM");
+
+            $('select#stateY option:selected').each(function () {
+                state_id += "'" + $(this).val() + "',";
+
+            });
+            state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
+        }
+         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "GET",
+            ///url: "/WindReport/GetSPVList?state=" + val,
+
+            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state_id + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+               var options = "";
+                for (var j = 0; j < result.length; j++) {
+                    options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
+                }
+                $("#spvY").multipleSelect('destroy');
+                $("#spvY").html(options);
+                $('select#spvY').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select SPV(s)",
+                    filter:true
+                });
+            }
+        });
+        GetSiteY();
+    }
+    function GetSPVM() {
+        let state_id = "";
+        if($('#stateM').val())
+        {
+            $('select#stateM option:selected').each(function () {
+                state_id += "'" + $(this).val() + "',";
+
+                 console.log($(this).val());
+
+            });
+            state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
+
+        }
+         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "GET",
+            ///url: "/WindReport/GetSPVList?state=" + val,
+
+            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state_id + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+
+                var options = "";
+                for (var j = 0; j < result.length; j++) {
+                    options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
+                }
+                $("#spvM").multipleSelect('destroy');
+                $("#spvM").html(options);
+                $('select#spvM').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select SPV(s)",
+                    filter:true
+                });
+            }
+        });
+        GetSiteM();
+    }
+    function GetSPV() {
+        let state_id = "";
+        if($('#state').val())
+        {
+
+            $('select#state option:selected').each(function () {
+                state_id += "'"+$(this).val() + "',";
+             });
+            state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
+
+        }
+         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "GET",
+            ///url: "/WindReport/GetSPVList?state=" + val,
+            url: '@Url.Action("GetSPVList", "SolarReport")' + '?state=' + state_id + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+
+                var options = "";
+                for (var j = 0; j < result.length; j++) {
+                    options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
+                }
+                $("#spv").multipleSelect('destroy');
+
+                $("#spv").html(options);
+                $('select#spv').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select SPV(s)",
+                    filter:true
+                });
+
+
+            }
+        });
+        GetSite();
+    }
+    function GetSite() {
+        //var state = $('select#state option:selected').val();
+        //var spv = $('select#spv option:selected').val();
+        let state_id = "";
+
+        $('select#state option:selected').each(function () {
+            state_id += $(this).val() + ",";
+
+        });
+        state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
+
+
+        let spv = "";
+
+        $('select#spv option:selected').each(function () {
+            spv += $(this).val() + ",";
+
+        });
+        spv = spv != "" ? spv.slice(0, -1) : spv;
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "POST",
+            //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state_id + '&spv=' + spv + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+
+                for (var k = 0; k < result.length; k++) {
+
+                    options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
+
+                }
+                $("#site").multipleSelect('destroy');
+                $("#site").html("").html(options);
+                $('select#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                    filter:true
+                });
+            }
+        });
+         GetInverter(false);
+    }
+    function GetSiteM() {
+        let state_id = "";
+
+        $('select#stateM option:selected').each(function () {
+            state_id += $(this).val() + ",";
+
+        });
+        state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
+
+
+        let spv = "";
+
+        $('select#spvM option:selected').each(function () {
+            spv += $(this).val() + ",";
+
+        });
+        spv = spv != "" ? spv.slice(0, -1) : spv;
+        var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+
+        $.ajax({
+            type: "POST",
+            //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state_id + '&spv=' + spv + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+
+                for (var k = 0; k < result.length; k++) {
+
+                    options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
+
+                }
+                $("#siteM").multipleSelect('destroy');
+                $("#siteM").html("").html(options);
+                $('select#siteM').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                    filter:true
+                });
+            }
+        });
+         GetInverterM(false);
+    }
+     function GetSiteY() {
+       let state_id = "";
+
+        $('select#stateY option:selected').each(function () {
+            state_id += $(this).val() + ",";
+
+        });
+        state_id = state_id != "" ? state_id.slice(0, -1) : state_id;
+
+
+        let spv = "";
+
+        $('select#spvY option:selected').each(function () {
+            spv += $(this).val() + ",";
+
+        });
+        spv = spv != "" ? spv.slice(0, -1) : spv;
+         var site_ids = "@Html.Raw(solarSiteList.TrimEnd(','))";
+
+        $.ajax({
+            type: "POST",
+            //url: "/WindReport/GetSiteList?state=" + state + "&spv=" + spv,
+
+            url: '@Url.Action("GetSiteList", "SolarReport")' + '?state=' + state_id + '&spv=' + spv + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+
+                for (var k = 0; k < result.length; k++) {
+
+                    options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
+
+                }
+                $("#siteY").multipleSelect('destroy');
+                $("#siteY").html("").html(options);
+                $('select#siteY').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                    filter:true
+                });
+            }
+        });
+         GetInverterY(false);
+    }
+    function GetInverter(fliterVal) {
+        let state = "";
+        $('select#state option:selected').each(function () {
+            state += $(this).val() + ",";
+
+        });
+
+        let spv = "";
+        $('select#spv option:selected').each(function () {
+            spv += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+
+        let site = "";
+        if (fliterVal == false) {
+            site = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        }
+        else {
+            $('select#site option:selected').each(function () {
+                site += $(this).val() + ",";
+                //console.log($(this).val());
+
+            });
+        }
+
+
+        $.ajax({
+            type: "GET",
+
+            url: '@Url.Action("GetInvList", "SolarReport")' + '?siteid=' + site + '&state=' + state + '&spv=' + spv,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+               // console.log(result);
+                var options = "";
+                for (var k = result.length-1; k >=0 ; k--) {
+                    options += '<option value="' + result[k].icr_inv + '">' + result[k].icr_inv + '</option>';
+                }
+                $("#inv").multipleSelect('destroy');
+                $("#inv").html(options);
+                $('select#inv').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Inverter(s)",
+                    filter:true
+                });
+            }
+        });
+    }
+
+    function GetInverterM(fliterVal) {
+        let state = "";
+        $('select#stateM option:selected').each(function () {
+            state += $(this).val() + ",";
+
+        });
+
+        let spv = "";
+        $('select#spvM option:selected').each(function () {
+            spv += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+
+        let site = "";
+        if (fliterVal == false) {
+            site = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        }
+        else {
+            $('select#siteM option:selected').each(function () {
+                site += $(this).val() + ",";
+                //console.log($(this).val());
+
+            });
+        }
+
+        $.ajax({
+            type: "GET",
+
+            url: '@Url.Action("GetInvList", "SolarReport")' + '?siteid=' + site + '&state=' + state + '&spv=' + spv,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+               // console.log(result);
+                var options = "";
+                for (var k = result.length-1; k >=0 ; k--) {
+                    options += '<option value="' + result[k].icr_inv + '">' + result[k].icr_inv + '</option>';
+                }
+                $("#invM").multipleSelect('destroy');
+                $("#invM").html(options);
+                $('select#invM').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Inverter(s)",
+                    filter:true
+                });
+            }
+        });
+    }
+    function GetInverterY(fliterVal) {
+       let state = "";
+        $('select#stateY option:selected').each(function () {
+            state += $(this).val() + ",";
+
+        });
+        console.log(state);
+        let spv = "";
+        $('select#spvY option:selected').each(function () {
+            spv += $(this).val() + ",";
+           // console.log($(this).val());
+
+        });
+
+        let site = "";
+        if (fliterVal == false) {
+            site = "@Html.Raw(solarSiteList.TrimEnd(','))";
+        }
+        else {
+            $('select#siteY option:selected').each(function () {
+                site += $(this).val() + ",";
+                //console.log($(this).val());
+
+            });
+        }
+
+        $.ajax({
+            type: "GET",
+
+            url: '@Url.Action("GetInvList", "SolarReport")' + '?siteid=' + site + '&state=' + state + '&spv=' + spv,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+               // console.log(result);
+                var options = "";
+                for (var k = result.length-1; k >=0 ; k--) {
+                    options += '<option value="' + result[k].icr_inv + '">' + result[k].icr_inv + '</option>';
+                }
+                $("#invY").multipleSelect('destroy');
+                $("#invY").html(options);
+                $('select#invY').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Inverter(s)",
+                    filter:true
+                });
+            }
+        });
+    }
+    function GetDailyGenReport() {
+
+        var ReportType = $("input[name='daily']:checked").val();
+        if (ReportType == "WTG") {
+            GetDailyGenReportInverterWise();
+        }
+        else {
+            GetDailyGenReportSiteWise();
+        }
+    }
+    // Daily Gen Report WTG WIse
+    function GetDailyGenReportInverterWise() {
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var country = $('select#country option:selected').val();
+        //var state = $('select#state option:selected').val();
+
+        let site= "";
+        let spv = "";
+        let inv = "";
+        let state = "";
+
+        $('select#site option:selected').each(function () {
+            site += $(this).val() + ",";
+            //console.log($(this).val());
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+
+        if(!site){
+            $('select#state option:selected').each(function () {
+                state +=  $(this).val() + ",";
+             //   console.log($(this).val());
+            });
+            state = state != "" ? state.slice(0, -1) : state;
+           // console.log(state);
+            //var spv = $('select#spv option:selected').val();
+
+            $('select#spv option:selected').each(function () {
+                spv += $(this).val() + ",";
+              //  console.log($(this).val());
+            });
+            spv = spv != "" ? spv.slice(0, -1) : spv;
+
+        }
+
+
+        $('select#inv option:selected').each(function () {
+            inv += $(this).val() + ",";
+            //console.log($(this).val());
+
+        });
+
+        var reportType = "INV";
+        var reporthead = "Inverter Wise Report";
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarDailyGenerationReportWTGWise", "SolarReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&inv=' + inv,
+            //url: "/WindReport/GetWindDailyGenerationReportWTGWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+               // var tbl = '<div class="text-center"><h5></h5></div>';
+                var tbl = '<table id="example1"  class="table table-bordered table-striped" style="width:285%">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th style="width: 5%;">Date</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Inverter</th>';
+                tbl += '<th>DC Capacity (kWp)</th>';
+                tbl += '<th>AC Capacity (kW)</th>';
+                tbl += '<th>GHI</th>';
+                tbl += '<th>POA</th>';
+                tbl += '<th>Expected_kwh</th>';
+                tbl += '<th>INV kWh</th>';
+                tbl += '<th>Plant kWh</th>';
+                tbl += '<th>INV PR</th>';
+                tbl += '<th>Plant PR</th>';
+                tbl += '<th>INV PLF (%)</th>';
+                tbl += '<th>Plant PLF (%)</th>';
+                tbl += '<th>MA ACT (%)</th>';
+                tbl += '<th>MA CON (%)</th>';
+                tbl += '<th>IGA (%)</th>';
+                tbl += '<th>EGA (%)</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load Shedding</th>';
+                tbl += '<th>Total BD</th>';
+
+                tbl += '<th>USMH Loss</th>';
+                tbl += '<th>SMH Loss</th>';
+                tbl += '<th>OH Loss</th>';
+                tbl += '<th>IGBD Loss</th>';
+                tbl += '<th>EGBD Loss</th>';
+                tbl += '<th>Load_She Loss</th>';
+                tbl += '<th>LULL Loss</th>';
+                tbl += '<th>Total Loss</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].inverter + '</td>';
+                        tbl += '<td class="text-left">' + result[i].dc_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + result[i].ac_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].prod_hrs.toFixed(2) + '</td>';
+
+
+                        tbl += '<td class="text-right">' + result[i].usmh_bs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_bd_hrs.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].usmh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_losses.toFixed(2) + '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+
+                }
+                tbl += '</table>';
+                $("#reportsDaily").html(tbl);
+
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Daily Generation Reports Inverter Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Daily Generation Reports Inverter Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+                //$('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+            }
+        });
+
+    }
+   // -----------------------------------------------
+
+    // Daily Gen Report Site WIse
+    function GetDailyGenReportSiteWise() {
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var country = $('select#country option:selected').val();
+        //var state = $('select#state option:selected').val();
+        let site = "";
+        let spv = "";
+        let inv = "";
+        let state = "";
+
+        $('select#site option:selected').each(function () {
+            site += $(this).val() + ",";
+            //console.log($(this).val());
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+
+        if (!site) {
+            $('select#state option:selected').each(function () {
+                state += $(this).val() + ",";
+
+            });
+            state = state != "" ? state.slice(0, -1) : state;
+
+            $('select#spv option:selected').each(function () {
+                spv += $(this).val() + ",";
+                //  console.log($(this).val());
+            });
+            spv = spv != "" ? spv.slice(0, -1) : spv;
+
+        }
+
+
+        $('select#inv option:selected').each(function () {
+            inv += $(this).val() + ",";
+
+        });
+        var reportType = "Site";
+        var reporthead = "Site Wise Report";
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarDailyGenerationReportSiteWise", "SolarReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&inv=' + inv + '&reportType=' + reportType,
+            //url: "/WindReport/GetWindDailyGenerationReportSiteWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+
+               // var tbl = '<div class="text-center"><h5></h5></div>';
+               var  tbl = '<table id="example1"  class="table table-bordered table-striped" style="width:285%">';
+                tbl += '<thead class="tbl-head"><tr>';
+               // tbl += '<th >Year</th>';
+               // tbl += '<th >Month</th>';
+                tbl += '<th style="width: 5%;" >Date</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+
+                tbl += '<th>DC Capacity (MW)</th>';
+                tbl += '<th>AC Capacity (MW)</th>';
+                tbl += '<th>GHI</th>';
+                tbl += '<th>POA</th>';
+                tbl += '<th>Expected_kwh</th>';
+                tbl += '<th>INV kWh</th>';
+                tbl += '<th>Plant kWh</th>';
+                tbl += '<th>INV PR</th>';
+                tbl += '<th>Plant PR</th>';
+                tbl += '<th>INV PLF (%)</th>';
+                tbl += '<th>Plant PLF (%)</th>';
+                tbl += '<th>MA ACT (%)</th>';
+                tbl += '<th>IGA (%)</th>';
+                tbl += '<th>EGA (%)</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load_Shedding</th>';
+                tbl += '<th>Total BD</th>';
+
+                tbl += '<th>USMH Loss</th>';
+                tbl += '<th>SMH Loss</th>';
+                tbl += '<th>OH Loss</th>';
+                tbl += '<th>IGBD Loss</th>';
+                tbl += '<th>EGBD Loss</th>';
+                tbl += '<th>Load_She Loss</th>';
+                tbl += '<th>LULL Loss</th>';
+                tbl += '<th>Total Loss</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+
+                    for (var i = 0; i < result.length; i++) {
+                        var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        //tbl += '<td class="text-left">' + result[i].year + '</td>';
+                       // tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].dc_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ac_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].prod_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].usmh_bs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_bd_hrs.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].usmh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_losses.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+
+                }
+                tbl += '</table>';
+                $("#reportsDaily").html(tbl);
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Daily Generation Reports Inverter Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Daily Generation Reports Inverter Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+                //$('#example1').removeClass('dataTable');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+            }
+        });
+    }
+
+
+   // -----------------------------------Monthly ---------------------//
+    function GetMonthlyGenReport() {
+
+       var ReportType = $("input[name='monthly']:checked").val();
+        if (ReportType == "WTG") {
+           //alert("WTG");
+            GetMonthlyGenReportInverterWise();
+        }
+        else {
+            //alert("SIte");
+            GetMonthlyGenReportSiteWise();
+        }
+    }
+
+    // Mothly Report WTG Wise
+    function GetMonthlyGenReportInverterWise() {
+
+        let site= "";
+        let spv = "";
+        let inv = "";
+        let state = "";
+
+        $('select#siteM option:selected').each(function () {
+            site += $(this).val() + ",";
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+
+        if(!site){
+            $('select#stateM option:selected').each(function () {
+                state +=  $(this).val() + ",";
+
+            });
+            state = state != "" ? state.slice(0, -1) : state;
+
+            $('select#spvM option:selected').each(function () {
+                spv += $(this).val() + ",";
+
+            });
+            spv = spv != "" ? spv.slice(0, -1) : spv;
+
+        }
+
+        $('select#invM option:selected').each(function () {
+            inv +=  $(this).val() + ",";
+
+        });
+        inv = inv != "" ? inv.slice(0, -1) : inv;
+
+        var country = $('select#countryM option:selected').val();
+        var year = $('select#fyM option:selected').val();
+        //var month = $('select#monthM option:selected').val();
+
+
+
+        let month = "";
+        $('select#monthM option:selected').each(function () {
+            //monthArray.push($(this).val());
+            //console.log($(this).val());
+            month+= $(this).val()+",";
+        });
+        month = month != "" ? month.slice(0, -1) : month;
+
+        var arr1 = new Array();
+        arr1 = year.split("-");
+        var fromDate = "";
+        /*monthArray.forEach((mon)=>{
+            if(year && month){
+                if (month >= '04' || month >= 04) {
+                    fromDate += arr1[0] + '-' + mon + '-01,';
+                }
+                else
+                {
+                    fromDate += '20' + arr1[1] + '-' + mon + '-01,';
+                }
+            }
+        }) */
+
+        var reportType = "INV";
+        var reporthead = "Inverter Wise Report";
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarMonthlyGenerationReportInvWise", "SolarReport")' + '?fy=' + arr1[0] + '&month=' + month + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&inverter=' + inv + '&reportType=' + reportType,
+           //url: "/WindReport/GetWindMonthlyGenerationReportWTGWise?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+                //var tbl = '<div class="text-center"><h5></h5></div>';
+               var  tbl = '<table id="example2"  class="table table-bordered table-striped" style="width:285%">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th style="width:4%">FY</th>';
+                tbl += '<th>Month</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Inverter</th>';
+                tbl += '<th>DC Capacity (kWp)</th>';
+                tbl += '<th>AC Capacity (kW)</th>';
+                tbl += '<th>GHI</th>';
+                tbl += '<th>POA</th>';
+                tbl += '<th>Expected_kwh</th>';
+                tbl += '<th>INV kWh</th>';
+                tbl += '<th>Plant kWh</th>';
+                tbl += '<th>INV PR</th>';
+                tbl += '<th>Plant PR</th>';
+                tbl += '<th>INV PLF (%)</th>';
+                tbl += '<th>Plant PLF (%)</th>';
+                tbl += '<th>MA ACT (%)</th>';
+                tbl += '<th>MA CON (%)</th>';
+                tbl += '<th>IGA (%)</th>';
+                tbl += '<th>EGA (%)</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load Shedding</th>';
+                tbl += '<th>Total BD</th>';
+
+
+                tbl += '<th>USMH Loss</th>';
+                tbl += '<th>SMH Loss</th>';
+                tbl += '<th>OH Loss</th>';
+                tbl += '<th>IGBD Loss</th>';
+                tbl += '<th>EGBD Loss</th>';
+                tbl += '<th>Load_She Loss</th>';
+                tbl += '<th>LULL Loss</th>';
+                tbl += '<th>Total Loss</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + year + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].inverter + '</td>';
+                        tbl += '<td class="text-left">' + result[i].dc_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + result[i].ac_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].gen_hrs.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].lull_hrs_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].usmh_bs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_bd_hrs.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].usmh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_losses.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+
+
+                        //tbl += '<td class="text-right">' + result[i].usmh.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].smh.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].oh.toFixed() + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].igbdh.toFixed() + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].egbdh.toFixed() + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].load_shedding.toFixed() + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].total_losses.toFixed() + '</td>';
+
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                    // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                }
+               tbl += '</table>';
+                $("#reportsMonthly").html(tbl);
+                $('#example2').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Monthly Generation Reports Inverter Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Monthly Generation Reports Inverter Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+                //$('#example2').removeClass('dataTable');
+                $('#example2').wrap("<div class='scrolledTable'></div>");
+            }
+        });
+
+    }
+    //------------------------------------
+    // Mothly Report SIte Wise
+    function GetMonthlyGenReportSiteWise() {
+        let site= "";
+        let spv = "";
+        let inv = "";
+        let state = "";
+
+        $('select#siteM option:selected').each(function () {
+            site += $(this).val() + ",";
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+        console.log('Site: '+site);
+
+        if(!site){
+            $('select#stateM option:selected').each(function () {
+                state +=  $(this).val() + ",";
+             //   console.log($(this).val());
+            });
+            state = state != "" ? state.slice(0, -1) : state;
+
+            $('select#spvM option:selected').each(function () {
+                spv += $(this).val() + ",";
+              //  console.log($(this).val());
+            });
+            spv = spv != "" ? spv.slice(0, -1) : spv;
+
+        }
+
+
+        $('select#invM option:selected').each(function () {
+            inv += $(this).val() + ",";
+            //console.log($(this).val());
+        });
+        inv = inv != "" ? inv.slice(0, -1) : inv;
+
+
+
+
+
+        var country = $('select#countryM option:selected').val();
+        var fyyear = $('select#fyM option:selected').val();
+        let month = "";
+        $('select#monthM option:selected').each(function () {
+
+            month+= $(this).val()+",";
+        });
+        month = month != "" ? month.slice(0, -1) : month;
+
+        var arr1 = new Array();
+        arr1 = fyyear.split("-");
+        var fromDate = "";
+        var reportType = "Site";
+        var reporthead = "Site Wise Report";
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarMonthlyGenerationReportSiteWise", "SolarReport")' + '?fy=' + arr1[0] + '&month=' + month + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&inverter=' + inv + '&reportType=' + reportType,
+           // url: "/WindReport/GetWindMonthlyGenerationReportSiteWise?fromDate=" + fromDate + "&month=" + month + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+
+                //var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+
+               // var tbl = '<div class="text-center"><h5></h5></div>';
+              var   tbl = '<table id="example2"  class="table table-bordered table-striped" style="width:285%">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th style="width:4%">FY</th>';
+                tbl += '<th>Month</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>DC Capacity (MW)</th>';
+                tbl += '<th>AC Capacity (MW)</th>';
+                tbl += '<th>GHI</th>';
+                tbl += '<th>POA</th>';
+                tbl += '<th>Expected_kwh</th>';
+                tbl += '<th>INV kWh</th>';
+                tbl += '<th>Plant kWh</th>';
+                tbl += '<th>INV PR</th>';
+                tbl += '<th>Plant PR</th>';
+                tbl += '<th>INV PLF (%)</th>';
+                tbl += '<th>Plant PLF (%)</th>';
+                tbl += '<th>MA ACT (%)</th>';
+                tbl += '<th>MA CON (%)</th>';
+                tbl += '<th>IGA (%)</th>';
+                tbl += '<th>EGA (%)</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load Shedding</th>';
+                //tbl += '<th>Tracker Loss (kw)</th>';
+                tbl += '<th>Total BD</th>';
+
+
+                tbl += '<th>USMH Loss</th>';
+                tbl += '<th>SMH Loss</th>';
+                tbl += '<th>OH Loss</th>';
+                tbl += '<th>IGBD Loss</th>';
+                tbl += '<th>EGBD Loss</th>';
+                tbl += '<th>Load_She Loss</th>';
+                tbl += '<th>LULL Loss</th>';
+                tbl += '<th>Total Loss</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + fyyear + '</td>';
+                        tbl += '<td class="text-left">' + result[i].month + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].dc_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + result[i].ac_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].prod_hrs.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].lull_hrs_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].usmh_bs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_bd_hrs.toFixed(2) + '</td>';
+
+
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+
+
+                        tbl += '<td class="text-right">' + result[i].usmh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].tracker_losses+ '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_losses.toFixed(2) + '</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+
+                }
+                tbl += '</table>';
+                $("#reportsMonthly").html(tbl);
+                $('#example2').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Monthly Generation Reports Site Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Monthly Generation Reports Site Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+                //$('#example2').removeClass('dataTable');
+                $('#example2').wrap("<div class='scrolledTable'></div>");
+            }
+        });
+
+    }
+
+    // -----------------------------------Yearly ---------------------//
+    function GetYearlyGenReport() {
+
+        var ReportType = $("input[name='yearly']:checked").val();
+        if (ReportType == "WTG") {
+            //alert("WTG");
+            GetYearlyGenReportInverterWise();
+        }
+        else {
+            //alert("SIte");
+            GetYearlyGenReportSiteWise();
+        }
+    }
+
+    // Yearly WTG Wise
+
+    function GetYearlyGenReportInverterWise() {
+        var country = $('select#countryY option:selected').val();
+        let site = "";
+        let spv = "";
+        let inverter = "";
+        let state = "";
+
+        $('select#siteY option:selected').each(function () {
+            site += $(this).val() + ",";
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+
+        if (!site) {
+            $('select#stateY option:selected').each(function () {
+                state += $(this).val() + ",";
+                //   console.log($(this).val());
+            });
+            state = state != "" ? state.slice(0, -1) : state;
+            // console.log(state);
+            //var spv = $('select#spv option:selected').val();
+
+            $('select#spvY option:selected').each(function () {
+                spv += $(this).val() + ",";
+                //  console.log($(this).val());
+            });
+            spv = spv != "" ? spv.slice(0, -1) : spv;
+
+        }
+
+        $('select#invY option:selected').each(function () {
+            inverter += $(this).val() + ",";
+            //console.log($(this).val());
+        });
+        inverter = inverter != "" ? inverter.slice(0, -1) : inverter;
+
+        var fyyear = $('select#fyY option:selected').val();
+        //var month = $('select#monthM option:selected').val();
+        var arr1 = new Array();
+        arr1 = fyyear.split("-");
+
+        var fromDate = "";
+        var toDate = "";
+        if (fyyear) {
+            fromDate = arr1[0] + '-04-01';
+            toDate = '20' + arr1[1] + '-03-31';
+        }
+
+       // alert(fromDate);
+      //  alert(toDate);
+        var reportType = "INV";
+        var reporthead = "Inverter Wise Report";
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarYearlyGenerationReportWTGWise", "SolarReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&inverter=' + inverter + '&reportType=' + reportType,
+            //url: "/WindReport/GetWindYearlyGenerationReportWTGWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+
+              //  var tbl = '<div class="text-center"><h5></h5></div>';
+               var  tbl = '<table id="example3"  class="table table-bordered table-striped" style="width:285%">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th style="width:4%">FY</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>Inverter</th>';
+                tbl += '<th>DC Capacity (kWp)</th>';
+                tbl += '<th>AC Capacity (kW)</th>';
+                tbl += '<th>GHI</th>';
+                tbl += '<th>POA</th>';
+                tbl += '<th>Expected_kwh</th>';
+                tbl += '<th>INV kWh</th>';
+                tbl += '<th>Plant kWh</th>';
+                tbl += '<th>INV PR</th>';
+                tbl += '<th>Plant PR</th>';
+                tbl += '<th>INV PLF (%)</th>';
+                tbl += '<th>Plant PLF (%)</th>';
+                tbl += '<th>MA ACT (%)</th>';
+                tbl += '<th>MA CON (%)</th>';
+                tbl += '<th>IGA (%)</th>';
+                tbl += '<th>EGA (%)</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load Shedding</th>';
+                //tbl += '<th>Tracker Loss</th>';
+
+                tbl += '<th>Total BD</th>';
+
+
+                tbl += '<th>USMH Loss</th>';
+                tbl += '<th>SMH Loss</th>';
+                tbl += '<th>OH Loss</th>';
+                tbl += '<th>IGBD Loss</th>';
+                tbl += '<th>EGBD Loss</th>';
+                tbl += '<th>Load_She Loss</th>';
+                tbl += '<th>LULL Loss</th>';
+                tbl += '<th>Total Loss</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+
+                    for (var i = 0; i < result.length; i++) {
+                       // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + fyyear  + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].inverter + '</td>';
+                        tbl += '<td class="text-left">' + result[i].dc_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + result[i].ac_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].gen_hrs.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].lull_hrs_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].usmh_bs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_bd_hrs.toFixed(2) + '</td>';
+
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+
+
+
+                        tbl += '<td class="text-right">' + result[i].usmh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].tracker_losses+ '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_losses.toFixed(2) + '</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                    // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#reportsYearly").html(tbl);
+
+                $('#example3').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Yearly Generation Reports Inverter Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Yearly Generation Reports Inverter Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+               // $('#example3').removeClass('dataTable');
+                $('#example3').wrap("<div class='scrolledTable'></div>");
+            }
+        });
+
+    }
+
+    // Yearly SIte Wise
+    function GetYearlyGenReportSiteWise() {
+        var country = $('select#countryY option:selected').val();
+        let site = "";
+        let spv = "";
+        let inv = "";
+        let state = "";
+
+        $('select#siteY option:selected').each(function () {
+            site += $(this).val() + ",";
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+
+        if (!site) {
+            let state = "";
+            $('select#stateY option:selected').each(function () {
+                state += $(this).val() + ",";
+                //   console.log($(this).val());
+            });
+            state = state != "" ? state.slice(0, -1) : state;
+            // console.log(state);
+            //var spv = $('select#spv option:selected').val();
+
+            $('select#spvY option:selected').each(function () {
+                spv += $(this).val() + ",";
+                //  console.log($(this).val());
+            });
+            spv = spv != "" ? spv.slice(0, -1) : spv;
+
+        }
+
+        $('select#invY option:selected').each(function () {
+            inv += $(this).val() + ",";
+            //console.log($(this).val());
+        });
+        inv = inv != "" ? inv.slice(0, -1) : inv;
+
+        var fyyear = $('select#fyY option:selected').val();
+        //var month = $('select#monthM option:selected').val();
+        var arr1 = new Array();
+        arr1 = fyyear.split("-");
+        var fromDate = "";
+        fromDate = arr1[0] + '-04-01';
+        toDate = '20' + arr1[1] + '-03-31';
+
+        // alert(fromDate);
+        //  alert(toDate);
+        var reportType = "Site";
+        var reporthead = "Site Wise Report";
+        $.ajax({
+            type: "GET",
+            url: '@Url.Action("GetSolarYearlyGenerationReportSiteWise", "SolarReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&inverter=' + inv + '&reportType=' + reportType,
+            //url: "/WindReport/GetWindYearlyGenerationReportSiteWise?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg + "&reportType=" + reportType,
+            contentType: "application/json; charset=utf-8",
+
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+
+                var tbl = '<div class="text-center"><h5></h5></div>';
+                tbl += '<table id="example3"  class="table table-bordered table-striped" style="width:285%">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th style="width:4%">FY</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th>Site</th>';
+                tbl += '<th>DC Capacity (MW)</th>';
+                tbl += '<th>AC Capacity (MW)</th>';
+                tbl += '<th>GHI</th>';
+                tbl += '<th>POA</th>';
+                tbl += '<th>Expected_kwh</th>';
+                tbl += '<th>INV kWh</th>';
+                tbl += '<th>Plant kWh</th>';
+                tbl += '<th>INV PR</th>';
+                tbl += '<th>Plant PR</th>';
+                tbl += '<th>INV PLF (%)</th>';
+                tbl += '<th>Plant PLF (%)</th>';
+                tbl += '<th>MA ACT (%)</th>';
+                tbl += '<th>MA CON (%)</th>';
+                tbl += '<th>IGA (%)</th>';
+                tbl += '<th>EGA (%)</th>';
+                tbl += '<th>Gen_Hrs</th>';
+                tbl += '<th>Lull_Hrs</th>';
+                tbl += '<th>USMH</th>';
+                tbl += '<th>SMH</th>';
+                tbl += '<th>OH</th>';
+                tbl += '<th>IGBD</th>';
+                tbl += '<th>EGBD</th>';
+                tbl += '<th>Load Shedding</th>';
+                //tbl += '<th>Tracker Loss</th>';
+
+                tbl += '<th>Total BD</th>';
+
+
+                tbl += '<th>USMH Loss</th>';
+                tbl += '<th>SMH Loss</th>';
+                tbl += '<th>OH Loss</th>';
+                tbl += '<th>IGBD Loss</th>';
+                tbl += '<th>EGBD Loss</th>';
+                tbl += '<th>Load_She Loss</th>';
+                tbl += '<th>LULL Loss</th>';
+                tbl += '<th>Total Loss</th>';
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        // var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + fyyear + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].dc_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-left">' + result[i].ac_capacity.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ghi.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].poa.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].expected_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_kwh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_pr.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].inv_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].plant_plf.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_actual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ma_contractual.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].iga.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].ega.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].prod_hrs.toFixed(2) + '</td>';
+
+                        tbl += '<td class="text-right">' + result[i].lull_hrs_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].usmh_bs.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding_bd.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_bd_hrs.toFixed(2) + '</td>';
+
+
+
+                        tbl += '<td class="text-right">' + result[i].usmh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].smh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].oh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].igbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].egbdh.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].load_shedding.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].tracker_losses+ '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_losses.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].others['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].igbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].egbdh['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+                        //tbl += '<td class="text-right">' + moment.utc(result[i].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss') + '</td>';
+
+
+
+                        //tbl += '<td class="text-right">' + result[i].usmh.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].smh.toFixed(2) + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].oh.toFixed() + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].igbdh.toFixed() + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].egbdh.toFixed() + '</td>';
+                        //tbl += '<td class="text-right">' + result[i].load_shedding.toFixed() + '</td>';
+
+                        ////tbl += '<td class="text-right">' + result[i].tracker_losses + '</td>';
+
+                        //tbl += '<td class="text-right">' + result[i].total_losses.toFixed() + '</td>';
+
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                    // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#reportsYearly").html(tbl);
+
+                //$.noConflict();
+
+                ////$('#example1').DataTable().clear().destroy();
+                ///*$('#example3').DataTable({
+
+                //    "responsive": true, "lengthChange": false, "autoWidth": false,
+                //    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                //    "paging": true,
+                //    "lengthChange": false,
+                //    "searching": true,
+                //    "ordering": true,
+                //    "info": true,
+                //    "autoWidth": false,
+                //    "responsive": true,
+                //}).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');*/
+                //$('#example3').DataTable({
+                //    //"responsive": false, "lengthChange": true, "autoWidth": true,
+                //    "buttons": ["csv", "excel", "colvis"],
+                //    "paging": true,
+
+                //    "columnDefs": [
+                //        { "width": "8%", "targets": 0 },
+
+                //    ],
+                //    "fixedColumns": true
+
+                //}).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+                //$('#example3').removeClass('dataTable');
+                $('#example3').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Solar Monthly Generation Reports Site Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Solar Monthly Generation Reports Site Wise',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $("dataTables_filter").css("margin-top", "-35px");
+                //$('#example3').removeClass('dataTable');
+                $('#example3').wrap("<div class='scrolledTable'></div>");
+            }
+        });
+
+    }
+
+</script>

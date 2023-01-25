@@ -7,15 +7,13 @@ namespace DGRAPIs.Models
 {
     public class WindDailyLoadShedding
     {
-       // public int Daily_Load_Shedding_id { get; set; }
-         
-            public string Site { get; set; }
-        public string Date { get; set; }
-        public string Start_Time { get; set; }
-        public string End_Time { get; set; }
-        public string Total_Time { get; set; }
-        public string Permissible_Load_MW { get; set; }
-        public string Gen_loss_kWh { get; set; }
-  
+        public string date { get; set; }
+        public string site { get; set; }
+        public int site_id { get; set; }
+        public string startTime { get; set; }
+        public string endTime { get; set; }
+        public string totalTime { get; set; }
+        public dynamic permLoad { get; set; }
+        public dynamic genShedding { get; set; }
     }
 }

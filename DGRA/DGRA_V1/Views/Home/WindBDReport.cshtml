@@ -1,0 +1,488 @@
+﻿@using Newtonsoft.Json;
+@using Microsoft.AspNetCore.Http;
+@inject IHttpContextAccessor HttpContextAccessor
+@model DGRA_V1.Models.CountryList
+@{
+    ViewData["Title"] = "Wind Breakdown Details";
+}
+
+@{
+    string windUserSiteList = "";
+
+    var usermodel = JsonConvert.DeserializeObject<UserAccess>(@HttpContextAccessor.HttpContext.Session.GetString("UserAccess"));
+
+}
+@for (int i = 0; i < @usermodel.access_list.Count; i++)
+{
+
+    if (@usermodel.access_list[i].page_type == 3 && @usermodel.access_list[i].site_type == 1)
+    {
+        windUserSiteList += @usermodel.access_list[i].identity.ToString() + ",";
+    }
+}
+
+
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.css" />
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+@*<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">*@
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<!-- dropdown search -->
+<link href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+    </section>
+
+
+    <section class="content">
+
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title text-center">
+                    Wind Beakdown Reports
+                        <div class="card-tools" style="float:right">
+                        <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse" style="color:black">
+                            <i class="fas fa-minus"></i>
+                        </button>
+
+                    </div>
+                </h3>
+            </div>
+            <div class="card-body">
+
+                <div class="row">
+                    <div class="col-sm-4">
+                        <div class="input-group "  style="margin-left: -13%; width: 115%;">
+                            <label class="col-sm-3 col-form-label text-left" style="padding-left: 10%; ">Date : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label text-right">Country : </label>
+                                <select class="form-control  col-sm-8" id="country" name="country" value="">
+
+                                    <option value="india" selected>India</option>
+
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label text-right">State : </label>
+                                <select class="form-control  col-sm-8" id="state" name="state[]" onchange="GetSPV();" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="row">
+
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label text-left">SPV : </label>
+                                <select class="form-control  col-sm-10" id="spv" name="spv[]" onchange="getSite(true)" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-3 col-form-label text-right">Site : </label>
+                                <select class="form-control  col-sm-8" id="site" name="site[]" onchange="GetWTG()" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-4">
+                        <!-- select -->
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-2 col-form-label text-right">WTG : </label>
+                                <select class="form-control  col-sm-8" id="wtg" name="wtg[]" multiple>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-sm-5 text-center"></div>
+                    <div class="col-sm-2 text-center">
+                        <button type="button" class="btn btn-block btn-primary" onclick="GetBrekdownReport();" style="margin-left:-5rem; width: 5rem;">Search</button>
+                    </div>
+                    <div class="col-sm-5 text-center"></div>
+                </div>
+                <hr>
+                <div id="reports"  style="overflow-x: auto;" class="reports"></div>
+
+
+            </div>
+
+            <!--<div class="card-footer">
+                Footer
+            </div>-->
+
+        </div>
+
+
+    </section>
+
+</div>
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+@*<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>*@
+<script src="~/Content/theme/plugins/multiple-select/dist/multiple-select.min.js" defer></script>
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<!--Datatable -->
+<!-- DataTables  & Plugins -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.js" defer></script>
+
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js" defer></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+        window.onload = function () {
+            GetState();
+           // GetSPV(false);
+           // getSite(false);
+            //GetWTG(false);
+
+        }
+        function GetState() {
+        $('select#country').multipleSelect({
+            "placeholder": "Select country",
+            filter: true
+        });
+            var selcountry = $('select#country option:selected').val();
+             var site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "GET",
+           // url: "/WindReport/GetStateList?countryname=" + selcountry,
+            url: '@Url.Action("GetStateList", "WindReport")' + '?countryname=' + selcountry + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+               // options += '<option value="">Select State</option>';
+                for (var i = 0; i < result.length; i++) {
+                    options += '<option value="' + result[i].state + '">' + result[i].state + '</option>';
+                }
+                $("#state").html(options);
+                $('select#state').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select State(s)",
+                    filter:true
+                });
+                $('#spv').multipleSelect('destroy');
+                GetSPV();
+                //getSite(false);
+               // GetWTG(false);
+            }
+        });
+
+    }
+
+        function GetSPV() {
+            let stateData = [];
+            $('select#state option:selected').each(function () {
+                stateData.push("'" + $(this).val() + "'");
+            });
+            let statelist = stateData.join(',');
+           // stateData = stateData != "" ? stateData.slice(0, -1) : stateData;
+            console.log(statelist);
+              var site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+        $.ajax({
+            type: "GET",
+           // url: "/WindReport/GetSPVList?state=" + val,
+            url: '@Url.Action("GetSPVList", "WindReport")' + '?state=' + stateData + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+               // options += '<option value="">Select SPV</option>';
+                for (var j = 0; j < result.length; j++) {
+                    options += '<option value="' + result[j].spv + '">' + result[j].spv + '</option>';
+                }
+                $("#spv").html(options);
+                $('#spv').multipleSelect('destroy');
+                $('select#spv').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select SPV(s)",
+                    filter:true
+                });
+               // $('#site').multipleSelect('destroy');
+                getSite(false);
+            }
+        });
+
+    }
+    function getSite(fliterVal) {
+        var site_ids = "";
+        if (fliterVal == false) {
+            site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+        }
+        let statelist = "";
+        $('select#state option:selected').each(function () {
+            statelist += $(this).val() + ",";
+            // console.log($(this).val());
+
+        });
+        statelist = statelist != "" ? statelist.slice(0, -1) : statelist;
+        let spvlist = "";
+        $('select#spv option:selected').each(function () {
+            spvlist += $(this).val() + ",";
+        });
+        spvlist = spvlist != "" ? spvlist.slice(0, -1) : spvlist;
+        if (spvlist != "") {
+             site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+        }
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("GetSiteList", "WindReport")' + '?state=' + statelist + '&spv=' + spvlist + '&sitelist=' + site_ids,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+               // options += '<option value="">Select Site</option>';
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
+                }
+                $("#site").html(options);
+                $('#site').multipleSelect('destroy');
+                $('select#site').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select Site(s)",
+                    filter:true
+                });
+
+                GetWTG(false);
+               // $('#wtg').multipleSelect('destroy');
+            }
+        });
+        }
+
+        function GetWTG(fliterVal) {
+            var site_ids = "";
+            if (fliterVal == false) {
+                site_ids = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+            }
+            else {
+                $('select#site option:selected').each(function () {
+                    site_ids += $(this).val() + ",";
+                 });
+                site_ids = site_ids != "" ? site_ids.slice(0, -1) : site_ids;
+            }
+            $.ajax({
+            type: "GET",
+            //url: "/WindReport/GetWTGList?siteid=" + siteid,
+            url: '@Url.Action("GetWTGList", "WindReport")' + '?siteid=' + site_ids ,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+               // options += '<option value="">Select WTG</option>';
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].wtg + '">' + result[k].wtg + '</option>';
+                }
+                $("#wtg").html(options);
+                $('#wtg').multipleSelect('destroy');
+                $('select#wtg').multipleSelect({
+                    "minimumCountSelected": 2,
+                    "placeholder": "Select WTG(s)",
+                    filter:true
+                });
+            }
+        });
+    }
+
+
+
+
+
+// ------------  Get Report ---------------//
+    function GetBrekdownReport() {
+
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var country = $('select#country option:selected').val();
+        let state = "";
+        let spv = "";
+        let site = "";//$('select#site option:selected').val();
+        let wtg = "";//$('select#wtg option:selected').val();
+        $('select#site option:selected').each(function () {
+            site += $(this).val() + ",";
+        });
+        site = site != "" ? site.slice(0, -1) : site;
+
+        console.log("site :",site);
+        if (site == null || site == undefined || site == "") {
+            $('select#state option:selected').each(function () {
+                state += $(this).val() + ",";
+            });
+            state = state != "" ? state.slice(0, -1) : state;
+
+            $('select#spv option:selected').each(function () {
+                spv += $(this).val() + ",";
+            });
+            spv = spv != "" ? spv.slice(0, -1) : spv;
+
+        }
+
+
+
+        $('select#wtg option:selected').each(function () {
+            wtg += $(this).val() + ",";
+        });
+        wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
+
+        //var wtg = $('select#wtg option:selected').val();
+        $.ajax({
+            type: "GET",
+            //url: "/WindReport/GetWindBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" + country + "&state=" + state + "&spv=" + spv + "&site=" + site + "&wtg=" + wtg,
+            url: '@Url.Action("GetWindBreakdownReport", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"fromDate":"' + fromDate + '","toDate":"' + toDate + '","country":"' + country + '","state":"' + state + '","spv":"' + spv + '","site":"' + site + '","wtg":"' + wtg+'" }',
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                //console.log(result);
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline" style="width: 140%;">';
+                tbl += '<thead class="tbl-head"><tr>';
+                tbl += '<th style="width:100px;">Date</th>';
+                tbl += '<th>Country</th>';
+                tbl += '<th>State</th>';
+                tbl += '<th>SPV</th>';
+                tbl += '<th style="width: 7%;">Site</th>';
+                tbl += '<th style="width: 5%;">WTG</th>';
+                tbl += '<th>BD Type</th>';
+                tbl += '<th>Start From</th>';
+                tbl += '<th>Stop To</th>';
+                tbl += '<th>Total Stop</th>';
+                tbl += '<th>Reason of Breakdown</th>';
+                tbl += '<th>Action Taken</th>';
+                tbl += '</tr></thead>';
+                console.log(result.length);
+                if (result.length > 0) {
+                    console.log("Datatable");
+                    for (var i = 0; i < result.length; i++) {
+                        console.log(result[i].date);
+                        tbl += '<tr>';
+                        tbl += '<td class="text-left">' + result[i].date + '</td>';
+                        tbl += '<td class="text-left">' + result[i].country + '</td>';
+                        tbl += '<td class="text-left">' + result[i].state + '</td>';
+                        tbl += '<td class="text-left">' + result[i].spv + '</td>';
+                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                        tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
+                        tbl += '<td class="text-right">' + result[i].stop_from + '</td>';
+                        tbl += '<td class="text-right">' + result[i].stop_to + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_stop + '</td>';
+                        tbl += '<td class="text-left">' + result[i].error_description + '</td>';
+                        tbl += '<td class="text-left">' + result[i].action_taken + '</td>';
+                        tbl += '</tr>';
+                    }
+                }
+                else {
+                    console.log("Data not available");
+                   // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                //$("#reports").html(tbl);
+                $("#reports").html("").html(tbl);
+                $.fn.DataTable.ext.pager.numbers_length = 6;
+                $('#example1').DataTable({
+                    dom: 'Bfrtip',
+                    title: 'ImportApproval',
+                    responsive: false,
+                    lengthChange: false,
+                    autoWidth: true,
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    info: true,
+                    autoWidth: true,
+                    pageLength: 50,
+                    buttons: [
+                        {
+                            extend: 'excel',
+                            title: 'Wind Breakdown Reports',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        {
+                            extend: 'csv',
+                            title: 'Wind Breakdown Reports',
+                            exportOptions: {
+                                columns: ':visible'
+                            }
+                        },
+                        'colvis'
+                    ]
+                    /* "buttons": [
+                         'copy', 'excel', 'csv', 'colvis'
+                     ]*/
+                });
+                $(".dt-buttons").addClass('btn-group flex-wrap');
+                $(".dt-buttons > button").addClass('btn btn-secondary');
+                $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
+                $('#example1').wrap("<div class='scrolledTable'></div>");
+                //$('#example1').removeClass('dataTable');
+            }
+        });
+
+    }
+
+</script>

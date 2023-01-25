@@ -1,0 +1,214 @@
+﻿@using DGRA_V1.Common;
+@{
+    ViewData["Title"] = "Wind Site User Master";
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<style>
+    .tab-btn {
+        font-size: 0.7rem;
+        font-weight: bold;
+    }
+</style>
+
+<div class="content-wrapper">
+
+    <section class="content-header">
+    </section>
+
+
+    <section class="content">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title  text-center">User Registration</h3>
+
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Full Name : </label>
+                                <input type="text" class="form-control  col-sm-8" id="fullname" name="fullname" placeholder="Enter Name ">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">User Email : </label>
+                                <input type="text" class="form-control  col-sm-8" id="useremail" name="useremail" placeholder="Enter User Email">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Password : </label>
+                                <input type="text" class="form-control  col-sm-8" id="userpass" name="userpass" placeholder="Enter User Password">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Role : </label>
+                                <select class="form-control  col-sm-8" id="userrole" name="userrole" value="">
+                                    <option value="">Select user role</option>
+                                    <option value="User">User</option>
+                                    <option value="Admin">Admin</option>
+
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!--<div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="row">
+                    <label class="col-sm-4 col-form-label text-right">Site Name : </label>
+                    <select class="form-control  col-sm-8" id="site" name="site" value="">
+                        <option value="">Select Site</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="row">
+                    <label class="col-sm-4 col-form-label text-right">Role : </label>
+                    <select class="form-control  col-sm-8" id="userrole" name="userrole" value="">
+                        <option value="">Select user role</option>
+                        <option value="User">User</option>
+                        <option value="Admin">Admin</option>
+
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="row">
+                    <label class="col-sm-4 col-form-label text-right">Pages : </label>
+                    <select class="form-control  col-sm-8" id="pages" name="pages" value="">
+                        <option value="">Select Pages</option>
+                        <option value="1">Wind Generation View</option>
+                        <option value="2">Wind Daily Target KPI</option>
+                        <option value="3">Wind Daily Load Shedding</option>
+                        <option value="4">Wind Monthly Target KPI</option>
+                        <option value="5">Wind Monthly Linelosses</option>
+                        <option value="6">Wind Mothly JMR</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-6">
+            <div class="form-group">
+                <div class="row">
+                    <label class="col-sm-4 col-form-label text-right">Reports : </label>
+                    <select class="form-control  col-sm-8" id="report" name="report" value="">
+                        <option value="">Select Report</option>
+                        <option value="1">Wind Site Master</option>
+                        <option value="2">Wind Location Master</option>
+                        <option value="3">Wind Generation Report</option>
+                        <option value="4">Wind Breakdown Report</option>
+                        <option value="5">Wind PR Report</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-2"></div>
+        <div class="col-sm-2">
+
+            <label class=" form-check-label text-left">Read : </label>
+            <input type="checkbox" class="form-check-input" id="read" name="read" value="1" style="margin-left: 15px; margin-top: 7px;">
+
+        </div>
+        <div class="col-sm-2">
+            <label class="form-check-label text-left">Write : </label>
+            <input type="checkbox" class="form-check-input" id="write" name="write" value="1" style="margin-left: 15px; margin-top: 7px;">
+
+        </div>-->
+                <div class="col-sm-6"></div>
+            </div>
+                <div class="row"><p><br></p></div>
+                <div class="row">
+                    <div class="col-sm-4"></div>
+
+                    <div class="col-sm-2"><button type="button" class="btn btn-block btn-success" onclick="SubmitDetials()">Create</button></div>
+                    <div class="col-sm-2"> <button type="button" class="btn btn-block btn-danger" onclick="Cancel()">Cancel</button></div>
+                    <div class="col-sm-4"></div>
+                </div>
+                <div class="row"><p><br></p></div>
+            </div>
+
+</section>
+
+</div>
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="~/Content/theme/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+
+<script src="~/Content/theme/plugins/summernote/summernote-bs4.min.js"></script>
+<!--Datatable -->
+<script src="~/Content/theme/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="~/Content/theme/plugins/jszip/jszip.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="~/Content/theme/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+
+   
+    function SubmitDetials() {
+        
+        var fname = document.getElementById("fullname").value;
+        var useremail = document.getElementById("useremail").value;
+        var userpass = document.getElementById("userpass").value;
+        var role = $('select#userrole option:selected').val();
+       
+        $.ajax({
+            type: "POST",
+            url: '@Url.Action("WindNewUserRegister", "Home")' + '?fname=' + fname + '&useremail=' + useremail + '&role=' + role + '&userpass=' + userpass,
+            //url: "/Home/WindNewUserRegister?fname=" + fname + "&useremail=" + useremail + "&role=" + role + "&created_on=" + created_on,
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                if (result > 0) {
+                    alert("User register successfully!");
+                    location.href = "/Home/SiteUserMaster";
+
+                }
+
+            }
+        });
+    }
+
+
+
+</script>

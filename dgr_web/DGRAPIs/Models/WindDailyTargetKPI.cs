@@ -10,6 +10,7 @@ namespace DGRAPIs.Models
         public string FY { get; set; }
         public string Date { get; set; }
         public string Site { get; set; }
+        public int site_id { get; set; }
         public dynamic WindSpeed { get; set; }
         public dynamic kWh { get; set; }
         public dynamic MA { get; set; }

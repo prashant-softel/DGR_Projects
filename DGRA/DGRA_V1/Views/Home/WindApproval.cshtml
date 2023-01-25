@@ -1,0 +1,250 @@
+﻿@{
+    ViewData["Title"] = "Wind Daily Target KPI";
+}
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="~/Content/theme/plugins/fontawesome-free/css/all.min.css">
+<!-- daterange picker -->
+<link rel="stylesheet" href="~/Content/theme/plugins/daterangepicker/daterangepicker.css">
+<!-- DataTables -->
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+<link rel="stylesheet" href="~/Content/theme/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+<link rel="stylesheet" href="https://adminlte.io/themes/AdminLTE/bower_components/select2/dist/css/select2.min.css">
+<link href="~/Content/theme/dist/css/adminlte.css" rel="stylesheet" />
+<!-- Content Wrapper. Contains page content -->
+<div class="content-wrapper">
+
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Wind Daily Target KPI</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <section class="content">
+
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Daily Target KPI</h3>
+
+                <div class="card-tools">
+                    <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                        <i class="fas fa-minus"></i>
+                    </button>
+                    <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Site : </label>
+                                <select class="form-control  col-sm-8" multiple="multiple" id="siteList" name="site[]" value="" style="width:100%">
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <div class="row">
+                                <label class="col-sm-4 col-form-label text-right">Status : </label>
+                                <select class="form-control  col-sm-8"  name="" value="">
+                                    <option value="no">
+                                        Waiting for Arroval
+                                    </option>
+                                    <option value="yes">Approved</option>
+                                    <option value="">Rejected</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="input-group row">
+                            <label class="col-sm-3 col-form-label">Date Range : </label>
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">
+                                    <i class="far fa-calendar-alt"></i>
+                                </span>
+                            </div>
+                            <input type="text" class="form-control float-right" id="daterange" name="daterange">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+              
+                    <div class="col-md-5"></div>
+                    <div class="col-md-2">
+                        <button type="button" class="btn btn-block btn-primary" onclick="getReport()">Search</button>
+                    </div>
+                    <div class="col-md-5"></div>
+                </div>
+                <br>
+                <hr>
+                <div id="WindApproval" style="overflow-x: auto;" class="WindApproval"></div>
+            </div>
+
+            <div class="card-footer">
+                Footer
+            </div>
+
+        </div>
+
+
+    </section>
+
+</div>
+<!-- /.content-wrapper -->
+<script src="~/Content/theme/plugins/jquery/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+<!--Date Range -->
+<script src="~/Content/theme/plugins/moment/moment.min.js"></script>
+<script src="~/Content/theme/plugins/inputmask/jquery.inputmask.min.js"></script>
+<script src="~/Content/theme/plugins/daterangepicker/daterangepicker.js" defer></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+
+<script src="https://adminlte.io/themes/AdminLTE/bower_components/select2/dist/js/select2.full.min.js" defer></script>
+<script src="https://adminlte.io/themes/v3/plugins/jquery/jquery.min.js"></script>
+
+<script src="https://adminlte.io/themes/v3/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://adminlte.io/themes/v3/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/jszip/jszip.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="https://adminlte.io/themes/v3/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+
+<script src="~/Content/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('#daterange').daterangepicker(
+            {
+                locale: {
+                    format: 'DD/MM/YYYY',
+                }
+            });
+    });
+
+    window.onload = function () {
+        var state = "";
+        var spv = "";
+        $.ajax({
+            type: "POST",
+            url: "/WindReport/GetSiteList",
+            contentType: "application/json; charset=utf-8",
+            // data: '{"state":"' + val + '"}',
+            datatype: "html",
+            success: function (result, status, xhr) {
+                var options = "";
+                options += '<option value="">Select Site</option>';
+                options += '<option value="0">All Site</option>';
+                for (var k = 0; k < result.length; k++) {
+                    options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
+                }
+                $("#siteList").html(options);
+               var x= $.noConflict();
+                x('#siteList').select2()
+            }
+
+        });
+    }
+
+    function getReport() {
+
+        var daterange = $('#daterange').val();
+        var arr1 = new Array();
+        arr1 = daterange.split("-");
+        var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
+        var site = "";
+        var status = "";
+        $.ajax({
+            type: "GET",
+            url: "/WindView/GetBatches?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "&status=" + status,
+            contentType: "application/json; charset=utf-8",
+            //data: '{"countryname":"' + selcountry + '"}',
+            datatype: "JSON",
+            success: function (result, status, xhr) {
+                console.log(result);
+                var tbl = '<table id="example1" class="table table-bordered table-striped">';
+                tbl += '<thead><tr>';
+                tbl += '<td>FY</td>';
+                tbl += '<td>Date</td>';
+                tbl += '<td>Site</td>';
+                tbl += '<td>Wind Speed</td>';
+                tbl += '<td>KWH</th>';
+                tbl += '<td>MA</td>';
+                tbl += '<td>IGA</td>';
+                tbl += '<td>EGA</td>';
+                tbl += '<td>PLF</td>';
+
+                tbl += '</tr></thead>';
+
+                if (result.length > 0) {
+                    for (var i = 0; i < result.length; i++) {
+
+                        //var tempDate = new Date(result[i].date);
+                        //var formattedDate = [tempDate.getDate(), tempDate.getMonth() + 1, tempDate.getFullYear()].join('-');
+                       /* var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        tbl += '<tr>';
+                        tbl += '<td>' + result[i].fy + '</td>';
+                        tbl += '<td>' + formattedDate + '</td>';
+                        tbl += '<td>' + result[i].site + '</td>';
+                        tbl += '<td>' + result[i].windSpeed + '</td>';
+                        tbl += '<td>' + result[i].kWh + '</td>';
+                        tbl += '<td>' + result[i].ma + '</td>';
+                        tbl += '<td>' + result[i].iga + '</td>';
+                        tbl += '<td>' + result[i].ega + '</td>';
+                        tbl += '<td>' + result[i].plf + '</td>';
+
+                        tbl += '</tr>';*/
+                    }
+                }
+                else {
+
+                    // tbl += '<tr><th colspan="19" style="text-align:center">Data Not Available <th></tr>';
+                }
+                tbl += '</table>';
+                $("#WindApproval").html(tbl);
+                 $.noConflict();
+                $('#example1').DataTable({
+                    "responsive": true, "lengthChange": false, "autoWidth": false,
+                    "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+                    "paging": true,
+                    "lengthChange": false,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "autoWidth": false,
+                    "responsive": true,
+                }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+
+
+            }
+        });
+    }
+</script>

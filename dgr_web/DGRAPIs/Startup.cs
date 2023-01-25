@@ -27,13 +27,15 @@ namespace DGRAPIs
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            //Enable CORS
+            services.AddCors(c =>
+            c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+
             services.AddControllers();
             //services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
           
             services.AddHttpClient();
-            //Enable CORS
-            services.AddCors(c =>
-            c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
+            
             services.AddScoped<DatabaseProvider>();
             services.AddScoped<IDGRBS, DGRBS>();
             services.AddScoped<iLoginBS, LoginBS>();
@@ -44,7 +46,7 @@ namespace DGRAPIs
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -54,10 +56,11 @@ namespace DGRAPIs
               
                 app.UseHsts();
             }
-            app.UseHttpsRedirection();
+          // app.UseHttpsRedirection();
             //app.UseMvc();
             app.UseRouting();
-
+            //app.UseCors(options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+            app.UseCors();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
