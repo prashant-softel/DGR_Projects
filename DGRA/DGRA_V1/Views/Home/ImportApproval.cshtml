@@ -427,7 +427,7 @@
                 if (result.length > 0) {
                     for (var i = 0; i < result.length; i++) {
                         var formattedDate = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                        var formattedDate1 = moment(result[i].import_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        var formattedDate1 = moment(result[i].data_date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         var status = "";
                         var isDisable = "";
                         if (result[i].is_approved == 0) {
