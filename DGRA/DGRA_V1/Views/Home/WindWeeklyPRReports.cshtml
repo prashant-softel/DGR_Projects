@@ -249,6 +249,7 @@
     var var_ega_pos = [];
     var var_ega_neg = [];
     var revenue = [];
+   var  Diff_Mus = [];
     /*function getYear() {
     $.ajax({
         type: "GET",
@@ -315,6 +316,34 @@
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
+                actual_mu = [];
+                target_mu = [];
+                var_mu_pos = [];
+                var_mu_neg = [];
+                actual_wind = [];
+                target_wind = [];
+                var_wind_pos = [];
+                var_wind_neg = [];
+                actual_plf = [];
+                target_plf = [];
+                var_plf_pos = [];
+                var_plf_neg = [];
+                actual_ma = [];
+                target_ma = [];
+                var_ma_pos = [];
+                var_ma_neg = [];
+                actual_iga = [];
+                target_iga = [];
+                var_iga_pos = [];
+                var_iga_neg = [];
+                actual_ega = [];
+                target_ega = [];
+                var_ega_pos = [];
+                var_ega_neg = [];
+                revenue = [];
+                Diff_Mus = [];
+
+
                 tar_energy_wk = result[0].tar_kwh_mu / 1000000;
                 act_energy_wk = result[0].act_jmr_kwh_mu;
                 energy_var_wk = (act_energy_wk - tar_energy_wk) / tar_energy_wk;  // variant calculation for Energy MUS
@@ -327,6 +356,8 @@
                     en_pasitive = (energy_var_wk*100).toFixed(1);
                 }
                 //let cal_revenue_wk = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
+                diff_MUs_wk = (act_energy_wk - tar_energy_wk);
+                Diff_Mus.push(diff_MUs_wk.toFixed(1));
                 revenue.push(result[0].revenue);
                 // Push Weekly Enery
                 actual_mu.push(act_energy_wk.toFixed(1));
@@ -448,7 +479,7 @@
         var tar_ega_mn = 0;
         var act_ega_mn = 0;
         var ega_var_mn = 0;
-
+        var diff_MUs_mn = 0;
         var daterange = $('#daterange').val();
         const dateArr = daterange.split("/");
         var setDate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
@@ -479,6 +510,8 @@
                  else {
                     en_pasitive = (energy_var_mn*100).toFixed(2);
                 }
+                diff_MUs_mn = (act_energy_mn - tar_energy_mn);
+                Diff_Mus.push(diff_MUs_mn.toFixed(1));
                 //let cal_revenue_mn = (act_energy_mn - tar_energy_mn) * result[0].total_tarrif;
                 revenue.push(result[0].revenue);
                  // Push Energy MU Monthly
@@ -598,6 +631,7 @@
         var act_ega_yr = 0;
         var ega_var_yr = 0;
         var yr_energy = [];
+        var diff_MUs_yr = 0;
        // var daterange = $('#daterange').val();
        // var arr1 = new Array();
        // arr1 = daterange.split("-");
@@ -633,6 +667,8 @@
                 }
 
                 //let cal_revenue_yr = (act_energy_yr - tar_energy_yr) * result[0].total_tarrif;
+                diff_MUs_yr = (act_energy_yr - tar_energy_yr);
+                Diff_Mus.push(diff_MUs_yr.toFixed(1));
                 revenue.push(result[0].revenue);
                 // Push MU Yearly data
                 actual_mu.push(act_energy_yr.toFixed(1));
@@ -735,12 +771,12 @@
                 IGA_chart(actual_iga, target_iga, var_iga_pos, var_iga_neg);
                 EGA_chart(actual_ega, target_ega, var_ega_pos, var_ega_neg);
                 console.log("Revenue" + revenue);
-                OperationalTable(actual_mu, revenue);
+                OperationalTable(Diff_Mus, revenue);
             }
         });
 
     }
-    function OperationalTable(actual_mu, revenue) {
+    function OperationalTable(Diff_Mus, revenue) {
         var wind_side = "@Html.Raw(windSiteList.TrimEnd(','))";
         const site_array = wind_side.split(",");
         //var daterange = $('#daterange').val();
@@ -775,9 +811,9 @@
                  sec3 += '<table class="table table-bordered table-striped" style="line-height: 15px;">';
                  sec3 += '<thead class="tbl-head"><tr>';
                  sec3 += '<th>Period</th><th>Energy Gain/Loss (MUs)	</th><th>Revenue(MINR)</th></tr ></thead> ';
-                 sec3 += '<tr><td>WK</td><td style="text-align: right;">' + actual_mu[0] + '</td><td style="text-align: right;">' + revenue[0].toFixed(1) + '</td></tr>';
-                 sec3 += '<tr><td>MTD</td><td style="text-align: right;">' + actual_mu[1] + '</td><td style="text-align: right;">' + revenue[1].toFixed(1) + '</td></tr>';
-                 sec3 += '<tr><td>YTD</td><td style="text-align: right;">' + actual_mu[2] + '</td><td style="text-align: right;">' + revenue[2].toFixed(1) + '</td></tr></table>';
+                 sec3 += '<tr><td>WK</td><td style="text-align: right;">' + Diff_Mus[0] + '</td><td style="text-align: right;">' + revenue[0].toFixed(1) + '</td></tr>';
+                 sec3 += '<tr><td>MTD</td><td style="text-align: right;">' + Diff_Mus[1] + '</td><td style="text-align: right;">' + revenue[1].toFixed(1) + '</td></tr>';
+                 sec3 += '<tr><td>YTD</td><td style="text-align: right;">' + Diff_Mus[2] + '</td><td style="text-align: right;">' + revenue[2].toFixed(1) + '</td></tr></table>';
 
                  $("#wk_head_sec1").html(sec1);
                  $("#wk_head_sec2").html(sec2);

@@ -266,6 +266,7 @@
     var target_ega = [];
     var var_ega_pos = [];
     var var_ega_neg = [];
+    var Diff_Mus = [];
     var revenue = [];
     /*function getYear() {
     $.ajax({
@@ -320,6 +321,7 @@
         var tar_ega_wk = 0;
         var act_ega_wk = 0;
         var ega_var_wk = 0;
+        var diff_MUs_wk = 0;
         var daterange = $('#daterange').val();
         const dateArr = daterange.split("/");
         var seldate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
@@ -334,7 +336,43 @@
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
-               
+                actual_mu = [];
+                target_mu = [];
+                var_mu_pos = [];
+                var_mu_neg = [];
+                actual_pr = [];
+                target_pr = [];
+                var_pr_pos = [];
+                var_pr_neg = [];
+                actual_ghi = [];
+                target_ghi = [];
+                var_ghi_pos = [];
+                var_ghi_neg = [];
+                actual_poa = [];
+                target_poa = [];
+                var_poa_pos = [];
+                var_poa_neg = [];
+                actual_plf = [];
+                target_plf = [];
+                var_plf_pos = [];
+                var_plf_neg = [];
+                actual_ma = [];
+                target_ma = [];
+                var_ma_pos = [];
+                var_ma_neg = [];
+                actual_iga = [];
+                target_iga = [];
+                var_iga_pos = [];
+                var_iga_neg = [];
+                actual_ega = [];
+                target_ega = [];
+                var_ega_pos = [];
+                var_ega_neg = [];
+                Diff_Mus = [];
+                revenue = [];
+
+
+
                 tar_energy_wk = result[0].tar_kwh_mu;///1000000;
                 act_energy_wk = result[0].act_kwh_mu;
                 energy_var_wk = (act_energy_wk - tar_energy_wk) / tar_energy_wk;  // variant calculation for Energy MUS
@@ -346,6 +384,8 @@
                 else {
                     en_pasitive = (energy_var_wk*100).toFixed(1);
                 }
+                diff_MUs_wk = (act_energy_wk - tar_energy_wk);
+                Diff_Mus.push(diff_MUs_wk.toFixed(1));
                // let cal_revenue_wk = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
                 revenue.push(result[0].revenue);
                 // Push Weekly Enery
@@ -517,7 +557,7 @@
         var tar_ega_mn = 0;
         var act_ega_mn = 0;
         var ega_var_mn = 0;
-
+        var diff_MUs_mn = 0;
         var daterange = $('#daterange').val();
         const dateArr = daterange.split("/");
         var setDate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
@@ -536,8 +576,11 @@
             datatype: "html",
             success: function (result, status, xhr) {
                 // Calculation Energy MU Monthly
-
-                console.log(result)
+               /// actual_mu = [];
+                //target_mu = [];
+                //var_mu_pos = [];
+               // var_mu_neg = [];
+               // console.log(result)
                 tar_energy_mn = result[0].tar_kwh_mu;///1000000;
                 act_energy_mn = result[0].act_kwh_mu;
                 energy_var_mn = (act_energy_mn - tar_energy_mn) / tar_energy_mn;
@@ -552,7 +595,8 @@
                // let cal_revenue_mn = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
                 revenue.push(result[0].revenue);
                  // Push Energy MU Monthly
-
+                diff_MUs_mn = (act_energy_mn - tar_energy_mn);
+                Diff_Mus.push(diff_MUs_mn.toFixed(1));
                 actual_mu.push(act_energy_mn.toFixed(1));
                 target_mu.push(tar_energy_mn.toFixed(1));
                 var_mu_pos.push(en_pasitive);
@@ -717,6 +761,7 @@
         var tar_ega_yr = 0;
         var act_ega_yr = 0;
         var ega_var_yr = 0;
+        var diff_MUs_yer = 0;
 
         var fy = fyear;//$('select#fy option:selected').val();
         var daterange = $('#daterange').val();
@@ -734,7 +779,11 @@
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
-                console.log(result);
+               // actual_mu = [];
+                //target_mu = [];
+               // var_mu_pos = [];
+               // var_mu_neg = [];
+               // console.log(result);
                 // Calcilation yearlyenergy
                 tar_energy_yr = result[0].tar_kwh_mu;//1000000;
                 act_energy_yr = result[0].act_kwh_mu;
@@ -747,7 +796,8 @@
                 else {
                     en_pasitive = (energy_var_yr * 100).toFixed(1);
                 }
-
+                diff_MUs_yer = (act_energy_yr - tar_energy_yr)
+                Diff_Mus.push(diff_MUs_yer.toFixed(1));
                // let cal_revenue_yr = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
                 revenue.push(result[0].revenue);
                 // Push MU Yearly data
@@ -896,13 +946,13 @@
                 MA_chart(actual_ma, target_ma, var_ma_pos, var_ma_neg);
                 IGA_chart(actual_iga, target_iga, var_iga_pos, var_iga_neg);
                 EGA_chart(actual_ega, target_ega, var_ega_pos, var_ega_neg);
-
-                OperationalTable(actual_mu, revenue);
+                
+                OperationalTable(Diff_Mus, revenue);
             }
         });
 
     }
-    function OperationalTable(actual_mu, revenue) {
+    function OperationalTable(Diff_Mus, revenue) {
         var wind_side = "@Html.Raw(windSiteList.TrimEnd(','))";
         const site_array = wind_side.split(",");
         var daterange = $('#daterange').val();
@@ -937,9 +987,9 @@
                  sec3 += '<table class="table table-bordered table-striped" style="line-height: 15px;">';
                  sec3 += '<thead class="tbl-head"><tr>';
                  sec3 += '<th>Period</th><th>Energy Gain/Loss (MUs)	</th><th>Revenue(MINR)</th></tr ></thead> ';
-                 sec3 += '<tr><td>WK</td><td style="text-align: right;">' + actual_mu[0] + '</td><td style="text-align: right;">' + revenue[0].toFixed(1) + '</td></tr>';
-                 sec3 += '<tr><td>MTD</td><td style="text-align: right;">' + actual_mu[1] + '</td><td style="text-align: right;">' + revenue[1].toFixed(1) + '</td></tr>';
-                 sec3 += '<tr><td>YTD</td><td style="text-align: right;">' + actual_mu[2] + '</td><td style="text-align: right;">' + revenue[2].toFixed(1) + '</td></tr></table>';
+                 sec3 += '<tr><td>WK</td><td style="text-align: right;">' + Diff_Mus[0] + '</td><td style="text-align: right;">' + revenue[0].toFixed(1) + '</td></tr>';
+                 sec3 += '<tr><td>MTD</td><td style="text-align: right;">' + Diff_Mus[1] + '</td><td style="text-align: right;">' + revenue[1].toFixed(1) + '</td></tr>';
+                 sec3 += '<tr><td>YTD</td><td style="text-align: right;">' + Diff_Mus[2] + '</td><td style="text-align: right;">' + revenue[2].toFixed(1) + '</td></tr></table>';
 
                  $("#wk_head_sec1").html(sec1);
                  $("#wk_head_sec2").html(sec2);
@@ -955,6 +1005,7 @@
         document.getElementById('wk_head').style.display = 'flex';
     }
     function chartEnergyMU(actual_mu, target_mu, var_mu_pos, var_mu_neg) {
+        
         let chartStatus = Chart.getChart("energy_mu_chart"); // <canvas> id
         if (chartStatus != undefined) {
             chartStatus.destroy();
@@ -1677,7 +1728,7 @@
 
             datatype: "JSON",
             success: function (result, status, xhr) {
-                console.log(result);
+                //console.log(result);
                 var tbl = '<table id="example2"  class="table table-bordered table-striped" >';
                 tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<th>Date</th>';
@@ -1697,12 +1748,12 @@
                             location_name = result[i].icr + "/" + result[i].inv;
                         }
                         tbl += '<td class="text-left">' + location_name + '</td>'
-                        tbl += '<td class="text-left">' + result[i].total_bd.totalSeconds/3600 + '</td>'
+                        tbl += '<td class="text-left">' + (result[i].total_bd.totalSeconds / 3600).toFixed(2) + '</td>'
                         tbl += '<td class="text-left">' + result[i].bd_remarks + '</td>'
                     }
                 }
                 else {
-                    console.log("Data not available");
+                    //console.log("Data not available");
                     // tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
@@ -1783,7 +1834,7 @@
 
             datatype: "JSON",
             success: function (result, status, xhr) {
-                console.log(result);
+               // console.log(result);
                 //var tbl = '<div class="text-center"><h5>' + reporthead+'</h5></div>';
 
                 var tbl = '<table id="example3"  class="table table-bordered table-striped" style="width:150%">';
@@ -1832,7 +1883,7 @@
 
 
                 if (result.length > 0) {
-                    console.log("Datatable");
+                   // console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {
                         Levels.push(result[i].spv);
                         let revenue = 0;
@@ -1911,7 +1962,7 @@
                         else {
                             p_pr_pasitive = pr_var.toFixed(1);
                         }
-                        console.log(result[i].tar_kwh);
+                       // console.log(result[i].tar_kwh);
                         target_energy.push((result[i].tar_kwh).toFixed(1));
                         actual_energy.push(result[i].act_kwh.toFixed(1));
                         pas_energy_var.push(j_pasitive);
@@ -2281,7 +2332,7 @@
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
             success: function (result, status, xhr) {
-                console.log(result);
+               // console.log(result);
                // var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
 
                 var tbl = '<table id="example4"  class="table table-bordered table-striped" style="width:150%">';
@@ -2409,7 +2460,7 @@
                             pr_pasitive_p = pr_var.toFixed(1)
                         }
 
-                        console.log(result[i].tar_kwh);
+                        //console.log(result[i].tar_kwh);
                         target_energy.push((result[i].tar_kwh).toFixed(1));
                         actual_energy.push(result[i].act_kwh.toFixed(1));
                         pas_energy_var.push(pasitive);

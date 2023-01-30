@@ -20,7 +20,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-
+using DGRA_V1.Filters;
 
 namespace DGRA_V1.Controllers
 {
@@ -213,38 +213,44 @@ namespace DGRA_V1.Controllers
         }*/
 
         //[Authorize]
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult Dashbord()
         {
             TempData["notification"] = "";
             return View();
             
         }
-        
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindDailyTargetKPIView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindGenView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindMonthlyTargetKPIView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindMonthlyLinelossView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindMonthlyJMRView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindDailyLoadSheddingView()
         {
             TempData["notification"] = "";
@@ -252,52 +258,61 @@ namespace DGRA_V1.Controllers
         }
 
         // Report Routs
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindSiteMaster()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindLocationMaster()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindGenReport()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindBDReport()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindPRReport()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindWeeklyPRReports()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SiteUserMaster()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult UserRegister()
         {
             TempData["notification"] = "";
             return View();
         }
-
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult ImportApproval()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public async Task<IActionResult> WindNewUserRegister(string fname,string useremail,string role,string userpass)
         {
             string line = "";
@@ -323,6 +338,7 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
+        [TypeFilter(typeof(SessionValidation))]
         public async Task<IActionResult> UpdatePassword(int loginid, string updatepass)
         {
             string line = "";
@@ -348,7 +364,7 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
-
+        [TypeFilter(typeof(SessionValidation))]
         public async Task<IActionResult> GetWindUserInfo(int login_id)
         {
             string line = "";
@@ -374,6 +390,7 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
+        [TypeFilter(typeof(SessionValidation))]
         public async Task<IActionResult> GetSolarUserInfo(int login_id)
         {
             string line = "";
@@ -433,6 +450,7 @@ namespace DGRA_V1.Controllers
 
         }
         //[HttpPost]
+        [TypeFilter(typeof(SessionValidation))]
         public async Task<IActionResult> SubmitAccess(int login_id,string site,string pages,string reports, string site_type)
         {
             string line = "";
@@ -458,18 +476,19 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
-    
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindUserView()
         {
             
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarUserView()
         {
 
             return View();
         }
-
+        [TypeFilter(typeof(SessionValidation))]
         public async Task<IActionResult> GetPageList(int login_id, int site_type)
         {
             string line = "";
@@ -501,81 +520,97 @@ namespace DGRA_V1.Controllers
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarDailyTargetKPIView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarDailyLoadSheddingView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarMonthlyTargetKPIView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarMonthlyLinelossView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarMonthlyJMRView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarAcDcCapacityView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarGHIPOA1MinView()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarGHIPOA15MinView()
         {
             TempData["notification"] = "";
             return View();
         }
         // Report Routs
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarGenReport()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarBDReport()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarSiteMaster()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarLocationMaster()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarPRReport()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public IActionResult SolarWeeklyPRReports()
         {
             TempData["notification"] = "";
             return View();
         }
+        [TypeFilter(typeof(SessionValidation))]
         public ActionResult WindUserDetails(string id)
         {
            return RedirectToAction("WindUserView", new { id });
         }
+        [TypeFilter(typeof(SessionValidation))]
         public ActionResult SolarUserDetails(string id,int site_type)
         {
             return RedirectToAction("SolarUserView", new { id , site_type});

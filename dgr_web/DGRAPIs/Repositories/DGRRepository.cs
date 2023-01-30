@@ -638,7 +638,8 @@ left join monthly_line_loss_solar t2 on t2.site_id=t1.site_id and t2.month_no=MO
         {
 
             string filter = "(t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') and month(t1.date)=" + month + " ";
-            
+          //  string filter = "(t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') ";
+
             string filter1 = " and (t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') ";
             if (!string.IsNullOrEmpty(sites))
             {
@@ -646,8 +647,10 @@ left join monthly_line_loss_solar t2 on t2.site_id=t1.site_id and t2.month_no=MO
                 filter1 += " and t2.site_id in(" + sites + ") ";
             }
 
-            string qry1 = "create or replace view temp_view6 as select t1.date,t1.site_id, site, t1.poa, gen_nos from daily_target_kpi_solar t1, daily_gen_summary_solar t2 where t1.date = t2.date and t1.sites = t2.site"
+          /*  string qry1 = "create or replace view temp_view6 as select t1.date,t1.site_id, site, t1.poa, gen_nos from daily_target_kpi_solar t1, daily_gen_summary_solar t2 where t1.date = t2.date and t1.sites = t2.site"
                 + filter1 + " group by t1.date, t2.site_id;";
+
+
             try
             {
                 await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
@@ -660,16 +663,15 @@ left join monthly_line_loss_solar t2 on t2.site_id=t1.site_id and t2.month_no=MO
             List<SolarDashboardData> _SolarDashboardData2 = new List<SolarDashboardData>();
             _SolarDashboardData2 = await Context.GetData<SolarDashboardData>(qry2).ConfigureAwait(false);
 
-
+           
 
             string qry3 = @" select t1.date,month(t1.date)as month,t1.site,sum(inv_kwh) as inv_kwh,avg(t1.poa) as IR,
 replace(t2.lineloss,'%','')as lineLoss,sum(inv_kwh)-(sum(inv_kwh) * replace(t2.LineLoss,'%','') /100) as jmrkwh,
 (t3.gen_nos*1000000) as tarkwh, avg(t3.poa) as tarIR from daily_gen_summary_solar t1 
-left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month_no=month(t1.date) and t2.fy='" + FY + "' left join daily_target_kpi_solar t3 on t3.sites=t1.site and t3.date=t1.date  where   " + filter + "  group by t1.Site,month(t1.date) order by t1.date desc ";
+left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month_no=month(t1.date) and t2.fy='" + FY + "' left join daily_target_kpi_solar t3 on t3.sites=t1.site and t3.date=t1.date  where   " + filter + "  group by t1.Site,month(t1.date) order by t1.date desc ";*/
 
-            // t3 on t3.sites=t1.site and t3.date=t1.date  where t1.approve_status=" + approve_status + " and " + filter + "  group by t1.Site,month(t1.date) order by t1.date desc ";
-
-            List<SolarDashboardData> _SolarDashboardData = new List<SolarDashboardData>();
+            
+           /* List<SolarDashboardData> _SolarDashboardData = new List<SolarDashboardData>();
             _SolarDashboardData = await Context.GetData<SolarDashboardData>(qry3).ConfigureAwait(false);
 
             foreach (SolarDashboardData _solarData in _SolarDashboardData)
@@ -683,9 +685,31 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month_no=month(t1
                     }
                 }
             }
-            return _SolarDashboardData;
+            return _SolarDashboardData;*/
 
-            /*string qry1 = "create or replace view temp_view6 as select t1.date,t1.site_id, t1.sites as Site , t1.poa, gen_nos from daily_target_kpi_solar t1, daily_gen_summary_solar t2 where t1.date = t2.date and t1.sites = t2.site "
+
+           /* string groupby = "";
+            string groupby1 = "";
+            string selfilter = "";
+            string filter = "(t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "')";
+            if (!string.IsNullOrEmpty(sites))
+            {
+                filter += " and t1.site_id in(" + sites + ")";
+
+            }
+            if (monthly == true)
+            {
+                groupby = " MONTH(t1.date) ";
+                groupby1 = " MONTH(date)";
+                selfilter = "MONTH(date) as month";
+            }
+            else
+            {
+                groupby = " t1.date ";
+                groupby1 = " date ";
+                selfilter = "date as Date ";
+            }*/
+            string qry1 = "create or replace view temp_view6 as select t1.date,t1.site_id, t1.sites as site , t1.poa, gen_nos from daily_target_kpi_solar t1, daily_gen_summary_solar t2 where t1.date = t2.date and t1.sites = t2.site  "
                 + filter1 + " group by t1.date, t2.site_id;";
 
             try
@@ -696,10 +720,10 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month_no=month(t1
             {
                 string msg = ex.Message;
             }
-            string qry2 = "select Site, site_id, sum(gen_nos)*1000000 as tarkwh, avg(poa) as tarIR from temp_view6 group by Site,MONTH(date)";
+            string qry2 = "select site, site_id, MONTH(date) as month ,sum(gen_nos)*1000000 as tarkwh, avg(poa) as tarIR from temp_view6 group by MONTH(date)";
             List<SolarDashboardData> tempdata = new List<SolarDashboardData>();
             tempdata = await Context.GetData<SolarDashboardData>(qry2).ConfigureAwait(false);
-            string qry = @" SELECT t1.date,MONTH(t1.date) as month, t1.site as Site,SUM(t1.inv_kwh) as inv_kwh,t2.LineLoss as line_loss,SUM(t1.inv_kwh) - SUM(t1.inv_kwh) * (t2.LineLoss / 100) as jmrkwh ,AVG(t1.poa) as IR FROM `daily_gen_summary_solar` as t1 left join monthly_line_loss_solar as t2 on t2.site_id = t1.site_id and month_no = MONTH(t1.date) and fy='" + FY + "' where " + filter + "  group by month(t1.date) order by t1.date desc ";
+            string qry = @" SELECT t1.date,MONTH(t1.date) as month, t1.site as site,SUM(t1.inv_kwh) as inv_kwh,t2.LineLoss as line_loss,SUM(t1.inv_kwh) - SUM(t1.inv_kwh) * (t2.LineLoss / 100) as jmrkwh ,AVG(t1.poa) as IR FROM `daily_gen_summary_solar` as t1 left join monthly_line_loss_solar as t2 on t2.site_id = t1.site_id and month_no = MONTH(t1.date) and fy='" + FY + "' where " + filter + "  group by  MONTH(t1.date)  order by t1.date asc ";
 
 
             List<SolarDashboardData> data = new List<SolarDashboardData>();
@@ -709,15 +733,17 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month_no=month(t1
             {
                 foreach (SolarDashboardData _tempdataelement in tempdata)
                 {
-                    if (_dataelement.Site == _tempdataelement.Site)
+
+                    if (_dataelement.month == _tempdataelement.month)
                     {
                         _dataelement.tarkwh = _tempdataelement.tarkwh;
                         _dataelement.tarIR = _tempdataelement.tarIR;
                     }
+                    
 
                 }
             }
-            return data;*/
+            return data;
 
 
         }
