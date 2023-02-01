@@ -27,30 +27,47 @@ function getFinancialYearDateStartDate(year) {
 }
 function GetPreviousDate() {
     var today = new Date();
-    var dd = String(today.getDate()-1).padStart(2, '0');
+    today.setDate(today.getDate() - 1);
+    var dd = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-   var yyyy = today.getFullYear();
+    var yyyy = today.getFullYear();
     //today = mm + '/' + dd + '/' + yyyy;
     return today = yyyy + '-' + mm + '-' + dd;
 }
 function GetMonthDate(date) {
     // var date = new Date();
-    let currentYear = date.getFullYear();
-    let currentMonth = date.getMonth()+1;
-    let enddate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
-    let monthEndDate = enddate.getDate();
-    if (currentMonth < 10) {
-        currentMonth = '0' + currentMonth;
+    //let todayDate = new Date();
+    if (date.getDate() > 1) {
+        date.setDate(date.getDate() - 1);
     }
+
+    let startDate = new Date(date.getFullYear(), date.getMonth(), 1);
+
+    //moment(startDate).format('YYYY-MM-DD')
+    //let currentYear = date.getFullYear();
+    //let currentMonth = date.getMonth()+1;
+    //let enddate = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+    //let currentDate = date.getDate();
+    //if (currentDate > 1) {
+    //    currentDate - 1;
+    //}
+    //console.log("ENd Month :" + currentDate);
+    
     return {
-        "startdate": `${currentYear}-${currentMonth}-01`, "enddate": `${currentYear}-${currentMonth}-${monthEndDate}`
+        "startdate": `${moment(startDate).format('YYYY-MM-DD')}`, "enddate": `${moment(date).format('YYYY-MM-DD')}`
+    };
+    return {
+        "startdate": `${currentYear}-${currentMonth}-01`, "enddate": `${currentYear}-${currentMonth}-${currentDate}`
     };
 }
 function GetLastTendays() {
     
     var today = new Date();
-    var dd = String(today.getDate() - 1).padStart(2, '0');
-    var dd1 = String(today.getDate() - 10).padStart(2, '0');
+    var today1 = new Date();
+    today.setDate(today.getDate() - 10);
+    today1.setDate(today1.getDate() - 1);
+    var dd = String(today.getDate()).padStart(2, '0');
+    var dd1 = String(today.getDate()).padStart(2, '0');
     var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
     var yyyy = today.getFullYear();
     //today = mm + '/' + dd + '/' + yyyy;
@@ -64,8 +81,8 @@ function GetLastTendays() {
 
 function GetWeeklyDays(seldate) {
     //console.log("Selected Date :"+seldate);
-    
-    var dd = String(seldate.getDate() - 6).padStart(2, '0');
+    seldate.setDate(seldate.getDate() - 6);
+    var dd = String(seldate.getDate() ).padStart(2, '0');
     var mm = String(seldate.getMonth() + 1).padStart(2, '0'); //January is 0!
     var yyyy = seldate.getFullYear();
    // console.log("DD" + dd);

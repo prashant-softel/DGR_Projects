@@ -274,36 +274,16 @@ namespace DGRAPIs.Repositories
         {
 
             string filter = " (t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') and month(t1.date)=" + month + " ";
-            string filter1 = " and (t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') ";
+            string filter1 = "  (t1.date >= '" + startDate + "'  and t1.date<= '" + endDate + "') ";
             if (!string.IsNullOrEmpty(sites))
             {
                 filter += " and t1.site_id in(" + sites + ") ";
                 filter1 += " and t1.site_id in(" + sites + ") ";
 
             }
-            /*if (!string.IsNullOrEmpty(sites) && sites != "All")
-            {
-                string[] siteSplit = sites.Split("~");
-                if (siteSplit.Length > 0)
-                {
-                    string sitesnames = "";
-                    for (int i = 0; i < siteSplit.Length; i++)
-                    {
-                        if (!string.IsNullOrEmpty(siteSplit[i]))
-                        {
-                            sitesnames += "'" + siteSplit[i] + "',";
-                        }
-                    }
-                    sitesnames = sitesnames.TrimEnd(',');
-                    filter += " and t1.site in(" + sitesnames + ")";
-                }
-
-            }*/
-            /*string qry = @"  select  t1.Date,month(t1.date)as month,year(t1.date)as year,t1.Site,  (sum(t1.wind_speed)/count(*))as Wind,
- sum(t1.kwh)as KWH, replace(t2.line_loss,'%','')as line_loss, sum(t1.kwh)-(sum(t1.kwh)* replace(t2.line_loss,'%','') /100) as jmrkwh,
- (t3.kwh*1000000)as tarkwh, avg(t3.wind_speed) as tarwind from  daily_gen_summary t1
- left join monthly_uploading_line_losses t2 on t2.site_id=t1.site_id and t2.month=DATE_FORMAT(t1.date, '%b') and fy='" + FY + "' left join daily_target_kpi t3 on t3.site_id=t1.site_id and t3.date=t1.date where  " + filter + " group by t1.Site,month(t1.date) order by t1.date desc";*/
-            string qry1 = "create or replace view temp_view9 as select t1.date, t1.site_id, t1.site, t1.kwh, t1.wind_speed from daily_target_kpi t1," +
+           
+            
+            /*string qry1 = "create or replace view temp_view9 as select t1.date, t1.site_id, t1.site, t1.kwh, t1.wind_speed from daily_target_kpi t1," +
                 " daily_gen_summary t2 where t1.date = t2.date and t1.site_id = t2.site_id " + filter1 +
                 " group by t1.date, t1.site_id;";
             try
@@ -318,10 +298,7 @@ namespace DGRAPIs.Repositories
             List<WindDashboardData> _WindDashboardData2 = new List<WindDashboardData>();
             _WindDashboardData2 = await Context.GetData<WindDashboardData>(qry2).ConfigureAwait(false);
 
-            /* string qry = @"  select  t1.Date,month(t1.date)as month,year(t1.date)as year,t1.Site,  (sum(t1.wind_speed)/count(*))as Wind,
-  sum(t1.kwh)as KWH, replace(t2.line_loss,'%','')as line_loss, sum(kwh_afterlineloss) as jmrkwh,
-  (sum(t3.kwh)*1000000)as tarkwh, avg(t3.wind_speed) as tarwind from  daily_gen_summary t1
-  left join monthly_uploading_line_losses t2 on t2.site_id=t1.site_id and t2.month=DATE_FORMAT(t1.date, '%b') and fy='" + FY + "' left join daily_target_kpi t3 on t3.site_id=t1.site_id and t3.date=t1.date where  " + filter + " group by t1.Site,month(t1.date) order by t1.date desc";*/
+           
             string qry5 = "SELECT t1.Date,month(t1.date)as month,year(t1.date)as year,t1.Site,SUM(t1.kwh) as KWH,t2.line_loss,SUM(t1.kwh) - SUM(t1.kwh) * (t2.line_loss / 100) as jmrkwh,avg(t1.wind_speed) as Wind FROM `daily_gen_summary` as t1 left join monthly_uploading_line_losses as t2 on t2.site_id = t1.site_id and month_no = MONTH(t1.date) and fy='" + FY + "' left join site_master as t3 on t3.site_master_id = t1.site_id where " + filter + "  group by MONTH(t1.date) ,t1.site";
 
             
@@ -340,8 +317,43 @@ namespace DGRAPIs.Repositories
                 }
             }
 
-            return _WindDashboardData;
+            return _WindDashboardData;*/
 
+
+            string qry1 = "create or replace view temp_view9 as select t1.date, t1.site_id, t1.site, t1.kwh, t1.wind_speed from daily_target_kpi t1," +
+                 " daily_gen_summary t2 where t1.date = t2.date and t1.site_id = t2.site_id and " + filter1 +
+                 " group by t1.date, t1.site_id;";
+
+           
+            try
+            {
+                await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+            }
+            catch (Exception)
+            {
+                //
+            }
+            string qry2 = " select site, site_id,MONTH(date) as month, sum(kwh) as tarkwh, avg(wind_speed) as tarwind from temp_view9 group by MONTH(date)";
+            List<WindDashboardData> _WindDashboardData2 = new List<WindDashboardData>();
+            _WindDashboardData2 = await Context.GetData<WindDashboardData>(qry2).ConfigureAwait(false);
+
+            string qry5 = "SELECT t1.Date,month(t1.date) as month,year(t1.date) as year,t1.Site,SUM(t1.kwh) as KWH,SUM(t1.jmrkwh) as jmrkwh,avg(t1.Wind) as Wind FROM(SELECT t1.Date, month(t1.date) as month, year(t1.date) as year, t1.Site, SUM(t1.kwh) as KWH, t2.line_loss, SUM(t1.kwh) - SUM(t1.kwh) * (t2.line_loss / 100) as jmrkwh, avg(t1.wind_speed) as Wind FROM `daily_gen_summary` as t1 left join monthly_uploading_line_losses as t2 on t2.site_id = t1.site_id and month_no = MONTH(t1.date) and fy='" + FY + "' left join site_master as t3 on t3.site_master_id = t1.site_id where " + filter + "   group by t1.site, t1.date  order by t1.date asc) as t1 group by  MONTH(t1.date)";
+            List<WindDashboardData> _WindDashboardData = new List<WindDashboardData>();
+            _WindDashboardData = await Context.GetData<WindDashboardData>(qry5).ConfigureAwait(false);
+            foreach (WindDashboardData _windData in _WindDashboardData)
+            {
+                _windData.tar_date = _windData.Date.Date.ToString("yyyy-MM-dd");
+                foreach (WindDashboardData _windData2 in _WindDashboardData2)
+                {
+                    if (_windData.month == _windData2.month)
+                    {
+                        _windData.tarkwh = _windData2.tarkwh;
+                        _windData.tarwind = _windData2.tarwind;
+                    }
+                    
+                }
+            }
+            return _WindDashboardData;
         }
         internal async Task<List<WindDashboardData>> GetWindDashboardDataByYearly(string startDate, string endDate, string FY, string sites)
         {
@@ -3304,7 +3316,7 @@ bd_remarks, action_taken
 
         internal async Task<int> InsertSolarUploadingPyranoMeter1Min(List<SolarUploadingPyranoMeter1Min> set, int batchId)
         {
-            string delqry = "delete from uploading_pyranometer_1_min_solar where DATE(date_time) = '" + set[0].date_time + "' and site_id='" + set[0].site_id + "';";
+            string delqry = "delete from uploading_pyranometer_1_min_solar where DATE(date_time) = DATE('" + set[0].date_time + "') and site_id=" + set[0].site_id + ";";
             await Context.ExecuteNonQry<int>(delqry).ConfigureAwait(false);
             string qry = " insert into uploading_pyranometer_1_min_solar(site_id, date_time, ghi_1, ghi_2, poa_1, poa_2, poa_3, poa_4, poa_5, poa_6, poa_7, avg_ghi, avg_poa, amb_temp, mod_temp, import_batch_id) values";
             string values = "";
@@ -3313,12 +3325,13 @@ bd_remarks, action_taken
                 values += "('" + unit.site_id + "','" + unit.date_time + "','" + unit.ghi_1 + "','" + unit.ghi_2 + "','" + unit.poa_1 + "','" + unit.poa_2 + "','" + unit.poa_3 + "','" + unit.poa_4 + "','" + unit.poa_5 + "','" + unit.poa_6 + "','" + unit.poa_7 + "','" + unit.avg_ghi + "','" + unit.avg_poa + "','" + unit.amb_temp + "','" + unit.mod_temp + "','" + batchId + "'),";
             }
             qry += values;
-            return await Context.ExecuteNonQry<int>(delqry + qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+           // return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
         }
 
         internal async Task<int> InsertSolarUploadingPyranoMeter15Min(List<SolarUploadingPyranoMeter15Min> set, int batchId)
         {
-            string delqry = "delete from uploading_pyranometer_15_min_solar where DATE(date_time) = '" + set[0].date_time + "' and site_id='" + set[0].site_id + "';";
+            string delqry = "delete from uploading_pyranometer_15_min_solar where DATE(date_time) = DATE('" + set[0].date_time + "') and site_id=" + set[0].site_id + ";";
             await Context.ExecuteNonQry<int>(delqry).ConfigureAwait(false);
             string qry = " insert into uploading_pyranometer_15_min_solar(site_id, date_time, ghi_1, ghi_2, poa_1, poa_2, poa_3, poa_4, poa_5, poa_6, poa_7, avg_ghi, avg_poa, amb_temp, mod_temp, import_batch_id) values";
             string values = "";
@@ -4435,6 +4448,7 @@ sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as tota
             newdata = await Context.GetData<SolarPerformanceReports1>(qry6).ConfigureAwait(false);
 
 
+
             string qry2 = " select spv, sum(gen_nos) as tar_kwh," +
                 " sum(ghi)/count(ghi) as tar_ghi, sum(poa)/count(poa) as tar_poa, sum(plf)/count(plf) as tar_plf," +
                 " sum(pr)/count(pr) as tar_pr, sum(ma)/count(ma) as tar_ma, sum(iga)/count(iga) as tar_iga, sum(ega)/count(ega) as tar_ega " +
@@ -5506,10 +5520,10 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             {
                 filter += " and ib.is_approved  =" + status;
             }
-            if (userid != 0)
+           /* if (userid != 0)
             {
                 filter += " and ib.imported_by  =" + userid;
-            }
+            }*/
             filter += " group by t3.import_batch_id";
 
             if (importType == 1)

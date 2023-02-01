@@ -222,6 +222,7 @@
         $('#daterange').daterangepicker(
             {
                 singleDatePicker: true,
+                maxDate: new Date(),
                 locale: {
                     format: 'DD/MM/YYYY',
                 }
@@ -1839,7 +1840,7 @@
 
                 var tbl = '<table id="example3"  class="table table-bordered table-striped" style="width:150%">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th rowspan="2">Site</th><th rowspan="2">SPV</th><th  rowspan="2">Capacity <br>(MW)</th>';
+                tbl += '<th rowspan="2">SPV</th><th  rowspan="2">Capacity <br>(MW)</th>';
                 tbl += '<th colspan="3" class="text-center">Gen nos.(MUs)</th><th>Revenue</th>';
                 tbl += '<th colspan="3" class="text-center">GHI (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">POA (kWh/m<sup>2</sup>)</th><th colspan="3" class="text-center">GHI Vs POA Gain (%)</th>';
                 tbl += '<th colspan="3" class="text-center">PLF (%)</th>';
@@ -1980,7 +1981,7 @@
                         revenue_arr.push(revenue.toFixed(2));
 
                         tbl += '<tr>';
-                        tbl += '<td class="text-left">' + result[i].site + '</td>';
+                        //tbl += '<td class="text-left">' + result[i].site + '</td>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';
                         //tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
 
@@ -2123,7 +2124,7 @@
                     }, {
                     yAxisID: 'spv_var',
                         label: "+ve",
-                        type: "line",
+                    type: "bubble",
                         borderColor: "#86C466",
                         data: pas_energy_var,
                     order: 0,
@@ -2137,7 +2138,7 @@
                     }, {
                     yAxisID: 'spv_var',
                         label: "-ve",
-                        type: "line",
+                    type: "bubble",
                         borderColor: "#EE403D",
                         data: neg_energy_var,
                     order: 0,
@@ -2243,7 +2244,7 @@
                 }, {
                     yAxisID: 'pr_var',
                     label: "+ve",
-                    type: "line",
+                    type: "bubble",
                     borderColor: "#86C466",
                     data: pas_wind_var,
                     order: 0,
@@ -2256,7 +2257,7 @@
                 }, {
                     yAxisID: 'pr_var',
                     label: "-ve",
-                    type: "line",
+                    type: "bubble",
                     borderColor: "#EE403D",
                     data: neg_wind_var,
                     order: 0,
@@ -2634,7 +2635,7 @@
                 }, {
                     yAxisID: 'pr_var_p',
                     label: "+ve",
-                    type: "line",
+                    type: "bubble",
                     borderColor: "#86C466",
                     data: pas_energy_var,
                     order: 0,
@@ -2648,7 +2649,7 @@
                 }, {
                     yAxisID: 'pr_var_p',
                     label: "-ve",
-                    type: "line",
+                    type: "bubble",
                     borderColor: "#EE403D",
                     data: neg_energy_var,
                     order: 0,
@@ -2752,7 +2753,7 @@
                 }, {
                     yAxisID: 'pr_var_s',
                     label: "+ve",
-                    type: "line",
+                    type: "bubble",
                     borderColor: "#86C466",
                     data: pas_wind_var,
                     order: 0,
@@ -2765,7 +2766,7 @@
                 }, {
                     yAxisID: 'pr_var_s',
                     label: "-ve",
-                    type: "line",
+                    type: "bubble",
                     borderColor: "#EE403D",
                     data: neg_wind_var,
                     order: 0,

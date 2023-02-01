@@ -177,8 +177,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                             }
                             DataTable dt = null;
 
-                            string _filePath = @"C:\TempFile\docupload.xlsx";
-                            //string _filePath = @"G:\TempFile\docupload.xlsx";
+                            //string _filePath = @"C:\TempFile\docupload.xlsx";
+                            string _filePath = @"G:\TempFile\docupload.xlsx";
                             //string _filePath = env.ContentRootPath + @"\TempFile\docupload.xlsx";
                             dataSetMain = GetDataTableFromExcel(_filePath, true, ref fileSheets);
                             if (dataSetMain == null)
