@@ -365,6 +365,86 @@ namespace DGRA_V1.Controllers
 
         }
         [TypeFilter(typeof(SessionValidation))]
+        public async Task<IActionResult> DeactivateUser(int loginid)
+        {
+            string line = "";
+            try
+            {
+                /// var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
+                //var url = "http://localhost:23835/api/Login/WindUserRegistration?fname=" + fname + "&useremail=" + useremail + "&role=" + role+ "&created_on="+ created_on + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/DeactivateUser?loginid=" + loginid +"";
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "";
+            }
+            return Content(line, "application/json");
+
+        }
+        // DeleteUser
+        [TypeFilter(typeof(SessionValidation))]
+        public async Task<IActionResult>DeleteUser(int loginid)
+        {
+            string line = "";
+            try
+            {
+                /// var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
+                //var url = "http://localhost:23835/api/Login/WindUserRegistration?fname=" + fname + "&useremail=" + useremail + "&role=" + role+ "&created_on="+ created_on + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/DeleteUser?loginid=" + loginid + "";
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "";
+            }
+            return Content(line, "application/json");
+
+        }
+        [TypeFilter(typeof(SessionValidation))]
+        public async Task<IActionResult> ActivateUser(int loginid)
+        {
+            string line = "";
+            try
+            {
+                /// var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
+                //var url = "http://localhost:23835/api/Login/WindUserRegistration?fname=" + fname + "&useremail=" + useremail + "&role=" + role+ "&created_on="+ created_on + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/ActivateUser?loginid=" + loginid + "";
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "";
+            }
+            return Content(line, "application/json");
+
+        }
+
+        [TypeFilter(typeof(SessionValidation))]
         public async Task<IActionResult> GetWindUserInfo(int login_id)
         {
             string line = "";
@@ -451,14 +531,14 @@ namespace DGRA_V1.Controllers
         }
         //[HttpPost]
         [TypeFilter(typeof(SessionValidation))]
-        public async Task<IActionResult> SubmitAccess(int login_id,string site,string pages,string reports, string site_type)
+        public async Task<IActionResult> SubmitAccess(int login_id,string site,string pages,string reports, string site_type,int importapproval)
         {
             string line = "";
             try
             {
                 //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
                 // var url = "http://localhost:23835/api/Login/SubmitUserAccess?login_id=" + login_id+"&siteList="+ site +"&pageList="+ pages +"&reportList="+ reports;
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/SubmitUserAccess?login_id=" + login_id + "&siteList=" + site + "&pageList=" + pages + "&reportList=" + reports + "&site_type="+site_type;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/SubmitUserAccess?login_id=" + login_id + "&siteList=" + site + "&pageList=" + pages + "&reportList=" + reports + "&site_type="+site_type+ "&importapproval=" + importapproval;
                 WebRequest request = WebRequest.Create(url);
                  using (WebResponse response = (HttpWebResponse)request.GetResponse())
                  {

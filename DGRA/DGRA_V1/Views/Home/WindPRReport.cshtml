@@ -84,19 +84,19 @@
             <div class="card-body">
                 <div class="row">
 
-                    <div class="col-sm-3">
+                    @*<div class="col-sm-3">
+            <div class="form-group">
+                <div class="row">
+                   <label class="col-sm-2 col-form-label text-left">FY : </label>
+                    <select class="form-control  col-sm-10" id="fy" name="fy" value="">
+                        <option value="">Select Financial Year</option>
+                    </select>
+                </div>
+            </div>
+        </div>*@
 
-                        <div class="form-group">
-                            <div class="row">
-                                <label class="col-sm-2 col-form-label text-left">FY : </label>
-                                <select class="form-control  col-sm-10" id="fy" name="fy" value="">
-                                    <option value="">Select Financial Year</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
                     <div class="col-sm-4">
-                        <div class="input-group " style="margin-left: -5px; width: 104%;">
+                        <div class="input-group ">
                             <label class="col-sm-2 col-form-label text-left">Date : </label>
                             <div class="input-group-prepend">
                                 <span class="input-group-text">
@@ -106,17 +106,18 @@
                             <input type="text" class="form-control float-right" id="daterange" name="daterange">
                         </div>
                     </div>
+                    
                     <div>
                         <div>
                             <div class="col-sm-1 text-center"></div>
                             <div class="col-sm-1 text-center">
-                                <button type="button" class="btn btn-block btn-primary" onclick="GetPRReport();"  style="margin-left:-5rem; width: 5rem;">Search</button>
+                                <button type="button" class="btn btn-block btn-primary" onclick="GetPRReport();" style="margin-left:2rem; width: 5rem;">Search</button>
                             </div>
                             <div class="col-sm-1 text-center"></div>
                         </div>
                     </div>
                 </div>
-                <div class="row" style="margin-top: -2%;">
+                <div class="row" >
                     <div class="col-sm-5">
                         <div class="card-body table-responsive pad" style="margin-left: -4%; padding-bottom: 2px;">
                             <div class="btn-group btn-group-toggle" data-toggle="buttons">
@@ -183,8 +184,11 @@
     $(document).ready(function () {
         var today = new Date();
         fyear = getFinancialYear(today);
+        console.log(fyear);
+        
         $('#daterange').daterangepicker(
             {
+                maxDate: new Date(),
                 locale: {
                     format: 'DD/MM/YYYY',
                 }
@@ -192,15 +196,20 @@
     });
     window.onload = function () {
 
-        getYear();
+        //getYear();
     }
-    function getYear() {
+
+    var today = new Date();
+    fyear = getFinancialYear(today);
+    var Fy = fyear;
+
+  @* function getYear() {
     $.ajax({
         type: "GET",
-       // url: "/WindReport/GetFinacialYear",
+       url: "/WindReport/GetFinacialYear",
          url: '@Url.Action("GetFinacialYear", "WindReport")',
         contentType: "application/json; charset=utf-8",
-        //data: '{"countryname":"' + selcountry + '"}',
+        data: '{"countryname":"' + selcountry + '"}',
         datatype: "html",
         success: function (result, status, xhr) {
             var options = "";
@@ -215,14 +224,10 @@
 
 
             }
-            //$("#fy").multipleSelect('destroy');
             $("#fy").html(options);
-            //$('select#fy').multipleSelect({
-              //  filter: true,
-            //});
         }
     });
-    }
+   }*@
 
     function GetPRReport() {
 
@@ -243,7 +248,8 @@
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var fyear = $('select#fy option:selected').val();
+        var fyear = Fy;
+        console.log(fyear);
         var leble = [];
         var revenue_arr = [];
         var reporthead = "SPV Wise Reports";
@@ -492,7 +498,8 @@
         arr1 = daterange.split("-");
         var fromDate = moment(arr1[0], 'DD/MM/YYYY').format('YYYY-MM-DD');
         var toDate = moment(arr1[1], 'DD/MM/YYYY').format('YYYY-MM-DD');
-        var fyear = $('select#fy option:selected').val();
+        var fyear = Fy;
+        console.log(fyear);
         var reporthead = "Site Wise Reports";
         var Energy_Dataset = [];
         var Wind_Dataset = [];

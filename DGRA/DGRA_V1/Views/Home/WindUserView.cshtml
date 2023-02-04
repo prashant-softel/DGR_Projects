@@ -69,7 +69,7 @@
                 <div class="row">
                     <div class="col-sm-9"></div>
                     <div class="col-sm-2">
-                        <INPUT type="button" class="btn btn-block btn-success" value="Add Site" onclick="addRow('dataTable')" />
+                        <INPUT type="button" id="add_site_btn" disabled class="btn btn-block btn-success" value="Add Site" onclick="addRow('dataTable')" />
                     </div>
                     <div class="col-sm-1"></div>
                 </div>
@@ -101,6 +101,14 @@
                 </div>
             </div>
             <hr>
+            <div class="row">
+                <div class="col-sm-1"></div>
+                <div class="col-sm-5">
+
+                    <div id="importApproval"></div>
+
+                </div>
+            </div>
             <div class="row">
                 <div class="col-sm-1"></div>
                 <div class="col-sm-5">
@@ -169,7 +177,7 @@
             }
         }
         id = GetURLParameter('id');
-        GetUserAccess(id);
+        
         GetDetails(id);
 
         getSite();
@@ -205,6 +213,16 @@
             datatype: "html",
             success: function (result, status, xhr) {
                 var options = "";
+                result.sort((a, b) => {
+                    if (a.site < b.site) {
+                        return -1;
+                    }
+                    if (a.site > b.site) {
+                        return 1;
+                    }
+                    return 0;
+
+                });
                 options += '<option value="">Select Site</option>';
                 for (var k = 0; k < result.length; k++) {
                     options += '<option value="' + result[k].site_master_id + '">' + result[k].site + '</option>';
@@ -228,13 +246,21 @@
                 console.log(result);
 
                 if (result.length > 0) {
+
+                    var tbl = '<table class="table table-bordered table-striped importApproval-page">';
                     var tbl1 = '<table class="table table-bordered table-striped views-page">';
                     tbl1 += '<tr><th>&nbsp;&nbsp;</th>';
                     tbl1 += '<th>Pages</th></tr>';
                     var tbl2 = '<table class="table table-bordered table-striped reports-page">';
                     tbl2 += '<tr><th>&nbsp;&nbsp;</th>';
                     tbl2 += '<th>Reports</th></tr>';
+                   
                     for (var i = 0; i < result.length; i++) {
+                        if (result[i].page_type == 4) {
+                            tbl += '<tr><th style="width:5.4rem"><input type="checkbox"  disabled="disabled" class="form-check-input import-pages" id="import" name="import" data-pageid =' + result[i].id + ' style="margin-left: 15px; margin-top: -6px;"></th>';
+                            tbl += '<th>' + result[i].display_name + '</th>';
+                            tbl += '</tr > ';
+                        }
                         if (result[i].page_type == 1) {
                             tbl1 += '<tr><td><input type="checkbox"  disabled="disabled" class="form-check-input view-pages" id="pages" name="pages" data-pageid =' + result[i].id + ' style="margin-left: 15px; margin-top: -6px;"></td>';
                             tbl1 += '<td>' + result[i].display_name + '</td>';
@@ -246,6 +272,8 @@
                             tbl2 += '</tr > ';
                         }
                     }
+                    tbl += '</table > ';
+                    $("#importApproval").html(tbl);
                     tbl1 += '</table > ';
                     $("#views").html(tbl1);
                     tbl2 += '</table > ';
@@ -254,6 +282,7 @@
             }
         });
         GetUserAccess(id);
+
     }
 
     function CheckEmpty() {
@@ -283,14 +312,18 @@
                             }
                             $('.site:eq(' + SiteCnt + ')').val(result[i].identity).change();
                             $('.upload_access:eq(' + SiteCnt + ')').attr('checked', upload_access);
-                            SiteCnt++;
+                            SiteCnt++; 
+                            $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
+                            console.log(result[i].display_name);
                         }
                         else {
                             $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
                         }
                         $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
                         $("data-pageid").attr("disabled", true);
-
+                        $('.site').prop('disabled', true);
+                        $("input.upload_access").attr("disabled", true);
+                        $("input.delete_btn").attr("disabled", true);
 
                     }
                     //$("input.view-pages").attr("disabled", true);
@@ -316,12 +349,31 @@
             }
             SubmitDetials();
         }
-        document.getElementById("Edit").innerHTML="Update";
+        document.getElementById("Edit").innerHTML = "Update";
+        $("input.import-pages").attr("disabled", false);
         $("input.view-pages").attr("disabled", false);
         $("input.report-pages").attr("disabled", false);
         $('.site').prop('disabled', false);
         $("input.upload_access").attr("disabled", false);
         $("input.delete_btn").attr("disabled", false);
+        document.getElementById("add_site_btn").disabled = false;
+       // document.getElementById("delete_btn").disabled = false;
+
+    }
+    function Cancel() {
+        console.log("cancel clicked")
+        document.getElementById("Edit").innerHTML = "Edit";
+        $("input.import-pages").attr("disabled", true);
+        $("input.view-pages").attr("disabled", true);
+        $("input.report-pages").attr("disabled", true);
+        $('.site').prop('disabled', true);
+        $("input.upload_access").attr("disabled", true);
+        $("input.delete_btn").attr("disabled", true);
+        document.getElementById("add_site_btn").disabled = true;
+        //document.getElementById("delete_btn").disabled = true;
+
+        window.location.reload();
+
     }
     function addRow(tableID) {
         var cnt = rcont; //document.getElementById("rowcnt").value;
@@ -329,9 +381,9 @@
         var table = document.getElementById(tableID);
         var site_options = $('.site').first().html();
         // console.log(site_options);
-        var row = '<tr class="site-row"><td><select disabled="disabled" class="form-control  col-sm-8 site" id="site" name="site" value="" >' + site_options + '</select></td>';
-        row += '<td><input type="checkbox" disabled="disabled" onclick="CheckEmpty()" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left: 25px; margin-top: -6px; "></td>';
-        row += '<td><input type="button" disabled="disabled" class="btn btn-block btn-danger delete_btn" name="button1" value="Delete" style="width: 50%; margin-left: 25px;"></td></tr >';
+        var row = '<tr class="site-row"><td><select  class="form-control  col-sm-8 site" id="site" name="site" value="" >' + site_options + '</select></td>';
+        row += '<td><input  type="checkbox" onclick="CheckEmpty()" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left: 25px; margin-top: -6px; "></td>';
+        row += '<td><input  type="button" class="btn btn-block btn-danger delete_btn" id="delete_btn" name="button1" value="Delete" style="width: 50%; margin-left: 25px;"></td></tr >';
         $(table).find('tbody').append(row);
         rcont++;
         // var rowCount = table.rows.length;
@@ -393,6 +445,7 @@
         //console.log(site_arr);
         let page_arr = {};
         let report_arr = {};
+        let import_approval = 0;
         $('.view-pages').each(function () {
         var page_id = $(this).attr('data-pageid');
         var isSet = $(this).is(":checked");
@@ -405,10 +458,15 @@
             var isSet = $(this).is(":checked");
             report_arr[page_id] = isSet;
         });
+        $('.import-pages').each(function () {
+            var page_id = $(this).attr('data-pageid');
+            var isSet = $(this).is(":checked");
+            import_approval = page_id;
+        });
 
         $.ajax({
             type: "POST",
-            url: '@Url.Action("SubmitAccess", "Home")' + '?login_id=' + id + '&site=' + JSON.stringify(site_arr) + '&pages=' + JSON.stringify(page_arr) + '&reports=' + JSON.stringify(report_arr),
+            url: '@Url.Action("SubmitAccess", "Home")' + '?login_id=' + id + '&site=' + JSON.stringify(site_arr) + '&pages=' + JSON.stringify(page_arr) + '&reports=' + JSON.stringify(report_arr) + ' &importapproval=' + import_approval,
            // url: "/Home/SubmitAccess?login_id=" + id + "&site=" + JSON.stringify(site_arr) + "&pages=" + JSON.stringify(page_arr) + "&reports=" + JSON.stringify(report_arr),
            // url: "/Home/SubmitAccess",
             //url: '@Url.Action("SubmitAccess", "Home")',

@@ -11,6 +11,7 @@
     int windReport = 0;
     int solarView = 0;
     int solarReport = 0;
+    int approvalCnt = 0;
 }
 
 @for (int i = 0; i < @usermodel.access_list.Count; i++)
@@ -35,6 +36,10 @@
     if (@usermodel.access_list[i].page_type == 2 && @usermodel.access_list[i].site_type == 2)
     {
         solarReport++;
+    }
+    if (@usermodel.access_list[i].page_type == 4 && @usermodel.access_list[i].site_type == 0)
+    {
+        approvalCnt++;
     }
 
 }
@@ -240,14 +245,20 @@
                                 </a>
                             </li>
                         }
-                        <li class="nav-item">
-                            <a href="~/Home/ImportApproval" class="nav-link">
-                                <i class="nav-icon fa fa-thumbs-up"></i>
-                                <p>
-                                    Import Approval
-                                </p>
-                            </a>
-                        </li>
+
+                        @if (approvalCnt > 0 || @HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
+                        {
+                            <li class="nav-item">
+                                <a href="~/Home/ImportApproval" class="nav-link">
+                                    <i class="nav-icon fas fa-thumbs-up"></i>
+                                    <p>
+                                        import Approval
+                                    </p>
+                                </a>
+                            </li>
+                        }
+
+
                         @if (windView > 0)
                         {
                             <li class="nav-item">

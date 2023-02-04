@@ -92,6 +92,7 @@
             tbl += '<th>Change Password</th>';
             tbl += '<th>Wind Access</th>';
             tbl += '<th>Solar Access</th>';
+            tbl += '<th>Action</th>';
 
             tbl += '</tr></thead>';
             if (result.length > 0) {
@@ -109,17 +110,29 @@
                     tbl += '<td>' + result[i].user_role + '</td>';
                     //tbl += '<td>' + result[i].created_on + '</td>';
                     tbl += '<td>' + status + '</td>';
+                    tbl += '<td class="text-center"><div style="display: flex; justify-content: center; align-items: center;"><button id="cng_btn ' + result[i].login_id + '" class="btn btn-dark" onclick="ChangePass(' + result[i].login_id + ')" style="background-color: #31576d; padding: 0.15rem 0.75rem;width: 80%;display: inline;" >Update</button><div id="hide ' + result[i].login_id + '" style="display: none; flex-direction: column; justify-content: center; align-items: center;"><input id="changePass ' + result[i].login_id + '" type="text" placeholder="Enter New Password" style="margin-top: 10px"/><div id="validation_' + result[i].login_id + '" style="display: none">Please Enter Password.</div><button onclick="ChangeSubmit(' + result[i].login_id + ')" class="btn btn-success" style="margin-top: 10px; padding: 0.15rem 0.75rem;width: 50%;">Submit</button></div></div></td>';
                     if (result[i].user_role != "Admin") {
-                        tbl += '<td class="text-center"><div style="display: flex; justify-content: center; align-items: center;"><button id="cng_btn ' + result[i].login_id + '" class="btn btn-dark" onclick="ChangePass(' + result[i].login_id + ')" style="background-color: #31576d; padding: 0.15rem 0.75rem;width: 80%;display: inline;" >Update Password</button><div id="hide ' + result[i].login_id + '" style="display: none; flex-direction: column; justify-content: center; align-items: center;"><input id="changePass ' + result[i].login_id + '" type="text" placeholder="Enter New Password" style="margin-top: 10px"/><div id="validation_' + result[i].login_id + '" style="display: none">Please Enter Password.</div><button onclick="ChangeSubmit(' + result[i].login_id +')" class="btn btn-success" style="margin-top: 10px; padding: 0.15rem 0.75rem;width: 50%;">Submit</button></div></div></td>';
+                        
                         tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="ViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
                         tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="SolarViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
+                        
                     }
                     else {
                         tbl += '<td>&nbsp;</td>';
                         tbl += '<td>&nbsp;</td>';
-                        tbl += '<td>&nbsp;</td>';
+                        //tbl += '<td>&nbsp;</td>';
+                        //tbl += '<td>&nbsp;</td>';
                     }
-
+                    if (result[i].active_user == 1) {
+                        var name = String(result[i].username);
+                        console.log(name);
+                        tbl += '<td class="text-center"><div style="display: flex; justify-content: center; align-items: center; gap:0.5rem"><button id="deact_btn_' + result[i].login_id + '" class="btn btn-danger" onclick="deactivate(' + result[i].login_id + ',' + result[i].active_user + ')" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Deactivate</button><button id="delete_btn ' + result[i].login_id + '" onclick="delete_user(' + result[i].login_id + ')" class="btn btn-danger" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Delete</button></td>';
+                    }
+                    if (result[i].active_user == 0) {
+                        var name = String(result[i].username);
+                        console.log(name);
+                        tbl += '<td class="text-center"><div style="display: flex; justify-content: center; align-items: center; gap:0.5rem"><button id="deact_btn_' + result[i].login_id + '" class="btn btn-success" onclick="deactivate(' + result[i].login_id + ',' + result[i].active_user + ')" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Activate</button><button id="delete_btn ' + result[i].login_id + '" onclick="delete_user(' + result[i].login_id + ')" class="btn btn-danger" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Delete</button></td>';
+                    }
 
 
                     tbl += '</tr>';
@@ -204,7 +217,6 @@
 
         var updatePassword = "changePass " + login_id;
         var changePassword = document.getElementById(updatePassword).value;
-        console.log(changePassword);
         if (changePassword == "") {
             a1.style.display = "block";
         } else {
@@ -227,9 +239,80 @@
             a.style.display = "none";
             chgBtn.style.display = "block";
         }
-        
-        
     }
+
+    function deactivate(login_id, active) {  
+        if (active == 1) {
+            console.log("user is active");
+            //deact_btn_
+            if (confirm("Are you sure you want to deactivate the user ?")) {
+
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("DeactivateUser", "Home")' + '?loginid=' + login_id,
+                    contentType: "application/json; charset=utf-8",
+                    datatype: "html",
+                    success: function (result, status, xhr) {
+                        if (result > 0) {
+                            alert("User deactivated successfully!");
+                            location.href = "/Home/SiteUserMaster";
+                        } else {
+                            alert("User deactivation failed!");
+                            location.href = "/Home/SiteUserMaster";
+                        }
+                    }
+                });
+            } else
+                return 0;
+            
+        } else {
+            console.log("user is deactivated");
+            if (confirm("Are you sure you want to activate the user  ?")) {
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("ActivateUser", "Home")' + '?loginid=' + login_id,
+                    contentType: "application/json; charset=utf-8",
+                    datatype: "html",
+                    success: function (result, status, xhr) {
+                        if (result > 0) {
+                            alert("User Activated successfully!");
+                            location.href = "/Home/SiteUserMaster";
+                        } else {
+                            alert("User Activation failed!");
+                            location.href = "/Home/SiteUserMaster";
+                        }
+                    }
+                });
+            } else
+                return 0;
+            
+        }
+    }
+
+    function delete_user(login_id) {
+        console.log("clicked delete user")
+        if (confirm("Are you sure you want to Delete the user ?")) {
+            alert("You are Deleting the user !");
+
+            $.ajax({
+                type: "POST",
+                url: '@Url.Action("DeleteUser", "Home")' + '?loginid=' + login_id,
+                contentType: "application/json; charset=utf-8",
+                datatype: "html",
+                success: function (result, status, xhr) {
+                    if (result > 0) {
+                        alert("User deleted successfully!");
+                        location.href = "/Home/SiteUserMaster";
+                    } else {
+                        alert("User deletion failed!");
+                        location.href = "/Home/SiteUserMaster";
+                    }
+                }
+            });
+        } else
+            return 0;
+    }
+
 
 
 </script>

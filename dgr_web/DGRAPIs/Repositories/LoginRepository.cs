@@ -60,7 +60,34 @@ namespace DGRAPIs.Repositories
             return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
 
         }
-        
+
+        internal async Task<int> DeactivateUser(int loginid)
+        {
+            //UPDATE login SET active_user = 0 WHERE login_id = 3;
+            string qry = "update login set active_user= 0 where login_id=" + loginid + "";
+            //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            // string a = qry;
+            return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
+        }
+
+        //ActivateUser
+        internal async Task<int> ActivateUser(int loginid)
+        {
+            //UPDATE login SET active_user = 1 WHERE login_id = 3;
+            string qry = "update login set active_user= 1 where login_id=" + loginid + "";
+            //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            // string a = qry;
+            return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
+        }
+        //DeleteUser
+        internal async Task<int> DeleteUser(int loginid)
+        {
+            //DELETE FROM `login` WHERE login_id = 3 ;
+            string qry = "delete from login where login_id=" + loginid + "";
+            string qry1 = "delete from user_access where login_id=" + loginid + "";
+            await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+            return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
+        }
         public async Task<List<UserInfomation>> GetWindUserInformation(int  login_id)
         {
             string filter = "";
@@ -107,11 +134,11 @@ namespace DGRAPIs.Repositories
            //qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=2";
             if(site_type == 2)
             {
-                qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=2";
+                qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=2 or site_type = 0";
             }
             if (site_type == 1)
             {
-                qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=1";
+                qry = "SELECT * FROM `hfe_pages` where Visible=1 and site_type=1 or site_type = 0";
             }
             // Console.WriteLine(qry);
             // var _Userinfo = await Context.GetData<UserInfomation>(qry).ConfigureAwait(false);
@@ -140,7 +167,7 @@ namespace DGRAPIs.Repositories
 
 
         }
-        internal async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type)
+        internal async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type,int importapproval)
         {
             var SiteList = new JavaScriptSerializer().Deserialize<dynamic>(siteList);
             var PageList = new JavaScriptSerializer().Deserialize<dynamic>(pageList);
@@ -227,6 +254,13 @@ namespace DGRAPIs.Repositories
                     sitevalues += "('" + login_id + "'," + site_type + ",3,'" + site.Key + "','" + upload_access + "'),";
                 }
             }
+            if(site_type != "1" || site_type != "2")
+            {
+                string delAccess1 = "DELETE FROM `user_access` WHERE login_id  = '" + login_id + "' AND `site_type` = '0' AND 	category_id = 4";
+                await Context.ExecuteNonQry<int>(delAccess1).ConfigureAwait(false);
+            }
+            string qry4 = "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`,`upload_access`) VALUES  ('" +login_id + "', 0, 4, '"+ importapproval + "', '0')";
+            await Context.ExecuteNonQry<int>(qry4).ConfigureAwait(false);
             if (flag3 == true)
             {
                 qry2 += sitevalues;

@@ -660,10 +660,11 @@
                  let en_pasitive;
                  let en_negative;
                 if (energy_var_yr < 0) {
-                    en_negative = energy_var_yr.toFixed(1);
+                    en_negative = (energy_var_yr * 100).toFixed(1);
+                    
                  }
                  else {
-                    en_pasitive = energy_var_yr.toFixed(1);
+                    en_pasitive = (energy_var_yr * 100).toFixed(1);
                 }
 
                 //let cal_revenue_yr = (act_energy_yr - tar_energy_yr) * result[0].total_tarrif;
@@ -683,10 +684,10 @@
                  let w_positive;
                  let w_negative;
                 if (wind_var_yr < 0) {
-                    w_negative = wind_var_yr.toFixed(1);
+                    w_negative = (wind_var_yr * 100).toFixed(1);
                  }
                  else {
-                    w_positive = wind_var_yr.toFixed(1);
+                    w_positive = (wind_var_yr * 100).toFixed(1);
                 }
                 // Push wind Yearly data
                 actual_wind.push(act_wind_yr.toFixed(1));
@@ -1597,6 +1598,32 @@
 
                 if (result.length > 0) {
                     console.log("Datatable");
+			let total_capacity = 0;
+                    let total_capTarMu = 0;
+                    let total_tar_kwh_mu = 0;
+                    let total_act_jmr_kwh_mu = 0;
+                    let total_jmr_var = 0;
+                    let total_revenue = 0;
+                    let total_capTarWind = 0;
+                    let total_tar_wind = 0;
+                    let total_act_wind = 0;
+                    let total_wind_var = 0;
+                    let total_capTarPlf = 0;
+                    let total_tar_plf = 0;
+                    let total_act_plf = 0;
+                    let total_plf_var = 0;
+                    let total_capTarMa = 0;
+                    let total_tar_ma = 0;
+                    let total_act_ma = 0;
+                    let total_ma_var = 0;
+                    let total_capTarIga = 0;
+                    let total_tar_iga = 0;
+                    let total_act_iga = 0;
+                    let total_iga_var = 0;
+                    let total_capTarEga = 0;
+                    let total_tar_ega = 0;
+                    let total_act_ega = 0;
+                    let total_ega_var = 0;
                     for (var i = 0; i < result.length; i++) {
                         leble.push(result[i].spv);
                         let revenue = 0;
@@ -1629,6 +1656,26 @@
                             ega_var = (result[i].act_ega - result[i].tar_ega);
                         }
                         revenue_arr.push(revenue.toFixed(1));
+			            total_capacity += result[i].total_mw;
+                        total_tar_kwh_mu += (result[i].tar_kwh_mu / 1000000);
+                        total_act_jmr_kwh_mu += result[i].act_jmr_kwh_mu;
+                        total_revenue += revenue;
+                        total_tar_wind += result[i].tar_wind;
+                        total_act_wind += result[i].act_Wind;
+                        total_tar_plf += result[i].tar_plf;
+                        total_act_plf += result[i].act_plf;
+                        total_tar_ma += result[i].tar_ma;
+                        total_act_ma += result[i].act_ma;
+                        total_tar_iga += result[i].tar_iga;
+                        total_act_iga += result[i].act_iga
+                        total_tar_ega += result[i].tar_ega;
+                        total_act_ega += result[i].act_ega;
+                        total_capTarMu += result[i].tar_kwh_mu * result[i].total_mw;
+                        total_capTarWind += result[i].tar_wind * result[i].total_mw;
+                        total_capTarPlf += result[i].tar_plf * result[i].total_mw;
+                        total_capTarMa += result[i].tar_ma * result[i].total_mw;
+                        total_capTarIga += result[i].tar_iga * result[i].total_mw;
+                        total_capTarEga += result[i].tar_ega * result[i].total_mw;
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';
                         tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
@@ -1653,6 +1700,63 @@
                         tbl += '<td class="text-right">' + ega_var.toFixed(2)+'</td>';
                         tbl += '</tr>';
                     }
+                    let avg_tar_mu = 0;
+                    let avg_tar_wind = 0;
+                    let avg_tar_plf = 0;
+                    let avg_tar_ma = 0;
+                    let avg_tar_iga = 0;
+                    let avg_tar_ega = 0;
+
+                    if (total_capacity != 0) {
+                        avg_tar_mu = total_capTarMu / total_capacity;
+                        avg_tar_wind = total_capTarWind / total_capacity;
+                        avg_tar_plf = total_capTarPlf / total_capacity;
+                        avg_tar_ma = total_capTarMa / total_capacity;
+                        avg_tar_iga = total_capTarIga / total_capacity;
+                        avg_tar_ega = total_capTarEga / total_capacity;
+                    }
+                    if (total_tar_kwh_mu != 0) {
+                        total_jmr_var = (((total_act_jmr_kwh_mu - total_tar_kwh_mu) / total_tar_kwh_mu) * 100);
+                    }
+                    if (total_tar_wind != 0) {
+                        total_wind_var = (((total_act_wind - total_tar_wind) / total_tar_wind) * 100);
+                    }
+                    if (total_tar_plf != 0) {
+                        total_plf_var = (((total_act_plf - total_tar_plf) / total_tar_plf) * 100);
+                    }
+                    if (total_tar_ma != 0) {
+                        total_ma_var = (((total_act_ma - total_tar_ma) / total_tar_ma) * 100);
+                    }
+                    if (total_tar_iga != 0) {
+                        total_iga_var = (((total_act_iga - total_tar_iga) / total_tar_iga) * 100);
+                    }
+                    if (total_tar_ega != 0) {
+                        total_ega_var = (((total_act_ega - total_tar_ega) / total_tar_ega) * 100);
+                    }
+
+                    tbl += '<tfoot><tr>';
+                    tbl += '<th rowspan="1"  style="width: 10%;"><b>Grand Total</b></th>';
+                    tbl += '<td class="text-right"><b>' + total_capacity.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_tar_kwh_mu.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_jmr_kwh_mu.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_jmr_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_revenue.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_wind.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_wind.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_wind_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_plf.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_plf.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_plf_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_ma.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_ma.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_ma_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_iga.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_iga.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_iga_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_ega.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_ega.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_ega_var.toFixed(2) + '</b></td>';
+                    tbl += '</tr></tfoot>';
                 }
                 else {
                     console.log("Data not available");
@@ -1845,6 +1949,41 @@
                 tbl += '</tr></thead>';
 
                 if (result.length > 0) {
+                    //let target_energy = [];
+                    //let actual_energy = [];
+                    //let pas_energy_var = [];
+                    //let neg_energy_var = [];
+                    //let target_wind = [];
+                    //let actual_wind = [];
+                    //let pas_wind_var = [];
+                    //let neg_wind_var = [];
+
+                    let total_capacity = 0;
+                    let total_capTarMu = 0;
+                    let total_tar_kwh_mu = 0;
+                    let total_act_jmr_kwh_mu = 0;
+                    let total_jmr_var = 0;
+                    let total_revenue = 0;
+                    let total_capTarWind = 0;
+                    let total_tar_wind = 0;
+                    let total_act_wind = 0;
+                    let total_wind_var = 0;
+                    let total_capTarPlf = 0;
+                    let total_tar_plf = 0;
+                    let total_act_plf = 0;
+                    let total_plf_var = 0;
+                    let total_capTarMa = 0;
+                    let total_tar_ma = 0;
+                    let total_act_ma = 0;
+                    let total_ma_var = 0;
+                    let total_capTarIga = 0;
+                    let total_tar_iga = 0;
+                    let total_act_iga = 0;
+                    let total_iga_var = 0;
+                    let total_capTarEga = 0;
+                    let total_tar_ega = 0;
+                    let total_act_ega = 0;
+                    let total_ega_var = 0;
 
                     for (var i = 0; i < result.length; i++) {
                         let revenue = 0;
@@ -1910,6 +2049,26 @@
                         actual_wind.push(result[i].act_Wind.toFixed(2));
                         pas_wind_var.push(gw_pasitive);
                         neg_wind_var.push(gw_negative);
+                        total_capacity += result[i].total_mw;
+                        total_tar_kwh_mu += (result[i].tar_kwh_mu / 1000000);
+                        total_act_jmr_kwh_mu += result[i].act_jmr_kwh_mu;
+                        total_revenue += revenue;
+                        total_tar_wind += result[i].tar_wind;                      
+                        total_act_wind += result[i].act_Wind;
+                        total_tar_plf += result[i].tar_plf;
+                        total_act_plf += result[i].act_plf;
+                        total_tar_ma += result[i].tar_ma;
+                        total_act_ma += result[i].act_ma;
+                        total_tar_iga += result[i].tar_iga;
+                        total_act_iga += result[i].act_iga
+                        total_tar_ega += result[i].tar_ega;
+                        total_act_ega += result[i].act_ega;
+                        total_capTarMu += result[i].tar_kwh_mu * result[i].total_mw;
+                        total_capTarWind += result[i].tar_wind * result[i].total_mw;
+                        total_capTarPlf += result[i].tar_plf * result[i].total_mw;
+                        total_capTarMa += result[i].tar_ma * result[i].total_mw;
+                        total_capTarIga += result[i].tar_iga * result[i].total_mw;
+                        total_capTarEga += result[i].tar_ega * result[i].total_mw;
 
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].site + '</td>';
@@ -1936,6 +2095,64 @@
 
                         tbl += '</tr>';
                     }
+                    let avg_tar_mu = 0;
+                    let avg_tar_wind = 0;
+                    let avg_tar_plf = 0;
+                    let avg_tar_ma = 0;
+                    let avg_tar_iga = 0;
+                    let avg_tar_ega = 0;
+                    
+                    if (total_capacity != 0) {
+                        avg_tar_mu = total_capTarMu / total_capacity;
+                        avg_tar_wind = total_capTarWind / total_capacity;
+                        avg_tar_plf = total_capTarPlf / total_capacity;
+                        avg_tar_ma = total_capTarMa / total_capacity;
+                        avg_tar_iga = total_capTarIga / total_capacity;
+                        avg_tar_ega = total_capTarEga / total_capacity;
+                    }
+                    if (total_tar_kwh_mu != 0) {
+                        total_jmr_var = (((total_act_jmr_kwh_mu - total_tar_kwh_mu) / total_tar_kwh_mu) * 100);
+                    }
+                    if (total_tar_wind != 0) {
+                        total_wind_var = (((total_act_wind - total_tar_wind) / total_tar_wind) * 100);
+                    }
+                    if (total_tar_plf != 0) {
+                        total_plf_var = (((total_act_plf - total_tar_plf) / total_tar_plf) * 100);
+                    }
+                    if (total_tar_ma != 0) {
+                        total_ma_var = (((total_act_ma - total_tar_ma) / total_tar_ma) * 100);
+                                        }
+                    if (total_tar_iga != 0) {
+                        total_iga_var = (((total_act_iga - total_tar_iga) / total_tar_iga) * 100);
+                    }
+                    if (total_tar_ega != 0) {
+                        total_ega_var = (((total_act_ega - total_tar_ega) / total_tar_ega) * 100);
+                    }
+
+
+                    tbl += '<tfoot><tr>';
+                    tbl += '<th rowspan="1"  style="width: 10%;"><b>Grand Total</b></th>';
+                    tbl += '<td class="text-right"><b>' + total_capacity.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_tar_kwh_mu.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_jmr_kwh_mu.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_jmr_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_revenue.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_wind.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_wind.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_wind_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_plf.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_plf.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_plf_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_ma.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_ma.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_ma_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_iga.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_iga.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_iga_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_tar_ega.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_act_ega.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + total_ega_var.toFixed(2) + '</b></td>';
+                    tbl += '</tr></tfoot>';
 
 
                 }

@@ -2630,9 +2630,11 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
              return await Context.GetData<WindPerformanceReports>(qry).ConfigureAwait(false);*/
             string datefilter1 = " and (t1.date >= '" + fromDate + "'  and t1.date<= '" + todate + "') ";
             string filter = "";
+            string filter2 = "";
             if (!string.IsNullOrEmpty(site))
             {
                 filter += " and t1.site_id IN(" + site + ") ";
+                filter2 += " where site_master_id IN(" + site + ") ";
             }
             string qry1 = "create or replace view temp_viewSPV as select t1.date, t1.site_id, t2.site, t3.spv,t1.kwh, t1.wind_speed, t1.plf, t1.ma, t1.iga, t1.ega" +
                 " from daily_target_kpi t1, daily_gen_summary t2, site_master t3 " +
@@ -2669,6 +2671,10 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
             List<WindPerformanceReports> newdata = new List<WindPerformanceReports>();
             newdata = await Context.GetData<WindPerformanceReports>(qry6).ConfigureAwait(false);
 
+            string qry7 = "select spv,SUM(total_mw)  as total_mw from site_master " + filter2 + " group by spv ";
+
+            List<WindPerformanceReports> newdata2 = new List<WindPerformanceReports>();
+            newdata2 = await Context.GetData<WindPerformanceReports>(qry7).ConfigureAwait(false);
 
 
             string qry = @" select  t1.site,t2.spv,
@@ -2712,6 +2718,15 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
                     {
                         _dataelement.act_jmr_kwh_mu = _tempdataelement.act_jmr_kwh_mu;
                         _dataelement.act_plf = _tempdataelement.act_plf;
+
+                    }
+                }
+                foreach (WindPerformanceReports _tempdataelement in newdata2)
+                {
+                    if (_dataelement.spv == _tempdataelement.spv)
+                    {
+                        _dataelement.total_mw = _tempdataelement.total_mw;
+                       
 
                     }
                 }
@@ -4416,9 +4431,11 @@ sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as tota
             string datefilter = " (date >= '" + fromDate + "'  and date<= '" + todate + "') ";
             string datefilter1 = " and (t1.date >= '" + fromDate + "'  and t1.date<= '" + todate + "') ";
             string filter = "";
+            string filter2 = "";
             if (!string.IsNullOrEmpty(site))
             {
                 filter += " and t1.site_id IN(" + site + ") ";
+                filter2 += " where site_master_solar_id	 IN(" + site + ") ";
             }
             string qry1 = "create or replace view temp_viewSPV as select t1.date, t1.site_id, t2.site, t3.spv,t1.gen_nos, t1.ghi, t1.poa, t1.plf,t1.pr, t1.ma, t1.iga, t1.ega" +
                 " from daily_target_kpi_solar t1, daily_gen_summary_solar t2, site_master_solar t3" +
@@ -4456,6 +4473,10 @@ sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as tota
             List<SolarPerformanceReports1> tempdata = new List<SolarPerformanceReports1>();
             tempdata = await Context.GetData<SolarPerformanceReports1>(qry2).ConfigureAwait(false);
 
+            string qry7 = "select spv,SUM(ac_capacity)  as capacity from site_master_solar " + filter2+" group by spv ";
+                
+            List<SolarPerformanceReports1> tempdata2 = new List<SolarPerformanceReports1>();
+            tempdata2 = await Context.GetData<SolarPerformanceReports1>(qry7).ConfigureAwait(false);
 
             string qry = @"SELECT t1.site,spv,
 (SELECT ac_capacity FROM site_master_solar where site=t1.site and state=t1.state)as capacity,
@@ -4504,9 +4525,17 @@ and " + datefilter + " and fy='" + fy + "') as tar_kwh,(sum(inv_kwh_afterloss)/1
 
                     }
                 }
+                foreach (SolarPerformanceReports1 _tempdataelement in tempdata2)
+                {
+                    if (_dataelement.spv == _tempdataelement.spv)
+                    {
+                        _dataelement.capacity = _tempdataelement.capacity;
+                       
 
+                    }
+                }
             }
-
+           
             return data;
 
         }
@@ -5690,7 +5719,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 }
                 filter += filterSite;
             }
-            string query = "SELECT spv FROM `site_master` " + filter + " group by spv";
+            string query = "SELECT spv FROM `site_master` " + filter + " group by spv order by spv";
             List<SPVList> _spvlist = new List<SPVList>();
             _spvlist = await Context.GetData<SPVList>(query).ConfigureAwait(false);
             return _spvlist;
@@ -5722,7 +5751,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 }
                 filter += filterSite;
             }
-            string query = "SELECT spv FROM `site_master_solar` " + filter + " group by spv";
+            string query = "SELECT spv FROM `site_master_solar` " + filter + " group by spv order by spv";
             List<SPVList> _spvlist = new List<SPVList>();
             _spvlist = await Context.GetData<SPVList>(query).ConfigureAwait(false);
             return _spvlist;
@@ -5783,7 +5812,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 }
 
             }
-            string query = "SELECT * FROM `site_master`" + filter;
+            string query = "SELECT * FROM `site_master`" + filter + "ORDER BY `site`";
             List<WindSiteMaster> _sitelist = new List<WindSiteMaster>();
             _sitelist = await Context.GetData<WindSiteMaster>(query).ConfigureAwait(false);
             return _sitelist;
@@ -5849,7 +5878,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 chkfilter = 1;
 
             }
-            string query = "SELECT * FROM `site_master_solar` " + filter;
+            string query = "SELECT * FROM `site_master_solar` " + filter + "ORDER BY `site`";
             List<SolarSiteMaster> _sitelist = new List<SolarSiteMaster>();
             _sitelist = await Context.GetData<SolarSiteMaster>(query).ConfigureAwait(false);
             return _sitelist;

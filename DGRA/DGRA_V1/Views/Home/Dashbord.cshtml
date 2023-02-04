@@ -100,14 +100,15 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <div class="col-sm-3">
-                        <div class="form-group row">
-                            <label class="col-sm-4 col-form-label text-right">FY : </label>
-                            <select class="form-control  col-sm-8" id="fy" name="fy" value="">
-                                <option value="">Please select </option>
-                            </select>
-                        </div>
-                    </div>
+                    <!-- <div class="col-sm-3">
+        <div class="form-group row">
+            <label class="col-sm-4 col-form-label text-right">FY : </label>
+            <select class="form-control  col-sm-8" id="fy" name="fy" value="">
+                <option value="">Please select </option>
+            </select>
+        </div>
+    </div>-->
+
                     <div class="col-sm-3">
                         <div class="form-group">
                             <div class="row">
@@ -124,11 +125,12 @@
                             </div>
                         </div>
                     </div>
-                    <div class="col-sm-1"></div>
-                    <div class="col-sm-2 text-center">
+
+                    <div class="col-sm-2 " style="margin-left: 15px;">
+                       
                         <button type="button" class="btn btn-block btn-primary" onclick="GetReport();" style=" width: 5rem;">Search</button>
                     </div>
-
+                    <div class="col-sm-4"></div>
                 </div>
                 <hr>
                 <div class="row">
@@ -623,7 +625,9 @@
 
          });
         site = site != "" ? site.slice(0, -1) : site;
-        var FY = $('select#fy option:selected').val();
+        //var FY = $('select#fy option:selected').val();
+        var FY = fyear;
+        //console.log("Hello"+FY);
         var date = GetPreviousDate();
         //console.log("PeviousDate" + date);
         $.ajax({
@@ -695,7 +699,8 @@
         site = site != "" ? site.slice(0, -1) : site;
         var startDate = monthdate.startdate;
         var endDate = monthdate.enddate; //GetPreviousDate();//monthdate.enddate;
-        var FY = $('select#fy option:selected').val();
+        //var FY = $('select#fy option:selected').val();
+        var FY = fyear;
 
        // var month = month;
         $.ajax({
@@ -761,7 +766,8 @@
         site = site != "" ? site.slice(0, -1) : site;
         var startDate = fdate.startdate;
         var endDate = GetPreviousDate();//fdate.enddate;
-        var FY = $('select#fy option:selected').val();
+        //var FY = $('select#fy option:selected').val();
+        var FY = fyear;
 
         $.ajax({
             type: "GET",
@@ -831,7 +837,8 @@
         });
         solar_site = solar_site != "" ? solar_site.slice(0, -1) : solar_site;
 
-        var FY = $('select#fy option:selected').val();
+        //var FY = $('select#fy option:selected').val();
+        var FY = fyear;
         var date = GetPreviousDate();
         $.ajax({
             type: "GET",
@@ -902,7 +909,8 @@
 
         var startDate = monthdate.startdate;
         var endDate = monthdate.enddate//GetPreviousDate();
-        var FY = $('select#fy option:selected').val();
+        //var FY = $('select#fy option:selected').val();
+        var FY = fyear;
 
         $.ajax({
             type: "GET",
@@ -967,7 +975,8 @@
         solar_site = solar_site != "" ? solar_site.slice(0, -1) : solar_site;
         var startDate = fdate.startdate;
         var endDate = GetPreviousDate();
-        var FY = $('select#fy option:selected').val();
+        //var FY = $('select#fy option:selected').val();
+        var FY = fyear;
 
         $.ajax({
             type: "GET",
@@ -1054,7 +1063,8 @@
         //console.log(date_arr);
         var startDate = date_arr.startdate;
         var endDate = GetPreviousDate();//date_arr.enddate;
-        var FY = $('select#fy option:selected').val();
+        //var FY = $('select#fy option:selected').val();
+        var FY = fyear;
         var ismonthly = false;
         if (title == "Monthly") {
             startDate = getFinancialYearDateStartDate(fyear).startdate;
@@ -1266,7 +1276,8 @@
         solar_site = solar_site != "" ? solar_site.slice(0, -1) : solar_site;
         var startDate = date_arr.startdate;
         var endDate = GetPreviousDate();//date_arr.enddate;
-        var FY = $('select#fy option:selected').val();
+        //var FY = $('select#fy option:selected').val();
+        var FY = fyear;
         var ismonthly = false;
         if (title == "Monthly") {
             startDate = getFinancialYearDateStartDate(fyear).startdate;

@@ -15,12 +15,15 @@ namespace DGRAPIs.BS
         Task<UserLogin> GetUserLogin(string username, string password);
         Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass);
         Task<int> UpdatePassword(int loginid, string updatepass);
+        Task<int> DeactivateUser(int loginid);
+        Task<int> ActivateUser(int loginid);
+        Task<int> DeleteUser(int loginid);
         Task<List<UserInfomation>> GetWindUserInformation(int login_id);
         Task<List<UserInfomation>> GetSolarUserInformation(int login_id);
         Task<List<HFEPage>> GetPageList(int login_id, int site_type);
         Task<List<UserAccess>> GetWindUserAccess(int login_id,string role);
 
-        Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type);
+        Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type, int importapproval);
 
     }
     public class LoginBS : iLoginBS
@@ -48,6 +51,53 @@ namespace DGRAPIs.BS
             }
         }
 
+        public async Task<int> DeactivateUser(int loginid)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.DeactivateUser(loginid);
+
+                }
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+        //ActivateUser
+        public async Task<int> ActivateUser(int loginid)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.ActivateUser(loginid);
+
+                }
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
+        //DeleteUser
+        public async Task<int> DeleteUser(int loginid)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.DeleteUser(loginid);
+
+                }
+            }
+            catch (Exception e)
+            {
+                throw;
+            }
+        }
         //public async Task<List<UserLogin>> GetUserLogin(string username, string password)
         public async Task<UserLogin> GetUserLogin(string username, string password)
         {
@@ -64,13 +114,13 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
-        public async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type)
+        public async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type,int importapproval)
         {
             try
             {
                 using (var repos = new LoginRepository(getDB))
                 {
-                    return await repos.SubmitUserAccess(login_id, siteList, pageList, reportList, site_type);
+                    return await repos.SubmitUserAccess(login_id, siteList, pageList, reportList, site_type, importapproval);
 
                 }
             }
