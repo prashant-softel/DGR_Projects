@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 using DGRA_V1.Common;
 using Microsoft.Extensions.FileProviders;
 using System.IO;
-
+using DGRA_V1.Filters;
 namespace DGRA_V1
 {
     public class Startup
@@ -39,7 +39,7 @@ namespace DGRA_V1
             //Enable CORS
             services.AddCors(c =>
             c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader()));
-
+            services.AddScoped<SessionValidation>();
             ConfigSetting.ApplicationConfig(services, Configuration);
           //  services.AddControllersWithViews();
             services.AddMvc(options => options.EnableEndpointRouting = false);

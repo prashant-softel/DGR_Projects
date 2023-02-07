@@ -19,10 +19,12 @@ using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-
+using DGRA_V1.Filters;
 namespace DGRA_V1.Areas.admin.Controllers
 {
     [Area("admin")]
+    [ServiceFilter(typeof(SessionValidation))]
+    [TypeFilter(typeof(SessionValidation))]
     public class FileUploadController : Controller
     {
         ImportBatch objImportBatch = new ImportBatch();

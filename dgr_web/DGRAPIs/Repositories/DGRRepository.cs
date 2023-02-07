@@ -863,7 +863,7 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT
             {
                 filter += " where site_master_id IN(" + site + ") ";
             }
-            string qry = "Select * from site_master"+ filter;
+            string qry = "Select * from site_master"+ filter+ " order by site";
             return await Context.GetData<WindSiteMaster>(qry).ConfigureAwait(false);
 
         }
@@ -886,7 +886,7 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT
             {
                 filter += " where site_master_solar_id IN(" + site + ") ";
             }
-            string qry = "Select * from site_master_solar" + filter ;
+            string qry = "Select * from site_master_solar" + filter + " order by site ";
             return await Context.GetData<SolarSiteMaster>(qry).ConfigureAwait(false);
 
         }
@@ -2791,7 +2791,7 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
                 }
 
             }
-            string query = "SELECT * FROM `site_master_solar`" + filter;
+            string query = "SELECT * FROM `site_master_solar`" + filter+ " order by site ";
             List<SolarSiteMaster> _sitelist = new List<SolarSiteMaster>();
             _sitelist = await Context.GetData<SolarSiteMaster>(query).ConfigureAwait(false);
             return _sitelist;

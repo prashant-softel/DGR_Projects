@@ -21,8 +21,9 @@ namespace DGRA_V1.Filters
                 //context.Result = new RedirectToRouteResult("SystemLogin", routeValues);
                 
                 context.Result = new RedirectToRouteResult(
-                   new RouteValueDictionary(new { controller = "Home", action = "Index" })
+                   new RouteValueDictionary(new { controller = "Home", action = "Index", Area="" })
                     );
+                //context.Result = new RedirectResult("Index","Home", new {Area ="" });
 
             }
 

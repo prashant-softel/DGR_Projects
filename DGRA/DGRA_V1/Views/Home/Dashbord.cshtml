@@ -100,14 +100,14 @@
             </div>
             <div class="card-body">
                 <div class="row">
-                    <!-- <div class="col-sm-3">
-        <div class="form-group row">
-            <label class="col-sm-4 col-form-label text-right">FY : </label>
-            <select class="form-control  col-sm-8" id="fy" name="fy" value="">
-                <option value="">Please select </option>
-            </select>
-        </div>
-    </div>-->
+                    <div class="col-sm-1">
+                        <div class="form-group row">
+                            <label class="col-form-label text-right">FY : <span id="fyearlebel"></span> </label>
+                            <!--<select class="form-control  col-sm-8" id="fy" name="fy" value="">
+        <option value="">Please select </option>
+    </select>-->
+                        </div>
+    </div>
 
                     <div class="col-sm-3">
                         <div class="form-group">
@@ -374,7 +374,7 @@
         month = today.getMonth() + 1;
         tendays = GetLastTendays();
 
-
+        document.getElementById("fyearlebel").innerHTML = fyear;
         if (userRole == "User" && !wsite_list && !ssite_list) {
             $('#wind_site,#solar_site').multipleSelect();
              return;
@@ -1130,7 +1130,7 @@
                     /*if (title == "Monthly") {
                         taget_wind.push((total_tar_wind / cnt).toFixed(1));
                         actual_wind.push((toral_ac_wind / cnt).toFixed(1));
-                        target_energy.push((total_tar_kwh / 1000000).toFixed(1));
+                        target_energy.push((total_tar_kwh / 1000000).toFixed(1GetSolarSiteList
                         actual_energy.push((totat_act_kwh / 1000000).toFixed(1));
                     }*/
                 }
@@ -1145,6 +1145,7 @@
         if (chartStatus != undefined) {
             chartStatus.destroy();
         }
+
         new Chart(document.getElementById("energy_wind"), {
             type: 'bar',
             data: {

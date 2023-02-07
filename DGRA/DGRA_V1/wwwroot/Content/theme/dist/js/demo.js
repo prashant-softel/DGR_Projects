@@ -18,6 +18,14 @@
     }
   }, 1000)*/
 
+    var mode = localStorage.getItem("theme");
+
+    if (mode == "dark") {
+        $('body').addClass('dark-mode');
+    } else {
+        $('body').removeClass('dark-mode');
+    }
+
   function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1)
   }
@@ -63,18 +71,27 @@
     '<h5>Customize</h5><hr class="mb-2"/>'
   )
 
+    
+
   var $dark_mode_checkbox = $('<input />', {
     type: 'checkbox',
     value: 1,
-    checked: $('body').hasClass('dark-mode'),
-    class: 'mr-1'
+    checked: $('body').hasClass('dark-mode') ,
+    class: 'mr-1',
+
   }).on('click', function () {
-    if ($(this).is(':checked')) {
-      $('body').addClass('dark-mode')
-    } else {
-      $('body').removeClass('dark-mode')
-    }
+      console.log($(this).is(':checked'));
+      if ($(this).is(':checked')) {
+          $('body').addClass('dark-mode');
+          localStorage.setItem("theme", "dark"); 
+      } else {
+          $('body').removeClass('dark-mode');
+          localStorage.setItem("theme", "light");
+      }    
   })
+
+    
+
   var $dark_mode_container = $('<div />', { class: 'mb-4' }).append($dark_mode_checkbox).append('<span>Dark Mode</span>')
   $container.append($dark_mode_container)
 
