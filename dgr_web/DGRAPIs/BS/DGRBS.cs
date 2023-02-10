@@ -149,7 +149,7 @@ namespace DGRAPIs.BS
         Task<int> importMetaData(ImportBatch meta,string userName,int userId);
         Task<List<WindOpertionalHead>> GetOperationHeadData(string site);
 		Task<List<SolarOpertionalHead>> GetSolarOperationHeadData(string site);
-        Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate);
+        Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate,string site);
         Task<int> DeleteWindSite(int siteid);
         Task<int> DeleteSolarSite(int siteid);
         Task<List<SolarOpertionalHead1>> GetTotalMWforDashbord(string w_site, string s_site);
@@ -2095,13 +2095,13 @@ namespace DGRAPIs.BS
             }
 
         }
-        public async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate)
+        public async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate,string site)
         {
             try
             {
                 using (var repos = new DGRRepository(getDB))
                 {
-                    return await repos.GetWindMajorBreakdown(fromDate, toDate);
+                    return await repos.GetWindMajorBreakdown(fromDate, toDate, site);
                 }
             }
             catch (Exception ex)

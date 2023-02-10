@@ -673,13 +673,13 @@ namespace DGRA_V1.Controllers
             }
             return Content(line, "application/json");
         }
-        public async Task<IActionResult> GetWindMajorBreakdown(string fromDate, string toDate)
+        public async Task<IActionResult> GetWindMajorBreakdown(string fromDate, string toDate,string siteList)
         {
 
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindMajorBreakdown?fromDate=" + fromDate + "&toDate=" + toDate + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindMajorBreakdown?fromDate=" + fromDate + "&toDate=" + toDate + "&site="+ siteList;
                 WebRequest request = WebRequest.Create(url);
 
                 using (WebResponse response = (HttpWebResponse)request.GetResponse())

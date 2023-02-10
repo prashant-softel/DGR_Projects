@@ -139,6 +139,8 @@
                 <hr>
 
                 <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
+                <div id="loader" class="loader  center" style="display:none"></div>
+                
                 <hr>
                 <div class="row" id="sitewisechart" style="display:none">
                     <div class="chart col-sm-6 text-center">
@@ -242,6 +244,7 @@
     }
     // Daily Gen Report SPV WIse
     function GetWindPRReportSPVWise() {
+        document.getElementById("loader").style.display = 'flex';
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         var daterange = $('#daterange').val();
         var arr1 = new Array();
@@ -300,28 +303,34 @@
                     let total_capTarMu = 0;
                     let total_tar_mu = 0;
                     let total_act_jmr_kwh_mu = 0;
-                    let total_jmr_var = 0;
+                    let avg_jmr_var = 0;
                     let total_revenue = 0;
                     let total_capTarWind = 0;
                     let total_tar_wind = 0;
                     let total_act_wind = 0;
-                    let total_wind_var = 0;
+                    let avg_wind_var = 0;
                     let total_capTarPlf = 0;
                     let total_tar_plf = 0;
                     let total_act_plf = 0;
-                    let total_plf_var = 0;
+                    let avg_plf_var = 0;
                     let total_capTarMa = 0;
                     let total_tar_ma = 0;
                     let total_act_ma = 0;
-                    let total_ma_var = 0;
+                    let avg_ma_var = 0;
                     let total_capTarIga = 0;
                     let total_tar_iga = 0;
                     let total_act_iga = 0;
-                    let total_iga_var = 0;
+                    let avg_iga_var = 0;
                     let total_capTarEga = 0;
                     let total_tar_ega = 0;
                     let total_act_ega = 0;
-                    let total_ega_var = 0;
+                    let avg_ega_var = 0;
+                    let total_capActWind = 0;
+                    let total_capActPlf = 0;
+                    let total_capActMa = 0;
+                    let total_capActIga = 0;
+                    let total_capActEga = 0;
+
                     for (var i = 0; i < result.length; i++) {
                         leble.push(result[i].spv);
                         let revenue = 0;
@@ -340,19 +349,11 @@
                         if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
                             wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
                         }
-                        if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
-                            //plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
-                            plf_var = (result[i].act_plf - result[i].tar_plf) ;
-                        }
-                        if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
-                            ma_act_var = (result[i].act_ma - result[i].tar_ma);
-                        }
-                        if (result[i].act_iga != 0 || result[i].tar_iga != 0) {
-                            iga_var = (result[i].act_iga - result[i].tar_iga);
-                        }
-                        if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
-                            ega_var = (result[i].act_ega - result[i].tar_ega);
-                        }
+                        plf_var = (result[i].act_plf - result[i].tar_plf);
+                        ma_act_var = (result[i].act_ma - result[i].tar_ma);
+                        iga_var = (result[i].act_iga - result[i].tar_iga);
+                        ega_var = (result[i].act_ega - result[i].tar_ega);
+                       
                         //revenue_arr.push(revenue.toFixed(2));
 			            total_capacity += result[i].total_mw;
                         total_tar_mu += tar_mu;
@@ -374,6 +375,12 @@
                         total_capTarMa += result[i].tar_ma * result[i].total_mw;
                         total_capTarIga += result[i].tar_iga * result[i].total_mw;
                         total_capTarEga += result[i].tar_ega * result[i].total_mw;
+                        total_capActWind += result[i].act_Wind * result[i].total_mw;
+                        total_capActPlf += result[i].act_plf * result[i].total_mw;
+                        total_capActMa += result[i].act_ma * result[i].total_mw;
+                        total_capActIga += result[i].act_iga * result[i].total_mw;
+                        total_capActEga += result[i].act_ega * result[i].total_mw;
+
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';
                         tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
@@ -399,44 +406,67 @@
 
                         tbl += '</tr>';
                     }
-                    console.log("Tatal ac ", total_act_wind);
-                    console.log("Tatal Tar ", total_tar_wind);
-                    let avg_tar_mu = total_capTarMu / total_capacity ;
-                    total_jmr_var = (((total_act_jmr_kwh_mu - total_tar_mu) / total_tar_mu) * 100);
-                    let avg_tar_wind = total_capTarWind / total_capacity;
-                    total_wind_var = (((total_act_wind - total_tar_wind) / total_tar_wind) * 100);
-                    let avg_tar_plf = total_capTarPlf / total_capacity;
-                    total_plf_var = (((total_act_plf - total_tar_plf) / total_tar_plf) * 100);
-                    let avg_tar_ma = total_capTarMa / total_capacity;
-                    total_ma_var = (((total_act_ma - total_tar_ma) / total_tar_ma) * 100);
-                    let avg_tar_iga = total_capTarIga / total_capacity;
-                    total_iga_var = (((total_act_iga - total_tar_iga) / total_tar_iga) * 100);
-                    let avg_tar_ega = total_capTarEga / total_capacity;
-                    total_ega_var = (((total_act_ega - total_tar_ega) / total_tar_ega) * 100);
+                    let avg_tar_mu = 0;
+                    let avg_tar_wind = 0;
+                    let avg_tar_plf = 0;
+                    let avg_tar_ma = 0;
+                    let avg_tar_iga = 0;
+                    let avg_tar_ega = 0;
+                    let avg_act_wind = 0;
+                    let avg_act_plf = 0;
+                    let avg_act_ma = 0;
+                    let avg_act_iga = 0;
+                    let avg_act_ega = 0;
 
+                    
+                    if (total_capacity != 0) {
+                        avg_tar_mu = total_capTarMu / total_capacity;
+                        avg_tar_wind = total_capTarWind / total_capacity;
+                        avg_tar_plf = total_capTarPlf / total_capacity;
+                        avg_tar_ma = total_capTarMa / total_capacity;
+                        avg_tar_iga = total_capTarIga / total_capacity;
+                        avg_tar_ega = total_capTarEga / total_capacity;
+                        avg_act_wind = total_capActWind / total_capacity;
+                        avg_act_plf = total_capActPlf / total_capacity;
+                        avg_act_ma = total_capActMa / total_capacity;
+                        avg_act_iga = total_capActIga / total_capacity;
+                        avg_act_ega = total_capActEga / total_capacity;
+                    }
+
+                    if (total_tar_mu != 0) {
+                        avg_jmr_var = (((total_act_jmr_kwh_mu - total_tar_mu) / total_tar_mu) * 100);
+                    }
+                    if (avg_tar_wind != 0) {
+                        avg_wind_var = ((avg_act_wind - avg_tar_wind) / avg_tar_wind) * 100 ;
+                    }
+
+                    avg_plf_var = (avg_act_plf - avg_tar_plf);
+                    avg_ma_var = (avg_act_ma - avg_tar_ma);
+                    avg_iga_var = (avg_act_iga - avg_tar_iga);
+                    avg_ega_var = (avg_act_ega - avg_tar_ega);
 
                     tbl += '<tfoot><tr>';
                     tbl += '<th rowspan="1"  style="width: 10%; font-weight: bold;">Grand Total</th>';
                     tbl += '<td class="text-right" style="font-weight: bold;"><b>' + total_capacity.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + total_tar_mu.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + total_act_jmr_kwh_mu.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_jmr_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_jmr_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + total_revenue.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_wind.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_wind.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_wind_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_wind.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_wind_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_plf.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_plf.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_plf_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_plf.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_plf_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_ma.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_ma.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_ma_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_ma.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_ma_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_iga.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_iga.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_iga_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_iga.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_iga_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_ega.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_ega.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_ega_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_ega.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_ega_var.toFixed(2) + '</b></td>';
                     tbl += '</tr></tfoot>';
                 }
                 else {
@@ -481,6 +511,7 @@
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loader").style.display = 'none';
 
             }
         });
@@ -492,6 +523,7 @@
 
     // Daily Gen Report Site WIse
     function GetWindPRReportSiteWise() {
+        document.getElementById("loader").style.display = 'flex';
          var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         var daterange = $('#daterange').val();
         var arr1 = new Array();
@@ -506,6 +538,7 @@
         var Levels = [];
         //var Actual_Energy_Dataset = [];
         //var Energy_var_Dataset = [];
+        document.getElementById("loader").style.display = 'flex';
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWindPRReportSiteWise", "WindReport")' + '?fy=' + fyear + '&fromDate=' + fromDate + '&toDate=' + toDate + '&sitelist=' + site_ids,
@@ -559,28 +592,34 @@
                     let total_capTarMu = 0;
                     let total_tar_mu = 0;
                     let total_act_jmr_kwh_mu = 0;
-                    let total_jmr_var = 0;
+                    let avg_jmr_var = 0;
                     let total_revenue = 0;
                     let total_capTarWind = 0;
                     let total_tar_wind = 0;
                     let total_act_wind = 0;
-                    let total_wind_var = 0;
+                    let avg_wind_var = 0;
                     let total_capTarPlf = 0;
                     let total_tar_plf = 0;
                     let total_act_plf = 0;
-                    let total_plf_var = 0;
+                    let avg_plf_var = 0;
                     let total_capTarMa = 0;
                     let total_tar_ma = 0;
                     let total_act_ma = 0;
-                    let total_ma_var = 0;
+                    let avg_ma_var = 0;
                     let total_capTarIga = 0;
                     let total_tar_iga = 0;
                     let total_act_iga = 0;
-                    let total_iga_var = 0;
+                    let avg_iga_var = 0;
                     let total_capTarEga = 0;
                     let total_tar_ega = 0;
                     let total_act_ega = 0;
-                    let total_ega_var= 0;
+                    let avg_ega_var = 0;
+                    let total_capActWind = 0;
+                    let total_capActPlf = 0;
+                    let total_capActMa = 0;
+                    let total_capActIga = 0;
+                    let total_capActEga = 0;
+
                     for (var i = 0; i < result.length; i++) {
                         let revenue = 0;
                         let jmr_var = 0;
@@ -598,19 +637,12 @@
                         if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
                             wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
                         }
-                        if (result[i].act_plf != 0 || result[i].tar_plf != 0) {
-                           // plf_var = ((result[i].act_plf - result[i].tar_plf) / result[i].tar_plf) * 100;
-                            plf_var = (result[i].act_plf - result[i].tar_plf);
-                        }
-                        if (result[i].act_ma != 0 || result[i].tar_ma != 0) {
-                            ma_act_var = (result[i].act_ma - result[i].tar_ma);
-                        }
-                        if (result[i].act_iga != 0 || result[i].tar_iga != 0) {
-                            iga_var = (result[i].act_iga - result[i].tar_iga);
-                        }
-                        if (result[i].act_ega != 0 || result[i].tar_ega != 0) {
-                            ega_var = (result[i].act_ega - result[i].tar_ega) ;
-                        }
+
+                        plf_var = (result[i].act_plf - result[i].tar_plf);
+                        ma_act_var = (result[i].act_ma - result[i].tar_ma);
+                        iga_var = (result[i].act_iga - result[i].tar_iga);
+                        ega_var = (result[i].act_ega - result[i].tar_ega);
+
                         let pasitive;
                         let negative;
                         if (jmr_var < 0) {
@@ -658,6 +690,12 @@
                         total_capTarMa += result[i].tar_ma * result[i].total_mw;
                         total_capTarIga += result[i].tar_iga * result[i].total_mw;
                         total_capTarEga += result[i].tar_ega * result[i].total_mw;
+                        total_capActWind += result[i].act_Wind * result[i].total_mw;
+                        total_capActPlf += result[i].act_plf * result[i].total_mw;
+                        total_capActMa += result[i].act_ma * result[i].total_mw;
+                        total_capActIga += result[i].act_iga * result[i].total_mw;
+                        total_capActEga += result[i].act_ega * result[i].total_mw;
+
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].site + '</td>';
                         tbl += '<td class="text-right">' + result[i].total_mw.toFixed(2) + '</td>';
@@ -683,44 +721,67 @@
 
                         tbl += '</tr>';
                     }
-                    let avg_tar_mu = total_capTarMu / total_capacity;
-                    console.log("Tatal ac ", total_act_wind);
-                    console.log("Tatal Tar ", total_tar_wind);
-                    total_jmr_var = (((total_act_jmr_kwh_mu - total_tar_mu) / total_tar_mu) * 100);
-                    let avg_tar_wind = total_capTarWind / total_capacity;
-                    total_wind_var = (((total_act_wind - total_tar_wind) / total_tar_wind) * 100);
-                    let avg_tar_plf = total_capTarPlf / total_capacity;
-                    total_plf_var = (((total_act_plf - total_tar_plf) / total_tar_plf) * 100);
-                    let avg_tar_ma = total_capTarMa / total_capacity;
-                    total_ma_var = (((total_act_ma - total_tar_ma) / total_tar_ma) * 100);
-                    let avg_tar_iga = total_capTarIga / total_capacity;
-                    total_iga_var = (((total_act_iga - total_tar_iga) / total_tar_iga) * 100);
-                    let avg_tar_ega = total_capTarEga / total_capacity;
-                    total_ega_var = (((total_act_ega - total_tar_ega) / total_tar_ega) * 100);
+                    let avg_tar_mu = 0;
+                    let avg_tar_wind = 0;
+                    let avg_tar_plf = 0;
+                    let avg_tar_ma = 0;
+                    let avg_tar_iga = 0;
+                    let avg_tar_ega = 0
+                    let avg_act_wind = 0;
+                    let avg_act_plf = 0;
+                    let avg_act_ma = 0;
+                    let avg_act_iga = 0;
+                    let avg_act_ega = 0;
 
+                  
+                    if (total_capacity != 0) {
+                        avg_tar_mu = total_capTarMu / total_capacity;
+                        avg_tar_wind = total_capTarWind / total_capacity;
+                        avg_tar_plf = total_capTarPlf / total_capacity;
+                        avg_tar_ma = total_capTarMa / total_capacity;
+                        avg_tar_iga = total_capTarIga / total_capacity;
+                        avg_tar_ega = total_capTarEga / total_capacity;
+                        avg_act_wind = total_capActWind / total_capacity;
+                        avg_act_plf = total_capActPlf / total_capacity;
+                        avg_act_ma = total_capActMa / total_capacity;
+                        avg_act_iga = total_capActIga / total_capacity;
+                        avg_act_ega = total_capActEga / total_capacity;
+                    }
+
+                    if (total_tar_mu != 0) {
+                        avg_jmr_var = (((total_act_jmr_kwh_mu - total_tar_mu) / total_tar_mu) * 100);
+                    }
+                    if (avg_tar_wind != 0) {
+                        avg_wind_var = ((avg_act_wind - avg_tar_wind) / avg_tar_wind) * 100;
+                    }
+
+                    avg_plf_var = (avg_act_plf - avg_tar_plf);
+                    avg_ma_var = (avg_act_ma - avg_tar_ma);
+                    avg_iga_var = (avg_act_iga - avg_tar_iga);
+                    avg_ega_var = (avg_act_ega - avg_tar_ega);
 
                     tbl += '<tfoot><tr>';
                     tbl += '<th rowspan="1"  style="width: 10%; font-weight: bold;">Grand Total</th>';
                     tbl += '<td class="text-right"><b>' + total_capacity.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + total_tar_mu.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + total_act_jmr_kwh_mu.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_jmr_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_jmr_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + total_revenue.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_wind.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_wind.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_wind_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_wind.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_wind_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_plf.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_plf.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_plf_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_plf.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_plf_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_ma.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_ma.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_ma_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_ma.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_ma_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_iga.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_iga.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_iga_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_iga.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_iga_var.toFixed(2) + '</b></td>';
                     tbl += '<td class="text-right"><b>' + avg_tar_ega.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_act_ega.toFixed(2) + '</b></td>';
-                    tbl += '<td class="text-right"><b>' + total_ega_var.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_act_ega.toFixed(2) + '</b></td>';
+                    tbl += '<td class="text-right"><b>' + avg_ega_var.toFixed(2) + '</b></td>';
                     tbl += '</tr></tfoot>';
 
 
@@ -767,7 +828,7 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-
+                document.getElementById("loader").style.display = 'none';
                 $('#example2').wrap("<div class='scrolledTable'></div>");
 
             }

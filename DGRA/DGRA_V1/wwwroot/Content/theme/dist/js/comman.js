@@ -94,5 +94,20 @@ function GetWeeklyDays(seldate) {
     return today;
     // return "abc";
 }
+function toHoursAndMinutes(totalSeconds) {
+   // console.log("second", totalSeconds);
+    const totalMinutes = Math.floor(totalSeconds / 60);
 
+    const s = totalSeconds % 60;
+    const h = Math.floor(totalMinutes / 60);
+    const m = totalMinutes % 60;
+    
+    const hDisplay = h > 0 ? `${h.toString().length > 1 ? `${h}` : `${0}${h}`}` : '00';
+    const mDisplay = m > 0 ? `${m.toString().length > 1 ? `${m}` : `${0}${m}`}` : '00';
+    const sDisplay = s > 0 ? `${s.toString().length > 1 ? `${s}` : `${0}${s}`}` : '00';
+   // console.log(`${hDisplay}:${mDisplay}:${sDisplay}`);
+    return `${hDisplay}:${mDisplay}:${sDisplay}`;
+    
+   // return { h: hours, m: minutes, s: seconds };
+}
 

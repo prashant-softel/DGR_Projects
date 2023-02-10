@@ -98,6 +98,7 @@
 
                 <hr>
                 <div id="DailyTargetKPIView" style="overflow-x: auto;" class="DailyTargetKPIView"></div>
+                <div id="loader" class="loader  center" style="display:none"></div>
             </div>
 
 
@@ -180,7 +181,12 @@
             site_id += $(this).val() + ",";
            // console.log($(this).val());
         });
-        site_id = site_id!= ""?site_id.slice(0, -1) : site_id;
+        site_id = site_id != "" ? site_id.slice(0, -1) : site_id;
+        if (site_id == "" || site_id == null) {
+            alert("Please select site ");
+            return false;
+        }
+        document.getElementById("loader").style.display = 'flex';
         console.log(site_id);
         var daterange = $('#daterange').val();
         var arr1 = new Array();
@@ -275,6 +281,7 @@
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
 
                 $('#example1').removeClass('dataTable');
+                document.getElementById("loader").style.display = 'none';
                 /*$.noConflict();
                 $('#example1').DataTable({
                     dom: 'Bfrtip',

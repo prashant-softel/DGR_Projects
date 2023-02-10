@@ -89,7 +89,7 @@
                                         <option disabled="disabled" value="">Select Site</option>
                                     </select>
                                 </td>
-                                <td> <input type="checkbox" disabled="disabled" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left: 15px; margin-top: -6px;"></td>
+                                <td> <input type="checkbox" disabled="disabled" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left:25px; margin-top: -6px;"></td>
                                 <td>
                                     <!--<input type="button" disabled="disabled" class="btn btn-block btn-danger delete_btn" name="button1" value="Delete" style="width: 50%; margin-left: 25px;">-->
                                     <input type="hidden" id="rowcnt" value="1">
@@ -204,6 +204,7 @@
     }
 
     function getSite() {
+       
         var state = "";
         var spv = "";
         var sitelist = "";
@@ -219,6 +220,7 @@
                 //console.log('Inside');
                 //console.log(result);
                 var options = "";
+                $(".site").html();
                 result.sort((a, b) => {
                     if (a.site < b.site) {
                         return -1;
@@ -229,6 +231,7 @@
                     return 0;
 
                 });
+              
                 options += '<option value="">Select Site</option>';
                 for (var k = 0; k < result.length; k++) {
                     options += '<option value="' + result[k].site_master_solar_id + '">' + result[k].site + '</option>';
@@ -250,7 +253,9 @@
             datatype: "html",
             success: function (result, status, xhr) {
                 //console.log(result);
-
+                $("#importApproval").html();
+                $("#views").html();
+                $("#reports").html();
                 if (result.length > 0) {
                     var tbl = '<table class="table table-bordered table-striped importApproval-page">';
                     var tbl1 = '<table class="table table-bordered table-striped views-page">';
@@ -298,6 +303,9 @@
                 console.log(result);
                 if (result.length > 0) {
                     var SiteCnt = 0;
+                    $(".report-pages").attr('checked', false);
+                    $(".view-pages").attr('checked', false);
+                    $(".import-pages").attr('checked', false);
                     for (var i = 0; i < result.length; i++) {
 
                         if (result[i].page_type == 3 && result[i].site_type == 2 ) {
@@ -314,10 +322,10 @@
                             $('.upload_access:eq(' + SiteCnt + ')').attr('checked', upload_access);
                             SiteCnt++;
                         }
-                        else {
+                        else if ((result[i].page_type != 3) && (result[i].site_type == 2 || result[i].site_type == 0)) {
                             $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
                         }
-                        $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
+                      //  $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
                         $("data-pageid").attr("disabled", true);
                         $('.site').prop('disabled', true);
                         $("input.upload_access").attr("disabled", true);
@@ -383,7 +391,7 @@
         // console.log(site_options);
 
         var row = '<tr class="site-row"><td><select  class="form-control   col-sm-8 site" id="site" name="site" value="">' + site_options + '</select></td>';
-        row += '<td><input  type="checkbox" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left: 15px; margin-top: -6px;"></td>';
+        row += '<td><input  type="checkbox" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left: 25px; margin-top: -6px;"></td>';
         row += '<td><input  type="button" class="btn btn-block btn-danger delete_btn" id="delete_btn" name="button1" value="Delete" style="width: 50%; margin-left: 25px;"></td></tr >';
         $(table).find('tbody').append(row);
         
@@ -463,7 +471,9 @@
         $('.import-pages').each(function () {
             var page_id = $(this).attr('data-pageid');
             var isSet = $(this).is(":checked");
-            import_approval = page_id;
+            if (isSet == true) {
+                import_approval = page_id;
+            }
         });
         console.log(import_approval);
        

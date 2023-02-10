@@ -114,6 +114,7 @@
             
             <hr>
             <div id="MontlyLonelossView" style="overflow-x: auto;" class="MontlyLonelossView"></div>
+            <div id="loader" class="loader  center" style="display:none"></div>
         </div>
 </section>
 
@@ -224,7 +225,12 @@
             site_id += $(this).val() + ",";
            // console.log($(this).val());
         });
-        site_id = site_id!= ""?site_id.slice(0, -1) : site_id;
+        site_id = site_id != "" ? site_id.slice(0, -1) : site_id;
+        if (site_id == "" || site_id == null) {
+            alert("Please select site ");
+            return false;
+        }
+        document.getElementById("loader").style.display = 'flex';
         console.log(site_id);
         // var year = "2021-22";
         //var month = "Apr";
@@ -296,7 +302,7 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-
+                document.getElementById("loader").style.display = 'none';
                 $('#example1').removeClass('dataTable');
             }
         });

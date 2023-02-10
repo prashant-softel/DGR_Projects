@@ -84,6 +84,7 @@
                 </div>
                 <hr>
                 <div id="MontlyJMRView" style="overflow-x: auto;"></div>
+                <div id="loader" class="loader  center" style="display:none"></div>
             </div>
         </div>
 
@@ -172,6 +173,11 @@
             site_id += $(this).val() + ",";
         });
         site_id = site_id != "" ? site_id.slice(0, -1) : site_id;
+        if (site_id == "" || site_id == null) {
+            alert("Please select site ");
+            return false;
+        }
+        document.getElementById("loader").style.display = 'flex';
         console.log(site_id);
         let year = "";
         $('select#fy option:selected').each(function () {
@@ -292,6 +298,7 @@
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loader").style.display = 'none';
                 //$('#example1').removeClass('dataTable');
             }
         });

@@ -89,7 +89,7 @@
                                         <option value="" disabled="disabled">Select Site</option>
                                     </select>
                                 </td>
-                                <td> <input type="checkbox" disabled="disabled" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left:15px; margin-top: -6px; "></td>
+                                <td> <input type="checkbox" disabled="disabled" class="form-check-input upload_access" id="upload_access1" name="upload_access" value="1" style="margin-left:25px; margin-top: -6px; "></td>
                                 <td>
                                     <!--<input type="button" disabled="disabled" class="btn btn-block btn-danger delete_btn" name="button1" value="Delete" style="width: 50%; margin-left: 25px;">-->
                                     <input type="hidden" id="rowcnt" value="1">
@@ -213,6 +213,7 @@
             datatype: "html",
             success: function (result, status, xhr) {
                 var options = "";
+                $(".site").html();
                 result.sort((a, b) => {
                     if (a.site < b.site) {
                         return -1;
@@ -244,9 +245,11 @@
             datatype: "html",
             success: function (result, status, xhr) {
                 console.log(result);
-
+                $("#views").html();
+                $("#reports").html();
+                $("#importApproval").html();
                 if (result.length > 0) {
-
+                  
                     var tbl = '<table class="table table-bordered table-striped importApproval-page">';
                     var tbl1 = '<table class="table table-bordered table-striped views-page">';
                     tbl1 += '<tr><th>&nbsp;&nbsp;</th>';
@@ -303,23 +306,34 @@
             success: function (result, status, xhr) {
                 if (result.length > 0) {
                     var SiteCnt = 0;
+                    $(".report-pages").attr('checked', false);
+                    $(".view-pages").attr('checked', false);
+                    $(".import-pages").attr('checked', false);
                     for (var i = 0; i < result.length; i++) {
-                        if (result[i].page_type == 3 && result[i].site_type == 1 ) {
+                        // Site access 
+                        if (result[i].page_type == 3 && result[i].site_type == 1) {
                             var upload_access = (result[i].upload_access == 1) ? true : false;
                             if (SiteCnt > 0) {
 
-                            addRow('dataTable');
+                                addRow('dataTable');
                             }
                             $('.site:eq(' + SiteCnt + ')').val(result[i].identity).change();
                             $('.upload_access:eq(' + SiteCnt + ')').attr('checked', upload_access);
-                            SiteCnt++; 
+                            SiteCnt++;
                             $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
                             console.log(result[i].display_name);
                         }
-                        else {
+                        else if ((result[i].page_type != 3) && (result[i].site_type == 1 || result[i].site_type ==0)) {
+                            //  var page_access = (result[i].upload_access == 1) ? true : false;
+                            // page and report 
+
                             $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
                         }
-                        $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
+                       // else if (result[i].page_type = 4 && result[i].site_type == 0) {
+                            //Approval 
+                            // $("[data-pageid=" + result[i].identity + "]").attr('checked', true);
+                       // }
+                       
                         $("data-pageid").attr("disabled", true);
                         $('.site').prop('disabled', true);
                         $("input.upload_access").attr("disabled", true);
@@ -360,7 +374,7 @@
        // document.getElementById("delete_btn").disabled = false;
 
     }
-    function Cancel() {
+    function Cancle() {
         console.log("cancel clicked")
         document.getElementById("Edit").innerHTML = "Edit";
         $("input.import-pages").attr("disabled", true);
@@ -461,7 +475,11 @@
         $('.import-pages').each(function () {
             var page_id = $(this).attr('data-pageid');
             var isSet = $(this).is(":checked");
-            import_approval = page_id;
+            if (isSet == true) {
+                import_approval = page_id;
+            }
+
+            
         });
 
         $.ajax({

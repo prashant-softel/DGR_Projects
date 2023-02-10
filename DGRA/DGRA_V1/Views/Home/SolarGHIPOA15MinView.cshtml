@@ -87,6 +87,7 @@
                
                 <hr>
                 <div id="DailyGenView" style="overflow-x: auto;" class="DailyGenView"></div>
+                <div id="loader" class="loader  center" style="display:none"></div>
             </div>
         </div>
     </section>
@@ -159,7 +160,12 @@
         var site = $('select#site option:selected').each(function () {
             site_id += $(this).val() + ",";
         });
-        site_id = site_id!= ""?site_id.slice(0, -1) : site_id;
+        site_id = site_id != "" ? site_id.slice(0, -1) : site_id;
+        if (site_id == "" || site_id == null) {
+            alert("Please select site ");
+            return false;
+        }
+        document.getElementById("loader").style.display = 'flex';
         console.log(site_id);
         var daterange = $('#daterange').val();
         var arr1 = new Array();
@@ -172,8 +178,11 @@
             url: '@Url.Action("SolarGhi_Poa_15Min", "SolarView")' + '?site='+ site_id + '&fromDate=' + fromDate + '&toDate=' + toDate,
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
+            
             success: function (result, status, xhr) {
-                console.log(result);
+                console.log(document.getElementById("loader"));
+                document.getElementById("loader").style.display = 'none';
+              
                 var tbl = '<table id="example1" class="table table-bordered table-striped" style="width: 120%;">';
                 tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<th style="width: 12%;">Date Time</th>';
@@ -268,6 +277,7 @@
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
+              
                 //$('#example1').removeClass('dataTable');
             }
         });

@@ -267,6 +267,7 @@
                 </div>
                 <hr>
                 <div id="bdreport" style="overflow-x: auto;" class="bdreport"></div>
+                <div id="loader" class="loader  center" style="display:none"></div>
                 <!--<table id="example1" class="table table-bordered table-striped">
                     <thead>
                         <tr>
@@ -338,7 +339,10 @@
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.html5.min.js" defer></script>
 <script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
+<script src="~/Content/theme/dist/js/comman.js"></script>
 <script type="text/javascript">
+     var userRole = "@Html.Raw(@HttpContextAccessor.HttpContext.Session.GetString("role"))";
+    var solarUserAccess = "@Html.Raw(solarSiteList.TrimEnd(','))";
     $(document).ready(function () {
         $('#daterange').daterangepicker(
             {
@@ -483,7 +487,7 @@
         });
        // console.log(spv);
         let site = "";
-       
+
         if (fliterVal == false) {
             site = "@Html.Raw(solarSiteList.TrimEnd(','))";
         }
@@ -494,7 +498,7 @@
 
             });
         }
-        
+
         //console.log(site);
 
         $.ajax({
@@ -553,15 +557,21 @@
 
         });
        // console.log(site);
-
+        if (userRole == "User" && site == "") {
+            site = solarUserAccess;
+        }
         let inv = "";
         $('select#inv option:selected').each(function () {
             inv += $(this).val() + ",";
             //console.log($(this).val());
 
         });
+        if (inv != "" && site == "") {
+            alert("Please select site");
+            return false;
+        }
         //console.log(inv);
-
+        document.getElementById("loader").style.display = 'flex';
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetSolarBreakdownReport", "SolarReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&inv=' + inv,
@@ -571,7 +581,7 @@
             datatype: "JSON",
             success: function (result, status, xhr) {
                 console.log(result);
-                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline" style="width: 132%;">';
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline" style="width: 160%;">';
                 tbl += '<thead  class="tbl-head"><tr>';
                 tbl += '<th>Date</th>';
                 tbl += '<th>Country</th>';
@@ -593,8 +603,11 @@
                 if (result.length > 0) {
                     console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {
+                        console.log(result[i].from_bd.totalSeconds);
                         var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-
+                        var start_time = toHoursAndMinutes(result[i].from_bd.totalSeconds);
+                        var stop_time = toHoursAndMinutes(result[i].to_bd.totalSeconds);
+                        var total_time = toHoursAndMinutes(result[i].total_stop.totalSeconds);
                         tbl += '<tr>';
                         tbl += '<td>' + formattedDate + '</td>';
                         tbl += '<td>' + result[i].country + '</td>';
@@ -606,9 +619,9 @@
                         tbl += '<td>' + result[i].inv + '</td>';
                         tbl += '<td>' + result[i].smb + '</td>';
                         tbl += '<td>' + result[i].strings + '</td>';
-                        tbl += '<td>' + result[i].from_bd['hours'] + ':' + result[i].from_bd['minutes']+ '</td>';
-                        tbl += '<td>' + result[i].to_bd['hours'] + ':' + result[i].to_bd['minutes']+ '</td>';
-                        tbl += '<td>' + result[i].total_stop['hours'] + ':' + result[i].total_stop['minutes']+ '</td>';
+                        tbl += '<td>' + start_time+ '</td>';
+                        tbl += '<td>' + stop_time+ '</td>';
+                        tbl += '<td>' + total_time+ '</td>';
                         tbl += '<td>' + result[i].bd_remarks + '</td>';
                         tbl += '<td>' + result[i].action_taken + '</td>';
                         tbl += '</tr>';
@@ -659,6 +672,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                // $('#example1').removeClass('dataTable');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loader").style.display = 'none';
 
             }
         });

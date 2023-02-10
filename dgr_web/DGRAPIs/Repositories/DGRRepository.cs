@@ -1097,7 +1097,7 @@ where   " + filter;
             {
                 filter += " group by t1.site ";
             }
-            string qry = @"SELECT date,t2.country,t1.state,t2.spv,t1.site, t1.location_name as Inverter,
+            /*string qry = @"SELECT date,t2.country,t1.state,t2.spv,t1.site, t1.location_name as Inverter,
                     dc_capacity, ac_capacity,
                     ghi, poa, expected_kwh, inv_kwh, plant_kwh, inv_pr, plant_pr,
                     inv_plf_ac as inv_plf, plant_plf_ac as plant_plf, ma as ma_actual ,iga,ega,prod_hrs,total_bd_hrs,usmh_bs,
@@ -1105,7 +1105,9 @@ where   " + filter;
                     
                     load_shedding, total_losses FROM daily_gen_summary_solar t1 left join
                     site_master_solar t2 on t1.site_id = t2.site_master_solar_id
-                    where   " + filter;
+                    where   " + filter;*/
+
+           string qry = @"SELECT date, t2.country,t1.state,t2.spv,t1.site, t3.inverter as Inverter, t3.dc_capacity, t3.ac_capacity, ghi, poa, expected_kwh, inv_kwh, plant_kwh, inv_pr, plant_pr, inv_plf_ac as inv_plf, plant_plf_ac as plant_plf, ma as ma_actual ,iga,ega,prod_hrs,total_bd_hrs,usmh_bs, smh_bd, oh_bd, igbdh_bd, egbdh_bd, load_shedding_bd, total_bd_hrs, usmh, smh, oh, igbdh, egbdh, load_shedding, total_losses FROM daily_gen_summary_solar t1 left join site_master_solar t2 on t1.site_id = t2.site_master_solar_id left join solar_ac_dc_capacity as t3 on t3.site_id = t1.site_id and t3.inverter=t1.location_name where " + filter;
             List<SolarDailyGenReports> _windDailyGenReports = new List<SolarDailyGenReports>();
             _windDailyGenReports = await Context.GetData<SolarDailyGenReports>(qry).ConfigureAwait(false);
             return _windDailyGenReports;
@@ -1662,7 +1664,7 @@ SEC_TO_TIME(sum(TIME_TO_SEC(igbdh))) as igbdh,
 SEC_TO_TIME(sum(TIME_TO_SEC(egbdh))) as egbdh,
 SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding FROM daily_gen_summary t1 left join
                     site_master t2 on t1.site_id=t2.site_master_id
-                   " + filter + " group by t1.state, t2.spv, t1.wtg , month(t1.date)";
+                   " + filter + " group by t1.state, t2.spv, t1.wtg, month(t1.date)";
 
             //where t1.approve_status="+approve_status+" and " + filter + " group by t1.state, t2.spv, t1.wtg , month(t1.date)";
 
@@ -1715,10 +1717,10 @@ SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding FROM daily_gen_sum
             //}
             if (!string.IsNullOrEmpty(state) && state != "All~")
             {
-                if (chkfilter == 1) { filter += " and "; }
+                //if (chkfilter == 1) { filter += " and "; }
                 // filter += "t1.state in (" + state + ")";
                 string[] spstate = state.Split(",");
-                filter += " t1.state in (";
+                filter += " and t1.state in (";
                 string states = "";
                 for (int i = 0; i < spstate.Length; i++)
                 {
@@ -1733,10 +1735,10 @@ SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding FROM daily_gen_sum
             }
             if (!string.IsNullOrEmpty(spv) && spv != "All~")
             {
-                if (chkfilter == 1) { filter += " and "; }
+                //if (chkfilter == 1) { filter += " and "; }
                 // filter += "t2.spv in (" + spv + ")";
                 string[] spspv = spv.Split(",");
-                filter += " t2.spv in (";
+                filter += " and t2.spv in (";
                 string spvs = "";
                 for (int i = 0; i < spspv.Length; i++)
                 {
@@ -1751,10 +1753,10 @@ SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding FROM daily_gen_sum
             }
             if (!string.IsNullOrEmpty(site) && site != "All~")
             {
-                if (chkfilter == 1) { filter += " and "; }
+                //if (chkfilter == 1) { filter += " and "; }
                 // filter += "t1.site in (" + site + ")";
                 string[] spsite = site.Split(",");
-                filter += "t1.site_id in (";
+                filter += "and t1.site_id in (";
                 string sites = "";
                 for (int i = 0; i < spsite.Length; i++)
                 {
@@ -1768,10 +1770,10 @@ SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding FROM daily_gen_sum
             }
             if (!string.IsNullOrEmpty(wtg) && wtg != "All~")
             {
-                if (chkfilter == 1) { filter += " and "; }
+                //if (chkfilter == 1) { filter += " and "; }
                 // filter += "t1.wtg in (" + wtg + ")";
                 string[] spwtg = wtg.Split(",");
-                filter += "t1.wtg in (";
+                filter += " and t1.wtg in (";
                 string wtgs = "";
                 for (int i = 0; i < spwtg.Length; i++)
                 {
@@ -2399,7 +2401,7 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
                 filter += " and site_id in (" + site + ")";
             }
             filter += " and smb='Nil' and strings='Nil'";
-            string query = " select date, site, icr, inv, total_bd, bd_remarks from uploading_file_breakdown_solar where HOUR(total_bd)>=1 " + filter;
+            string query = " select date, site, icr, inv,from_bd,to_bd ,total_bd, bd_remarks from uploading_file_breakdown_solar where HOUR(total_bd)>=1 " + filter;
             List<SolarUploadingFileBreakDown> data = new List<SolarUploadingFileBreakDown>();
             data = await Context.GetData<SolarUploadingFileBreakDown>(query).ConfigureAwait(false);
             return data;
@@ -4478,12 +4480,13 @@ sum(load_shedding)as load_shedding,'' as tracker_losses,sum(total_losses)as tota
             List<SolarPerformanceReports1> tempdata2 = new List<SolarPerformanceReports1>();
             tempdata2 = await Context.GetData<SolarPerformanceReports1>(qry7).ConfigureAwait(false);
 
+         
             string qry = @"SELECT t1.site,spv,
 (SELECT ac_capacity FROM site_master_solar where site=t1.site and state=t1.state)as capacity,
 (SELECT dc_capacity FROM site_master_solar where site=t1.site and state=t1.state)as dc_capacity,
 (SELECT total_tarrif FROM site_master_solar where site=t1.site and state=t1.state)as total_tarrif,
 (SELECT  sum(gen_nos) FROM daily_target_kpi_solar where sites=t1.site
-and " + datefilter + " and fy='" + fy + "') as tar_kwh,(sum(inv_kwh_afterloss)/1000000)as act_kwh," +
+and " + datefilter + " and fy='" + fy + "') as tar_kwh,(sum(inv_kwh_afterloss)/1000000)as act_kwh,(sum(expected_kwh)/1000000)as expected_kwh, " +
 "(SELECT lineloss FROM monthly_line_loss_solar where site=t1.site and fy='" + fy + "' " +
 "and month_no=month(t1.date) order by monthly_line_loss_solar_id desc limit 1)as lineloss," +
 "(SELECT  sum(ghi)/count(*) FROM daily_target_kpi_solar where sites=t1.site and " + datefilter + " and fy= '" + fy + "') as tar_ghi," +
@@ -6087,10 +6090,14 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             return await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
 
         }
-        internal async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate)
+        internal async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate,string site)
         {
             string qry = "Select * from uploading_file_breakdown";
             string filter = " where date >= '" + fromDate + "' and date <= '" + toDate + "' ";
+            if (!string.IsNullOrEmpty(site))
+            {
+                filter += " and site_id in (" + site + ")";
+            }
             return await Context.GetData<WindUploadingFileBreakDown>(qry + filter).ConfigureAwait(false);
         }
         //#region KPI Calculations

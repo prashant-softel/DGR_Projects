@@ -143,7 +143,8 @@
                     <div class="col-sm-5 text-center"></div>
                 </div>
                 <hr>
-                <div id="reports"  style="overflow-x: auto;" class="reports"></div>
+                <div id="reports" style="overflow-x: auto;" class="reports"></div>
+                <div id="loader" class="loader  center" style="display:none"></div>
 
 
             </div>
@@ -179,6 +180,10 @@
 
 
 <script type="text/javascript">
+    var userRole = "@Html.Raw(@HttpContextAccessor.HttpContext.Session.GetString("role"))";
+    var windUserAccess = "@Html.Raw(windUserSiteList.TrimEnd(','))";
+
+   
     $(document).ready(function () {
         $('#daterange').daterangepicker(
             {
@@ -381,13 +386,17 @@
             spv = spv != "" ? spv.slice(0, -1) : spv;
 
         }
-
+        if (userRole == "User" && site == "") {
+            site = windUserAccess;
+        }
 
 
         $('select#wtg option:selected').each(function () {
             wtg += $(this).val() + ",";
         });
         wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
+
+        document.getElementById("loader").style.display = 'flex';
 
         //var wtg = $('select#wtg option:selected').val();
         $.ajax({
@@ -399,7 +408,7 @@
             datatype: "JSON",
             success: function (result, status, xhr) {
                 //console.log(result);
-                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline" style="width: 140%;">';
+                var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline" style="width: 160%;">';
                 tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<th style="width:100px;">Date</th>';
                 tbl += '<th>Country</th>';
@@ -480,6 +489,8 @@
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loader").style.display = 'none';
+
                 //$('#example1').removeClass('dataTable');
             }
         });

@@ -259,8 +259,12 @@ namespace DGRAPIs.Repositories
                 string delAccess1 = "DELETE FROM `user_access` WHERE login_id  = '" + login_id + "' AND `site_type` = '0' AND 	category_id = 4";
                 await Context.ExecuteNonQry<int>(delAccess1).ConfigureAwait(false);
             }
-            string qry4 = "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`,`upload_access`) VALUES  ('" +login_id + "', 0, 4, '"+ importapproval + "', '0')";
-            await Context.ExecuteNonQry<int>(qry4).ConfigureAwait(false);
+            if(importapproval > 0)
+            {
+                string qry4 = "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`,`upload_access`) VALUES  ('" + login_id + "', 0, 4, '" + importapproval + "', '0')";
+                await Context.ExecuteNonQry<int>(qry4).ConfigureAwait(false);
+            }
+            
             if (flag3 == true)
             {
                 qry2 += sitevalues;

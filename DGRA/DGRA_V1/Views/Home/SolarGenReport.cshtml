@@ -172,6 +172,8 @@
 
                                         <hr>
                                         <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
+                                        <div id="loaderD" class="loader  center" style="display:none"></div>
+
 
                                     </div>
                                     <div class="tab-pane fade" id="custom-tabs-three-monthly" role="tabpanel" aria-labelledby="custom-tabs-three-monthly-tab">
@@ -282,6 +284,7 @@
 
                                         <hr>
                                         <div id="reportsMonthly" style="overflow-x: auto;" class="reportsMonthly"></div>
+                                        <div id="loaderM" class="loader  center" style="display:none"></div>
                                     </div>
                                     <div class="tab-pane fade" id="custom-tabs-three-yearly" role="tabpanel" aria-labelledby="custom-tabs-three-yearly-tab">
                                         <div class="row">
@@ -364,6 +367,7 @@
 
                                         <hr>
                                         <div id="reportsYearly" style="overflow-x: auto;" class="reportsYearly"></div>
+                                        <div id="loaderY" class="loader  center" style="display:none"></div>
                                     </div>
 
                                 </div>
@@ -414,6 +418,8 @@
 <script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
 <script type="text/javascript">
+ var userRole = "@Html.Raw(@HttpContextAccessor.HttpContext.Session.GetString("role"))";
+ var solarUserAccess ="@Html.Raw(solarSiteList.TrimEnd(','))";
     $(document).ready(function () {
         $('#daterange').daterangepicker(
             {
@@ -957,8 +963,11 @@
             spv = spv != "" ? spv.slice(0, -1) : spv;
 
         }
+        if (userRole == "User" && site == "") {
+            site = solarUserAccess;
+        }
 
-
+        document.getElementById("loaderD").style.display = 'flex';
         $('select#inv option:selected').each(function () {
             inv += $(this).val() + ",";
             //console.log($(this).val());
@@ -1114,6 +1123,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                 //$('#example1').removeClass('dataTable');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderD").style.display = 'none';
             }
         });
 
@@ -1154,8 +1164,11 @@
             spv = spv != "" ? spv.slice(0, -1) : spv;
 
         }
+        if (userRole == "User" && site == "") {
+            site = solarUserAccess;
+        }
 
-
+        document.getElementById("loaderD").style.display = 'flex';
         $('select#inv option:selected').each(function () {
             inv += $(this).val() + ",";
 
@@ -1294,14 +1307,14 @@
                     buttons: [
                         {
                             extend: 'excel',
-                            title: 'Solar Daily Generation Reports Inverter Wise',
+                            title: 'Solar Daily Generation Reports Site Wise',
                             exportOptions: {
                                 columns: ':visible'
                             }
                         },
                         {
                             extend: 'csv',
-                            title: 'Solar Daily Generation Reports Inverter Wise',
+                            title: 'Solar Daily Generation Reports Site Wise',
                             exportOptions: {
                                 columns: ':visible'
                             }
@@ -1318,6 +1331,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                 //$('#example1').removeClass('dataTable');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderD").style.display = 'none';
             }
         });
     }
@@ -1364,6 +1378,9 @@
             spv = spv != "" ? spv.slice(0, -1) : spv;
 
         }
+        if (userRole == "User" && site == "") {
+            site = solarUserAccess;
+        }
 
         $('select#invM option:selected').each(function () {
             inv +=  $(this).val() + ",";
@@ -1374,7 +1391,10 @@
         var country = $('select#countryM option:selected').val();
         var year = $('select#fyM option:selected').val();
         //var month = $('select#monthM option:selected').val();
-
+        if (year == "") {
+            alert("Please select financial year");
+            return false;
+        }
 
 
         let month = "";
@@ -1399,7 +1419,7 @@
                 }
             }
         }) */
-
+        document.getElementById("loaderM").style.display = 'flex';
         var reportType = "INV";
         var reporthead = "Inverter Wise Report";
         $.ajax({
@@ -1571,6 +1591,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                 //$('#example2').removeClass('dataTable');
                 $('#example2').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderM").style.display = 'none';
             }
         });
 
@@ -1603,6 +1624,9 @@
             spv = spv != "" ? spv.slice(0, -1) : spv;
 
         }
+        if (userRole == "User" && site == "") {
+            site = solarUserAccess;
+        }
 
 
         $('select#invM option:selected').each(function () {
@@ -1617,13 +1641,17 @@
 
         var country = $('select#countryM option:selected').val();
         var fyyear = $('select#fyM option:selected').val();
+        if (fyyear == "") {
+            alert("Please select financial year");
+            return false;
+        }
         let month = "";
         $('select#monthM option:selected').each(function () {
 
             month+= $(this).val()+",";
         });
         month = month != "" ? month.slice(0, -1) : month;
-
+        document.getElementById("loaderM").style.display = 'flex';
         var arr1 = new Array();
         arr1 = fyyear.split("-");
         var fromDate = "";
@@ -1791,6 +1819,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                 //$('#example2').removeClass('dataTable');
                 $('#example2').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderM").style.display = 'none';
             }
         });
 
@@ -1798,7 +1827,7 @@
 
     // -----------------------------------Yearly ---------------------//
     function GetYearlyGenReport() {
-
+        document.getElementById("loaderY").style.display = 'flex';
         var ReportType = $("input[name='yearly']:checked").val();
         if (ReportType == "WTG") {
             //alert("WTG");
@@ -1808,6 +1837,7 @@
             //alert("SIte");
             GetYearlyGenReportSiteWise();
         }
+        document.getElementById("loaderY").style.display = 'none';
     }
 
     // Yearly WTG Wise
@@ -1840,6 +1870,9 @@
             spv = spv != "" ? spv.slice(0, -1) : spv;
 
         }
+        if (userRole == "User" && site == "") {
+            site = solarUserAccess;
+        }
 
         $('select#invY option:selected').each(function () {
             inverter += $(this).val() + ",";
@@ -1848,10 +1881,15 @@
         inverter = inverter != "" ? inverter.slice(0, -1) : inverter;
 
         var fyyear = $('select#fyY option:selected').val();
+        if (fyyear == "") {
+            alert("Please select financial year");
+            return false;
+        }
         //var month = $('select#monthM option:selected').val();
         var arr1 = new Array();
         arr1 = fyyear.split("-");
 
+        document.getElementById("loaderY").style.display = 'flex';
         var fromDate = "";
         var toDate = "";
         if (fyyear) {
@@ -2024,6 +2062,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                // $('#example3').removeClass('dataTable');
                 $('#example3').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderY").style.display = 'none';
             }
         });
 
@@ -2059,6 +2098,9 @@
             spv = spv != "" ? spv.slice(0, -1) : spv;
 
         }
+        if (userRole == "User" && site == "") {
+            site = solarUserAccess;
+        }
 
         $('select#invY option:selected').each(function () {
             inv += $(this).val() + ",";
@@ -2067,7 +2109,12 @@
         inv = inv != "" ? inv.slice(0, -1) : inv;
 
         var fyyear = $('select#fyY option:selected').val();
+        if (fyyear == "") {
+            alert("Please select financial year");
+            return false;
+        }
         //var month = $('select#monthM option:selected').val();
+        document.getElementById("loaderY").style.display = 'flex';
         var arr1 = new Array();
         arr1 = fyyear.split("-");
         var fromDate = "";
@@ -2277,6 +2324,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                 //$('#example3').removeClass('dataTable');
                 $('#example3').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderY").style.display = 'none';
             }
         });
 

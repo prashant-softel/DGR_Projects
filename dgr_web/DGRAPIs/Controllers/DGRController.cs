@@ -2172,11 +2172,11 @@ namespace DGRAPIs.Controllers
         }
         [Route("GetWindMajorBreakdown")]
         [HttpGet]
-        public async Task<IActionResult> GetWindMajorBreakdown(string fromDate, string toDate)
+        public async Task<IActionResult> GetWindMajorBreakdown(string fromDate, string toDate,string site)
         {
             try
             {
-                var data = await _dgrBs.GetWindMajorBreakdown(fromDate, toDate);
+                var data = await _dgrBs.GetWindMajorBreakdown(fromDate, toDate,site);
                 return Ok(data);
 
             }

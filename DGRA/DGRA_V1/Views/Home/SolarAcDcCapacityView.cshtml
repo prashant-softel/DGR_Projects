@@ -60,11 +60,12 @@
                         <button type="button" class="btn btn-block btn-primary" onclick="getReport()" style="margin-left:3rem; width: 5rem;">Search</button>
                     </div>
                     <div class="col-md-7"></div>
-                    </div>
-
-                    <hr>
-                    <div id="AcDcCapacity" style="overflow-x: auto;" class="AcDcCapacity"></div>
                 </div>
+
+                <hr>
+                <div id="AcDcCapacity" style="overflow-x: auto;" class="AcDcCapacity"></div>
+                <div id="loader" class="loader  center" style="display:none"></div>
+            </div>
         </div>
 
 
@@ -149,6 +150,11 @@
             site_id += $(this).val() + ",";
         });
         site_id = site_id != "" ? site_id.slice(0, -1) : site_id;
+        if (site_id == "" || site_id == null) {
+            alert("Please select site ");
+            return false;
+        }
+        document.getElementById("loader").style.display = 'flex';
         console.log(site_id);
         $.ajax({
             type: "POST",
@@ -219,7 +225,7 @@
                 $(".dt-buttons").addClass('btn-group flex-wrap');
                 $(".dt-buttons > button").addClass('btn btn-secondary');
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
-
+                document.getElementById("loader").style.display = 'none';
                 $('#example1').removeClass('dataTable');
             }
         });

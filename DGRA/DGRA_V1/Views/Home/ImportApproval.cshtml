@@ -207,7 +207,8 @@
                 }
                 <hr>
                 <div id="LogData"></div>
-
+                
+                <div id="loader" class="loader  center" style="display:none"></div>
             </div>
 
 
@@ -396,6 +397,7 @@
             alert("Please select site ");
             return false;
         }
+        document.getElementById("loader").style.display = 'flex';
         console.log(site);
         var status = $('select#status option:selected').val();
         var importType = $('select#importType option:selected').val();
@@ -414,7 +416,7 @@
             success: function (result, status, xhr) {
                 var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th><input type="checkbox" class="form-check-input" id="checkAllW" onclick="selectAll()" style= "margin-left:-0.5rem;    margin-top: -6px;"></th>';
+                tbl += '<th><input type="checkbox" class="" id="checkAllW" onclick="selectAll()" style= ""></th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th style="width:100px">Import Date</th>';
                 tbl += '<th style="width:100px">Data Date</th>';
@@ -538,7 +540,7 @@
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $("dataTables_filter").css("margin-top", "-35px");
                 $('#example1').removeClass('dataTable');
-
+                document.getElementById("loader").style.display = 'none';
                 document.getElementById("approvebtn").style.display = 'flex';
             }
         });
@@ -580,7 +582,7 @@
             alert("Please select site ");
             return false;
         }
-
+        document.getElementById("loader").style.display = 'flex';
         var status = $('select#status option:selected').val();
         var importType = $('select#importType option:selected').val();
         var daterange = $('#daterange').val();
@@ -597,7 +599,7 @@
             success: function (result, status, xhr) {
                 var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th><input type="checkbox" class="form-input" id="checkAllS" onclick="selectAllS()" style= "margin-left:-0.5rem;    margin-top: -6px;"></th>';
+                tbl += '<th><input type="checkbox" class="form-input" id="checkAllS" onclick="selectAllS()" style= ""></th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th style="width:100px">Import Date</th>';
                 tbl += '<th style="width:100px">Data Date</th>';
@@ -633,7 +635,7 @@
                             isDisable = "disabled";
                         }
                         tbl += '<tr>';
-                        tbl += '<td><input type="checkbox" class="form-check-input" name="chk" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style ="margin-left:0.5rem;    margin-top: -6px;" ' + isDisable + '></td>';
+                        tbl += '<td><input type="checkbox" class="form-check-input" name="chks" id="checkapproveid_' + result[i].import_batch_id + '" data-id=' + result[i].import_batch_id + ' style ="margin-left:0.5rem;    margin-top: -6px;" ' + isDisable + '></td>';
                         tbl += '<td>' + result[i].site_name + '</td>';
                         tbl += '<td>' + formattedDate + '</td>';
                         tbl += '<td>' + formattedDate1 + '</td>';
@@ -733,7 +735,7 @@
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 $("dataTables_filter").css("margin-top", "-35px");
                 $('#example1').removeClass('dataTable');
-
+                document.getElementById("loader").style.display = 'none';
                 document.getElementById("approvebtn").style.display = 'flex';
             }
         });
@@ -742,7 +744,7 @@
     let selectS = 0;
 
     function selectAllS() {
-        var ele = document.getElementsByName('chk');
+        var ele = document.getElementsByName('chks');
         if (selectS == 0) {
             for (var i = 0; i < ele.length; i++) {
                 console.log(ele[i].disable);
@@ -1079,6 +1081,7 @@
 
                 }
                 tbl1 += '</table>';
+                $("#importedData").html();
                 document.getElementById("title").innerHTML = "Solar Generation View";
                 $("#importedData").html(tbl1);
 
@@ -1104,6 +1107,7 @@
                 tbl2 += '<th style="font-size: 12px;text-align: center;">SMB</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">String</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">BD Type</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Start From</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Start To</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Total Stop</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Ext/Int BD</th>';
@@ -1125,6 +1129,7 @@
                         tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].inv + '</td>';
                         tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].smb + '</td>';
                         tbl2 += '<td style="font-size: 12px; text-align: center;">' + result1[j].strings + '</td>';
+                        tbl2 += '<td style="font-size: 12px; text-align: center;">' + result1[j].bd_type + '</td>';
                         tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].from_bd['hours'] + ':' + result1[j].from_bd['minutes'] + '</td>';
                         tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].to_bd['hours'] + ':' + result1[j].to_bd['minutes'] + '</td>';
                         tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_bd['hours'] + ':' + result1[j].total_bd['minutes'] + '</td>';
@@ -1140,6 +1145,7 @@
 
                 }
                 tbl2 += '</table>';
+                $("#importedData").html();
                 document.getElementById("title").innerHTML = "Solar Breakdown View";
                 $("#importedData").html(tbl2);
             }
@@ -1208,6 +1214,7 @@
 
                 }
                 tbl2 += '</table>';
+                $("#importedData").html();
                 document.getElementById("title").innerHTML = "Solar Pyranometer 1Min View";
                 $("#importedData").html(tbl2);
             }
@@ -1273,6 +1280,7 @@
 
                 }
                 tbl2 += '</table>';
+                $("#importedData").html();
                 document.getElementById("title").innerHTML = "Solar Pyranometer 15Min View";;
                 $("#importedData").html(tbl2);
             }

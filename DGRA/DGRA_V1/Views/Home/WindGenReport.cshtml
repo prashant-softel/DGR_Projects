@@ -181,6 +181,7 @@
 
                                         <hr>
                                         <div id="reportsDaily" style="overflow-x: auto;" class="reportsDaily"></div>
+                                        <div id="loaderD" class="loader  center" style="display:none"></div>
 
                                     </div>
                                     <div class="tab-pane fade" id="custom-tabs-three-monthly" role="tabpanel" aria-labelledby="custom-tabs-three-monthly-tab">
@@ -292,6 +293,7 @@
 
                                         <hr>
                                         <div id="reportsMonthly" style="overflow-x: auto;" class="reportsMonthly"></div>
+                                        <div id="loaderM" class="loader  center" style="display:none"></div>
                                     </div>
                                     <div class="tab-pane fade" id="custom-tabs-three-yearly" role="tabpanel" aria-labelledby="custom-tabs-three-yearly-tab">
                                         <div class="row">
@@ -374,6 +376,7 @@
 
                                         <hr>
                                         <div id="reportsYearly" style="overflow-x: auto;" class="reportsYearly"></div>
+                                        <div id="loaderY" class="loader  center" style="display:none"></div>
                                     </div>
 
                                 </div>
@@ -424,6 +427,8 @@
 <script src="~/Content/theme/plugins/pdfmake/pdfmake.min.js" defer></script>
 <script src="~/Content/theme/plugins/datatables-buttons/js/buttons.colVis.min.js" defer></script>
 <script type="text/javascript">
+    var userRole = "@Html.Raw(@HttpContextAccessor.HttpContext.Session.GetString("role"))";
+    var windUserAccess ="@Html.Raw(windSiteList.TrimEnd(','))";
     $(document).ready(function () {
         $('#daterange').daterangepicker(
             {
@@ -601,7 +606,7 @@
     function GetSPV(fliterVal) {
         let state_id = "";
         let site_ids = "";
-       
+
         if (fliterVal == false) {
             site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         }
@@ -905,6 +910,8 @@
             site += $(this).val() + ",";
         });
         site = site != "" ? site.slice(0, -1) : site;
+       
+
         if(!site){
             let state = "";
             $('select#state option:selected').each(function () {
@@ -923,8 +930,14 @@
         });
         wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
 
+
+        if (userRole == "User" && site == "") {
+            site = windUserAccess;
+        }
+
         var reportType = "WTG";
         var reporthead = "WTG Wise Report";
+        document.getElementById("loaderD").style.display = 'flex';
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWindDailyGenerationReportWTGWise", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg,
@@ -1035,6 +1048,7 @@
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 //$('#example1').removeClass('dataTable');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderD").style.display = 'none';
 
             }
         });
@@ -1065,13 +1079,21 @@
             site +=  $(this).val() + ",";
         });
         site = site != "" ? site.slice(0, -1) : site;
+
+
         let wtg = "";
         $('select#wtg option:selected').each(function () {
             wtg += $(this).val() + ",";
         });
         wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
+
+        if (userRole == "User" && site == "") {
+            site = windUserAccess;
+        }
+
         var reportType = "WTG";
         var reporthead = "Site Wise Report";
+        document.getElementById("loaderD").style.display = 'flex';
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWindDailyGenerationReportSiteWise", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
@@ -1179,6 +1201,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                 //$('#example1').removeClass('dataTable');
                 $('#example1').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderD").style.display = 'none';
 
             }
         });
@@ -1231,12 +1254,19 @@
 
         var country = $('select#countryM option:selected').val();
         var year = $('select#fyM option:selected').val();
+        if (year == "") {
+            alert("Please select financial year");
+            return false;
+        }
         let month = "";
         $('select#monthM option:selected').each(function () {
 
             month+= $(this).val()+",";
         });
         month = month != "" ? month.slice(0, -1) : month;
+        if (userRole == "User" && site == "") {
+            site = windUserAccess;
+        }
 
         var arr1 = new Array();
         arr1 = year.split("-");
@@ -1244,6 +1274,7 @@
 
         var reportType = "WTG";
         var reporthead = "WTG Wise Report";
+        document.getElementById("loaderM").style.display = 'flex';
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWindMonthlyGenerationReportWTGWise", "WindReport")' + '?fy=' + arr1[0] + '&month=' + month + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
@@ -1282,7 +1313,7 @@
                     for (var i = 0; i < result.length; i++) {
                         //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td class="text-left">' + result[i].year + '</td>';
+                        tbl += '<td class="text-left">' + year + '</td>';
                         tbl += '<td class="text-left">' + result[i].month + '</td>';
                         tbl += '<td class="text-left">' + result[i].country + '</td>';
                         tbl += '<td class="text-left">' + result[i].state + '</td>';
@@ -1352,6 +1383,7 @@
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 //$('#example2').removeClass('dataTable');
                 $('#example2').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderM").style.display = 'none';
             }
         });
 
@@ -1389,18 +1421,26 @@
 
         var country = $('select#countryM option:selected').val();
         var fyyear = $('select#fyM option:selected').val();
+        if (fyyear == "") {
+            alert("Please select financial year");
+            return false;
+        }
         let month = "";
         $('select#monthM option:selected').each(function () {
 
             month+= $(this).val()+",";
         });
         month = month != "" ? month.slice(0, -1) : month;
+        if (userRole == "User" && site == "") {
+            site = windUserAccess;
+        }
 
         var arr1 = new Array();
         arr1 = fyyear.split("-");
         var fromDate = "";
         var reportType = "WTG";
         var reporthead = "WTG Wise Report";
+        document.getElementById("loaderM").style.display = 'flex';
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWindMonthlyGenerationReportSiteWise", "WindReport")' + '?fy=' + arr1[0] + '&month=' + month + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
@@ -1508,6 +1548,7 @@
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 //$('#example2').removeClass('dataTable');
                 $('#example2').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderM").style.display = 'none';
             }
         });
 
@@ -1523,6 +1564,7 @@
         else {
             GetYearlyGenReportSiteWise();
         }
+        document.getElementById("loaderY").style.display = 'none';
     }
 
     // Yearly WTG Wise
@@ -1558,9 +1600,16 @@
         wtg = wtg != "" ? wtg.slice(0, -1) : wtg;
 
         var fyyear = $('select#fyY option:selected').val();
+        if (fyyear == "") {
+            alert("Please select financial year");
+            return false;
+        }
         //var month = $('select#monthM option:selected').val();
         var arr1 = new Array();
         arr1 = fyyear.split("-");
+        if (userRole == "User" && site == "") {
+            site = windUserAccess;
+        }
 
         var fromDate = "";
         var toDate = "";
@@ -1570,6 +1619,7 @@
         }
         var reportType = "WTG";
         var reporthead = "WTG Wise Report";
+        document.getElementById("loaderY").style.display = 'flex';
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWindYearlyGenerationReportWTGWise", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
@@ -1580,7 +1630,7 @@
                // var tbl = '<div class="text-center"><h5></h5></div>';
                 var tbl = '<table id="example3"  class="table table-bordered table-striped" style="width: 150%;">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th>Fy</th>';
+                tbl += '<th>FY</th>';
                 tbl += '<th>Country</th>';
                 tbl += '<th>State</th>';
                 tbl += '<th>SPV</th>';
@@ -1677,6 +1727,7 @@
                 $(".dataTables_filter> label >input").addClass('form-control form-control-sm');
                 //$('#example3').removeClass('dataTable');
                 $('#example3').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderY").style.display = 'none';
             }
         });
 
@@ -1718,6 +1769,13 @@
 
         var fyyear = $('select#fyY option:selected').val();
         //var month = $('select#monthM option:selected').val();
+        if (userRole == "User" && site == "") {
+            site = windUserAccess;
+        }
+        if (fyyear == "") {
+            alert("Please select financial year");
+            return false;
+        }
         var arr1 = new Array();
         arr1 = fyyear.split("-");
         var fromDate = "";
@@ -1726,6 +1784,7 @@
 
         var reportType = "Site";
         var reporthead = "Site Wise Report";
+        document.getElementById("loaderY").style.display = 'flex';
         $.ajax({
             type: "GET",
             url: '@Url.Action("GetWindYearlyGenerationReportSiteWise", "WindReport")' + '?fromDate=' + fromDate + '&toDate=' + toDate + '&country=' + country + '&state=' + state + '&spv=' + spv + '&site=' + site + '&wtg=' + wtg + '&reportType=' + reportType,
@@ -1736,7 +1795,7 @@
                 //var tbl = '<div class="text-center"><h5></h5></div>';
                 var tbl = '<table id="example3"  class="table table-bordered table-striped" style="width: 150%;">';
                 tbl += '<thead class="tbl-head"><tr>';
-                tbl += '<th>Fy</th>';
+                tbl += '<th>FY</th>';
                 tbl += '<th>Country</th>';
                 tbl += '<th>State</th>';
                 tbl += '<th>SPV</th>';
@@ -1835,6 +1894,7 @@
                 $("dataTables_filter").css("margin-top", "-35px");
                // $('#example3').removeClass('dataTable');
                 $('#example3').wrap("<div class='scrolledTable'></div>");
+                document.getElementById("loaderY").style.display = 'none';
             }
         });
 
