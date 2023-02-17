@@ -43,6 +43,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         string siteUserRole;
         int previousSite = 0;
         static string[] importData = new string[2];
+        string generationDate = "";
         static bool isGenValidationSuccess = false;
         static bool isBreakdownValidationSuccess = false;
         static bool isPyro1ValidationSuccess = false;
@@ -481,9 +482,11 @@ namespace DGRA_V1.Areas.admin.Controllers
                                                     siteUserRole = HttpContext.Session.GetString("role");
                                                     if (siteUserRole == "Admin")
                                                     {
+                                                        
                                                         var url1 = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/SetApprovalFlagForImportBatches?dataId=" + batchIdDGRAutomation + "&approvedBy=" + userId + "&approvedByName=" + userName + "&status=1";
                                                         using (var client1 = new HttpClient())
                                                         {
+                                                            await Task.Delay(10000);
                                                             var response1 = await client1.GetAsync(url1);
                                                             if (response1.IsSuccessStatusCode)
                                                             {
@@ -502,6 +505,17 @@ namespace DGRA_V1.Areas.admin.Controllers
                                                     m_ErrorLog.SetError(",Wind KPI Calculations API Failed:");
                                                     statusCode = (int)response.StatusCode;
                                                     status = "Wind KPI Calculation Import API Failed";
+
+                                                    //for solar 0, wind 1;
+                                                    int deleteStatus = await DeleteRecordsAfterFailure(importData[1], 1);
+                                                    if(deleteStatus == 1)
+                                                    {
+                                                        m_ErrorLog.SetInformation(", Records deleted successfully after incomplete upload");
+                                                    }
+                                                    else
+                                                    {
+                                                        m_ErrorLog.SetInformation(", Records deletion failed due to incomplete upload");
+                                                    }
                                                 }
                                             }
                                         }
@@ -548,6 +562,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                                                         var url1 = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/SetSolarApprovalFlagForImportBatches?dataId=" + batchIdDGRAutomation + "&approvedBy=" + userId + "&approvedByName=" + userName + "&status=1";
                                                         using (var client1 = new HttpClient())
                                                         {
+                                                            await Task.Delay(10000);
                                                             var response1 = await client1.GetAsync(url1);
                                                             if (response1.IsSuccessStatusCode)
                                                             {
@@ -565,6 +580,17 @@ namespace DGRA_V1.Areas.admin.Controllers
                                                     m_ErrorLog.SetError(",SolarKPI Calculations API Failed:");
                                                     statusCode = (int)response.StatusCode;
                                                     status = "Solar KPI Calculation Import API Failed";
+
+                                                    //for solar 0, wind 1;
+                                                    int deleteStatus = await DeleteRecordsAfterFailure(importData[1], 0);
+                                                    if (deleteStatus == 1)
+                                                    {
+                                                        m_ErrorLog.SetInformation(", Records deleted successfully after incomplete upload");
+                                                    }
+                                                    else
+                                                    {
+                                                        m_ErrorLog.SetInformation(", Records deletion failed due to incomplete upload");
+                                                    }
                                                 }
                                             }
                                         }
@@ -695,6 +721,57 @@ namespace DGRA_V1.Areas.admin.Controllers
         //Remove static
         //Beginning of all DGR Import functions for both Wind and Solar Upload types
 
+        private async Task<int> GetBatchId(string importData)
+        {
+            var urlGetId = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetBatchId?logFileName=" + importData + "";
+            var result = string.Empty;
+            WebRequest request = WebRequest.Create(urlGetId);
+            using (var responses = (HttpWebResponse)request.GetResponse())
+            {
+                Stream receiveStream = responses.GetResponseStream();
+                using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                {
+                    result = readStream.ReadToEnd();
+                }
+                BatchIdImport obj = new BatchIdImport();
+                obj = JsonConvert.DeserializeObject<BatchIdImport>(result);
+                batchIdDGRAutomation = obj.import_batch_id;
+                if (batchIdDGRAutomation == 0)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return batchIdDGRAutomation;
+                }
+            }
+        }
+        private async Task<int> DeleteRecordsAfterFailure(string importData, int siteType)
+        {
+            //for solar 0, wind 1;
+                int batchId = await GetBatchId(importData);
+
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/DeleteRecordsAfterFailure?batchId=" + batchId + "&siteType=" + siteType + "";
+                var result = "";
+                WebRequest request = WebRequest.Create(url);
+                using (var responses = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = responses.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        result = readStream.ReadToEnd();
+                    }
+                    if (result == "1")
+                    {
+                        return 1;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                }
+        }
+
         private async Task<int> InsertSolarFileGeneration(string status, DataSet ds)
         {
             List<bool> errorFlag = new List<bool>();
@@ -744,7 +821,21 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         
                         addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
-                        
+                        if (rowNumber == 2)
+                        {
+                            generationDate = addUnit.date;
+                        }
+                        if(rowNumber > 2)
+                        {
+                            if (generationDate != addUnit.date)
+                            {
+                                m_ErrorLog.SetError(",Row <" + rowNumber + "> column <Date> : File Generation <" + generationDate + "> and Breakdown Date <" + addUnit.date + "> missmatched");
+                                errorCount++;
+                                skipRow = true;
+                                continue;
+                            }
+                        }
+
 
                         addUnit.site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
                         addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[addUnit.site]);
@@ -821,6 +912,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 {
                     // add to error log that validation of generation failed
                     m_ErrorLog.SetError(",Solar Generation Validation Failed");
+                    isGenValidationSuccess = false;
                 }
             }
             return responseCode;
@@ -862,6 +954,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                     var cell = ds.Tables[0].Rows[i][6];
                 }
 
+                generationDate = "";
                 List<WindUploadingFileGeneration> addSet = new List<WindUploadingFileGeneration>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
@@ -892,7 +985,21 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.date = isdateEmpty ? "Nil" : Convert.ToString((string)dr["Date"]);
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         addUnit.date = errorFlag[0] ? DateTime.MinValue.ToString("yyyy-MM-dd") : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
-                        
+                        if(rowNumber == 2)
+                        {
+                            generationDate = addUnit.date; 
+                        }
+                        if(rowNumber > 2)
+                        {
+                            if (generationDate != addUnit.date)
+                            {
+                                m_ErrorLog.SetError(",Row <" + rowNumber + "> column <Date> : File Generation <" + generationDate + "> and Breakdown Date <" + addUnit.date + "> missmatched");
+                                errorCount++;
+                                skipRow = true;
+                                continue;
+                            }
+                        }
+
                         addUnit.wtg = dr["WTG"] is DBNull || string.IsNullOrEmpty((string)dr["WTG"]) ? "Nil" : Convert.ToString(dr["WTG"]);
                         addUnit.wtg_id = equipmentId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(equipmentId[addUnit.wtg]) : 0;
                         errorFlag.Add(wtgValidation(addUnit.wtg, addUnit.wtg_id, rowNumber));
@@ -981,6 +1088,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 {
                     // add to error log that validation of generation failed
                     m_ErrorLog.SetError(",Wind Generation File Validation Failed");
+                    isGenValidationSuccess = false;
                 }
             }
 
@@ -1014,6 +1122,13 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.date = isdateEmpty ? "Nil" : (string)dr["Date"];
                         errorFlag.Add(dateNullValidation(addUnit.date, "Date", rowNumber));
                         addUnit.date = errorFlag[0] ? "Nil" : Convert.ToDateTime(dr["Date"]).ToString("yyyy-MM-dd");
+                        if (generationDate != addUnit.date)
+                        {
+                            m_ErrorLog.SetError(",Row <" + rowNumber + "> column <Date> : File Generation <" + generationDate + "> and Breakdown Date <" + addUnit.date + "> missmatched");
+                            errorCount++;
+                            skipRow = true;
+                            continue;
+                        }
 
                         //last row is Blank
                         if(addUnit.date == "" && addUnit.bd_type == "" && addUnit.action_taken == "")
@@ -1108,6 +1223,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 {
                     // add to error log that validation of generation failed
                     m_ErrorLog.SetError(",Solar Breakdown Validation Failed");
+                    isBreakdownValidationSuccess = false;
                 }
             }
 
@@ -1152,6 +1268,14 @@ namespace DGRA_V1.Areas.admin.Controllers
                         if (addUnit.date == "" || addUnit.date == "Nil")
                         {
                             m_ErrorLog.SetError(",Row <" + rowNumber + "> column <Date> : Date field is empty <" + addUnit.date + ">");
+                            errorCount++;
+                            skipRow = true;
+                            continue;
+                        }
+
+                        if(generationDate !=addUnit.date)
+                        {
+                            m_ErrorLog.SetError(",Row <" + rowNumber + "> column <Date> : File Generation <" + generationDate + "> and Breakdown Date <" + addUnit.date + "> missmatched");
                             errorCount++;
                             skipRow = true;
                             continue;
@@ -1221,6 +1345,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 {
                     // add to error log that validation of generation failed
                     m_ErrorLog.SetError(",Wind Breakdown File Validation Failed,");
+                    isBreakdownValidationSuccess = false;
                 }
             }
 
@@ -1253,6 +1378,15 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.date_time = isdateEmpty ? "Nil" : Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
                         errorFlag.Add(stringNullValidation(addUnit.date_time, "Time stamp", rowNumber));
                         errorFlag.Add(dateNullValidation(addUnit.date_time, "Time stamp", rowNumber));
+                        string temp = addUnit.date_time;
+                        string temp_date = temp.Substring(0, 10);
+                        if (generationDate != temp_date)
+                        {
+                            m_ErrorLog.SetError(",Row <" + rowNumber + "> column <Date> : File Generation <" + generationDate + "> and Pyranometer 1 Minute <" + temp_date + "> missmatched");
+                            errorCount++;
+                            skipRow = true;
+                            continue;
+                        }
 
                         string site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
                         addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[site]);
@@ -1301,6 +1435,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                     {
                         // add to error log that validation of generation failed
                         m_ErrorLog.SetError(",Solar PyranoMeter-1Min Validation Failed");
+                        isPyro1ValidationSuccess = false;
                     }
                 }
 
@@ -1340,6 +1475,15 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.date_time = isdateEmpty ? "Nil" : Convert.ToDateTime(dr["Time stamp"]).ToString("yyyy-MM-dd HH:mm:ss");
                         errorFlag.Add(stringNullValidation(addUnit.date_time, "Time stamp", rowNumber));
                         errorFlag.Add(dateNullValidation(addUnit.date_time, "Time stamp", rowNumber));
+                        string temp = addUnit.date_time;
+                        string temp_date = temp.Substring(0, 10);
+                        if (generationDate != temp_date)
+                        {
+                            m_ErrorLog.SetError(",Row <" + rowNumber + "> column <Date> : File Generation <" + generationDate + "> and Pyranometer 15 Minute <" + temp_date + "> missmatched");
+                            errorCount++;
+                            skipRow = true;
+                            continue;
+                        }
 
                         string site = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? "Nil" : Convert.ToString(dr["Site"]);
                         addUnit.site_id = dr["Site"] is DBNull || string.IsNullOrEmpty((string)dr["Site"]) ? 0 : Convert.ToInt32(siteNameId[site]);
@@ -1389,6 +1533,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                         // add to error log that validation of generation failed
                         status = "";
                         m_ErrorLog.SetError(",Solar PyranoMeter15Min Validation Failed");
+                        isPyro15ValidationSuccess = false;
                     }
                 }
             }

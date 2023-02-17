@@ -92,6 +92,7 @@
             tbl += '<th>Change Password</th>';
             tbl += '<th>Wind Access</th>';
             tbl += '<th>Solar Access</th>';
+            tbl += '<th>Clone User</th>';
             tbl += '<th>Action</th>';
 
             tbl += '</tr></thead>';
@@ -110,14 +111,16 @@
                     tbl += '<td>' + result[i].user_role + '</td>';
                     //tbl += '<td>' + result[i].created_on + '</td>';
                     tbl += '<td>' + status + '</td>';
-                    tbl += '<td class="text-center"><div style="display: flex; justify-content: center; align-items: center;"><button id="cng_btn ' + result[i].login_id + '" class="btn btn-dark" onclick="ChangePass(' + result[i].login_id + ')" style="background-color: #31576d; padding: 0.15rem 0.75rem;width: 80%;display: inline;" >Update</button><div id="hide ' + result[i].login_id + '" style="display: none; flex-direction: column; justify-content: center; align-items: center;"><input id="changePass ' + result[i].login_id + '" type="text" placeholder="Enter New Password" style="margin-top: 10px"/><div id="validation_' + result[i].login_id + '" style="display: none">Please Enter Password.</div><button onclick="ChangeSubmit(' + result[i].login_id + ')" class="btn btn-success" style="margin-top: 10px; padding: 0.15rem 0.75rem;width: 50%;">Submit</button></div></div></td>';
+                    tbl += '<td class="text-center"><div style="display: flex; justify-content: center; align-items: center;"><button id="cng_btn ' + result[i].login_id + '" class="btn btn-dark" onclick="ChangePass(' + result[i].login_id + ')" style="background-color: #31576d; padding: 0.15rem 0.75rem;min-width: 100px; width:80%; display: inline;" >Update</button><div id="hide ' + result[i].login_id + '" style="display: none; flex-direction: column; justify-content: center; align-items: center;"><input id="changePass ' + result[i].login_id + '" type="text" placeholder="Enter New Password" style="margin-top: 10px"/><div id="validation_' + result[i].login_id + '" style="display: none">Please Enter Password.</div><div style="width:auto; display: flex; gap: 5px; flex-direction: row; justify-content: between; align-items: center;"><button onclick="ChangeSubmit(' + result[i].login_id + ')" class="btn btn-success" style="margin-top: 10px; padding: 0.15rem 0.75rem;width: 60%;">Submit</button> <button onclick="ChangeExit(' + result[i].login_id + ')" class="btn btn-danger" style="margin-top: 10px; padding: 0.15rem 0.75rem;width: 50%;">Cancel</button></div></div></div></td>';
                     if (result[i].user_role != "Admin") {
-                        
+
                         tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="ViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
                         tbl += '<td class="text-center"><a href="#" class="btn btn-info" onclick="SolarViewUser(' + result[i].login_id + ')" style="padding: 0.15rem 0.75rem;width: 70%;display: inline;" >View</a></td>';
-                        
+                        tbl += `<td class="text-center"> <button id="clone_btn${ result[i].login_id }" onclick="clone_user(${result[i].login_id})" class="btn btn-secondary" style="display: block; padding: 0.15rem 0.75rem;width: 100%;display: inline;" >Clone</button><div id="clone_div${result[i].login_id}" style="display: none; width: auto; border:medium; background-color:#ffffff"> <input id="clone_username_${result[i].login_id}" type="text" placeholder=" User Name" style="margin-top: 10px"/> <input id="clone_email_${result[i].login_id}" type="text" placeholder=" Email Id" style="margin-top: 10px"/> <input id="clone_password_${result[i].login_id}" type="text" placeholder="Password" style="margin-top: 10px"/> <div style="display:flex; flex-direction: row; gap: 5px; margin-top: 10px; margin-bottom: 10px"><button id="clone_exit_btn_${result[i].login_id}" onclick="cloneExit(${result[i].login_id})" class="btn btn-danger" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Cancel</button> <button id="clone_submit_btn_${result[i].login_id}" onclick="cloneSubmit(${result[i].login_id})" class="btn btn-success" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Submit</button>  </div> </div> </td>`
+
                     }
                     else {
+                        tbl += '<td>&nbsp;</td>';
                         tbl += '<td>&nbsp;</td>';
                         tbl += '<td>&nbsp;</td>';
                         //tbl += '<td>&nbsp;</td>';
@@ -125,13 +128,26 @@
                     }
                     if (result[i].active_user == 1) {
                         var name = String(result[i].username);
-                        console.log(name);
-                        tbl += '<td class="text-center"><div style="display: flex; justify-content: center; align-items: center; gap:0.5rem"><button id="deact_btn_' + result[i].login_id + '" class="btn btn-danger" onclick="deactivate(' + result[i].login_id + ',' + result[i].active_user + ')" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Deactivate</button><button id="delete_btn ' + result[i].login_id + '" onclick="delete_user(' + result[i].login_id + ')" class="btn btn-danger" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Delete</button></td>';
+                        var admin;
+                        if (result[i].user_role != "Admin") {
+                            admin = true;
+                        } else {
+                            admin = false;
+                        }
+                        console.log(admin);
+                        tbl += `<td class="text-center"><div id="btn_div${result[i].login_id}" style="display: flex; justify-content: center; align-items: center; gap:0.5rem"><button id="deact_btn_${result[i].login_id}" class="btn btn-danger" onclick="deactivate(${result[i].login_id},${result[i].active_user})" style="display: block; padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Deactivate</button><button id="delete_btn ${result[i].login_id}" onclick="delete_user(${result[i].login_id})" class="btn btn-danger" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline; display: block;" >Delete</button></div> </td>`;
                     }
                     if (result[i].active_user == 0) {
                         var name = String(result[i].username);
-                        console.log(name);
-                        tbl += '<td class="text-center"><div style="display: flex; justify-content: center; align-items: center; gap:0.5rem"><button id="deact_btn_' + result[i].login_id + '" class="btn btn-success" onclick="deactivate(' + result[i].login_id + ',' + result[i].active_user + ')" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Activate</button><button id="delete_btn ' + result[i].login_id + '" onclick="delete_user(' + result[i].login_id + ')" class="btn btn-danger" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Delete</button></td>';
+                        var admin;
+                        if (result[i].user_role == "Admin") {
+                            admin = true;
+                        } else {
+                            admin = false;
+                        }
+                        console.log(admin);
+
+                        tbl += `<td class="text-center"><div id="btn_div${result[i].login_id}" style="display: flex; justify-content: center; align-items: center; gap:0.5rem"><button id="deact_btn_${result[i].login_id}" class="btn btn-success" onclick="deactivate(${result[i].login_id},${result[i].active_user})" style="display: block; padding: 0.15rem 0.75rem;width: 90%;display: inline;" >Activate</button><button id="delete_btn ${result[i].login_id}" onclick="delete_user(${result[i].login_id})" class="btn btn-danger" style=" padding: 0.15rem 0.75rem;width: 90%;display: inline; display: block;" >Delete</button> </div> </div></td>`;
                     }
 
 
@@ -206,6 +222,156 @@
             a.style.display = "none";
         }
     }
+
+    function ChangeExit(login_id) {
+        var temp = "changePass " + login_id;
+        var temp1 = "hide " + login_id;
+        var temp2 = "validation_" + login_id;
+        var temp3 = "cng_btn " + login_id;
+
+        var a = document.getElementById(temp1);
+        var b = document.getElementById(temp2);
+        var c = document.getElementById(temp);
+        var d = document.getElementById(temp3);
+        console.log("You pressed change exit button " + login_id);
+        c.value = "";
+        b.style.display = "none";
+        a.style.display = "none";
+        d.style.display = "block";
+    }
+
+    function cloneExit(login_id) {
+        console.log("clicked clone Exit button " + login_id);
+        var temp = "clone_div" + login_id;
+        var temp1 = "clone_username_" + login_id;
+        var temp2 = "clone_email_" + login_id;
+        var temp3 = "clone_password_" + login_id;
+        var temp7 = "btn_div" + login_id;
+        var temp4 = "clone_btn" + login_id;
+
+        var a = document.getElementById(temp);
+        var b = document.getElementById(temp1);
+        var c = document.getElementById(temp2);
+        var d = document.getElementById(temp4);
+        var h = document.getElementById(temp7);
+
+
+        a.style.display = "none";
+        b.value = "";
+        c.value = "";
+        d.style.display = "block";
+        h.style.display = "flex";
+    }
+
+    function clone_user(login_id) {
+        console.log("You Clicked " + login_id);
+        var temp = "clone_div" + login_id;
+        var temp7 = "btn_div" + login_id;
+        var temp1 = "clone_btn" + login_id;
+
+        var a = document.getElementById(temp);
+        var d = document.getElementById(temp7);
+        var b = document.getElementById(temp1);
+
+        if (a.style.display == "none") {
+            a.style.display = "block";
+            b.style.display = "none";
+            d.style.display = "none";
+        } else {
+            a.style.display = "none";
+        }
+    }
+
+    function cloneSubmit(login_id) {
+        var temp1 = "clone_username_" + login_id;
+        var temp2 = "clone_email_" + login_id;
+        var temp3 = "clone_password_" + login_id;
+        var flag_loginId = false;
+        var flag_createUser = false;
+        var flag_getAccess = false;
+        var flag_setAccess = false;
+
+        var fname = document.getElementById(temp1).value;
+        var useremail = document.getElementById(temp2).value;
+        var userpass = document.getElementById(temp3).value;
+        var role = "User";
+        var logInId;
+
+        if (fname == "" || useremail == "" || userpass == "") {
+            alert("Please fill all data");
+        } else {
+            $.ajax({
+            type: "POST",
+            url: '@Url.Action("WindNewUserRegister", "Home")' + '?fname=' + fname + '&useremail=' + useremail + '&role=' + role + '&userpass=' + userpass,
+            contentType: "application/json; charset=utf-8",
+            datatype: "html",
+            success: function (result, status, xhr) {
+                if (result > 0) {
+                    flag_createUser = true;
+
+                    //GetUserLoginId
+                    $.ajax({
+                        type: "GET",
+                        url: '@Url.Action("GetUserLoginId", "Home")' + '?username=' + fname + '&useremail=' + useremail,
+                        contentType: "application/json; charset=utf-8",
+                        datatype: "json",
+                        success: function (result, status, xhr) {
+                            flag_loginId = true;
+                            logInId = result[0].login_id;
+                            CloneSetAccess(login_id, logInId, fname, useremail, role);
+                            return result;
+                        }
+                    });
+                    {
+                        //flag_createUser ? { flag_loginId ? ( alert("User Created and Login id API successful"); ) : null } : alert("User Creation failed. Login Id API Failed");
+                    }
+                    /*
+                    if (flag_loginId == true && flag_createUser == true) {
+                        alert("creation failed and login Id not generated");
+                    } else {
+                        alert("User created successfully! Login API successful");
+                    } */
+
+                    //location.href = "/Home/SiteUserMaster";
+                }
+            }
+        });
+        }
+    }
+
+
+    function CloneSetAccess(cloneLogin_id, login_id, username, useremail, role) {
+        $.ajax({
+            type: "GET",
+            //url: "/Home/GetUserAccess?login_id=" + loginid,
+            url: '@Url.Action("GetUserAccess", "Home")' + '?login_id=' + cloneLogin_id,
+            contentType: "application/json; charset=utf-8",
+            datatype: "json",
+            success: function (result, status, xhr) {
+                if (result.length > 0) {
+                    var SiteCnt = 0;
+                }
+                console.log(result);
+                for (i = 0; i < result.length; i++) {
+                    console.log(result[i]);
+                    console.log(result[i].identity);
+                    $.ajax({
+                        type: "POST",
+                        url: '@Url.Action("SubmitCloneUserAccess", "Home")' + '?login_id=' + login_id + '&site_type=' + result[i].site_type + '&page_type=' + result[i].page_type + '&identity=' + result[i].identity + ' &upload_access=' + result[i].upload_access,
+                        contentType: 'application/json; charset=utf-8',
+                        dataType: 'json',
+                        success: function (result, status, xhr) {
+                            console.log("Access Cloned Successfully");
+                        }
+                    });
+                }
+                alert("User Cloned Successfully..!");
+                location.href = '@Url.Action("SiteUserMaster", "Home")';
+                return result;
+            }
+        });
+    }
+
     function ChangeSubmit(login_id) {
         var btnId = "cng_btn " + login_id;
         var tempVal = "validation_" + login_id;

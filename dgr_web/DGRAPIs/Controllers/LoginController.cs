@@ -201,7 +201,42 @@ namespace Login.Controllers
                 return BadRequest(ex.Message);
             }
         }
-  
+
+        //SubmitCloneUserAccess
+        [Route("SubmitCloneUserAccess")]
+        [HttpGet]
+        public async Task<IActionResult> SubmitCloneUserAccess(int login_id, int site_type, int page_type, int identity, int upload_access)
+        {
+            try
+            {
+
+                var data = await _loginBs.SubmitCloneUserAccess(login_id, site_type, page_type, identity, upload_access);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+        //GetUserLoginId
+        [Route("GetUserLoginId")]
+        [HttpGet]
+        public async Task<IActionResult> GetUserLoginId(string username, string useremail)
+        {
+            try
+            {
+
+                var data = await _loginBs.GetUserLoginId(username, useremail);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("eQry/{qry}")]
         [HttpGet]
         public async Task<IActionResult> eQry(string qry)

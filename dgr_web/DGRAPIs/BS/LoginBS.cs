@@ -24,6 +24,12 @@ namespace DGRAPIs.BS
         Task<List<UserAccess>> GetWindUserAccess(int login_id,string role);
 
         Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type, int importapproval);
+        //GetUserLoginId
+        Task<List<UserInfomation>> GetUserLoginId(string username, string useremail);
+
+        //SubmitCloneUserAccess
+        Task<int> SubmitCloneUserAccess(int login_id, int site_type, int page_type, int identity, int upload_access);
+
 
     }
     public class LoginBS : iLoginBS
@@ -129,6 +135,41 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
+
+        //GetUserLoginId
+        public async Task<List<UserInfomation>> GetUserLoginId(string username, string useremail)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.GetUserLoginId(username, useremail);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        //SubmitCloneUserAccess
+        public async Task<int> SubmitCloneUserAccess(int login_id, int site_type, int page_type, int identity, int upload_access)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.SubmitCloneUserAccess(login_id, site_type, page_type, identity, upload_access);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
         public async Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass)
         {
             try

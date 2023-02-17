@@ -993,7 +993,7 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT
                 filter += " group by t1.site ";
             }
             string qry = @"SELECT (date),t2.country,t1.state,t2.spv,t1.site,t2.capacity_mw
-,t1.wtg,wind_speed,kwh,plf,ma_actual,ma_contractual,iga,ega,grid_hrs,lull_hrs
+,t1.wtg,wind_speed,kwh,plf,ma_actual,ma_contractual,iga,ega,grid_hrs,production_hrs,lull_hrs
 ,unschedule_hrs,schedule_hrs,others,igbdh,egbdh,load_shedding FROM daily_gen_summary t1 left join
 site_master t2 on t1.site_id = t2.site_master_id
 where   " + filter;
@@ -1657,12 +1657,12 @@ where " + filter + " group by t1.date, t1.state, t2.spv, t1.site ";
                     (sum(ega)/count(*))as ega,
                     sum(production_hrs)as grid_hrs,
                     sum(lull_hrs)as lull_hrs
-                    ,SEC_TO_TIME(sum(TIME_TO_SEC(unschedule_hrs))) as unschedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(schedule_hrs))) as schedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(others))) as others,
-SEC_TO_TIME(sum(TIME_TO_SEC(igbdh))) as igbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(egbdh))) as egbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding FROM daily_gen_summary t1 left join
+                    ,sum(unschedule_num) as unschedule_hrs,
+sum(schedule_num) as schedule_hrs,
+sum(others_num) as others,
+sum(igbdh_num) as igbdh,
+sum(egbdh_num) as egbdh,
+sum(load_shedding_num) as load_shedding FROM daily_gen_summary t1 left join
                     site_master t2 on t1.site_id=t2.site_master_id
                    " + filter + " group by t1.state, t2.spv, t1.wtg, month(t1.date)";
 
@@ -1820,12 +1820,12 @@ SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding FROM daily_gen_sum
             (sum(ega)/count(*))as ega,
             sum(production_hrs)as grid_hrs,
             sum(lull_hrs)as lull_hrs
-            ,SEC_TO_TIME(sum(TIME_TO_SEC(unschedule_hrs))) as unschedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(schedule_hrs))) as schedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(others))) as others,
-SEC_TO_TIME(sum(TIME_TO_SEC(igbdh))) as igbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(egbdh))) as egbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding	 FROM daily_gen_summary t1 left join
+            ,sum(unschedule_num) as unschedule_hrs,
+sum(schedule_num) as schedule_hrs,
+sum(others_num) as others,
+sum(igbdh_num) as igbdh,
+sum(egbdh_num) as egbdh,
+sum(load_shedding_num) as load_shedding	 FROM daily_gen_summary t1 left join
             site_master t2 on t1.site=t2.site " + filter + " group by t1.state, t2.spv, t1.site , month(t1.date)";
 
             //where  t1.approve_status="+approve_status+" and " + filter + " group by t1.state, t2.spv, t1.site , month(t1.date)";
@@ -1959,12 +1959,12 @@ SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding	 FROM daily_gen_su
             (sum(ega)/count(*)) as ega,
             sum(production_hrs) as grid_hrs,
             sum(lull_hrs) as lull_hrs
-            ,SEC_TO_TIME(sum(TIME_TO_SEC(unschedule_hrs))) as unschedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(schedule_hrs))) as schedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(others))) as others,
-SEC_TO_TIME(sum(TIME_TO_SEC(igbdh))) as igbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(egbdh))) as egbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding FROM daily_gen_summary t1 left join
+            ,sum(unschedule_num) as unschedule_hrs,
+sum(schedule_num) as schedule_hrs,
+sum(others_num) as others,
+sum(igbdh_num) as igbdh,
+sum(egbdh_num) as egbdh,
+sum(load_shedding_num) as load_shedding FROM daily_gen_summary t1 left join
             site_master t2 on t1.site_id=t2.site_master_id 
             where   " + filter + " group by t1.state, t2.spv, t1.wtg ";
 
@@ -2110,12 +2110,12 @@ sum(kwh) as kwh,
 (sum(ega)/count(*))as ega,
 sum(production_hrs)as grid_hrs,
 sum(lull_hrs)as lull_hrs
-,SEC_TO_TIME(sum(TIME_TO_SEC(unschedule_hrs))) as unschedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(schedule_hrs))) as schedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(others))) as others,
-SEC_TO_TIME(sum(TIME_TO_SEC(igbdh))) as igbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(egbdh))) as egbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding	 FROM daily_gen_summary t1 left join
+,sum(unschedule_num) as unschedule_hrs,
+sum(schedule_num)as schedule_hrs,
+sum(others_num)as others,
+sum(igbdh_num) as igbdh,
+sum(egbdh_num) as egbdh,
+sum(load_shedding_num) as load_shedding	 FROM daily_gen_summary t1 left join
 site_master t2 on t1.site_id=t2.site_master_id 
 where    " + filter + " group by t1.state, t2.spv, t1.site  ";
 
@@ -2400,8 +2400,8 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
             {
                 filter += " and site_id in (" + site + ")";
             }
-            filter += " and smb='Nil' and strings='Nil'";
-            string query = " select date, site, icr, inv,from_bd,to_bd ,total_bd, bd_remarks from uploading_file_breakdown_solar where HOUR(total_bd)>=1 " + filter;
+            filter += " and smb='Nil' and strings='Nil' ";
+            string query = " select date, site, icr, inv,bd_type,from_bd,to_bd ,total_bd, bd_remarks from uploading_file_breakdown_solar where HOUR(total_bd)>=1 " + filter+ "group by site_id,from_bd,to_bd";
             List<SolarUploadingFileBreakDown> data = new List<SolarUploadingFileBreakDown>();
             data = await Context.GetData<SolarUploadingFileBreakDown>(query).ConfigureAwait(false);
             return data;
@@ -2557,7 +2557,7 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
             }
             
 
-            string qry2 = " select spv, sum(kwh)*100000 as tarkwh, sum(kwh) as tar_kwh_mu, sum(wind_speed)/count(wind_speed) as tar_wind," +
+            string qry2 = " select site,spv, sum(kwh)*100000 as tarkwh, sum(kwh) as tar_kwh_mu, sum(wind_speed)/count(wind_speed) as tar_wind," +
                 " sum(plf) / count(plf) as tar_plf, sum(ma) / count(ma) as tar_ma, sum(iga) / count(iga) as tar_iga, " +
                 " sum(ega) / count(ega) as tar_ega from temp_view group by site  ";
 
@@ -2879,7 +2879,24 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
                 filter += sites.TrimEnd(',') + ")";
                 chkfilter = 1;
             }
+            if (!string.IsNullOrEmpty(inv) && inv != "")
+            {
+                if (chkfilter == 1) { filter += " and "; }
 
+                string[] spinv = inv.Split(",");
+                filter += " CONCAT(t1.icr,'/',t1.inv) in (";
+                string invs = "";
+                for (int i = 0; i < spinv.Length; i++)
+                {
+                    if (!string.IsNullOrEmpty(spinv[i].ToString()))
+                    {
+                        invs += "'" + spinv[i].ToString() + "',";
+                        //invs += "+spinv[i].ToString() + '",";
+                    }
+                }
+                filter += invs.TrimEnd(',') + ")";
+                chkfilter = 1;
+            }
 
             string qry = @"SELECT date,t2.country,t2.state,t2.spv,t2.site,
 bd_type,icr,inv,smb,strings, from_bd,to_bd,total_bd as total_stop,
@@ -2892,6 +2909,8 @@ bd_remarks, action_taken
             {
                 qry += " where " + filter;
             }
+            string final = qry;
+            string data =qry;
             return await Context.GetData<SolarDailyBreakdownReport>(qry).ConfigureAwait(false);
 
         }
@@ -3379,18 +3398,31 @@ bd_remarks, action_taken
 
         internal async Task<int> InsertSolarUploadingFileBreakDown(List<SolarUploadingFileBreakDown> set, int batchId)
         {//Updated
-            string delqry = "delete from uploading_file_breakdown_solar where date = '" + set[0].date + "' and site_id='" + set[0].site_id + "';";
-            await Context.ExecuteNonQry<int>(delqry).ConfigureAwait(false);
-            string qry = " insert into uploading_file_breakdown_solar (date, site, site_id, ext_int_bd, igbd, icr, inv, smb, strings, from_bd, to_bd, total_bd, bd_remarks, bd_type, bd_type_id, action_taken, import_batch_id) values";
-            string values = "";
-
-            foreach (var unit in set)
+            bool isDeleted = false;
+            int result = 0;
+            async Task<int> Delete()
             {
-                values += "('" + unit.date + "','" + unit.site + "','" + unit.site_id + "','" + unit.ext_int_bd + "','" + unit.igbd + "','" + unit.icr + "','" + unit.inv + "','" + unit.smb + "','" + unit.strings + "','" + unit.from_bd + "','" + unit.to_bd + "','" + unit.total_bd + "','" + unit.bd_remarks + "','" + unit.bd_type + "','" + unit.bd_type_id + "','" + unit.action_taken + "','" + batchId + "'),";
+                string delqry = "delete from uploading_file_breakdown_solar where date = '" + set[0].date + "' and site_id='" + set[0].site_id + "';";
+                isDeleted = true;
+                return await Context.ExecuteNonQry<int>(delqry).ConfigureAwait(false);
             }
-            qry += values;
+            /* string delqry = "delete from uploading_file_breakdown_solar where date = '" + set[0].date + "' and site_id='" + set[0].site_id + "';";
+            await Context.ExecuteNonQry<int>(delqry).ConfigureAwait(false); */
+            Delete();
+            if (isDeleted == true)
+            {
+                string qry = " insert into uploading_file_breakdown_solar (date, site, site_id, ext_int_bd, igbd, icr, inv, smb, strings, from_bd, to_bd, total_bd, bd_remarks, bd_type, bd_type_id, action_taken, import_batch_id) values";
+                string values = "";
 
-            return await Context.ExecuteNonQry<int>(delqry + qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+                foreach (var unit in set)
+                {
+                    values += "('" + unit.date + "','" + unit.site + "','" + unit.site_id + "','" + unit.ext_int_bd + "','" + unit.igbd + "','" + unit.icr + "','" + unit.inv + "','" + unit.smb + "','" + unit.strings + "','" + unit.from_bd + "','" + unit.to_bd + "','" + unit.total_bd + "','" + unit.bd_remarks + "','" + unit.bd_type + "','" + unit.bd_type_id + "','" + unit.action_taken + "','" + batchId + "'),";
+                }
+                qry += values;
+
+                result = await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+            }
+            return result;
 
             //bool response = false;
             //string qry = "";
@@ -3487,6 +3519,90 @@ bd_remarks, action_taken
                 throw;
             }
         }
+        
+        internal async Task<int> DeleteRecordsAfterFailure(int batchId, int siteType)
+        {
+            //for solar 0, wind 1;
+            if (siteType == 0)
+            {
+                bool fileBreakdown = false;
+                bool fileGeneration = false;
+                bool pyranometerOne = false;
+                bool pyranometerFifteen = false;
+                bool importBatch = false;
+
+                try
+                {
+                    string qry2 = "delete from uploading_file_generation_solar where import_batch_id =" + batchId ;
+                    await Context.ExecuteNonQry<int>(qry2).ConfigureAwait(false);
+                    fileGeneration = true;
+                }
+                catch (Exception e)
+                {
+                    string a = e.Message;
+                    fileGeneration = true;
+                    throw;
+                }
+                string qry3 = "delete from uploading_pyranometer_1_min_solar where import_batch_id =" + batchId + ";";
+                int temp1 = await Context.ExecuteNonQry<int>(qry3).ConfigureAwait(false);
+                pyranometerOne = true;
+
+                string qry4 = "delete from uploading_pyranometer_15_min_solar where import_batch_id =" + batchId + ";";
+                await Context.ExecuteNonQry<int>(qry4).ConfigureAwait(false);
+                pyranometerFifteen = true;
+
+                string qry1 = "delete from uploading_file_breakdown_solar where import_batch_id =" + batchId + ";";
+                await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+                fileBreakdown = true;
+
+                string qry5 = "delete from import_batches where import_batch_id =" + batchId + ";";
+                await Context.ExecuteNonQry<int>(qry5).ConfigureAwait(false);
+                importBatch = true;
+
+                if (fileGeneration && fileBreakdown && pyranometerOne && pyranometerFifteen && importBatch)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+            }
+
+            if (siteType == 1)
+            {
+                bool fileBreakdown = false;
+                bool fileGeneration = false;
+                bool importBatch = false;
+
+                string qry1 = "delete from uploading_file_breakdown where import_batch_id =" + batchId + "";
+                await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+                fileBreakdown = true;
+
+                string qry2 = "delete from uploading_file_generation where import_batch_id =" + batchId + "";
+                await Context.ExecuteNonQry<int>(qry2).ConfigureAwait(false);
+                fileGeneration = true;
+
+                string qry3 = "delete from import_batches where import_batch_id =" + batchId + "";
+                await Context.ExecuteNonQry<int>(qry3).ConfigureAwait(false);
+                importBatch = true;
+
+                if (fileBreakdown && fileGeneration && importBatch)
+                {
+                    return 1;
+                }
+                else
+                {
+                    return 0;
+                }
+
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
         internal async Task<BatchIdImport> IsDataApproved(int windOrSolar, int siteID, string importDate)
         {
 
@@ -5586,20 +5702,29 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
             
 
-            string qry1 = " insert into daily_gen_summary(state, site,site_id, date, wtg, wind_speed, kwh, kwh_afterlineloss, feeder, ma_contractual, ma_actual, iga, ega, plf,plf_afterlineloss,capacity_kw, grid_hrs, lull_hrs, production_hrs, unschedule_hrs, schedule_hrs, others, igbdh, egbdh, load_shedding, approve_status,import_batch_id) values";
+            string qry1 = " insert into daily_gen_summary(state, site,site_id, date, wtg, wind_speed, kwh, kwh_afterlineloss, feeder, ma_contractual, ma_actual, iga, ega, plf,plf_afterlineloss,capacity_kw, grid_hrs, lull_hrs, production_hrs, unschedule_hrs, unschedule_num, schedule_hrs, schedule_num, others, others_num, igbdh, igbdh_num, egbdh, egbdh_num, load_shedding, load_shedding_num, approve_status,import_batch_id) values";
             string values = "";
 
             foreach (var unit in _importedData)
             {
                 
 
-                values += "('" + unit.state + "','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.wtg + "','" + unit.wind_speed + "','" + unit.kwh + "','" + unit.kwh_afterlineloss + "','" + unit.feeder + "','" + unit.ma_contractual + "','" + unit.ma_actual + "','" + unit.iga + "','" + unit.ega + "','" + unit.plf + "','" + unit.plf_afterlineloss + "','" + unit.capacity_kw + "','" + unit.grid_hrs + "','" + unit.lull_hrs + "','" + unit.operating_hrs + "','" + unit.unschedule_hrs + "','" + unit.schedule_hrs + "','" + unit.others + "','" + unit.igbdh + "','" + unit.egbdh + "','" + unit.load_shedding + "','1','"+unit.import_batch_id+"'),";
+                values += "('" + unit.state + "','" + unit.site + "','" + unit.site_id + "','" + unit.date + "','" + unit.wtg + "','" + unit.wind_speed + "','" + unit.kwh + "','" + unit.kwh_afterlineloss + "','" + unit.feeder + "','" + unit.ma_contractual + "','" + unit.ma_actual + "','" + unit.iga + "','" + unit.ega + "','" + unit.plf + "','" + unit.plf_afterlineloss + "','" + unit.capacity_kw + "','" + unit.grid_hrs + "','" + unit.lull_hrs + "','" + unit.operating_hrs + "','" + unit.unschedule_hrs + "','" + unit.unschedule_num + "','" + unit.schedule_hrs + "','"+ unit.schedule_num + "','" + unit.others + "','" + unit.others_num + "','" + unit.igbdh + "','" + unit.igbdh_num + "','" + unit.egbdh + "','" + unit.egbdh_num + "','"+ unit.load_shedding + "','" + unit.load_shedding_num + "','1','" + unit.import_batch_id+"'),";
             }
 
             qry1 += values;
             string qry3 = "delete from daily_gen_summary  where date='"+ _importedData[0].date + "' and site_id=" + _importedData[0].site_id + " ;";
-            await Context.ExecuteNonQry<int>(qry3).ConfigureAwait(false);
-            int res = await Context.ExecuteNonQry<int>(qry1.Substring(0, (qry1.Length - 1)) + ";").ConfigureAwait(false);
+            try
+            {
+                await Context.ExecuteNonQry<int>(qry3).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                string strEx = ex.Message;
+                throw;
+            }
+            string temp = qry1.Substring(0, (qry1.Length - 1)) + ";";
+            int res = await Context.ExecuteNonQry<int>(temp).ConfigureAwait(false);
             if (res > 0)
             {
                 string query = "UPDATE `import_batches` SET `approval_date` = NOW(),`approved_by`= " + approvedBy + ",`is_approved`=" + status + ",`approved_by_name`='" + approvedByName + "' WHERE `import_batch_id` IN(" + dataId + ")";
@@ -5640,8 +5765,17 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
             qry1 += values;
             string qry3 = "delete from daily_gen_summary_solar  where date='" + _importedData[0].date + "' and site_id=" + _importedData[0].site_id + " ;";
-            await Context.ExecuteNonQry<int>(qry3).ConfigureAwait(false);
 
+            try
+            {
+                await Context.ExecuteNonQry<int>(qry3).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                string strEx = ex.Message;
+                throw;
+            }
+          
             int res = await Context.ExecuteNonQry<int>(qry1.Substring(0, (qry1.Length - 1)) + ";").ConfigureAwait(false);
             if (res > 0)
             {
@@ -5970,7 +6104,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         {
             // string query = "SELECT t1.*,t2.site as site_name FROM `uploading_file_generation` as t1 join site_master as t2 on t2.site_master_id=t1.site_id  where import_batch_id =" + importId + "";
             //string query = "SELECT * FROM `uploading_file_breakdown` where import_batch_id =" + importId + "";
-            string query = " SELECT t1.site_id,t1.date,t1.wtg,t1.stop_from,t1.stop_to,t1.total_stop,t1.error_description,t2.site,t3.bd_type_name FROM `uploading_file_breakdown` as t1 left join site_master as t2 on t2.site_master_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id = " + importId + "";
+            string query = " SELECT t1.site_id,t1.date,t1.wtg,t1.stop_from,t1.stop_to,t1.total_stop,t1.error_description,t1.action_taken,t2.site,t3.bd_type_name FROM `uploading_file_breakdown` as t1 left join site_master as t2 on t2.site_master_id = t1.site_id left join bd_type as t3 on t3.bd_type_id = t1.bd_type_id where import_batch_id = " + importId + "";
             List<WindUploadingFileBreakDown1> _importBreakdownData = new List<WindUploadingFileBreakDown1>();
             _importBreakdownData = await Context.GetData<WindUploadingFileBreakDown1>(query).ConfigureAwait(false);
             return _importBreakdownData;
@@ -6093,10 +6227,10 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         internal async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate,string site)
         {
             string qry = "Select * from uploading_file_breakdown";
-            string filter = " where date >= '" + fromDate + "' and date <= '" + toDate + "' ";
+            string filter = " where date >= '" + fromDate + "' and date <= '" + toDate + "' group by site_id,stop_from,stop_to ";
             if (!string.IsNullOrEmpty(site))
             {
-                filter += " and site_id in (" + site + ")";
+                filter += " and site_id in (" + site + ")" ;
             }
             return await Context.GetData<WindUploadingFileBreakDown>(qry + filter).ConfigureAwait(false);
         }
@@ -6553,7 +6687,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
 
 
                 string qryUpdate = "UPDATE `uploading_file_generation` set ma_actual = " + dMA_ACT + ", ma_contractual = " + dMA_CON + ", iga = " + dIGA + ", ega = " + dEGA;
-                qryUpdate += ", unschedule_hrs = '" + Final_USMH_Time + "', schedule_hrs = '" + Final_SMH_Time + "', igbdh = '" + Final_IGBD_Time + "', egbdh = '" + Final_EGBD_Time + "', others = '" + Final_OthersHour_Time + "', load_shedding = '" + Final_LoadShedding_Time + "'";
+                qryUpdate += ", unschedule_hrs = '" + Final_USMH_Time + "', schedule_hrs = '" + Final_SMH_Time + "', igbdh = '" + Final_IGBD_Time + "', egbdh = '" + Final_EGBD_Time + "', others = '" + Final_OthersHour_Time + "', load_shedding = '" + Final_LoadShedding_Time + "', unschedule_num = '" + Final_USMH + "',schedule_num = '" + Final_SMH + "',igbdh_num = '" + Final_IGBD + "', egbdh_num = '" + Final_EGBD + "',others_num = '" + Final_OthersHour + "', load_shedding_num = '" + Final_LoadShedding + "'";
                 qryUpdate += " where wtg = '" + sWTG_Name + "' and date = '" + fromDate + "'";
 
                 int result = await Context.ExecuteNonQry<int>(qryUpdate).ConfigureAwait(false);
@@ -6736,7 +6870,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                     //break;
                 }
 
-                string qryAllDevices = "Select location_master_solar_id,eg,ig,icr_inv,icr,inv,smb,string as strings,string_configuration,total_string_current,total_string_voltage,modules_quantity,wp,capacity from location_master_solar where site_id='" + site_id + "'";
+                string qryAllDevices = "Select location_master_solar_id,eg,ig,icr_inv,icr,inv,smb,string as strings,string_configuration,total_string_current,total_string_voltage,modules_quantity,wp,capacity from location_master_solar where site_id='" + site_id + "' ORDER BY icr_inv ";
 
                 //get all power devices
                 List<SolarLocationMaster_Calc> _SolarLocationMaster_Calc = await Context.GetData<SolarLocationMaster_Calc>(qryAllDevices).ConfigureAwait(false);

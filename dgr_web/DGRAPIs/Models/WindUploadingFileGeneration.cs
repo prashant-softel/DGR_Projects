@@ -44,11 +44,18 @@ namespace DGRAPIs.Models
         public double kwh_afterloss { get; set; }
         public double kwh_afterlineloss { get; set; }
         public dynamic unschedule_hrs { get; set; }
+        public dynamic unschedule_num { get; set; }
         public dynamic schedule_hrs { get; set; }
+        public dynamic schedule_num { get; set; }
         public dynamic others { get; set; }
+        public dynamic others_num { get; set; }
         public dynamic igbdh { get; set; }
+        public dynamic igbdh_num { get; set; }
         public dynamic egbdh { get; set; }
+        public dynamic egbdh_num { get; set; }
         public dynamic load_shedding { get; set; }
+        public dynamic load_shedding_num { get; set; }
+       
 
     }
     public class WindUploadingFilegeneration2
@@ -75,11 +82,17 @@ namespace DGRAPIs.Models
         public double iga { get; set; }
         public double ega { get; set; }
         public dynamic unschedule_hrs { get; set; }
+        public dynamic unschedule_num { get; set; }
         public dynamic schedule_hrs { get; set; }
+        public dynamic schedule_num { get; set; }
         public dynamic others { get; set; }
+        public dynamic others_num { get; set; }
         public dynamic igbdh { get; set; }
+        public dynamic igbdh_num { get; set; }
         public dynamic egbdh { get; set; }
+        public dynamic egbdh_num { get; set; }
         public dynamic load_shedding { get; set; }
+        public dynamic load_shedding_num { get; set; }
         public double capacity_kw { get; set; }
         public int import_batch_id { get; set; }
         

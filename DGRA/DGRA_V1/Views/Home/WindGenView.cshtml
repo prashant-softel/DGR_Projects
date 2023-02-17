@@ -222,12 +222,12 @@
                         tbl += '<td  class="text-right">' + result[i].grid_hrs.toFixed(2) + '</td>';
                         tbl += '<td  class="text-right">' + result[i].lull_hrs.toFixed(2) + '</td>';
                         tbl += '<td  class="text-right">' + result[i].production_hrs.toFixed(2) + '</td>';
-                        tbl += '<td  class="text-right">' + result[i].unschedule_hrs['totalHours'].toFixed(2)+ '</td>';
-                        tbl += '<td  class="text-right">' + result[i].schedule_hrs['totalHours'].toFixed(2)+ '</td>';
-                        tbl += '<td  class="text-right">' + result[i].others['totalHours'].toFixed(2)+ '</td>';
-                        tbl += '<td  class="text-right">' + result[i].igbdh['totalHours'].toFixed(2)+ '</td>';
-                        tbl += '<td  class="text-right">' + result[i].egbdh['totalHours'].toFixed(2)+'</td>';
-                        tbl += '<td  class="text-right">' + result[i].load_shedding['totalHours'].toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].unschedule_num.toFixed(2)+ '</td>';
+                        tbl += '<td  class="text-right">' + result[i].schedule_num.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].others_num.toFixed(2)+ '</td>';
+                        tbl += '<td  class="text-right">' + result[i].igbdh_num.toFixed(2) + '</td>';
+                        tbl += '<td  class="text-right">' + result[i].egbdh_num.toFixed(2) +'</td>';
+                        tbl += '<td  class="text-right">' + result[i].load_shedding_num.toFixed(2) + '</td>';
                         tbl += '</tr>';
                     }
                 }

@@ -88,6 +88,21 @@ namespace DGRAPIs.Repositories
             await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
             return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
         }
+
+        //GetUserLoginId
+        internal async Task<List<UserInfomation>> GetUserLoginId(string username, string useremail)
+        {
+            string qry = "select login_id, username,useremail,user_role,active_user from login where username='" + username + "' AND useremail= '" + useremail + "';";
+            List<UserInfomation> _userinfo = new List<UserInfomation>();
+            _userinfo = await Context.GetData<UserInfomation>(qry).ConfigureAwait(false);
+            return _userinfo;
+        }
+        //Clone User access
+        internal async Task<int> SubmitCloneUserAccess(int login_id, int site_type, int page_type, int identity, int upload_access)
+        {
+            string qry = "insert into `user_access` (`login_id`, `site_type`, `category_id`,`identity`,`upload_access`) VALUES (" +login_id +"," + site_type + "," + page_type + "," + identity + "," + upload_access + ");";
+            return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
+        }
         public async Task<List<UserInfomation>> GetWindUserInformation(int  login_id)
         {
             string filter = "";

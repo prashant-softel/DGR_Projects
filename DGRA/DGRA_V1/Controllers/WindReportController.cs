@@ -572,7 +572,10 @@ namespace DGRA_V1.Controllers
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site;
+                
+                //old 
+               // var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
                 //var url = "http://localhost:23835/api/DGR/GetWindDailyBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" +country+ "&state=" +state+ "&spv=" +spv+ "&site=" +site+ "&wtg=" +wtg+"";
                 WebRequest request = WebRequest.Create(url);
 
@@ -600,7 +603,9 @@ namespace DGRA_V1.Controllers
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site;
+                ///old api 
+                //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
                 //var url = "http://localhost:23835/api/DGR/GetWindDailyBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" +country+ "&state=" +state+ "&spv=" +spv+ "&site=" +site+ "&wtg=" +wtg+"";
                 WebRequest request = WebRequest.Create(url);
 
@@ -627,7 +632,9 @@ namespace DGRA_V1.Controllers
             string line = "";
             try
             {
-                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise?fy=" + fy + "&fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site;
+                //old 
+               // var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/DGR/GetWindPerformanceReportSiteWise_2?fromDate=" + fromDate + "&toDate=" + toDate + "&site=" + site + "";
                 //var url = "http://localhost:23835/api/DGR/GetWindDailyBreakdownReport?fromDate=" + fromDate + "&toDate=" + toDate + "&country=" +country+ "&state=" +state+ "&spv=" +spv+ "&site=" +site+ "&wtg=" +wtg+"";
                 WebRequest request = WebRequest.Create(url);
 

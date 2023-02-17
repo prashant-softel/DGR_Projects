@@ -199,11 +199,12 @@
                 @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                 {
                    
-                    <div class="row" id="approvebtn" style="display:none">
-                        <div class="col-md-2"><button type="button" class="btn btn-block btn-success" onclick="DataApproved(1)">Approved</button></div>
-                        <div class="col-md-2"><button type="button" class="btn btn-block btn-danger" onclick="DataApproved(2)">Reject</button></div>
-                        <div class="col-md-8"></div>
-                    </div>
+            <div class="row" id="approvebtn" style="display:none">
+                <div class="col-md-2"><button type="button" class="btn btn-block btn-success" onclick="DataApproved(1)">Approved</button></div>
+                <div class="col-md-2"><button type="button" class="btn btn-block btn-danger" onclick="DataApproved(2)">Reject</button></div>
+                <!--<div class="col-md-2"><button type="button" class="btn btn-block btn-info" onclick="ExportToExcel()">Export Selected Data</button></div>-->
+                <div class="col-md-2"></div>
+            </div>
                 }
                 <hr>
                 <div id="LogData"></div>
@@ -942,16 +943,17 @@
             success: function (result1, status, xhr) {
                 console.log(result1);
 
-                var tbl2 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:100%">';
+                var tbl2 = '<table id="example2" class="table-bordered table-striped  dtr-inline" style="width:120%">';
                 tbl2 += '<thead class="tbl-head"><tr>';
                 tbl2 += '<th style="font-size: 12px;">Date</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Site</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">WTG</th>';
-                tbl2 += '<th style="font-size: 12px;text-align: center;">DB Type</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">BD Type</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Start From</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Start To</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Total Stop</th>';
                 tbl2 += '<th style="font-size: 12px;text-align: center;">Reason of Breakdown</th>';
+                tbl2 += '<th style="font-size: 12px;text-align: center;">Action Taken</th>';
 
                 tbl2 += '</tr></thead>';
 
@@ -969,6 +971,7 @@
                         tbl2 += '<td style="font-size: 12px; text-align: center;">' + result1[j].stop_to + '</td>';
                         tbl2 += '<td style="font-size: 12px;text-align: center;">' + result1[j].total_stop + '</td>';
                         tbl2 += '<td style="font-size: 12px;">' + result1[j].error_description + '</td>';
+                        tbl2 += '<td style="font-size: 12px;">' + result1[j].action_taken + '</td>';
                         tbl2 += '</tr>';
                         // console.log(j);
                     }
@@ -1285,5 +1288,18 @@
                 $("#importedData").html(tbl2);
             }
         });
+    }
+
+    function ExportToExcel() {
+        var values = '';
+        $.each($("input[class='form-check-input']:checked"), function () {
+            if (values == '') {
+                values = $(this).attr('data-id');
+            }
+            else {
+                values = values + "," + $(this).attr('data-id');
+            }
+        });
+        console.log(values);
     }
 </script>

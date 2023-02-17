@@ -583,11 +583,11 @@
                 console.log(result);
                 var tbl = '<table id="example1" class="table table-bordered table-striped dataTable dtr-inline" style="width: 160%;">';
                 tbl += '<thead  class="tbl-head"><tr>';
-                tbl += '<th>Date</th>';
+                tbl += '<th style="width: 100px;">Date</th>';
                 tbl += '<th>Country</th>';
                 tbl += '<th>State</th>';
-                tbl += '<th>SPV</th>';
-                tbl += '<th>Site</th>';
+                tbl += '<th style="width: 90px;">SPV</th>';
+                tbl += '<th style="width: 90px;">Site</th>';
                 tbl += '<th>BD Type</th>';
                 tbl += '<th>ICR</th>';
                 tbl += '<th>INV</th>';
@@ -596,7 +596,7 @@
                 tbl += '<th>Start From</th>';
                 tbl += '<th>Stop To</th>';
                 tbl += '<th>Total Stop</th>';
-                tbl += '<th>Reason of Breakdown</th>';
+                tbl += '<th style="width: 410px;">Reason of Breakdown</th>';
                 tbl += '<th>Action Taken</th>';
                 tbl += '</tr></thead>';
                 console.log(result.length);
@@ -629,7 +629,7 @@
                 }
                 else {
                     console.log("Data not available");
-                    tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
+                    //tbl += '<tr><th colspan="12" style="text-align:center">Data Not Available <th></tr>';
                 }
                 tbl += '</table>';
                 $("#bdreport").html("").html(tbl);

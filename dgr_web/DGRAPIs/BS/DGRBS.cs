@@ -14,6 +14,7 @@ namespace DGRAPIs.BS
         Task<int> GetBatchStatus(int import_type, int site_id, string import_date);
         //Task<List<ImportBatchStatus>> GetBatchStatus(int import_type, int site_id, string import_date);
         Task<BatchIdImport> GetBatchId(string logFileName);
+        Task<int> DeleteRecordsAfterFailure(int batchId, int siteType);
         Task<List<FinancialYear>> GetFinancialYear();
         Task<List<DailyGenSummary>> GetWindDailyGenSummary(string site, string fromDate, string ToDate);
         Task<List<WindDashboardData>> GetWindDashboardData(string startDate, string endDate, string FY, string sites,bool monthly);
@@ -2034,7 +2035,23 @@ namespace DGRAPIs.BS
             }
 
         }
-      
+
+        public async Task<int> DeleteRecordsAfterFailure(int batchId, int siteType)
+        {
+            try
+            {
+                using (var repos = new DGRRepository(getDB))
+                {
+                    return await repos.DeleteRecordsAfterFailure(batchId, siteType);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+
+        }
+
         public async Task<List<WindOpertionalHead>> GetOperationHeadData(string site)
         {
             try

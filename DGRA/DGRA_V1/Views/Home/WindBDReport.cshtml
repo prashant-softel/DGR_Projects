@@ -413,13 +413,13 @@
                 tbl += '<th style="width:100px;">Date</th>';
                 tbl += '<th>Country</th>';
                 tbl += '<th>State</th>';
-                tbl += '<th>SPV</th>';
+                tbl += '<th style="width:90px;">SPV</th>';
                 tbl += '<th style="width: 7%;">Site</th>';
                 tbl += '<th style="width: 5%;">WTG</th>';
-                tbl += '<th>BD Type</th>';
-                tbl += '<th>Start From</th>';
-                tbl += '<th>Stop To</th>';
-                tbl += '<th>Total Stop</th>';
+                tbl += '<th style="width: 60px;">BD Type</th>';
+                tbl += '<th style="width: 78px;">Start From</th>';
+                tbl += '<th style="width: 60px">Stop To</th>';
+                tbl += '<th style="width: 78px;">Total Stop</th>';
                 tbl += '<th>Reason of Breakdown</th>';
                 tbl += '<th>Action Taken</th>';
                 tbl += '</tr></thead>';
@@ -427,9 +427,9 @@
                 if (result.length > 0) {
                     console.log("Datatable");
                     for (var i = 0; i < result.length; i++) {
-                        console.log(result[i].date);
+                        var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         tbl += '<tr>';
-                        tbl += '<td class="text-left">' + result[i].date + '</td>';
+                        tbl += '<td class="text-left">' + formattedDate + '</td>';
                         tbl += '<td class="text-left">' + result[i].country + '</td>';
                         tbl += '<td class="text-left">' + result[i].state + '</td>';
                         tbl += '<td class="text-left">' + result[i].spv + '</td>';

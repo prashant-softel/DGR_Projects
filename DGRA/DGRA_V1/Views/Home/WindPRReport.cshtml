@@ -366,7 +366,7 @@
                         total_tar_ma += result[i].tar_ma;
                         total_act_ma += result[i].act_ma;
                         total_tar_iga += result[i].tar_iga;
-                        total_act_iga += result[i].act_iga
+                        total_act_iga += result[i].act_iga;
                         total_tar_ega += result[i].tar_ega;
                         total_act_ega += result[i].act_ega;
                         total_capTarMu += tar_mu * result[i].total_mw;
@@ -491,17 +491,163 @@
                     pageLength: 50,
                     buttons: [
                         {
-                            extend: 'excel',
-                            title: 'Wind Performance Reports SPV Wise',
+                            extend:'excel',
+                            footer: true,
+                            title:'Wind Performance Reports SPV Wise',                    
+                            //titleAttr: 'Export Excel',
+                            "oSelectorOpts": { filter: 'applied', order: 'current' },
                             exportOptions: {
-                                columns: ':visible'
+                                columns: ':visible',
+                                modifier: {
+                                    page: 'all'
+                                },
+                                format: {
+                                    header: function (data, columnIdx) {
+                                        if (columnIdx == 1) {
+                                            return 'Capacity (MW)';
+                                        }
+                                        else if (columnIdx == 2) {
+                                            return 'JMR Energy (in MU)  Tar';
+                                        }
+                                        else if (columnIdx == 3) {
+                                            return 'JMR Energy (in MU)  Act';
+                                        }
+                                        else if (columnIdx == 4) {
+                                            return 'JMR Energy (in MU)  Var (%)';
+                                        }
+                                        else if (columnIdx == 5) {
+                                            return 'Revenue (MINR) ';
+                                        }
+                                        else if (columnIdx == 6) {
+                                            return 'Wind Speed (m/s)  Tar';
+                                        }
+                                        else if (columnIdx == 7) {
+                                            return 'Wind Speed (m/s)  Act ';
+                                        }
+                                        else if (columnIdx == 8) {
+                                            return 'Wind Speed (m/s)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 9) {
+                                            return 'PLF (%)  Tar';
+                                        }
+                                        else if (columnIdx == 10) {
+                                            return 'PLF (%)  Act ';
+                                        }
+                                        else if (columnIdx == 11) {
+                                            return 'PLF (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 12) {
+                                            return 'MA Actual (%)  Tar';
+                                        }
+                                        else if (columnIdx == 13) {
+                                            return 'MA Actual (%)  Act ';
+                                        }
+                                        else if (columnIdx == 14) {
+                                            return 'MA Actual (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 15) {
+                                            return 'IGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 16) {
+                                            return 'IGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 17) {
+                                            return 'IGA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 18) {
+                                            return 'EGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 19) {
+                                            return 'EGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 20) {
+                                            return 'EGA (%)  Var (%) ';
+                                        }
+                                        else {
+                                            return data;
+                                        }
+                                    }
+                                }
                             }
                         },
                         {
                             extend: 'csv',
+                            footer: true,
                             title: 'Wind Performance Reports SPV Wise',
+                            //titleAttr: 'Export Excel',
+                            "oSelectorOpts": { filter: 'applied', order: 'current' },
                             exportOptions: {
-                                columns: ':visible'
+                                columns: ':visible',
+                                modifier: {
+                                    page: 'all'
+                                },
+                                format: {
+                                    header: function (data, columnIdx) {
+                                        if (columnIdx == 1) {
+                                            return 'Capacity (MW)';
+                                        }
+                                        else if (columnIdx == 2) {
+                                            return 'JMR Energy (in MU)  Tar';
+                                        }
+                                        else if (columnIdx == 3) {
+                                            return 'JMR Energy (in MU)  Act';
+                                        }
+                                        else if (columnIdx == 4) {
+                                            return 'JMR Energy (in MU)  Var (%)';
+                                        }
+                                        else if (columnIdx == 5) {
+                                            return 'Revenue (MINR) ';
+                                        }
+                                        else if (columnIdx == 6) {
+                                            return 'Wind Speed (m/s)  Tar';
+                                        }
+                                        else if (columnIdx == 7) {
+                                            return 'Wind Speed (m/s)  Act ';
+                                        }
+                                        else if (columnIdx == 8) {
+                                            return 'Wind Speed (m/s)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 9) {
+                                            return 'PLF (%)  Tar';
+                                        }
+                                        else if (columnIdx == 10) {
+                                            return 'PLF (%)  Act ';
+                                        }
+                                        else if (columnIdx == 11) {
+                                            return 'PLF (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 12) {
+                                            return 'MA Actual (%)  Tar';
+                                        }
+                                        else if (columnIdx == 13) {
+                                            return 'MA Actual (%)  Act ';
+                                        }
+                                        else if (columnIdx == 14) {
+                                            return 'MA Actual (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 15) {
+                                            return 'IGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 16) {
+                                            return 'IGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 17) {
+                                            return 'IGA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 18) {
+                                            return 'EGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 19) {
+                                            return 'EGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 20) {
+                                            return 'EGA (%)  Var (%) ';
+                                        }
+                                        else {
+                                            return data;
+                                        }
+                                    }
+                                }
                             }
                         },
                         'colvis'
@@ -810,16 +956,162 @@
                     buttons: [
                         {
                             extend: 'excel',
+                            footer: true,
                             title: 'Wind Performance Reports Site Wise',
+                            //titleAttr: 'Export Excel',
+                            "oSelectorOpts": { filter: 'applied', order: 'current' },
                             exportOptions: {
-                                columns: ':visible'
+                                columns: ':visible',
+                                modifier: {
+                                    page: 'all'
+                                },
+                                format: {
+                                    header: function (data, columnIdx) {
+                                        if (columnIdx == 1) {
+                                            return 'Capacity (MW)';
+                                        }
+                                        else if (columnIdx == 2) {
+                                            return 'JMR Energy (in MU)  Tar';
+                                        }
+                                        else if (columnIdx == 3) {
+                                            return 'JMR Energy (in MU) Act';
+                                        }
+                                        else if (columnIdx == 4) {
+                                            return 'JMR Energy (in MU) Var (%)';
+                                        }
+                                        else if (columnIdx == 5) {
+                                            return 'Revenue (MINR) ';
+                                        }
+                                        else if (columnIdx == 6) {
+                                            return 'Wind Speed (m/s) Tar';
+                                        }
+                                        else if (columnIdx == 7) {
+                                            return 'Wind Speed (m/s) Act ';
+                                        }
+                                        else if (columnIdx == 8) {
+                                            return 'Wind Speed (m/s) Var (%) ';
+                                        }
+                                        else if (columnIdx == 9) {
+                                            return 'PLF (%) Tar';
+                                        }
+                                        else if (columnIdx == 10) {
+                                            return 'PLF (%) Act ';
+                                        }
+                                        else if (columnIdx == 11) {
+                                            return 'PLF (%) Var (%) ';
+                                        }
+                                        else if (columnIdx == 12) {
+                                            return 'MA Actual (%) Tar';
+                                        }
+                                        else if (columnIdx == 13) {
+                                            return 'MA Actual (%) Act ';
+                                        }
+                                        else if (columnIdx == 14) {
+                                            return 'MA Actual (%) Var (%) ';
+                                        }
+                                        else if (columnIdx == 15) {
+                                            return 'IGA (%) Tar';
+                                        }
+                                        else if (columnIdx == 16) {
+                                            return 'IGA (%) Act ';
+                                        }
+                                        else if (columnIdx == 17) {
+                                            return 'IGA (%) Var (%) ';
+                                        }
+                                        else if (columnIdx == 18) {
+                                            return 'EGA (%) Tar';
+                                        }
+                                        else if (columnIdx == 19) {
+                                            return 'EGA (%) Act ';
+                                        }
+                                        else if (columnIdx == 20) {
+                                            return 'EGA (%) Var (%) ';
+                                        }
+                                        else {
+                                            return data;
+                                        }
+                                    }
+                                }
                             }
                         },
                         {
                             extend: 'csv',
+                            footer: true,
                             title: 'Wind Performance Reports Site Wise',
+                            //titleAttr: 'Export Excel',
+                            "oSelectorOpts": { filter: 'applied', order: 'current' },
                             exportOptions: {
-                                columns: ':visible'
+                                columns: ':visible',
+                                modifier: {
+                                    page: 'all'
+                                },
+                                format: {
+                                    header: function (data, columnIdx) {
+                                        if (columnIdx == 1) {
+                                            return 'Capacity (MW)';
+                                        }
+                                        else if (columnIdx == 2) {
+                                            return 'JMR Energy (in MU)  Tar';
+                                        }
+                                        else if (columnIdx == 3) {
+                                            return 'JMR Energy (in MU) Act';
+                                        }
+                                        else if (columnIdx == 4) {
+                                            return 'JMR Energy (in MU) Var (%)';
+                                        }
+                                        else if (columnIdx == 5) {
+                                            return 'Revenue (MINR) ';
+                                        }
+                                        else if (columnIdx == 6) {
+                                            return 'Wind Speed (m/s) Tar';
+                                        }
+                                        else if (columnIdx == 7) {
+                                            return 'Wind Speed (m/s) Act ';
+                                        }
+                                        else if (columnIdx == 8) {
+                                            return 'Wind Speed (m/s) Var (%) ';
+                                        }
+                                        else if (columnIdx == 9) {
+                                            return 'PLF (%) Tar';
+                                        }
+                                        else if (columnIdx == 10) {
+                                            return 'PLF (%) Act ';
+                                        }
+                                        else if (columnIdx == 11) {
+                                            return 'PLF (%) Var (%) ';
+                                        }
+                                        else if (columnIdx == 12) {
+                                            return 'MA Actual (%) Tar';
+                                        }
+                                        else if (columnIdx == 13) {
+                                            return 'MA Actual (%) Act ';
+                                        }
+                                        else if (columnIdx == 14) {
+                                            return 'MA Actual (%) Var (%) ';
+                                        }
+                                        else if (columnIdx == 15) {
+                                            return 'IGA (%) Tar';
+                                        }
+                                        else if (columnIdx == 16) {
+                                            return 'IGA (%) Act ';
+                                        }
+                                        else if (columnIdx == 17) {
+                                            return 'IGA (%) Var (%) ';
+                                        }
+                                        else if (columnIdx == 18) {
+                                            return 'EGA (%) Tar';
+                                        }
+                                        else if (columnIdx == 19) {
+                                            return 'EGA (%) Act ';
+                                        }
+                                        else if (columnIdx == 20) {
+                                            return 'EGA (%) Var (%) ';
+                                        }
+                                        else {
+                                            return data;
+                                        }
+                                    }
+                                }
                             }
                         },
                         'colvis'

@@ -531,6 +531,34 @@ namespace DGRA_V1.Controllers
         }
         //[HttpPost]
         [TypeFilter(typeof(SessionValidation))]
+        public async Task<IActionResult> GetUserLoginId(string username, string useremail)
+        {
+            string line = "";
+            try
+            {
+                //var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/WindUserRegistration?fname=" + fname + "&useremail="+ useremail + "&site="+ site + "&role="+ role + "&pages="+ pages + "&reports="+ reports + "&read="+ read + "&write="+ write + "";
+                // var url = "http://localhost:23835/api/Login/GetWindUserInformation?login_id="+ login_id;
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/GetUserLoginId?username=" + username + "&useremail=" +useremail;
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "";
+            }
+            return Content(line, "application/json");
+
+        }
+
+        //[HttpPost]
+        [TypeFilter(typeof(SessionValidation))]
         public async Task<IActionResult> SubmitAccess(int login_id,string site,string pages,string reports, string site_type,int importapproval)
         {
             string line = "";
@@ -556,6 +584,32 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
 
         }
+        //SubmitCloneUserAccess
+        [TypeFilter(typeof(SessionValidation))]
+        public async Task<IActionResult> SubmitCloneUserAccess(int login_id, int site_type, int page_type, int identity, int upload_access)
+        {
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/SubmitCloneUserAccess?login_id=" + login_id + "&site_type=" + site_type + "&page_type=" + page_type + "&identity=" + identity + "&upload_access=" + upload_access;
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                TempData["notification"] = "";
+            }
+            return Content(line, "application/json");
+
+        }
+
         [TypeFilter(typeof(SessionValidation))]
         public IActionResult WindUserView()
         {

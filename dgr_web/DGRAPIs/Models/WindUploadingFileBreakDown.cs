@@ -34,6 +34,7 @@ namespace DGRAPIs.Models
         public string stop_to { get; set; }
         public string total_stop { get; set; }
         public string error_description { get; set; }
+        public string action_taken { get; set; }
         public string bd_type_name { get; set; }
     }
 }

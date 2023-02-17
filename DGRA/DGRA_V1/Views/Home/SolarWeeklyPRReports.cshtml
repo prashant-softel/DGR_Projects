@@ -310,10 +310,10 @@
         var pr_var_wk = 0;
         var tar_ghi_wk = 0;
         var act_ghi_wk = 0;
-        var pr_ghi_wk = 0;
+        var ghi_var_wk = 0;
         var tar_poa_wk = 0;
         var act_poa_wk = 0;
-        var pr_poa_wk = 0;
+        var poa_var_wk = 0;
         var tar_plf_wk = 0;
         var act_plf_wk = 0;
         var plf_var_wk = 0;
@@ -327,6 +327,8 @@
         var act_ega_wk = 0;
         var ega_var_wk = 0;
         var diff_MUs_wk = 0;
+        var total_capacity = 0;
+        var total_tarriff_wk = 0;
         var daterange = $('#daterange').val();
         const dateArr = daterange.split("/");
         var seldate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
@@ -376,93 +378,147 @@
                 Diff_Mus = [];
                 revenue = [];
 
+                for (var i = 0; i < result.length; i++) {
+                    total_capacity += result[i].capacity;
+                    tar_energy_wk += result[i].tar_kwh;
+                    //total_expected_kwh += result[i].expected_kwh;
+                    act_energy_wk += result[i].act_kwh;
+                    //total_minr += minr;
+                    total_tarriff_wk += result[i].total_tarrif;
+                    tar_ghi_wk += result[i].tar_ghi * result[i].capacity;
+                    act_ghi_wk += result[i].act_ghi * result[i].capacity;
 
+                    tar_poa_wk += result[i].tar_poa * result[i].capacity;
+                    act_poa_wk += result[i].act_poa * result[i].capacity;
 
-                tar_energy_wk = result[0].tar_kwh_mu;///1000000;
-                act_energy_wk = result[0].act_kwh_mu;
-                energy_var_wk = (act_energy_wk - tar_energy_wk) / tar_energy_wk;  // variant calculation for Energy MUS
+                    tar_plf_wk += result[i].tar_plf * result[i].capacity;
+                    act_plf_wk += result[i].act_plf * result[i].capacity;
+                    //total_capTarPr += result[i].tar_pr * result[i].capacity;
+                   //total_capTarGain += gain_tar * result[i].capacity;
+                    tar_ma_wk += result[i].tar_ma * result[i].capacity;
+                    act_ma_wk += result[i].act_ma * result[i].capacity;
+
+                    tar_iga_wk += result[i].tar_iga * result[i].capacity;
+                    act_iga_wk += result[i].act_iga * result[i].capacity;
+
+                    tar_ega_wk += result[i].tar_ega * result[i].capacity;
+                    act_ega_wk += result[i].act_ega * result[i].capacity;
+                    
+                   //act_ma_wk += act_prval * result[i].capacity;
+                    //total_capActGain += gain_act * result[i].capacity;
+                }
+                let avg_t_var = 0;
+                //let avg_e_var = (((avg_act_kwh - avg_expected_kwh) / avg_expected_kwh) * 100);
+                let avg_tar_ghi = 0;
+                let avg_ghi_var = 0;
+                let avg_tar_plf = 0;
+                let avg_plf_var = 0;
+                let avg_tar_poa = 0;
+                let avg_poa_var = 0;
+                let avg_tar_gain = 0;
+                let avg_gain_var = 0;
+                let avg_tar_pr = 0;
+                let avg_pr_var = 0;
+                let avg_tar_ma = 0;
+                let avg_ma_var = 0;
+                let avg_tar_iga = 0;
+                let avg_iga_var = 0;
+                let avg_tar_ega = 0;
+                let avg_ega_var = 0;
+                let avg_act_ghi = 0
+                let avg_act_poa = 0;
+                let avg_act_plf = 0;
+                let avg_act_gain = 0;
+                let avg_act_pr = 0;
+                let avg_act_ma = 0;
+                let avg_act_iga = 0;
+                let avg_act_ega = 0;
+                if (total_capacity != 0) {
+                    avg_tar_ghi = tar_ghi_wk / total_capacity;
+                    avg_act_ghi = act_ghi_wk / total_capacity;
+
+                    avg_tar_plf = tar_plf_wk / total_capacity;
+                    avg_act_plf = act_plf_wk / total_capacity;
+
+                    avg_tar_poa = tar_poa_wk / total_capacity;
+                    avg_act_poa = act_poa_wk / total_capacity;
+
+                    //avg_tar_gain = total_capTarGain / total_capacity;
+                    //avg_tar_pr = total_capTarPr / total_capacity;
+                    avg_tar_ma = tar_ma_wk / total_capacity;
+                    avg_act_ma = act_ma_wk / total_capacity;
+
+                    avg_tar_iga = tar_iga_wk / total_capacity;
+                    avg_act_iga = act_iga_wk / total_capacity;
+
+                    avg_tar_ega = tar_ega_wk / total_capacity;
+                    avg_act_ega = act_ega_wk / total_capacity;
+                   //avg_act_gain = total_capActGain / total_capacity;
+                    //avg_act_pr = total_capActPr / total_capacity;
+                }
+                if (tar_energy_wk != 0) {
+                    energy_var_wk = (((act_energy_wk - tar_energy_wk) / tar_energy_wk) * 100);
+                }
+                ghi_var_wk = (avg_act_ghi - avg_tar_ghi);
+                poa_var_wk = (avg_act_poa - avg_tar_poa);
+               //avg_pr_var = (avg_act_pr - avg_tar_pr);
+               // avg_gain_var = (avg_act_gain - avg_tar_gain);
+                plf_var_wk = (avg_act_plf - avg_tar_plf);
+                ma_var_wk = (avg_act_ma - avg_tar_ma);
+                iga_var_wk = (avg_act_iga - avg_tar_iga);
+                ega_var_wk = (avg_act_ega - avg_tar_ega);
+
+                //Energy 
                 let en_pasitive;
                 let en_negative;
                 if (energy_var_wk < 0) {
-                    en_negative = (energy_var_wk*100).toFixed(1);
+                    en_negative = (energy_var_wk ).toFixed(1);
                 }
                 else {
-                    en_pasitive = (energy_var_wk*100).toFixed(1);
+                    en_pasitive = (energy_var_wk).toFixed(1);
                 }
+                
                 diff_MUs_wk = (act_energy_wk - tar_energy_wk);
                 Diff_Mus.push(diff_MUs_wk.toFixed(1));
-               // let cal_revenue_wk = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
-                revenue.push(result[0].revenue);
-                // Push Weekly Enery
+                let cal_revenue_wk = (act_energy_wk - tar_energy_wk) * total_tarriff_wk;
+                revenue.push(cal_revenue_wk);
                 actual_mu.push(act_energy_wk.toFixed(1));
                 target_mu.push(tar_energy_wk.toFixed(1));
                 var_mu_pos.push(en_pasitive);
                 var_mu_neg.push(en_negative);
 
-                //PR
-                tar_pr_wk = result[0].tar_pr;
-                act_pr_wk = result[0].act_pr;
-                pr_var_wk = (act_pr_wk - tar_pr_wk) / tar_pr_wk;
-                let pr_positive;
-                let pr_negative;
-                if (pr_var_wk < 0) {
-                    pr_negative = (pr_var_wk * 100).toFixed(1);
-                }
-                else {
-                    pr_positive = (pr_var_wk * 100).toFixed(1);
-                }
-
-                //Push PR Weekly
-
-                actual_pr.push(act_pr_wk.toFixed(1));
-                target_pr.push(tar_pr_wk.toFixed(1));
-                var_pr_pos.push(pr_positive);
-                var_pr_neg.push(pr_negative);
-
-                //GHI
-                tar_ghi_wk = result[0].tar_ghi;
-                act_ghi_wk = result[0].act_ghi;
-                ghi_var_wk = (act_ghi_wk - tar_ghi_wk) / tar_ghi_wk;
                 let ghi_positive;
                 let ghi_negative;
                 if (ghi_var_wk < 0) {
-                    ghi_negative = (ghi_var_wk * 100).toFixed(1);
+                    ghi_negative = (ghi_var_wk).toFixed(1);
                 }
                 else {
-                    ghi_positive = (ghi_var_wk * 100).toFixed(1);
+                    ghi_positive = (ghi_var_wk).toFixed(1);
                 }
                 //Push GHI Weekly
 
-                actual_ghi.push(act_ghi_wk.toFixed(1));
-                target_ghi.push(tar_ghi_wk.toFixed(1));
+                actual_ghi.push(avg_act_ghi.toFixed(1));
+                target_ghi.push(avg_tar_ghi.toFixed(1));
                 var_ghi_pos.push(ghi_positive);
                 var_ghi_neg.push(ghi_negative);
 
                 //POA
-                tar_poa_wk = result[0].tar_poa;
-                act_poa_wk = result[0].act_poa;
-                poa_var_wk = (act_poa_wk - tar_poa_wk) / tar_poa_wk;
+                
                 let poa_positive;
                 let poa_negative;
                 if (poa_var_wk < 0) {
-                    poa_negative = (poa_var_wk * 100).toFixed(1);
+                    poa_negative = (poa_var_wk).toFixed(1);
                 }
                 else {
-                    poa_positive = (poa_var_wk * 100).toFixed(1);
+                    poa_positive = (poa_var_wk).toFixed(1);
                 }
-                //Push GHI Weekly
-
-                actual_poa.push(act_poa_wk.toFixed(1));
-                target_poa.push(tar_poa_wk.toFixed(1));
+                
+                actual_poa.push(avg_act_poa.toFixed(1));
+                target_poa.push(avg_tar_poa.toFixed(1));
                 var_poa_pos.push(poa_positive);
                 var_poa_neg.push(poa_negative);
-
-
-                // PLF Calculations
-                tar_plf_wk = result[0].tar_plf;
-                act_plf_wk = result[0].act_plf;
-                plf_var_wk = (act_plf_wk - tar_plf_wk);
-
+                
+                //plf
                 let plf_positive;
                 let plf_negative;
                 if (plf_var_wk < 0) {
@@ -471,15 +527,14 @@
                 else {
                     plf_positive = plf_var_wk.toFixed(1);
                 }
+
                 //Push PLF Weekly
-                actual_plf.push(act_plf_wk.toFixed(1));
-                target_plf.push(tar_plf_wk.toFixed(1));
+                actual_plf.push(avg_act_plf.toFixed(1));
+                target_plf.push(avg_tar_plf.toFixed(1));
                 var_plf_pos.push(plf_positive);
                 var_plf_neg.push(plf_negative);
                 // MA Calcultion
-                tar_ma_wk = result[0].tar_ma;
-                act_ma_wk = result[0].act_ma;
-                ma_var_wk = (act_ma_wk - tar_ma_wk);
+                
                 let ma_positive;
                 let ma_negative;
                 if (ma_var_wk < 0) {
@@ -489,14 +544,12 @@
                     ma_positive = ma_var_wk.toFixed(1);
                 }
                 // Push Weekly MA
-                actual_ma.push(act_ma_wk.toFixed(1));
-                target_ma.push(tar_ma_wk.toFixed(1));
+                actual_ma.push(avg_act_ma.toFixed(1));
+                target_ma.push(avg_tar_ma.toFixed(1));
                 var_ma_pos.push(ma_positive);
                 var_ma_neg.push(ma_negative);
-               //Calcultion IGA
-                tar_iga_wk = result[0].tar_iga;
-                act_iga_wk = result[0].act_iga;
-                iga_var_wk = (act_iga_wk - tar_iga_wk);
+
+
                 let iga_positive;
                 let iga_negative;
                 if (iga_var_wk < 0) {
@@ -506,14 +559,13 @@
                     iga_positive = iga_var_wk.toFixed(1);
                 }
                 // Push Weekly IGA
-                actual_iga.push(act_iga_wk.toFixed(1));
-                target_iga.push(tar_iga_wk.toFixed(1));
+                actual_iga.push(avg_act_iga.toFixed(1));
+                target_iga.push(avg_tar_iga.toFixed(1));
                 var_iga_pos.push(iga_positive);
                 var_iga_neg.push(iga_negative);
+
                 //EGA Calculation
-                tar_ega_wk = result[0].tar_ega;
-                act_ega_wk = result[0].act_ega;
-                ega_var_wk = (act_ega_wk - tar_ega_wk);
+                
                 let ega_positive;
                 let ega_negative;
                 if (ega_var_wk < 0) {
@@ -523,12 +575,13 @@
                     ega_positive = ega_var_wk.toFixed(1);
                 }
                 // Push Weekly EGA
-                actual_ega.push(act_ega_wk.toFixed(1));
-                target_ega.push(tar_ega_wk.toFixed(1));
+                actual_ega.push(avg_act_ega.toFixed(1));
+                target_ega.push(avg_tar_ega.toFixed(1));
                 var_ega_pos.push(ega_positive);
                 var_ega_neg.push(ega_negative);
 
-                   //Call Function for get monthly Data
+
+               
             }
 
         });
@@ -563,6 +616,8 @@
         var act_ega_mn = 0;
         var ega_var_mn = 0;
         var diff_MUs_mn = 0;
+        var total_capacity_mn = 0;
+        var total_tarriff_mn = 0;
         var daterange = $('#daterange').val();
         const dateArr = daterange.split("/");
         var setDate = new Date(dateArr[2], dateArr[1] - 1, dateArr[0]);
@@ -580,97 +635,152 @@
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
-                // Calculation Energy MU Monthly
-               /// actual_mu = [];
-                //target_mu = [];
-                //var_mu_pos = [];
-               // var_mu_neg = [];
-               // console.log(result)
-                tar_energy_mn = result[0].tar_kwh_mu;///1000000;
-                act_energy_mn = result[0].act_kwh_mu;
-                energy_var_mn = (act_energy_mn - tar_energy_mn) / tar_energy_mn;
-                 let en_pasitive;
-                 let en_negative;
-                if (energy_var_mn < 0) {
-                    en_negative = (energy_var_mn * 100).toFixed(1);
-                 }
-                else {
-                    en_pasitive = (energy_var_mn * 100).toFixed(1);
+
+
+                for (var i = 0; i < result.length; i++) {
+                    total_capacity_mn += result[i].capacity;
+                    tar_energy_mn += result[i].tar_kwh;
+                    //total_expected_kwh += result[i].expected_kwh;
+                    act_energy_mn += result[i].act_kwh;
+                    //total_minr += minr;
+                    total_tarriff_mn += result[i].total_tarrif;
+                    tar_ghi_mn += result[i].tar_ghi * result[i].capacity;
+                    act_ghi_mn += result[i].act_ghi * result[i].capacity;
+
+                    tar_poa_mn += result[i].tar_poa * result[i].capacity;
+                    act_poa_mn += result[i].act_poa * result[i].capacity;
+
+                    tar_plf_mn += result[i].tar_plf * result[i].capacity;
+                    act_plf_mn += result[i].act_plf * result[i].capacity;
+                    //total_capTarPr += result[i].tar_pr * result[i].capacity;
+                    //total_capTarGain += gain_tar * result[i].capacity;
+                    tar_ma_mn += result[i].tar_ma * result[i].capacity;
+                    act_ma_mn += result[i].act_ma * result[i].capacity;
+
+                    tar_iga_mn += result[i].tar_iga * result[i].capacity;
+                    act_iga_mn += result[i].act_iga * result[i].capacity;
+
+                    tar_ega_mn += result[i].tar_ega * result[i].capacity;
+                    act_ega_mn += result[i].act_ega * result[i].capacity;
+
+                    //act_ma_wk += act_prval * result[i].capacity;
+                    //total_capActGain += gain_act * result[i].capacity;
                 }
-               // let cal_revenue_mn = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
-                revenue.push(result[0].revenue);
-                 // Push Energy MU Monthly
+                let avg_t_var = 0;
+                //let avg_e_var = (((avg_act_kwh - avg_expected_kwh) / avg_expected_kwh) * 100);
+                let avg_tar_ghi = 0;
+                let avg_ghi_var = 0;
+                let avg_tar_plf = 0;
+                let avg_plf_var = 0;
+                let avg_tar_poa = 0;
+                let avg_poa_var = 0;
+                let avg_tar_gain = 0;
+                let avg_gain_var = 0;
+                let avg_tar_pr = 0;
+                let avg_pr_var = 0;
+                let avg_tar_ma = 0;
+                let avg_ma_var = 0;
+                let avg_tar_iga = 0;
+                let avg_iga_var = 0;
+                let avg_tar_ega = 0;
+                let avg_ega_var = 0;
+                let avg_act_ghi = 0
+                let avg_act_poa = 0;
+                let avg_act_plf = 0;
+                let avg_act_gain = 0;
+                let avg_act_pr = 0;
+                let avg_act_ma = 0;
+                let avg_act_iga = 0;
+                let avg_act_ega = 0;
+                if (total_capacity_mn != 0) {
+                    avg_tar_ghi = tar_ghi_mn / total_capacity_mn;
+                    avg_act_ghi = act_ghi_mn / total_capacity_mn;
+
+                    avg_tar_plf = tar_plf_mn / total_capacity_mn;
+                    avg_act_plf = act_plf_mn / total_capacity_mn;
+
+                    avg_tar_poa = tar_poa_mn / total_capacity_mn;
+                    avg_act_poa = act_poa_mn / total_capacity_mn;
+
+                    //avg_tar_gain = total_capTarGain / total_capacity;
+                    //avg_tar_pr = total_capTarPr / total_capacity;
+                    avg_tar_ma = tar_ma_mn / total_capacity_mn;
+                    avg_act_ma = act_ma_mn / total_capacity_mn;
+
+                    avg_tar_iga = tar_iga_mn / total_capacity_mn;
+                    avg_act_iga = act_iga_mn / total_capacity_mn;
+
+                    avg_tar_ega = tar_ega_mn / total_capacity_mn;
+                    avg_act_ega = act_ega_mn / total_capacity_mn;
+                    //avg_act_gain = total_capActGain / total_capacity;
+                    //avg_act_pr = total_capActPr / total_capacity;
+                }
+                if (tar_energy_mn != 0) {
+                    energy_var_mn = (((act_energy_mn - tar_energy_mn) / tar_energy_mn) * 100);
+                }
+                ghi_var_mn = (avg_act_ghi - avg_tar_ghi);
+                poa_var_mn = (avg_act_poa - avg_tar_poa);
+                //avg_pr_var = (avg_act_pr - avg_tar_pr);
+                // avg_gain_var = (avg_act_gain - avg_tar_gain);
+                plf_var_mn = (avg_act_plf - avg_tar_plf);
+                ma_var_mn = (avg_act_ma - avg_tar_ma);
+                iga_var_mn = (avg_act_iga - avg_tar_iga);
+                ega_var_mn = (avg_act_ega - avg_tar_ega);
+
+                let revenue_mn = (act_energy_mn - tar_energy_mn) * total_tarriff_mn;
+                revenue.push(revenue_mn);
+                // Push Energy MU Monthly
                 diff_MUs_mn = (act_energy_mn - tar_energy_mn);
                 Diff_Mus.push(diff_MUs_mn.toFixed(1));
+
+                //Energy 
+                let en_pasitive;
+                let en_negative;
+                if (energy_var_mn < 0) {
+                    en_negative = (energy_var_mn).toFixed(1);
+                }
+                else {
+                    en_pasitive = (energy_var_mn).toFixed(1);
+                }
+
+
                 actual_mu.push(act_energy_mn.toFixed(1));
                 target_mu.push(tar_energy_mn.toFixed(1));
                 var_mu_pos.push(en_pasitive);
                 var_mu_neg.push(en_negative);
 
-
-                tar_pr_mn = result[0].tar_pr;
-                act_pr_mn = result[0].act_pr;
-                pr_var_mn = (act_pr_mn - tar_pr_mn) / tar_pr_mn;
-                let pr_positive;
-                let pr_negative;
-                if (pr_var_mn < 0) {
-                    pr_negative = (pr_var_mn * 100).toFixed(1);
-                }
-                else {
-                    pr_positive = (pr_var_mn * 100).toFixed(1);
-                }
-
-                //Push PR Monthly
-
-                actual_pr.push(act_pr_mn.toFixed(1));
-                target_pr.push(tar_pr_mn.toFixed(1));
-                var_pr_pos.push(pr_positive);
-                var_pr_neg.push(pr_negative);
-
-                //GHI
-                tar_ghi_mn = result[0].tar_ghi;
-                act_ghi_mn = result[0].act_ghi;
-                ghi_var_mn = (act_ghi_mn - tar_ghi_mn) / tar_ghi_mn;
                 let ghi_positive;
                 let ghi_negative;
                 if (ghi_var_mn < 0) {
-                    ghi_negative = (ghi_var_mn * 100).toFixed(1);
+                    ghi_negative = (ghi_var_mn).toFixed(1);
                 }
                 else {
-                    ghi_positive = (ghi_var_mn * 100).toFixed(1);
+                    ghi_positive = (ghi_var_mn).toFixed(1);
                 }
-                //Push GHI Monthly
+                //Push GHI Weekly
 
-                actual_ghi.push(act_ghi_mn.toFixed(1));
-                target_ghi.push(tar_ghi_mn.toFixed(1));
+                actual_ghi.push(avg_act_ghi.toFixed(1));
+                target_ghi.push(avg_tar_ghi.toFixed(1));
                 var_ghi_pos.push(ghi_positive);
                 var_ghi_neg.push(ghi_negative);
 
                 //POA
-                tar_poa_mn = result[0].tar_poa;
-                act_poa_mn = result[0].act_poa;
-                poa_var_mn = (act_poa_mn - tar_poa_mn) / tar_poa_mn;
+
                 let poa_positive;
                 let poa_negative;
                 if (poa_var_mn < 0) {
-                    poa_negative = (poa_var_mn * 100).toFixed(1);
+                    poa_negative = (poa_var_mn).toFixed(1);
                 }
                 else {
-                    poa_positive = (poa_var_mn * 100).toFixed(1);
+                    poa_positive = (poa_var_mn).toFixed(1);
                 }
-                //Push POA Monthly
 
-                actual_poa.push(act_poa_mn.toFixed(1));
-                target_poa.push(tar_poa_mn.toFixed(1));
+                actual_poa.push(avg_act_poa.toFixed(1));
+                target_poa.push(avg_tar_poa.toFixed(1));
                 var_poa_pos.push(poa_positive);
                 var_poa_neg.push(poa_negative);
 
-
-                // PLF Calculations
-                tar_plf_mn = result[0].tar_plf;
-                act_plf_mn = result[0].act_plf;
-                plf_var_mn = (act_plf_mn - tar_plf_mn);
-
+                //plf
                 let plf_positive;
                 let plf_negative;
                 if (plf_var_mn < 0) {
@@ -679,15 +789,14 @@
                 else {
                     plf_positive = plf_var_mn.toFixed(1);
                 }
-                //Push PLF Montly
-                actual_plf.push(act_plf_mn.toFixed(1));
-                target_plf.push(tar_plf_mn.toFixed(1));
+
+                //Push PLF Weekly
+                actual_plf.push(avg_act_plf.toFixed(1));
+                target_plf.push(avg_tar_plf.toFixed(1));
                 var_plf_pos.push(plf_positive);
                 var_plf_neg.push(plf_negative);
                 // MA Calcultion
-                tar_ma_mn = result[0].tar_ma;
-                act_ma_mn = result[0].act_ma;
-                ma_var_mn = (act_ma_mn - tar_ma_mn);
+
                 let ma_positive;
                 let ma_negative;
                 if (ma_var_mn < 0) {
@@ -696,15 +805,13 @@
                 else {
                     ma_positive = ma_var_mn.toFixed(1);
                 }
-                // Push Monthly MA
-                actual_ma.push(act_ma_mn.toFixed(1));
-                target_ma.push(tar_ma_mn.toFixed(1));
+                // Push Weekly MA
+                actual_ma.push(avg_act_ma.toFixed(1));
+                target_ma.push(avg_tar_ma.toFixed(1));
                 var_ma_pos.push(ma_positive);
                 var_ma_neg.push(ma_negative);
-                //Calcultion IGA
-                tar_iga_mn = result[0].tar_iga;
-                act_iga_mn = result[0].act_iga;
-                iga_var_mn = (act_iga_mn - tar_iga_mn);
+
+
                 let iga_positive;
                 let iga_negative;
                 if (iga_var_mn < 0) {
@@ -713,15 +820,14 @@
                 else {
                     iga_positive = iga_var_mn.toFixed(1);
                 }
-                // Push Monthly IGA
-                actual_iga.push(act_iga_mn.toFixed(1));
-                target_iga.push(tar_iga_mn.toFixed(1));
+                // Push Weekly IGA
+                actual_iga.push(avg_act_iga.toFixed(1));
+                target_iga.push(avg_tar_iga.toFixed(1));
                 var_iga_pos.push(iga_positive);
                 var_iga_neg.push(iga_negative);
+
                 //EGA Calculation
-                tar_ega_mn = result[0].tar_ega;
-                act_ega_mn = result[0].act_ega;
-                ega_var_mn = (act_ega_mn - tar_ega_mn);
+
                 let ega_positive;
                 let ega_negative;
                 if (ega_var_mn < 0) {
@@ -731,10 +837,12 @@
                     ega_positive = ega_var_mn.toFixed(1);
                 }
                 // Push Weekly EGA
-                actual_ega.push(act_ega_mn.toFixed(1));
-                target_ega.push(tar_ega_mn.toFixed(1));
+                actual_ega.push(avg_act_ega.toFixed(1));
+                target_ega.push(avg_tar_ega.toFixed(1));
                 var_ega_pos.push(ega_positive);
                 var_ega_neg.push(ega_negative);
+
+               
 
                 GetOperationYearlyPR();  // Call function for get yearly data
             }
@@ -767,7 +875,8 @@
         var act_ega_yr = 0;
         var ega_var_yr = 0;
         var diff_MUs_yer = 0;
-
+        var total_capacity_yr = 0;
+        var total_tarriff_yr = 0;
         var fy = fyear;//$('select#fy option:selected').val();
         var daterange = $('#daterange').val();
         const dateArr = daterange.split("/");
@@ -784,99 +893,151 @@
             contentType: "application/json; charset=utf-8",
             datatype: "html",
             success: function (result, status, xhr) {
-               // actual_mu = [];
-                //target_mu = [];
-               // var_mu_pos = [];
-               // var_mu_neg = [];
-               // console.log(result);
-                // Calcilation yearlyenergy
-                tar_energy_yr = result[0].tar_kwh_mu;//1000000;
-                act_energy_yr = result[0].act_kwh_mu;
-                energy_var_yr = (act_energy_yr - tar_energy_yr) / tar_energy_yr;
-                 let en_pasitive;
-                 let en_negative;
-                if (energy_var_yr < 0) {
-                    en_negative = (energy_var_yr * 100).toFixed(1);
-                 }
-                else {
-                    en_pasitive = (energy_var_yr * 100).toFixed(1);
+
+
+                for (var i = 0; i < result.length; i++) {
+                    total_capacity_yr += result[i].capacity;
+                    tar_energy_yr += result[i].tar_kwh;
+                    //total_expected_kwh += result[i].expected_kwh;
+                    act_energy_yr += result[i].act_kwh;
+                    //total_minr += minr;
+                    total_tarriff_yr += result[i].total_tarrif;
+                    tar_ghi_yr += result[i].tar_ghi * result[i].capacity;
+                    act_ghi_yr += result[i].act_ghi * result[i].capacity;
+
+                    tar_poa_yr += result[i].tar_poa * result[i].capacity;
+                    act_poa_yr += result[i].act_poa * result[i].capacity;
+
+                    tar_plf_yr += result[i].tar_plf * result[i].capacity;
+                    act_plf_yr += result[i].act_plf * result[i].capacity;
+                    //total_capTarPr += result[i].tar_pr * result[i].capacity;
+                    //total_capTarGain += gain_tar * result[i].capacity;
+                    tar_ma_yr += result[i].tar_ma * result[i].capacity;
+                    act_ma_yr += result[i].act_ma * result[i].capacity;
+
+                    tar_iga_yr += result[i].tar_iga * result[i].capacity;
+                    act_iga_yr += result[i].act_iga * result[i].capacity;
+
+                    tar_ega_yr += result[i].tar_ega * result[i].capacity;
+                    act_ega_yr += result[i].act_ega * result[i].capacity;
+
+                    //act_ma_wk += act_prval * result[i].capacity;
+                    //total_capActGain += gain_act * result[i].capacity;
                 }
-                diff_MUs_yer = (act_energy_yr - tar_energy_yr)
-                Diff_Mus.push(diff_MUs_yer.toFixed(1));
-               // let cal_revenue_yr = (act_energy_wk - tar_energy_wk) * result[0].total_tarrif;
-                revenue.push(result[0].revenue);
-                // Push MU Yearly data
+                let avg_t_var = 0;
+                //let avg_e_var = (((avg_act_kwh - avg_expected_kwh) / avg_expected_kwh) * 100);
+                let avg_tar_ghi = 0;
+                let avg_ghi_var = 0;
+                let avg_tar_plf = 0;
+                let avg_plf_var = 0;
+                let avg_tar_poa = 0;
+                let avg_poa_var = 0;
+                let avg_tar_gain = 0;
+                let avg_gain_var = 0;
+                let avg_tar_pr = 0;
+                let avg_pr_var = 0;
+                let avg_tar_ma = 0;
+                let avg_ma_var = 0;
+                let avg_tar_iga = 0;
+                let avg_iga_var = 0;
+                let avg_tar_ega = 0;
+                let avg_ega_var = 0;
+                let avg_act_ghi = 0
+                let avg_act_poa = 0;
+                let avg_act_plf = 0;
+                let avg_act_gain = 0;
+                let avg_act_pr = 0;
+                let avg_act_ma = 0;
+                let avg_act_iga = 0;
+                let avg_act_ega = 0;
+                if (total_capacity_yr != 0) {
+                    avg_tar_ghi = tar_ghi_yr / total_capacity_yr;
+                    avg_act_ghi = act_ghi_yr / total_capacity_yr;
+
+                    avg_tar_plf = tar_plf_yr / total_capacity_yr;
+                    avg_act_plf = act_plf_yr / total_capacity_yr;
+
+                    avg_tar_poa = tar_poa_yr / total_capacity_yr;
+                    avg_act_poa = act_poa_yr / total_capacity_yr;
+
+                    //avg_tar_gain = total_capTarGain / total_capacity;
+                    //avg_tar_pr = total_capTarPr / total_capacity;
+                    avg_tar_ma = tar_ma_yr / total_capacity_yr;
+                    avg_act_ma = act_ma_yr / total_capacity_yr;
+
+                    avg_tar_iga = tar_iga_yr / total_capacity_yr;
+                    avg_act_iga = act_iga_yr / total_capacity_yr;
+
+                    avg_tar_ega = tar_ega_yr / total_capacity_yr;
+                    avg_act_ega = act_ega_yr / total_capacity_yr;
+                    //avg_act_gain = total_capActGain / total_capacity;
+                    //avg_act_pr = total_capActPr / total_capacity;
+                }
+                if (tar_energy_yr != 0) {
+                    energy_var_yr = (((act_energy_yr - tar_energy_yr) / tar_energy_yr) * 100);
+                }
+                ghi_var_yr = (avg_act_ghi - avg_tar_ghi);
+                poa_var_yr = (avg_act_poa - avg_tar_poa);
+                //avg_pr_var = (avg_act_pr - avg_tar_pr);
+                // avg_gain_var = (avg_act_gain - avg_tar_gain);
+                plf_var_yr = (avg_act_plf - avg_tar_plf);
+                ma_var_yr = (avg_act_ma - avg_tar_ma);
+                iga_var_yr = (avg_act_iga - avg_tar_iga);
+                ega_var_yr = (avg_act_ega - avg_tar_ega);
+
+
+                //Energy 
+                let en_pasitive;
+                let en_negative;
+                if (energy_var_yr < 0) {
+                    en_negative = (energy_var_yr).toFixed(1);
+                }
+                else {
+                    en_pasitive = (energy_var_yr).toFixed(1);
+                }
+                let revenue_yr = (act_energy_yr - tar_energy_yr) * total_tarriff_yr;
+                revenue.push(revenue_yr);
+                // Push Energy MU Monthly
+                diff_MUs_yr = (act_energy_yr - tar_energy_yr);
+                Diff_Mus.push(diff_MUs_yr.toFixed(1));
 
                 actual_mu.push(act_energy_yr.toFixed(1));
                 target_mu.push(tar_energy_yr.toFixed(1));
                 var_mu_pos.push(en_pasitive);
                 var_mu_neg.push(en_negative);
 
-               // Calaculation yealy wind
-
-                tar_pr_yr = result[0].tar_pr;
-                act_pr_yr = result[0].act_pr;
-                pr_var_yr = (act_pr_yr - tar_pr_yr) / tar_pr_yr;
-                let pr_positive;
-                let pr_negative;
-                if (pr_var_yr < 0) {
-                    pr_negative = (pr_var_yr * 100).toFixed(1);
-                }
-                else {
-                    pr_positive = (pr_var_yr * 100).toFixed(1);
-                }
-
-                //Push PR Yearly
-
-                actual_pr.push(act_pr_yr.toFixed(1));
-                target_pr.push(tar_pr_yr.toFixed(1));
-                var_pr_pos.push(pr_positive);
-                var_pr_neg.push(pr_negative);
-
-                //GHI
-                tar_ghi_yr = result[0].tar_ghi;
-                act_ghi_yr = result[0].act_ghi;
-                ghi_var_yr = (act_ghi_yr - tar_ghi_yr) / tar_ghi_yr;
                 let ghi_positive;
                 let ghi_negative;
                 if (ghi_var_yr < 0) {
-                    ghi_negative = (ghi_var_yr * 100).toFixed(1);
+                    ghi_negative = (ghi_var_yr).toFixed(1);
                 }
                 else {
-                    ghi_positive = (ghi_var_yr * 100).toFixed(1);
+                    ghi_positive = (ghi_var_yr).toFixed(1);
                 }
-                //Push GHI yearly
+                //Push GHI Weekly
 
-                actual_ghi.push(act_ghi_yr.toFixed(1));
-                target_ghi.push(tar_ghi_yr.toFixed(1));
+                actual_ghi.push(avg_act_ghi.toFixed(1));
+                target_ghi.push(avg_tar_ghi.toFixed(1));
                 var_ghi_pos.push(ghi_positive);
                 var_ghi_neg.push(ghi_negative);
 
                 //POA
-                tar_poa_yr = result[0].tar_poa;
-                act_poa_yr = result[0].act_poa;
-                poa_var_yr = (act_poa_yr - tar_poa_yr) / tar_poa_yr;
+
                 let poa_positive;
                 let poa_negative;
-                if (poa_var_yr < 0) {
-                    poa_negative = (poa_var_yr * 100).toFixed(1);
+                if (poa_var_mn < 0) {
+                    poa_negative = (poa_var_yr).toFixed(1);
                 }
                 else {
-                    poa_positive = (poa_var_yr * 100).toFixed(1);
+                    poa_positive = (poa_var_yr).toFixed(1);
                 }
-                //Push POA Yearly
 
-                actual_poa.push(act_poa_yr.toFixed(1));
-                target_poa.push(tar_poa_yr.toFixed(1));
+                actual_poa.push(avg_act_poa.toFixed(1));
+                target_poa.push(avg_tar_poa.toFixed(1));
                 var_poa_pos.push(poa_positive);
                 var_poa_neg.push(poa_negative);
 
-
-                // PLF Calculations
-                tar_plf_yr = result[0].tar_plf;
-                act_plf_yr = result[0].act_plf;
-                plf_var_yr = (act_plf_yr - tar_plf_yr);
-
+                //plf
                 let plf_positive;
                 let plf_negative;
                 if (plf_var_yr < 0) {
@@ -885,15 +1046,14 @@
                 else {
                     plf_positive = plf_var_yr.toFixed(1);
                 }
-                //Push PLF Yearly
-                actual_plf.push(act_plf_yr.toFixed(1));
-                target_plf.push(tar_plf_yr.toFixed(1));
+
+                //Push PLF Weekly
+                actual_plf.push(avg_act_plf.toFixed(1));
+                target_plf.push(avg_tar_plf.toFixed(1));
                 var_plf_pos.push(plf_positive);
                 var_plf_neg.push(plf_negative);
                 // MA Calcultion
-                tar_ma_yr = result[0].tar_ma;
-                act_ma_yr = result[0].act_ma;
-                ma_var_yr = (act_ma_yr - tar_ma_yr);
+
                 let ma_positive;
                 let ma_negative;
                 if (ma_var_yr < 0) {
@@ -902,15 +1062,13 @@
                 else {
                     ma_positive = ma_var_yr.toFixed(1);
                 }
-                // Push Yearly MA
-                actual_ma.push(act_ma_yr.toFixed(1));
-                target_ma.push(tar_ma_yr.toFixed(1));
+                // Push Weekly MA
+                actual_ma.push(avg_act_ma.toFixed(1));
+                target_ma.push(avg_tar_ma.toFixed(1));
                 var_ma_pos.push(ma_positive);
                 var_ma_neg.push(ma_negative);
-                //Calcultion IGA
-                tar_iga_yr = result[0].tar_iga;
-                act_iga_yr = result[0].act_iga;
-                iga_var_yr = (act_iga_yr - tar_iga_yr);
+
+
                 let iga_positive;
                 let iga_negative;
                 if (iga_var_yr < 0) {
@@ -919,15 +1077,14 @@
                 else {
                     iga_positive = iga_var_yr.toFixed(1);
                 }
-                // Push Yearly IGA
-                actual_iga.push(act_iga_yr.toFixed(1));
-                target_iga.push(tar_iga_yr.toFixed(1));
+                // Push Weekly IGA
+                actual_iga.push(avg_act_iga.toFixed(1));
+                target_iga.push(avg_tar_iga.toFixed(1));
                 var_iga_pos.push(iga_positive);
                 var_iga_neg.push(iga_negative);
+
                 //EGA Calculation
-                tar_ega_yr = result[0].tar_ega;
-                act_ega_yr = result[0].act_ega;
-                ega_var_yr = (act_ega_yr - tar_ega_yr);
+
                 let ega_positive;
                 let ega_negative;
                 if (ega_var_yr < 0) {
@@ -936,16 +1093,14 @@
                 else {
                     ega_positive = ega_var_yr.toFixed(1);
                 }
-                // Push Yearly EGA
-                actual_ega.push(act_ega_yr.toFixed(1));
-                target_ega.push(tar_ega_yr.toFixed(1));
+                // Push Weekly EGA
+                actual_ega.push(avg_act_ega.toFixed(1));
+                target_ega.push(avg_tar_ega.toFixed(1));
                 var_ega_pos.push(ega_positive);
                 var_ega_neg.push(ega_negative);
-
-
                 // Call Cahrd Functions
 
-               chartEnergyMU(actual_mu, target_mu, var_mu_pos, var_mu_neg);
+                chartEnergyMU(actual_mu, target_mu, var_mu_pos, var_mu_neg);
                 chartIR(actual_poa, target_poa, var_poa_pos, var_poa_neg);
                 PLF_chart(actual_plf, target_plf, var_plf_pos, var_plf_neg);
                 MA_chart(actual_ma, target_ma, var_ma_pos, var_ma_neg);
@@ -1740,6 +1895,7 @@
                 tbl += '<th>Date</th>';
                 tbl += '<th>Site</th>';
                 tbl += '<th>Location</th>';
+                tbl += '<th>BD Type</th>';
                 tbl += '<th>Total Stop</th>';
                 tbl += '<th>Reason of Breakdown</th>';
                 tbl += '</tr></thead>';
@@ -1757,8 +1913,11 @@
                         if (result[i].icr) {
                             location_name = result[i].icr + "/" + result[i].inv;
                         }
+                       
                         tbl += '<td class="text-left">' + location_name + '</td>';
-                        tbl += '<td class="text-left">' + start_time + ' to ' + stop_time + ' = ' + total_time + '</td>';
+                        tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
+                        //tbl += '<td class="text-left">' + start_time + ' to ' + stop_time + ' = ' + total_time + '</td>';
+                        tbl += '<td class="text-left">'+ total_time + '</td>';
                         tbl += '<td class="text-left">' + result[i].bd_remarks + '</td>';
                     }
                 }
@@ -2219,16 +2378,219 @@
                     buttons: [
                         {
                             extend: 'excel',
+                            footer: true,
                             title: 'Solar Performance Reports Weekly SPV Wise',
+                            //titleAttr: 'Export Excel',
+                            "oSelectorOpts": { filter: 'applied', order: 'current' },
                             exportOptions: {
-                                columns: ':visible'
+                                columns: ':visible',
+                                modifier: {
+                                    page: 'all'
+                                },
+                                format: {
+                                    header: function (data, columnIdx) {
+                                        if (columnIdx == 1) {
+                                            return 'Capacity (MW)';
+                                        }
+                                       
+                                       else if (columnIdx == 2) {
+                                            return 'Gen nos. (MUs)  Tar';
+                                        }
+                                        else if (columnIdx == 3) {
+                                            return 'Gen nos. (MUs)  Act JMR';
+                                        }
+                                        else if (columnIdx == 4) {
+                                            return 'Gen nos. (MUs)  Var (%)';
+                                        }
+                                        else if (columnIdx == 5) {
+                                            return 'Revenue (MINR) ';
+                                        }
+                                        else if (columnIdx == 6) {
+                                            return `GHI (kWh/m^2)  Tar`;
+                                        }
+                                        else if (columnIdx == 7) {
+                                            return 'GHI (kWh/m^2)  Act';
+                                        }
+                                        else if (columnIdx == 8) {
+                                            return 'GHI (kWh/m^2)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 9) {
+                                            return 'POA (kWh/m^2)  Tar';
+                                        }
+                                        else if (columnIdx == 10) {
+                                            return 'POA (kWh/m^2)  Act ';
+                                        }
+                                        else if (columnIdx == 11) {
+                                            return 'POA (kWh/m^2) Var (%) ';
+                                        }
+                                        else if (columnIdx == 12) {
+                                            return 'GHI VS POA Gain (%)  Tar';
+                                        }
+                                        else if (columnIdx == 13) {
+                                            return 'GHI VS POA Gain (%)  Act ';
+                                        }
+                                        else if (columnIdx == 14) {
+                                            return 'GHI VS POA Gain(%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 15) {
+                                            return 'PLF (%)  Tar';
+                                        }
+                                        else if (columnIdx == 16) {
+                                            return 'PLF (%)  Act ';
+                                        }
+                                        else if (columnIdx == 17) {
+                                            return 'PLF (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 18) {
+                                            return 'PR (%)  Tar';
+                                        }
+                                        else if (columnIdx == 19) {
+                                            return 'PR (%)  Act ';
+                                        }
+                                        else if (columnIdx == 20) {
+                                            return 'PR (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 21) {
+                                            return 'MA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 22) {
+                                            return 'MA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 23) {
+                                            return 'MA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 24) {
+                                            return 'IGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 25) {
+                                            return 'IGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 26) {
+                                            return 'IGA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 27) {
+                                            return 'EGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 28) {
+                                            return 'EGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 29) {
+                                            return 'EGA (%)  Var (%) ';
+                                        }
+                                        else {
+                                            return data;
+                                        }
+                                    }
+                                }
                             }
                         },
+
                         {
                             extend: 'csv',
-                            title: 'Wind Performance Reports Weekly SPV Wise',
+                            footer: true,
+                            title: 'Solar Performance Reports Weekly SPV Wise',
+                            //titleAttr: 'Export Excel',
+                            "oSelectorOpts": { filter: 'applied', order: 'current' },
                             exportOptions: {
-                                columns: ':visible'
+                                columns: ':visible',
+                                modifier: {
+                                    page: 'all'
+                                },
+                                format: {
+                                    header: function (data, columnIdx) {
+                                        if (columnIdx == 1) {
+                                            return 'Capacity (MW)';
+                                        }
+
+                                        else if (columnIdx == 2) {
+                                            return 'Gen nos. (MUs)  Tar';
+                                        }
+                                        else if (columnIdx == 3) {
+                                            return 'Gen nos. (MUs)  Act JMR';
+                                        }
+                                        else if (columnIdx == 4) {
+                                            return 'Gen nos. (MUs)  Var (%)';
+                                        }
+                                        else if (columnIdx == 5) {
+                                            return 'Revenue (MINR) ';
+                                        }
+                                        else if (columnIdx == 6) {
+                                            return 'GHI (kWh/m^2)  Tar';
+                                        }
+                                        else if (columnIdx == 7) {
+                                            return 'GHI (kWh/m^2)  Act';
+                                        }
+                                        else if (columnIdx == 8) {
+                                            return 'GHI (kWh/m^2)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 9) {
+                                            return 'POA (kWh/m^2)  Tar';
+                                        }
+                                        else if (columnIdx == 10) {
+                                            return 'POA (kWh/m^2)  Act ';
+                                        }
+                                        else if (columnIdx == 11) {
+                                            return 'POA (kWh/m^2) Var (%) ';
+                                        }
+                                        else if (columnIdx == 12) {
+                                            return 'GHI VS POA Gain (%)  Tar';
+                                        }
+                                        else if (columnIdx == 13) {
+                                            return 'GHI VS POA Gain (%)  Act ';
+                                        }
+                                        else if (columnIdx == 14) {
+                                            return 'GHI VS POA Gain(%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 15) {
+                                            return 'PLF (%)  Tar';
+                                        }
+                                        else if (columnIdx == 16) {
+                                            return 'PLF (%)  Act ';
+                                        }
+                                        else if (columnIdx == 17) {
+                                            return 'PLF (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 18) {
+                                            return 'PR (%)  Tar';
+                                        }
+                                        else if (columnIdx == 19) {
+                                            return 'PR (%)  Act ';
+                                        }
+                                        else if (columnIdx == 20) {
+                                            return 'PR (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 21) {
+                                            return 'MA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 22) {
+                                            return 'MA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 23) {
+                                            return 'MA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 24) {
+                                            return 'IGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 25) {
+                                            return 'IGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 26) {
+                                            return 'IGA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 27) {
+                                            return 'EGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 28) {
+                                            return 'EGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 29) {
+                                            return 'EGA (%)  Var (%) ';
+                                        }
+                                        else {
+                                            return data;
+                                        }
+                                    }
+                                }
                             }
                         },
                         'colvis'
@@ -2914,16 +3276,219 @@
                     buttons: [
                         {
                             extend: 'excel',
+                            footer: true,
                             title: 'Solar Performance Reports Weekly Site Wise',
+                            //titleAttr: 'Export Excel',
+                            "oSelectorOpts": { filter: 'applied', order: 'current' },
                             exportOptions: {
-                                columns: ':visible'
+                                columns: ':visible',
+                                modifier: {
+                                    page: 'all'
+                                },
+                                format: {
+                                    header: function (data, columnIdx) {
+                                        if (columnIdx == 1) {
+                                            return 'Capacity (MW)';
+                                        }
+
+                                        else if (columnIdx == 2) {
+                                            return 'Gen nos. (MUs)  Tar';
+                                        }
+                                        else if (columnIdx == 3) {
+                                            return 'Gen nos. (MUs)  Act JMR';
+                                        }
+                                        else if (columnIdx == 4) {
+                                            return 'Gen nos. (MUs)  Var (%)';
+                                        }
+                                        else if (columnIdx == 5) {
+                                            return 'Revenue (MINR) ';
+                                        }
+                                        else if (columnIdx == 6) {
+                                            hP
+                                            return `GHI (kWh/m^2)  Tar`;
+                                        }
+                                        else if (columnIdx == 7) {
+                                            return 'GHI (kWh/m^2)  Act';
+                                        }
+                                        else if (columnIdx == 8) {
+                                            return 'GHI (kWh/m^2)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 9) {
+                                            return 'POA (kWh/m^2)  Tar';
+                                        }
+                                        else if (columnIdx == 10) {
+                                            return 'POA (kWh/m^2)  Act ';
+                                        }
+                                        else if (columnIdx == 11) {
+                                            return 'POA (kWh/m^2) Var (%) ';
+                                        }
+                                        else if (columnIdx == 12) {
+                                            return 'GHI VS POA Gain (%)  Tar';
+                                        }
+                                        else if (columnIdx == 13) {
+                                            return 'GHI VS POA Gain (%)  Act ';
+                                        }
+                                        else if (columnIdx == 14) {
+                                            return 'GHI VS POA Gain(%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 15) {
+                                            return 'PLF (%)  Tar';
+                                        }
+                                        else if (columnIdx == 16) {
+                                            return 'PLF (%)  Act ';
+                                        }
+                                        else if (columnIdx == 17) {
+                                            return 'PLF (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 18) {
+                                            return 'PR (%)  Tar';
+                                        }
+                                        else if (columnIdx == 19) {
+                                            return 'PR (%)  Act ';
+                                        }
+                                        else if (columnIdx == 20) {
+                                            return 'PR (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 21) {
+                                            return 'MA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 22) {
+                                            return 'MA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 23) {
+                                            return 'MA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 24) {
+                                            return 'IGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 25) {
+                                            return 'IGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 26) {
+                                            return 'IGA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 27) {
+                                            return 'EGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 28) {
+                                            return 'EGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 29) {
+                                            return 'EGA (%)  Var (%) ';
+                                        }
+                                        else {
+                                            return data;
+                                        }
+                                    }
+                                }
                             }
                         },
                         {
                             extend: 'csv',
+                            footer: true,
                             title: 'Solar Performance Reports Weekly Site Wise',
+                            //titleAttr: 'Export Excel',
+                            "oSelectorOpts": { filter: 'applied', order: 'current' },
                             exportOptions: {
-                                columns: ':visible'
+                                columns: ':visible',
+                                modifier: {
+                                    page: 'all'
+                                },
+                                format: {
+                                    header: function (data, columnIdx) {
+                                        if (columnIdx == 1) {
+                                            return 'Capacity (MW)';
+                                        }
+
+                                        else if (columnIdx == 2) {
+                                            return 'Gen nos. (MUs)  Tar';
+                                        }
+                                        else if (columnIdx == 3) {
+                                            return 'Gen nos. (MUs)  Act JMR';
+                                        }
+                                        else if (columnIdx == 4) {
+                                            return 'Gen nos. (MUs)  Var (%)';
+                                        }
+                                        else if (columnIdx == 5) {
+                                            return 'Revenue (MINR) ';
+                                        }
+                                        else if (columnIdx == 6) {
+                                            return 'GHI (kWh/m^2)  Tar';
+                                        }
+                                        else if (columnIdx == 7) {
+                                            return 'GHI (kWh/m^2)  Act';
+                                        }
+                                        else if (columnIdx == 8) {
+                                            return 'GHI (kWh/m^2)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 9) {
+                                            return 'POA (kWh/m^2)  Tar';
+                                        }
+                                        else if (columnIdx == 10) {
+                                            return 'POA (kWh/m^2)  Act ';
+                                        }
+                                        else if (columnIdx == 11) {
+                                            return 'POA (kWh/m^2) Var (%) ';
+                                        }
+                                        else if (columnIdx == 12) {
+                                            return 'GHI VS POA Gain (%)  Tar';
+                                        }
+                                        else if (columnIdx == 13) {
+                                            return 'GHI VS POA Gain (%)  Act ';
+                                        }
+                                        else if (columnIdx == 14) {
+                                            return 'GHI VS POA Gain(%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 15) {
+                                            return 'PLF (%)  Tar';
+                                        }
+                                        else if (columnIdx == 16) {
+                                            return 'PLF (%)  Act ';
+                                        }
+                                        else if (columnIdx == 17) {
+                                            return 'PLF (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 18) {
+                                            return 'PR (%)  Tar';
+                                        }
+                                        else if (columnIdx == 19) {
+                                            return 'PR (%)  Act ';
+                                        }
+                                        else if (columnIdx == 20) {
+                                            return 'PR (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 21) {
+                                            return 'MA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 22) {
+                                            return 'MA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 23) {
+                                            return 'MA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 24) {
+                                            return 'IGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 25) {
+                                            return 'IGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 26) {
+                                            return 'IGA (%)  Var (%) ';
+                                        }
+                                        else if (columnIdx == 27) {
+                                            return 'EGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 28) {
+                                            return 'EGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 29) {
+                                            return 'EGA (%)  Var (%) ';
+                                        }
+                                        else {
+                                            return data;
+                                        }
+                                    }
+                                }
                             }
                         },
                         'colvis'

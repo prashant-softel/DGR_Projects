@@ -1128,6 +1128,23 @@ namespace DGRAPIs.Controllers
             }
         }
 
+        [Route("DeleteRecordsAfterFailure")]
+        [HttpGet]
+        public async Task<IActionResult> DeleteRecordsAfterFailure(int batchId, int siteType)
+        {
+            try
+            {
+                var data = await _dgrBs.DeleteRecordsAfterFailure(batchId, siteType);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("GetSolarInverterFromdailyGenSummary/{state}/{site}")]
         [HttpGet]
         public async Task<IActionResult> GetSolarInverterFromdailyGenSummary(string state, string site)
