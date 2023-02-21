@@ -147,7 +147,7 @@
 
                     @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                     {
-
+                        <a href="@Url.Content("/SampleFormat/Wind_DGR_Automation.xlsx")" download>Wind DGR Automation</a><br />
                         <a href="@Url.Content("/SampleFormat/Wind_daily_LoadShedding.xlsx")" download>Wind daily Loadshedding</a><br />
                         <a href="@Url.Content("/SampleFormat/Wind_Daily_Target_KPI.xlsx")" download>Wind daily Target KPI</a><br />
                         <a href="@Url.Content("/SampleFormat/Wind_MonTargetKPI.xlsx")" download>Wind monthly Target KPI</a><br />
@@ -167,6 +167,7 @@
 
                     @if (@HttpContextAccessor.HttpContext.Session.GetString("role") == "Admin")
                     {
+                        <a href="@Url.Content("/SampleFormat/Solar_DGR_Automation.xlsx")" download>Solar DGR Automation</a><br />
                         <a href="@Url.Content("/SampleFormat/Solar_Daily_LoadShedding.xlsx")" download>Solar daily Loadshedding</a><br />
                         <a href="@Url.Content("/SampleFormat/Solar_daily_Target_KPI.xlsx")" download>Solar daily Target KPI</a><br />
                         <a href="@Url.Content("/SampleFormat/SolarMonthlyTargetKPI.xlsx")" download>Solar monthly Target KPI</a><br />

@@ -873,29 +873,29 @@
                         let igbdh = 0;
                         let egbdh = 0;
                         let load_shedding = 0;
-                        if (result1[j].unschedule_hrs != null) {
-                            unsch_hrs = result1[j].unschedule_hrs['totalHours'];
+                        if (result1[j].unschedule_num != null) {
+                            unsch_hrs = result1[j].unschedule_num;
                             //unsch_hrs =  moment.utc(result1[j].unschedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss');
                         }
-                        if (result1[j].schedule_hrs != null) {
+                        if (result1[j].schedule_num != null) {
                             //sch_hrs = moment.utc(result1[j].schedule_hrs['totalSeconds'] * 1000).format('HH:mm:ss');
-                            sch_hrs = result1[j].schedule_hrs['totalHours'];
+                            sch_hrs = result1[j].schedule_num;
                         }
-                        if (result1[j].others != null) {
+                        if (result1[j].others_num != null) {
                             //other = moment.utc(result1[j].others['totalSeconds'] * 1000).format('HH:mm:ss');
-                           other = result1[j].others['totalHours'] ;
+                            other = result1[j].others_num ;
                         }
-                        if (result1[j].igbdh != null) {
+                        if (result1[j].igbdh_num != null) {
                            // igbdh = moment.utc(result1[j].igbdh['totalSeconds'] * 1000).format('HH:mm:ss');
-                            igbdh = result1[j].igbdh['totalHours'] ;
+                            igbdh = result1[j].igbdh_num ;
                         }
-                        if (result1[j].egbdh != null) {
+                        if (result1[j].egbdh_num != null) {
                             //egbdh = moment.utc(result1[j].egbdh['totalSeconds'] * 1000).format('HH:mm:ss');
-                            egbdh = result1[j].egbdh['totalHours'];
+                            egbdh = result1[j].egbdh_num;
                         }
-                        if (result1[j].load_shedding != null) {
+                        if (result1[j].load_shedding_num != null) {
                             //load_shedding = moment.utc(result1[j].load_shedding['totalSeconds'] * 1000).format('HH:mm:ss');
-                            load_shedding = result1[j].load_shedding['totalHours'];
+                            load_shedding = result1[j].load_shedding_num;
                         }
 
                         var formattedDate = moment(result1[j].date, 'YYYY/MM/DD').format('DD-MM-YYYY');

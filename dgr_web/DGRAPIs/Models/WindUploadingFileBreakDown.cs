@@ -17,9 +17,10 @@ namespace DGRAPIs.Models
         public int bd_type_id { get; set; }
         public string stop_from { get; set; }
         public string stop_to { get; set; }
-        public string total_stop { get; set; }
+        public dynamic total_stop { get; set; }
         public string error_description { get; set; }
         public string action_taken { get; set; }
+        public Int64 wtg_cnt { get; set; }
     }
     public class WindUploadingFileBreakDown1
     {

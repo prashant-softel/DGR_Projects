@@ -1393,19 +1393,19 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(siteValidation(site, addUnit.site_id, rowNumber));
                         objImportBatch.importSiteId = addUnit.site_id;
 
-                        addUnit.ghi_1 = Convert.ToDouble((dr["GHI-1"] is DBNull) || string.IsNullOrEmpty((string)dr["GHI-1"]) ? 0 : dr["GHI-1"]);
-                        addUnit.ghi_2 = Convert.ToDouble((dr["GHI-2"] is DBNull) || string.IsNullOrEmpty((string)dr["GHI-2"]) ? 0 : dr["GHI-2"]);
-                        addUnit.poa_1 = Convert.ToDouble((dr["POA-1"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-1"]) ? 0 : dr["POA-1"]);
-                        addUnit.poa_2 = Convert.ToDouble((dr["POA-2"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-2"]) ? 0 : dr["POA-2"]);
-                        addUnit.poa_3 = Convert.ToDouble((dr["POA-3"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-3"]) ? 0 : dr["POA-3"]);
-                        addUnit.poa_4 = Convert.ToDouble((dr["POA-4"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-4"]) ? 0 : dr["POA-4"]);
-                        addUnit.poa_5 = Convert.ToDouble((dr["POA-5"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-5"]) ? 0 : dr["POA-5"]);
-                        addUnit.poa_6 = Convert.ToDouble((dr["POA-6"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-6"]) ? 0 : dr["POA-6"]);
-                        addUnit.poa_7 = Convert.ToDouble((dr["POA-7"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-7"]) ? 0 : dr["POA-7"]);
-                        addUnit.avg_ghi = Convert.ToDouble((dr["Average GHI (w/m²)"] is DBNull) || string.IsNullOrEmpty((string)dr["Average GHI (w/m²)"]) ? 0 : dr["Average GHI (w/m²)"]);
-                        addUnit.avg_poa = Convert.ToDouble((dr["Average POA (w/m²)"] is DBNull) || string.IsNullOrEmpty((string)dr["Average POA (w/m²)"]) ? 0 : dr["Average POA (w/m²)"]);
-                        addUnit.amb_temp = Convert.ToDouble((dr["Ambient Temp"] is DBNull) || string.IsNullOrEmpty((string)dr["Ambient Temp"]) ? 0 : dr["Ambient Temp"]);
-                        addUnit.mod_temp = Convert.ToDouble((dr["Module Temp"] is DBNull) || string.IsNullOrEmpty((string)dr["Module Temp"]) ? 0 : dr["Module Temp"]);
+                        addUnit.ghi_1 = Convert.ToDouble((dr["GHI-1"] is DBNull) || string.IsNullOrEmpty((string)dr["GHI-1"]) || ((string)dr["GHI-1"] == "") ? 0 : dr["GHI-1"]);
+                        addUnit.ghi_2 = Convert.ToDouble((dr["GHI-2"] is DBNull) || string.IsNullOrEmpty((string)dr["GHI-2"]) || ((string)dr["GHI-2"] == "") ? 0 : dr["GHI-2"]);
+                        addUnit.poa_1 = Convert.ToDouble((dr["POA-1"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-1"]) || ((string)dr["POA-1"] == "") ? 0 : dr["POA-1"]);
+                        addUnit.poa_2 = Convert.ToDouble((dr["POA-2"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-2"]) || ((string)dr["POA-2"] == "") ? 0 : dr["POA-2"]);
+                        addUnit.poa_3 = Convert.ToDouble((dr["POA-3"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-3"]) || ((string)dr["POA-3"] == "") ? 0 : dr["POA-3"]);
+                        addUnit.poa_4 = Convert.ToDouble((dr["POA-4"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-4"]) || ((string)dr["POA-4"] == "") ? 0 : dr["POA-4"]);
+                        addUnit.poa_5 = Convert.ToDouble((dr["POA-5"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-5"]) || ((string)dr["POA-5"] == "") ? 0 : dr["POA-5"]);
+                        addUnit.poa_6 = Convert.ToDouble((dr["POA-6"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-6"]) || ((string)dr["POA-6"] == "") ? 0 : dr["POA-6"]);
+                        addUnit.poa_7 = Convert.ToDouble((dr["POA-7"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-7"]) || ((string)dr["POA-7"] == "") ? 0 : dr["POA-7"]);
+                        addUnit.avg_ghi = Convert.ToDouble((dr["Average GHI (w/m²)"] is DBNull) || string.IsNullOrEmpty((string)dr["Average GHI (w/m²)"]) || ((string)dr["Average GHI (w/m²)"] == "") ? 0 : dr["Average GHI (w/m²)"]);
+                        addUnit.avg_poa = Convert.ToDouble((dr["Average POA (w/m²)"] is DBNull) || string.IsNullOrEmpty((string)dr["Average POA (w/m²)"]) || ((string)dr["Average POA (w/m²)"] == "") ? 0 : dr["Average POA (w/m²)"]);
+                        addUnit.amb_temp = Convert.ToDouble((dr["Ambient Temp"] is DBNull) || string.IsNullOrEmpty((string)dr["Ambient Temp"]) || ((string)dr["Ambient Temp"] == "") ? 0 : dr["Ambient Temp"]);
+                        addUnit.mod_temp = Convert.ToDouble((dr["Module Temp"] is DBNull) || string.IsNullOrEmpty((string)dr["Module Temp"]) || ((string)dr["Module Temp"] == "") ? 0 : dr["Module Temp"]);
                         foreach (bool item in errorFlag)
                         {
                             if (item)

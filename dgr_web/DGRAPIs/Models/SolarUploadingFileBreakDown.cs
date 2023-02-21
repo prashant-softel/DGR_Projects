@@ -24,6 +24,8 @@ namespace DGRAPIs.Models
         public string bd_type { get; set; }
         public int bd_type_id { get; set; }
         public string action_taken { get; set; }
+        public Int64 icr_cnt { get; set; }
+        public Int64 inv_cnt { get; set; }
     }
     public class SolarUploadingFileBreakDown1
     {

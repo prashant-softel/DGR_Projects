@@ -276,6 +276,7 @@
         var tar_ega_wk = 0;
         var act_ega_wk = 0;
         var ega_var_wk = 0;
+        var total_revenue_wk = 0;
         var total_capacity = 0;
         var total_revenue = 0;
         var total_tarriff_wk = 0;
@@ -346,7 +347,9 @@
                     
                     tar_ega_wk += result[i].tar_ega * result[i].total_mw;
                     act_ega_wk += result[i].act_ega * result[i].total_mw;
-                    total_revenue += revenue;
+                    total_revenue_wk += (result[i].act_jmr_kwh_mu - (result[i].tar_kwh_mu/1000000)) * result[i].total_tarrif;
+
+                    //total_revenue += revenue;
                 }
                 let avg_tar_mu = 0;
                 let avg_tar_wind = 0;
@@ -382,8 +385,12 @@
                 if (avg_tar_wind != 0) {
                     wind_var_wk = ((avg_act_wind - avg_tar_wind) / avg_tar_wind) * 100;
                 }
-                let revenue1 = ((act_energy_wk - tar_energy_wk) * total_tarriff_wk);
-                revenue.push(revenue1);
+                console.log("act", act_energy_wk);
+                console.log("tar", tar_energy_wk);
+                console.log("tarif", total_tarriff_wk);
+               
+                revenue.push(total_revenue_wk);
+               
                 diff_MUs_wk = (act_energy_wk - tar_energy_wk);
                 Diff_Mus.push(diff_MUs_wk.toFixed(1));
                 plf_var_wk = (avg_act_plf - avg_tar_plf);
@@ -614,6 +621,7 @@
         var tar_ega_mn = 0;
         var act_ega_mn = 0;
         var ega_var_mn = 0;
+        var total_revenue_mn = 0;
         var diff_MUs_mn = 0;
         var total_capacity_mn = 0;
         var total_tarriff_mn = 0;
@@ -659,6 +667,7 @@
 
                     tar_ega_mn += result[i].tar_ega * result[i].total_mw;
                     act_ega_mn += result[i].act_ega * result[i].total_mw;
+                    total_revenue_mn += (result[i].act_jmr_kwh_mu - (result[i].tar_kwh_mu / 1000000)) * result[i].total_tarrif;
 
                 }
                 let avg_tar_mu_mn = 0;
@@ -695,8 +704,8 @@
                 if (avg_tar_wind_mn != 0) {
                     wind_var_mn = ((avg_act_wind_mn - avg_tar_wind_mn) / avg_tar_wind_mn) * 100;
                 }
-                let revenue1 = ((act_energy_mn - tar_energy_mn) * total_tarriff_mn);
-                revenue.push(revenue1);
+               
+                revenue.push(total_revenue_mn);
                 diff_MUs_mn = (act_energy_mn - tar_energy_mn);
                 Diff_Mus.push(diff_MUs_mn.toFixed(1));
                 plf_var_mn = (avg_act_plf_mn - avg_tar_plf_mn);
@@ -921,6 +930,7 @@
         var tar_ega_yr = 0;
         var act_ega_yr = 0;
         var ega_var_yr = 0;
+        var total_revenue_yr = 0;
         var yr_energy = [];
         var diff_MUs_yr = 0;
         var total_capacity_yr = 0;
@@ -971,7 +981,7 @@
 
                     tar_ega_yr += result[i].tar_ega * result[i].total_mw;
                     act_ega_yr += result[i].act_ega * result[i].total_mw;
-
+                    total_revenue_yr += (result[i].act_jmr_kwh_mu - (result[i].tar_kwh_mu / 1000000)) * result[i].total_tarrif;
                 }
                 let avg_tar_mu_yr = 0;
                 let avg_tar_wind_yr = 0;
@@ -1007,8 +1017,8 @@
                 if (avg_tar_wind_yr != 0) {
                     wind_var_yr = ((avg_act_wind_yr - avg_tar_wind_yr) / avg_tar_wind_yr) * 100;
                 }
-                let revenue1 = ((act_energy_yr - tar_energy_yr) * total_tarriff_yr);
-                revenue.push(revenue1);
+                
+                revenue.push(total_revenue_yr);
                 diff_MUs_yr = (act_energy_yr - tar_energy_yr);
                 Diff_Mus.push(diff_MUs_yr.toFixed(1));
                 plf_var_yr = (avg_act_plf_yr - avg_tar_plf_yr);
@@ -1333,7 +1343,7 @@
                     },
                 },{
                     yAxisID: 'en_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1346,7 +1356,7 @@
                     },
                 },{
                     yAxisID: 'en_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1450,7 +1460,7 @@
                     },
                 },{
                     yAxisID: 'w_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1464,7 +1474,7 @@
                     },
                 },{
                     yAxisID: 'w_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1567,7 +1577,7 @@
                     },
                 },{
                     yAxisID: 'plf_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1580,7 +1590,7 @@
                     },
                 },{
                     yAxisID: 'plf_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1682,7 +1692,7 @@
                         },
                 },{
                     yAxisID: 'ma_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1695,7 +1705,7 @@
                     },
                 },{
                     yAxisID: 'ma_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1797,7 +1807,7 @@
                         },
                 },{
                     yAxisID: 'iga_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1810,7 +1820,7 @@
                     },
                 },{
                     yAxisID: 'iga_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1913,7 +1923,7 @@
                     },
                 },{
                     yAxisID: 'ega_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1927,7 +1937,7 @@
                     },
                 },{
                     yAxisID: 'ega_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -2089,8 +2099,9 @@
                         let ega_var = 0;
                         let tar_mu = 0;
                         tar_mu = result[i].tar_kwh_mu / 1000000;
-
-                        revenue = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif)/1000000;
+                        //tar_mu = result[i].tar_kwh_mu / 1000000;
+                        //revenue = ((result[i].act_jmr_kwh_mu - tar_mu) * result[i].total_tarrif);
+                        revenue = ((result[i].act_jmr_kwh_mu - tar_mu) * result[i].total_tarrif);
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
                             jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
@@ -2602,7 +2613,7 @@
                         let ega_var = 0;
                         let tar_mu = 0;
                         tar_mu = result[i].tar_kwh_mu / 1000000;
-                        revenue = ((result[i].act_jmr_kwh_mu - result[i].tar_kwh_mu) * result[i].total_tarrif)/1000000;
+                        revenue = ((result[i].act_jmr_kwh_mu - tar_mu) * result[i].total_tarrif);
                         if (result[i].act_jmr_kwh_mu != 0 || result[i].tar_kwh_mu != 0) {
                             jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
@@ -3011,7 +3022,7 @@
                     },
                 },{
                     yAxisID: 'var_site',
-                    label: "+ve",
+                    label: "(+ve) %",
                     type: "bubble",
                     borderColor: "#86C466",
                     data: pas_energy_var,
@@ -3026,7 +3037,7 @@
 
                 }, {
                     yAxisID: 'var_site',
-                    label: "-ve",
+                    label: "(-ve) %",
                     type: "bubble",
                     borderColor: "#EE403D",
                     data: neg_energy_var,
@@ -3132,7 +3143,7 @@
                     },
                 },{
                     yAxisID: 'wind_var',
-                    label: "+ve",
+                    label: "(+ve) %",
                     type: "bubble",
                     borderColor: "#86C466",
                     data: pas_wind_var,
@@ -3146,7 +3157,7 @@
                     },
                 }, {
                     yAxisID: 'wind_var',
-                    label: "-ve",
+                    label: "(-ve) %",
                     type: "bubble",
                     borderColor: "#EE403D",
                     data: neg_wind_var,
@@ -3228,25 +3239,30 @@ function GetWindMajorBreakdown() {
                 if (result.length > 0) {
 
                     for (var i = 0; i < result.length; i++) {
-                       
-                       if((result[i].bd_type_id == 1 || result[i].bd_type_id == 2) && +result[i].total_stop.split(":")[0] >= 4) {
+                        //let total_time = "";
+                        //let no_of_wtg = 0;
+                        //let bd_type = "";
+                        //let total_time = "";
+                        let total_time = toHoursAndMinutes(result[i].total_stop.totalSeconds);
+                       // console.log("Total Time", total_time);
+                        if ((result[i].bd_type_id == 1 || result[i].bd_type_id == 2) && +total_time.split(":")[0] >= 4) {
                        tbl += '<tr>';
                             tbl += '<td class="text-left">' + result[i].date + '</td>';
                             tbl += '<td class="text-left">' + result[i].site_name + '</td>';
-                            tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                            tbl += '<td class="text-left">' + result[i].wtg_cnt + ' WTGs</td>';
                             tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
-                            tbl += '<td class="text-left">' + result[i].total_stop + '</td>';
+                            tbl += '<td class="text-left">' + total_time + '</td>';
                             //tbl += '<td class="text-left">' + result[i].stop_from + ' - ' + result[i].stop_to + ' = ' + result[i].total_stop + '</td>';
                             tbl += '<td class="text-left">' + result[i].error_description +'</td>';
                             tbl += '</tr>';
                        }
-                       if((result[i].bd_type_id != 1 && result[i].bd_type_id != 2) && +result[i].total_stop.split(":")[0] >= 1) {
+                        if ((result[i].bd_type_id != 1 && result[i].bd_type_id != 2) && +total_time.split(":")[0] >= 1) {
                        tbl += '<tr>';
                             tbl += '<td class="text-left">' + result[i].date + '</td>';
                             tbl += '<td class="text-left">' + result[i].site_name + '</td>';
-                            tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                            tbl += '<td class="text-left">' + result[i].wtg_cnt + ' WTGs</td>';
                             tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
-                            tbl += '<td class="text-left">' + result[i].total_stop + '</td>';
+                            tbl += '<td class="text-left">' + total_time + '</td>';
                             //tbl += '<td class="text-left">' + result[i].stop_from + ' - ' + result[i].stop_to+' = '+ result[i].total_stop + '</td>';
                             tbl += '<td class="text-left">' + result[i].error_description +'</td>';
                             tbl += '</tr>';

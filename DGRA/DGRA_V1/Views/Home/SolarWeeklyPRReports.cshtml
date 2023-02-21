@@ -326,6 +326,7 @@
         var tar_ega_wk = 0;
         var act_ega_wk = 0;
         var ega_var_wk = 0;
+        var total_revenue_wk = 0;
         var diff_MUs_wk = 0;
         var total_capacity = 0;
         var total_tarriff_wk = 0;
@@ -403,7 +404,7 @@
 
                     tar_ega_wk += result[i].tar_ega * result[i].capacity;
                     act_ega_wk += result[i].act_ega * result[i].capacity;
-                    
+                    total_revenue_wk += (result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif;
                    //act_ma_wk += act_prval * result[i].capacity;
                     //total_capActGain += gain_act * result[i].capacity;
                 }
@@ -480,8 +481,7 @@
                 
                 diff_MUs_wk = (act_energy_wk - tar_energy_wk);
                 Diff_Mus.push(diff_MUs_wk.toFixed(1));
-                let cal_revenue_wk = (act_energy_wk - tar_energy_wk) * total_tarriff_wk;
-                revenue.push(cal_revenue_wk);
+                revenue.push(total_revenue_wk);
                 actual_mu.push(act_energy_wk.toFixed(1));
                 target_mu.push(tar_energy_wk.toFixed(1));
                 var_mu_pos.push(en_pasitive);
@@ -615,6 +615,7 @@
         var tar_ega_mn = 0;
         var act_ega_mn = 0;
         var ega_var_mn = 0;
+        var total_revenue_mn = 0;
         var diff_MUs_mn = 0;
         var total_capacity_mn = 0;
         var total_tarriff_mn = 0;
@@ -662,7 +663,7 @@
 
                     tar_ega_mn += result[i].tar_ega * result[i].capacity;
                     act_ega_mn += result[i].act_ega * result[i].capacity;
-
+                    total_revenue_mn += (result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif;
                     //act_ma_wk += act_prval * result[i].capacity;
                     //total_capActGain += gain_act * result[i].capacity;
                 }
@@ -727,8 +728,8 @@
                 iga_var_mn = (avg_act_iga - avg_tar_iga);
                 ega_var_mn = (avg_act_ega - avg_tar_ega);
 
-                let revenue_mn = (act_energy_mn - tar_energy_mn) * total_tarriff_mn;
-                revenue.push(revenue_mn);
+               
+                revenue.push( total_revenue_mn );
                 // Push Energy MU Monthly
                 diff_MUs_mn = (act_energy_mn - tar_energy_mn);
                 Diff_Mus.push(diff_MUs_mn.toFixed(1));
@@ -874,6 +875,7 @@
         var tar_ega_yr = 0;
         var act_ega_yr = 0;
         var ega_var_yr = 0;
+        var total_revenue_yr = 0;
         var diff_MUs_yer = 0;
         var total_capacity_yr = 0;
         var total_tarriff_yr = 0;
@@ -920,7 +922,7 @@
 
                     tar_ega_yr += result[i].tar_ega * result[i].capacity;
                     act_ega_yr += result[i].act_ega * result[i].capacity;
-
+                    total_revenue_yr += (result[i].act_kwh - result[i].tar_kwh) * result[i].total_tarrif;
                     //act_ma_wk += act_prval * result[i].capacity;
                     //total_capActGain += gain_act * result[i].capacity;
                 }
@@ -995,8 +997,8 @@
                 else {
                     en_pasitive = (energy_var_yr).toFixed(1);
                 }
-                let revenue_yr = (act_energy_yr - tar_energy_yr) * total_tarriff_yr;
-                revenue.push(revenue_yr);
+                
+                revenue.push(total_revenue_yr);
                 // Push Energy MU Monthly
                 diff_MUs_yr = (act_energy_yr - tar_energy_yr);
                 Diff_Mus.push(diff_MUs_yr.toFixed(1));
@@ -1218,7 +1220,7 @@
                     },
                     }, {
                     yAxisID: 'mu_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1231,7 +1233,7 @@
                     },
                 }, {
                     yAxisID: 'mu_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1335,7 +1337,7 @@
                     },
                 }, {
                     yAxisID: 'ir_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1348,7 +1350,7 @@
                     },
                 }, {
                     yAxisID: 'ir_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1443,7 +1445,7 @@
                     },
                 }, {
                     yAxisID: 'plf_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1456,7 +1458,7 @@
                     },
                 }, {
                     yAxisID: 'plf_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1559,7 +1561,7 @@
                     },
                 },{
                     yAxisID: 'ma_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1581,7 +1583,7 @@
                     },
                 }, {
                     yAxisID: 'ma_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1684,7 +1686,7 @@
                     },
                     }, {
                     yAxisID: 'iga_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1706,7 +1708,7 @@
                     },
                     }, {
                     yAxisID: 'iga_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1809,7 +1811,7 @@
                     },
                 }, {
                     yAxisID: 'ega_var',
-                    label: "(-ve)",
+                    label: "(-ve) %",
                     type: "bubble",
                     backgroundColor: "#EE403D",
                     borderColor: "#EE403D",
@@ -1822,7 +1824,7 @@
                     },
                 }, {
                     yAxisID: 'ega_var',
-                    label: "(+ve)",
+                    label: "(+ve) %",
                     type: "bubble",
                     backgroundColor: "#86C466",
                     borderColor: "#86C466",
@@ -1905,20 +1907,23 @@
                         var start_time = toHoursAndMinutes(result[i].from_bd.totalSeconds);
                         var stop_time = toHoursAndMinutes(result[i].to_bd.totalSeconds);
                         var total_time = toHoursAndMinutes(result[i].total_bd.totalSeconds);
-                        //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
-                        tbl += '<tr>';
-                        tbl += '<td class="text-left">' + result[i].date + '</td>';
-                        tbl += '<td class="text-left">' + result[i].site + '</td>';
-                        location_name = "Plant Shutdown";
-                        if (result[i].icr) {
-                            location_name = result[i].icr + "/" + result[i].inv;
+                        if (total_time.split(":")[1] >= 30) {
+                            tbl += '<tr>';
+                            tbl += '<td class="text-left">' + result[i].date + '</td>';
+                            tbl += '<td class="text-left">' + result[i].site + '</td>';
+                            location_name = "Plant Shutdown";
+                            //if (result[i].icr) {
+                                //location_name = result[i].icr + "/" + result[i].inv;
+                            //}
+
+                            tbl += '<td class="text-left">' + result[i].inv_cnt + ' Icr/Inv </td>';
+                            tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
+                            //tbl += '<td class="text-left">' + start_time + ' to ' + stop_time + ' = ' + total_time + '</td>';
+                            tbl += '<td class="text-left">' + total_time + '</td>';
+                            tbl += '<td class="text-left">' + result[i].bd_remarks + '</td>';
                         }
-                       
-                        tbl += '<td class="text-left">' + location_name + '</td>';
-                        tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
-                        //tbl += '<td class="text-left">' + start_time + ' to ' + stop_time + ' = ' + total_time + '</td>';
-                        tbl += '<td class="text-left">'+ total_time + '</td>';
-                        tbl += '<td class="text-left">' + result[i].bd_remarks + '</td>';
+                        //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
+                        
                     }
                 }
                 else {
@@ -2113,6 +2118,12 @@
                         if (result[i].act_kwh != 0 || result[i].tar_kwh != 0) {
                             jmr_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
+                        if (result[i].expected_kwh == 0 || result[i].act_kwh == 0) {
+                            act_prval = 0;
+                        }
+                        else {
+                            act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
+                        }
                         ghi_var = (result[i].act_ghi - result[i].tar_ghi);
                         poa_var = (result[i].act_poa - result[i].tar_poa);
                         pr_var = (act_prval - result[i].tar_pr);
@@ -2121,12 +2132,7 @@
                         iga_var = (result[i].act_iga - result[i].tar_iga);
                         ega_var = (result[i].act_ega - result[i].tar_ega);
 
-                        if (result[i].expected_kwh == 0 || result[i].act_kwh == 0) {
-                            act_prval = 0;
-                        }
-                        else {
-                            act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
-                        }
+                       
                         if (result[i].tar_poa == 0 || result[i].tar_ghi == 0) {
                             gain_tar = 0;
                         } else {
@@ -2664,7 +2670,7 @@
                         },
                     }, {
                     yAxisID: 'spv_var',
-                        label: "+ve",
+                        label: "(+ve) %",
                     type: "bubble",
                         borderColor: "#86C466",
                         data: pas_energy_var,
@@ -2678,7 +2684,7 @@
 
                     }, {
                     yAxisID: 'spv_var',
-                        label: "-ve",
+                        label: "(-ve) %",
                     type: "bubble",
                         borderColor: "#EE403D",
                         data: neg_energy_var,
@@ -2784,7 +2790,7 @@
                     },
                 }, {
                     yAxisID: 'pr_var',
-                    label: "+ve",
+                    label: "(+ve) %",
                     type: "bubble",
                     borderColor: "#86C466",
                     data: pas_wind_var,
@@ -2797,7 +2803,7 @@
                     },
                 }, {
                     yAxisID: 'pr_var',
-                    label: "-ve",
+                    label: "(-ve) %",
                     type: "bubble",
                     borderColor: "#EE403D",
                     data: neg_wind_var,
@@ -2994,6 +3000,12 @@
                         if (result[i].act_kwh != 0 || result[i].tar_kwh != 0) {
                             jmr_var = ((result[i].act_kwh - result[i].tar_kwh) / result[i].tar_kwh) * 100;
                         }
+                        if (result[i].expected_kwh == 0 || result[i].act_kwh == 0) {
+                            act_prval = 0;
+                        }
+                        else {
+                            act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
+                        }
                         ghi_var = (result[i].act_ghi - result[i].tar_ghi);
                         poa_var = (result[i].act_poa - result[i].tar_poa);
                         pr_var = (act_prval - result[i].tar_pr);
@@ -3002,12 +3014,7 @@
                         iga_var = (result[i].act_iga - result[i].tar_iga);
                         ega_var = (result[i].act_ega - result[i].tar_ega);
 
-                        if (result[i].expected_kwh == 0 || result[i].act_kwh == 0) {
-                            act_prval = 0;
-                        }
-                        else {
-                            act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
-                        }
+                        
                         if (result[i].tar_poa == 0 || result[i].tar_ghi == 0) {
                             gain_tar = 0;
                         } else {
@@ -3558,7 +3565,7 @@
                     },
                 }, {
                     yAxisID: 'pr_var_p',
-                    label: "+ve",
+                    label: "(+ve) %",
                     type: "bubble",
                     borderColor: "#86C466",
                     data: pas_energy_var,
@@ -3572,7 +3579,7 @@
 
                 }, {
                     yAxisID: 'pr_var_p',
-                    label: "-ve",
+                    label: "(-ve) %",
                     type: "bubble",
                     borderColor: "#EE403D",
                     data: neg_energy_var,
@@ -3676,7 +3683,7 @@
                     },
                 }, {
                     yAxisID: 'pr_var_s',
-                    label: "+ve",
+                    label: "(+ve) %",
                     type: "bubble",
                     borderColor: "#86C466",
                     data: pas_wind_var,
@@ -3689,7 +3696,7 @@
                     },
                 }, {
                     yAxisID: 'pr_var_s',
-                    label: "-ve",
+                    label: "(-ve) %",
                     type: "bubble",
                     borderColor: "#EE403D",
                     data: neg_wind_var,

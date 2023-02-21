@@ -993,8 +993,8 @@ left join monthly_line_loss_solar t2 on t2.site=t1.site and t2.month=DATE_FORMAT
                 filter += " group by t1.site ";
             }
             string qry = @"SELECT (date),t2.country,t1.state,t2.spv,t1.site,t2.capacity_mw
-,t1.wtg,wind_speed,kwh,plf,ma_actual,ma_contractual,iga,ega,grid_hrs,production_hrs,lull_hrs
-,unschedule_hrs,schedule_hrs,others,igbdh,egbdh,load_shedding FROM daily_gen_summary t1 left join
+,t1.wtg,wind_speed,kwh,plf,ma_actual,ma_contractual,iga,ega,grid_hrs,lull_hrs
+,unschedule_hrs,unschedule_num, schedule_hrs,schedule_num,others,others_num,igbdh,igbdh_num,egbdh,egbdh_num ,load_shedding,load_shedding_num FROM daily_gen_summary t1 left join
 site_master t2 on t1.site_id = t2.site_master_id
 where   " + filter;
             List<WindDailyGenReports> _windDailyGenReports = new List<WindDailyGenReports>();
@@ -1362,13 +1362,13 @@ sum(kwh) as kwh,
 (sum(iga)/count(*))as iga,
 (sum(ega)/count(*))as ega,
 sum(production_hrs)as grid_hrs,
-sum(lull_hrs)as lull_hrs
-,SEC_TO_TIME(sum(TIME_TO_SEC(unschedule_hrs))) as unschedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(schedule_hrs))) as schedule_hrs,
-SEC_TO_TIME(sum(TIME_TO_SEC(others))) as others,
-SEC_TO_TIME(sum(TIME_TO_SEC(igbdh))) as igbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(egbdh))) as egbdh,
-SEC_TO_TIME(sum(TIME_TO_SEC(load_shedding))) as load_shedding	 FROM daily_gen_summary t1 left join
+sum(lull_hrs)as lull_hrs,
+sum(unschedule_num) as unschedule_num,
+sum(schedule_num) as schedule_num,
+sum(others_num) as others_num,
+sum(igbdh_num) as igbdh_num,
+sum(egbdh_num) as egbdh_num,
+sum(load_shedding_num) as load_shedding_num	 FROM daily_gen_summary t1 left join
 site_master t2 on t1.site_id=t2.site_master_id 
 where " + filter + " group by t1.date, t1.state, t2.spv, t1.site ";
 
@@ -1575,7 +1575,14 @@ where " + filter + " group by t1.date, t1.state, t2.spv, t1.site ";
             }
             if (!string.IsNullOrEmpty(spv) && spv != "All~")
             {
-                if (chkfilter == 1) { filter += " and "; }
+                if (chkfilter == 1) 
+                {
+                    filter += " and ";
+                }
+                else
+                {
+                    filter += " where ";
+                }
                 // filter += "t2.spv in (" + spv + ")";
                 string[] spspv = spv.Split(",");
                 filter += " t2.spv in (";
@@ -1675,6 +1682,7 @@ sum(load_shedding_num) as load_shedding FROM daily_gen_summary t1 left join
         internal async Task<List<WindDailyGenReports2>> GetWindMonthlyYearlyGenSummaryReport2(string fy, string month, string country, string state, string spv, string site, string wtg)
         {
             string filter = "";
+            string filter1 = "";
             int chkfilter = 0;
             if (!string.IsNullOrEmpty(month) && !string.IsNullOrEmpty(fy))
             {
@@ -1739,6 +1747,7 @@ sum(load_shedding_num) as load_shedding FROM daily_gen_summary t1 left join
                 // filter += "t2.spv in (" + spv + ")";
                 string[] spspv = spv.Split(",");
                 filter += " and t2.spv in (";
+               // filter1 += " and t2.spv in (";
                 string spvs = "";
                 for (int i = 0; i < spspv.Length; i++)
                 {
@@ -1748,7 +1757,7 @@ sum(load_shedding_num) as load_shedding FROM daily_gen_summary t1 left join
                     }
                 }
                 filter += spvs.TrimEnd(',') + ")";
-
+               // filter1 += spvs.TrimEnd(',') + ")";
                 chkfilter = 1;
             }
             if (!string.IsNullOrEmpty(site) && site != "All~")
@@ -2390,7 +2399,7 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
             //toDate = "2022-04-28";
             if (!string.IsNullOrEmpty(fromDate))
             {
-                filter += " and date>='" + fromDate + "' ";
+                filter += " date>='" + fromDate + "' ";
             }
             if (!string.IsNullOrEmpty(fromDate))
             {
@@ -2401,7 +2410,9 @@ where    " + filter + " group by t1.state, t2.spv, t1.site  ";
                 filter += " and site_id in (" + site + ")";
             }
             filter += " and smb='Nil' and strings='Nil' ";
-            string query = " select date, site, icr, inv,bd_type,from_bd,to_bd ,total_bd, bd_remarks from uploading_file_breakdown_solar where HOUR(total_bd)>=1 " + filter+ "group by site_id,from_bd,to_bd";
+            //string query = " select date, site, icr, inv,bd_type,from_bd,to_bd ,total_bd, bd_remarks from uploading_file_breakdown_solar where HOUR(total_bd)>=1 " + filter+ "group by site_id,from_bd,to_bd";
+            string query = "select date, site,icr, count(icr) as icr_cnt,inv, count(inv) as inv_cnt,bd_type,from_bd,to_bd ,SEC_TO_TIME(sum(TIME_TO_SEC(total_bd))) as total_bd, bd_remarks from uploading_file_breakdown_solar where "+ filter + " group by site_id,bd_type";
+
             List<SolarUploadingFileBreakDown> data = new List<SolarUploadingFileBreakDown>();
             data = await Context.GetData<SolarUploadingFileBreakDown>(query).ConfigureAwait(false);
             return data;
@@ -6094,7 +6105,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         public async Task<List<WindUploadingFilegeneration1>> GetImportGenData(int importId)
         {
             // string query = "SELECT t1.*,t2.site as site_name FROM `uploading_file_generation` as t1 join site_master as t2 on t2.site_master_id=t1.site_id  where import_batch_id =" + importId + "";
-            string query = "SELECT t1.uploading_file_generation_id, t1.site_id, t1.date, t1.wtg, t1.wtg_id, t1.wind_speed, t1.grid_hrs, t1.operating_hrs, t1.lull_hrs, t1.kwh, t1.ma_contractual, t1.ma_actual, t1.iga, t1.ega, t1.plf,  t1.unschedule_hrs,  t1.schedule_hrs,  t1.others,  t1.igbdh,  t1.egbdh,  t1.load_shedding, t2.site as site_name FROM `uploading_file_generation` as t1 join site_master as t2 on t2.site_master_id=t1.site_id where import_batch_id =" + importId + "";
+            string query = "SELECT t1.uploading_file_generation_id, t1.site_id, t1.date, t1.wtg, t1.wtg_id, t1.wind_speed, t1.grid_hrs, t1.operating_hrs, t1.lull_hrs, t1.kwh, t1.ma_contractual, t1.ma_actual, t1.iga, t1.ega, t1.plf,  t1.unschedule_num,  t1.schedule_num,  t1.others_num,  t1.igbdh_num,  t1.egbdh_num,  t1.load_shedding_num, t2.site as site_name FROM `uploading_file_generation` as t1 join site_master as t2 on t2.site_master_id=t1.site_id where import_batch_id =" + importId + "";
             List<WindUploadingFilegeneration1> _importGenData = new List<WindUploadingFilegeneration1>();
             _importGenData = await Context.GetData<WindUploadingFilegeneration1>(query).ConfigureAwait(false);
             return _importGenData;
@@ -6226,12 +6237,15 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
         }
         internal async Task<List<WindUploadingFileBreakDown>> GetWindMajorBreakdown(string fromDate, string toDate,string site)
         {
-            string qry = "Select * from uploading_file_breakdown";
-            string filter = " where date >= '" + fromDate + "' and date <= '" + toDate + "' group by site_id,stop_from,stop_to ";
+            //string qry = "Select * from uploading_file_breakdown";
+            string qry = "Select date, site_name, SEC_TO_TIME(sum(TIME_TO_SEC(total_stop))) as total_stop,count(wtg_id) as wtg_cnt,wtg,bd_type,bd_type_id,error_description,action_taken from uploading_file_breakdown";
+            string filter = " where ";
             if (!string.IsNullOrEmpty(site))
             {
-                filter += " and site_id in (" + site + ")" ;
+                filter += " and site_id in (" + site + ")";
             }
+            filter += " date >= '" + fromDate + "' and date <= '" + toDate + "' group by site_id,bd_type";
+            
             return await Context.GetData<WindUploadingFileBreakDown>(qry + filter).ConfigureAwait(false);
         }
         //#region KPI Calculations

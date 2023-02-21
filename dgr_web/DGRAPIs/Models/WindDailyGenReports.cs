@@ -27,17 +27,17 @@ namespace DGRAPIs.Models
         public double lull_hrs { get; set; }
         public double production_hrs { get; set; }
         public dynamic unschedule_hrs { get; set; }
-        public dynamic unschedule_num { get; set; }
+        public double unschedule_num { get; set; }
         public dynamic schedule_hrs { get; set; }
-        public dynamic schedule_num { get; set; }
+        public double schedule_num { get; set; }
         public dynamic others { get; set; }
-        public dynamic others_num { get; set; }
+        public double others_num { get; set; }
         public dynamic igbdh { get; set; }
-        public dynamic igbdh_num { get; set; }
+        public double igbdh_num { get; set; }
         public dynamic egbdh { get; set; }
-        public dynamic egbdh_num { get; set; }
+        public double egbdh_num { get; set; }
         public dynamic load_shedding { get; set; }
-        public dynamic load_shedding_num { get; set; }
+        public double load_shedding_num { get; set; }
     }
     public class WindDailyGenReports1
     {
@@ -61,17 +61,17 @@ namespace DGRAPIs.Models
         public double grid_hrs { get; set; }
         public double lull_hrs { get; set; }
         public dynamic unschedule_hrs { get; set; }
-        public dynamic unschedule_num { get; set; }
+        public double unschedule_num { get; set; }
         public dynamic schedule_hrs { get; set; }
-        public dynamic schedule_num { get; set; }
+        public double schedule_num { get; set; }
         public dynamic others { get; set; }
-        public dynamic others_num { get; set; }
+        public double others_num { get; set; }
         public dynamic igbdh { get; set; }
-        public dynamic igbdh_num { get; set; }
+        public double igbdh_num { get; set; }
         public dynamic egbdh { get; set; }
-        public dynamic egbdh_num { get; set; }
+        public double egbdh_num { get; set; }
         public dynamic load_shedding { get; set; }
-        public dynamic load_shedding_num { get; set; }
+        public double load_shedding_num { get; set; }
     }
     public class WindDailyGenReports2
     {
@@ -95,16 +95,16 @@ namespace DGRAPIs.Models
         public double grid_hrs { get; set; }
         public double lull_hrs { get; set; }
         public dynamic unschedule_hrs { get; set; }
-        public dynamic unschedule_num { get; set; }
+        public double unschedule_num { get; set; }
         public dynamic schedule_hrs { get; set; }
-        public dynamic schedule_num { get; set; }
+        public double schedule_num { get; set; }
         public dynamic others { get; set; }
-        public dynamic others_num { get; set; }
+        public double others_num { get; set; }
         public dynamic igbdh { get; set; }
-        public dynamic igbdh_num { get; set; }
+        public double igbdh_num { get; set; }
         public dynamic egbdh { get; set; }
-        public dynamic egbdh_num { get; set; }
+        public double egbdh_num { get; set; }
         public dynamic load_shedding { get; set; }
-        public dynamic load_shedding_num { get; set; }
+        public double load_shedding_num { get; set; }
     }
 }
