@@ -383,7 +383,7 @@
                     energy_var_wk = (((act_energy_wk - tar_energy_wk) / tar_energy_wk) * 100);
                 }
                 if (avg_tar_wind != 0) {
-                    wind_var_wk = ((avg_act_wind - avg_tar_wind) / avg_tar_wind) * 100;
+                    wind_var_wk = ((avg_act_wind.toFixed(2) - avg_tar_wind.toFixed(2)) / avg_tar_wind.toFixed(2)) * 100;
                 }
                 console.log("act", act_energy_wk);
                 console.log("tar", tar_energy_wk);
@@ -702,7 +702,7 @@
                     energy_var_mn = (((act_energy_mn - tar_energy_mn) / tar_energy_mn) * 100);
                 }
                 if (avg_tar_wind_mn != 0) {
-                    wind_var_mn = ((avg_act_wind_mn - avg_tar_wind_mn) / avg_tar_wind_mn) * 100;
+                    wind_var_mn = ((avg_act_wind_mn.toFixed(2) - avg_tar_wind_mn.toFixed(2)) / avg_tar_wind_mn.toFixed(2)) * 100;
                 }
                
                 revenue.push(total_revenue_mn);
@@ -1015,7 +1015,7 @@
                     energy_var_yr = (((act_energy_yr - tar_energy_yr) / tar_energy_yr) * 100);
                 }
                 if (avg_tar_wind_yr != 0) {
-                    wind_var_yr = ((avg_act_wind_yr - avg_tar_wind_yr) / avg_tar_wind_yr) * 100;
+                    wind_var_yr = ((avg_act_wind_yr.toFixed(2) - avg_tar_wind_yr.toFixed(2)) / avg_tar_wind_yr.toFixed(2)) * 100;
                 }
                 
                 revenue.push(total_revenue_yr);
@@ -2106,7 +2106,7 @@
                             jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
                         if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
-                            wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
+                            wind_var = ((result[i].act_Wind.toFixed(2) - result[i].tar_wind.toFixed(2)) / result[i].tar_wind.toFixed(2)) * 100;
                         }
 
                         plf_var = (result[i].act_plf - result[i].tar_plf);
@@ -2196,7 +2196,7 @@
                         avg_jmr_var = (((total_act_jmr_kwh_mu - total_tar_kwh_mu) / total_tar_kwh_mu) * 100);
                     }
                     if (avg_tar_wind != 0) {
-                        avg_wind_var = ((avg_act_wind - avg_tar_wind) / avg_tar_wind) * 100;
+                        avg_wind_var = ((avg_act_wind.toFixed(2) - avg_tar_wind.toFixed(2)) / avg_tar_wind.toFixed(2)) * 100;
                     }
                     avg_plf_var = (avg_act_plf - avg_tar_plf);
                     avg_ma_var = (avg_act_ma - avg_tar_ma);
@@ -2618,7 +2618,7 @@
                             jmr_var = ((result[i].act_jmr_kwh_mu - tar_mu) / tar_mu) * 100;
                         }
                         if (result[i].act_Wind != 0 || result[i].tar_wind != 0) {
-                            wind_var = ((result[i].act_Wind - result[i].tar_wind) / result[i].tar_wind) * 100;
+                            wind_var = ((result[i].act_Wind.toFixed(2) - result[i].tar_wind.toFixed(2)) / result[i].tar_wind.toFixed(2)) * 100;
                         }
                        
                          plf_var = (result[i].act_plf - result[i].tar_plf);
@@ -2741,7 +2741,7 @@
                         avg_jmr_var = (((total_act_jmr_kwh_mu - total_tar_kwh_mu) / total_tar_kwh_mu) * 100);
                     }
                     if (avg_tar_wind != 0) {
-                        avg_wind_var = ((avg_act_wind - avg_tar_wind) / avg_tar_wind) * 100;
+                        avg_wind_var = ((avg_act_wind.toFixed(2) - avg_tar_wind.toFixed(2)) / avg_tar_wind.toFixed(2)) * 100;
                     }
                     avg_plf_var = (avg_act_plf - avg_tar_plf);
 

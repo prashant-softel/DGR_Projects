@@ -639,7 +639,7 @@
 
 
                 for (var i = 0; i < result.length; i++) {
-                    total_capacity_mn += result[i].capacity;
+                    total_capacity_mn += result[i].capacity.toFixed(2);
                     tar_energy_mn += result[i].tar_kwh;
                     //total_expected_kwh += result[i].expected_kwh;
                     act_energy_mn += result[i].act_kwh;
@@ -2124,8 +2124,13 @@
                         else {
                             act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
                         }
-                        ghi_var = (result[i].act_ghi - result[i].tar_ghi);
-                        poa_var = (result[i].act_poa - result[i].tar_poa);
+                        if (result[i].tar_ghi != 0) {
+                            ghi_var = ((result[i].act_ghi.toFixed(2) - result[i].tar_ghi.toFixed(2)) / result[i].tar_ghi.toFixed(2)) * 100;
+                        }
+                        if (result[i].tar_poa != 0) {
+                            poa_var = ((result[i].act_poa.toFixed(2) - result[i].tar_poa.toFixed(2)) / result[i].tar_poa.toFixed(2)) * 100;
+                        }
+                        
                         pr_var = (act_prval - result[i].tar_pr);
                         plf_var = (result[i].act_plf - result[i].tar_plf);
                         ma_act_var = (result[i].act_ma - result[i].tar_ma);
@@ -2146,7 +2151,7 @@
                         if (gain_act == 0 || gain_tar == 0) {
                             gain_var = 0;
                         } else {
-                            gain_var = (gain_act - gain_tar);
+                            gain_var = (gain_act.toFixed(2) - gain_tar.toFixed(2));
                         }
                         let pasitive;
                         let negative;
@@ -2316,16 +2321,21 @@
                         avg_act_ega = total_capActEga / total_capacity;
                     }
                     if (total_tar_kwh != 0) {
-                        avg_jmr_var = (((total_act_kwh - total_tar_kwh) / total_tar_kwh) * 100)
+                        avg_jmr_var = (((total_act_kwh.toFixed(2) - total_tar_kwh.toFixed(2)) / total_tar_kwh.toFixed(2)) * 100)
                     }
-                    avg_ghi_var = (avg_act_ghi - avg_tar_ghi);
-                    avg_poa_var = (avg_act_poa - avg_tar_poa);
-                    avg_pr_var = (avg_act_pr - avg_tar_pr);
-                    avg_gain_var = (avg_act_gain - avg_tar_gain);
-                    avg_plf_var = (avg_act_plf - avg_tar_plf);
-                    avg_ma_var = (avg_act_ma - avg_tar_ma);
-                    avg_iga_var = (avg_act_iga - avg_tar_iga);
-                    avg_ega_var = (avg_act_ega - avg_tar_ega);
+                    if (avg_tar_ghi != 0) {
+                        avg_ghi_var = (((avg_act_ghi.toFixed(2) - avg_tar_ghi.toFixed(2)) / avg_tar_ghi.toFixed(2)) * 100);
+                    }
+                    if (avg_tar_poa != 0) {
+                        avg_poa_var = (((avg_act_poa.toFixed(2) - avg_tar_poa.toFixed(2)) / avg_tar_poa.toFixed(2)) * 100);
+                    }
+
+                    avg_pr_var = (avg_act_pr.toFixed(2) - avg_tar_pr.toFixed(2));
+                    avg_gain_var = (avg_act_gain.toFixed(2) - avg_tar_gain.toFixed(2));
+                    avg_plf_var = (avg_act_plf.toFixed(2) - avg_tar_plf.toFixed(2));
+                    avg_ma_var = (avg_act_ma.toFixed(2) - avg_tar_ma.toFixed(2));
+                    avg_iga_var = (avg_act_iga.toFixed(2) - avg_tar_iga.toFixed(2));
+                    avg_ega_var = (avg_act_ega.toFixed(2) - avg_tar_ega.toFixed(2));
 
                     tbl += '<tfoot><tr>';
                     tbl += '<th rowspan="1" colspan="1" style="width: 10%; font-weight: bold;">Grand Total</th>';
@@ -2398,89 +2408,94 @@
                                         if (columnIdx == 1) {
                                             return 'Capacity (MW)';
                                         }
-                                       
-                                       else if (columnIdx == 2) {
-                                            return 'Gen nos. (MUs)  Tar';
+                                        else if (columnIdx == 2) {
+                                            return 'Energy (in MU)  Tar';
                                         }
                                         else if (columnIdx == 3) {
-                                            return 'Gen nos. (MUs)  Act JMR';
+                                            return 'Energy (in MU)  Exp';
                                         }
                                         else if (columnIdx == 4) {
-                                            return 'Gen nos. (MUs)  Var (%)';
+                                            return 'Energy (in MU)  Act';
                                         }
                                         else if (columnIdx == 5) {
-                                            return 'Revenue (MINR) ';
+                                            return 'Energy (in MU)  T.Var (%)';
                                         }
                                         else if (columnIdx == 6) {
-                                            return `GHI (kWh/m^2)  Tar`;
+                                            return 'Energy (in MU)  E.Var (%)';
                                         }
                                         else if (columnIdx == 7) {
-                                            return 'GHI (kWh/m^2)  Act';
+                                            return 'Revenue (MINR) ';
                                         }
                                         else if (columnIdx == 8) {
-                                            return 'GHI (kWh/m^2)  Var (%) ';
+                                            return `GHI (kWh/m^2)  Tar`;
                                         }
                                         else if (columnIdx == 9) {
-                                            return 'POA (kWh/m^2)  Tar';
+                                            return 'GHI (kWh/m^2)  Act';
                                         }
                                         else if (columnIdx == 10) {
-                                            return 'POA (kWh/m^2)  Act ';
+                                            return 'GHI (kWh/m^2)  Var (%) ';
                                         }
                                         else if (columnIdx == 11) {
-                                            return 'POA (kWh/m^2) Var (%) ';
+                                            return 'POA (kWh/m^2)  Tar';
                                         }
                                         else if (columnIdx == 12) {
-                                            return 'GHI VS POA Gain (%)  Tar';
+                                            return 'POA (kWh/m^2)  Act ';
                                         }
                                         else if (columnIdx == 13) {
-                                            return 'GHI VS POA Gain (%)  Act ';
+                                            return 'POA (kWh/m^2) Var (%) ';
                                         }
                                         else if (columnIdx == 14) {
-                                            return 'GHI VS POA Gain(%)  Var (%) ';
+                                            return 'GHI VS POA Gain (%)  Tar';
                                         }
                                         else if (columnIdx == 15) {
-                                            return 'PLF (%)  Tar';
+                                            return 'GHI VS POA Gain (%)  Act ';
                                         }
                                         else if (columnIdx == 16) {
-                                            return 'PLF (%)  Act ';
+                                            return 'GHI VS POA Gain(%)  Var (%) ';
                                         }
                                         else if (columnIdx == 17) {
-                                            return 'PLF (%)  Var (%) ';
+                                            return 'PLF (%)  Tar';
                                         }
                                         else if (columnIdx == 18) {
-                                            return 'PR (%)  Tar';
+                                            return 'PLF (%)  Act ';
                                         }
                                         else if (columnIdx == 19) {
-                                            return 'PR (%)  Act ';
+                                            return 'PLF (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 20) {
-                                            return 'PR (%)  Var (%) ';
+                                            return 'PR (%)  Tar';
                                         }
                                         else if (columnIdx == 21) {
-                                            return 'MA (%)  Tar';
+                                            return 'PR (%)  Act ';
                                         }
                                         else if (columnIdx == 22) {
-                                            return 'MA (%)  Act ';
+                                            return 'PR (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 23) {
-                                            return 'MA (%)  Var (%) ';
+                                            return 'MA (%)  Tar';
                                         }
                                         else if (columnIdx == 24) {
-                                            return 'IGA (%)  Tar';
+                                            return 'MA (%)  Act ';
                                         }
                                         else if (columnIdx == 25) {
-                                            return 'IGA (%)  Act ';
+                                            return 'MA (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 26) {
-                                            return 'IGA (%)  Var (%) ';
+                                            return 'IGA (%)  Tar';
                                         }
                                         else if (columnIdx == 27) {
-                                            return 'EGA (%)  Tar';
+                                            return 'IGA (%)  Act ';
                                         }
                                         else if (columnIdx == 28) {
-                                            return 'EGA (%)  Act ';
+                                            return 'IGA (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 29) {
+                                            return 'EGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 30) {
+                                            return 'EGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 31) {
                                             return 'EGA (%)  Var (%) ';
                                         }
                                         else {
@@ -2507,89 +2522,94 @@
                                         if (columnIdx == 1) {
                                             return 'Capacity (MW)';
                                         }
-
                                         else if (columnIdx == 2) {
-                                            return 'Gen nos. (MUs)  Tar';
+                                            return 'Energy (in MU)  Tar';
                                         }
                                         else if (columnIdx == 3) {
-                                            return 'Gen nos. (MUs)  Act JMR';
+                                            return 'Energy (in MU)  Exp';
                                         }
                                         else if (columnIdx == 4) {
-                                            return 'Gen nos. (MUs)  Var (%)';
+                                            return 'Energy (in MU)  Act';
                                         }
                                         else if (columnIdx == 5) {
-                                            return 'Revenue (MINR) ';
+                                            return 'Energy (in MU)  T.Var (%)';
                                         }
                                         else if (columnIdx == 6) {
-                                            return 'GHI (kWh/m^2)  Tar';
+                                            return 'Energy (in MU)  E.Var (%)';
                                         }
                                         else if (columnIdx == 7) {
-                                            return 'GHI (kWh/m^2)  Act';
+                                            return 'Revenue (MINR) ';
                                         }
                                         else if (columnIdx == 8) {
-                                            return 'GHI (kWh/m^2)  Var (%) ';
+                                            return 'GHI (kWh/m^2)  Tar';
                                         }
                                         else if (columnIdx == 9) {
-                                            return 'POA (kWh/m^2)  Tar';
+                                            return 'GHI (kWh/m^2)  Act';
                                         }
                                         else if (columnIdx == 10) {
-                                            return 'POA (kWh/m^2)  Act ';
+                                            return 'GHI (kWh/m^2)  Var (%) ';
                                         }
                                         else if (columnIdx == 11) {
-                                            return 'POA (kWh/m^2) Var (%) ';
+                                            return 'POA (kWh/m^2)  Tar';
                                         }
                                         else if (columnIdx == 12) {
-                                            return 'GHI VS POA Gain (%)  Tar';
+                                            return 'POA (kWh/m^2)  Act ';
                                         }
                                         else if (columnIdx == 13) {
-                                            return 'GHI VS POA Gain (%)  Act ';
+                                            return 'POA (kWh/m^2) Var (%) ';
                                         }
                                         else if (columnIdx == 14) {
-                                            return 'GHI VS POA Gain(%)  Var (%) ';
+                                            return 'GHI VS POA Gain (%)  Tar';
                                         }
                                         else if (columnIdx == 15) {
-                                            return 'PLF (%)  Tar';
+                                            return 'GHI VS POA Gain (%)  Act ';
                                         }
                                         else if (columnIdx == 16) {
-                                            return 'PLF (%)  Act ';
+                                            return 'GHI VS POA Gain(%)  Var (%) ';
                                         }
                                         else if (columnIdx == 17) {
-                                            return 'PLF (%)  Var (%) ';
+                                            return 'PLF (%)  Tar';
                                         }
                                         else if (columnIdx == 18) {
-                                            return 'PR (%)  Tar';
+                                            return 'PLF (%)  Act ';
                                         }
                                         else if (columnIdx == 19) {
-                                            return 'PR (%)  Act ';
+                                            return 'PLF (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 20) {
-                                            return 'PR (%)  Var (%) ';
+                                            return 'PR (%)  Tar';
                                         }
                                         else if (columnIdx == 21) {
-                                            return 'MA (%)  Tar';
+                                            return 'PR (%)  Act ';
                                         }
                                         else if (columnIdx == 22) {
-                                            return 'MA (%)  Act ';
+                                            return 'PR (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 23) {
-                                            return 'MA (%)  Var (%) ';
+                                            return 'MA (%)  Tar';
                                         }
                                         else if (columnIdx == 24) {
-                                            return 'IGA (%)  Tar';
+                                            return 'MA (%)  Act ';
                                         }
                                         else if (columnIdx == 25) {
-                                            return 'IGA (%)  Act ';
+                                            return 'MA (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 26) {
-                                            return 'IGA (%)  Var (%) ';
+                                            return 'IGA (%)  Tar';
                                         }
                                         else if (columnIdx == 27) {
-                                            return 'EGA (%)  Tar';
+                                            return 'IGA (%)  Act ';
                                         }
                                         else if (columnIdx == 28) {
-                                            return 'EGA (%)  Act ';
+                                            return 'IGA (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 29) {
+                                            return 'EGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 30) {
+                                            return 'EGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 31) {
                                             return 'EGA (%)  Var (%) ';
                                         }
                                         else {
@@ -2881,8 +2901,8 @@
             contentType: "application/json; charset=utf-8",
             datatype: "JSON",
             success: function (result, status, xhr) {
-               // console.log(result);
-               // var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
+                // console.log(result);
+                // var tbl = '<div class="text-center"><h5>' + reporthead + '</h5></div>';
 
                 var tbl = '<table id="example4"  class="table table-bordered table-striped" style="width:150%">';
                 tbl += '<thead class="tbl-head"><tr>';
@@ -2893,7 +2913,7 @@
                 tbl += '<th colspan="3" class="text-center">PR (%)</th>';
                 tbl += '<th colspan="3" class="text-center">MA Actual (%)</th><th colspan="3" class="text-center">IGA (%)</th>';
                 tbl += '<th colspan="3" class="text-center">EGA (%)</th></tr>';
-               // tbl += '<tr><th>&nbsp;</th>';
+                // tbl += '<tr><th>&nbsp;</th>';
 
                 tbl += '<tr><th>Tar</th>';
                 tbl += '<th>Act JMR</th>';
@@ -2931,7 +2951,7 @@
 
                 if (result.length > 0) {
 
-	           	  //let target_energy = [];
+                    //let target_energy = [];
                     //let actual_energy = [];
                     //let pas_energy_var = [];
                     //let neg_energy_var = [];
@@ -3006,15 +3026,20 @@
                         else {
                             act_prval = (result[i].act_kwh / result[i].expected_kwh) * 100;
                         }
-                        ghi_var = (result[i].act_ghi - result[i].tar_ghi);
-                        poa_var = (result[i].act_poa - result[i].tar_poa);
+                        if (result[i].tar_ghi != 0) {
+                            ghi_var = ((result[i].act_ghi.toFixed(2) - result[i].tar_ghi.toFixed(2)) / result[i].tar_ghi.toFixed(2)) * 100;
+                        }
+                        if (result[i].tar_poa != 0) {
+                            poa_var = ((result[i].act_poa.toFixed(2) - result[i].tar_poa.toFixed(2)) / result[i].tar_poa.toFixed(2)) * 100;
+                        }
+                        
                         pr_var = (act_prval - result[i].tar_pr);
                         plf_var = (result[i].act_plf - result[i].tar_plf);
                         ma_act_var = (result[i].act_ma - result[i].tar_ma);
                         iga_var = (result[i].act_iga - result[i].tar_iga);
                         ega_var = (result[i].act_ega - result[i].tar_ega);
 
-                        
+
                         if (result[i].tar_poa == 0 || result[i].tar_ghi == 0) {
                             gain_tar = 0;
                         } else {
@@ -3028,7 +3053,7 @@
                         if (gain_act == 0 || gain_tar == 0) {
                             gain_var = 0;
                         } else {
-                            gain_var = (gain_act - gain_tar);
+                            gain_var = ((gain_act - gain_tar) / gain_tar) * 100;
                         }
 
 
@@ -3080,7 +3105,7 @@
                         actual_pr.push(result[i].act_poa.toFixed(1));
                         pas_pr_var.push(pr_pasitive);
                         neg_pr_var.push(pr_negative);
-  total_capacity += result[i].capacity;
+                        total_capacity += result[i].capacity;
                         total_tar_kwh += result[i].tar_kwh;
                         //total_expected_kwh += result[i].expected_kwh;
                         total_act_kwh += result[i].act_kwh;
@@ -3126,8 +3151,8 @@
 
                         tbl += '<td class="text-right">' + result[i].tar_kwh.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_kwh.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + jmr_var.toFixed(2)+'</td>';
-                        tbl += '<td class="text-right">' + revenue.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + jmr_var.toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + revenue.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].tar_ghi.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ghi.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + ghi_var.toFixed(2) + '</td>';
@@ -3164,11 +3189,11 @@
 
                         tbl += '<td class="text-right">' + result[i].tar_ega.toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].act_ega.toFixed(2) + '</td>';
-                        tbl += '<td class="text-right">' + ega_var.toFixed(2)+'</td>';
+                        tbl += '<td class="text-right">' + ega_var.toFixed(2) + '</td>';
 
                         tbl += '</tr>';
                     }
-                    
+
                     let avg_jmr_var = 0;
                     //let avg_e_var = (((avg_act_kwh - avg_expected_kwh) / avg_expected_kwh) * 100);
                     let avg_tar_ghi = 0;
@@ -3215,16 +3240,21 @@
                         avg_act_ega = total_capActEga / total_capacity;
                     }
                     if (total_tar_kwh != 0) {
-                        avg_jmr_var = (((total_act_kwh - total_tar_kwh) / total_tar_kwh) * 100)
+                        avg_jmr_var = (((total_act_kwh.toFixed(2) - total_tar_kwh.toFixed(2)) / total_tar_kwh.toFixed(2)) * 100)
                     }
-                    avg_ghi_var = (avg_act_ghi - avg_tar_ghi);
-                    avg_poa_var = (avg_act_poa - avg_tar_poa);
-                    avg_pr_var = (avg_act_pr - avg_tar_pr);
-                    avg_gain_var = (avg_act_gain - avg_tar_gain);
-                    avg_plf_var = (avg_act_plf - avg_tar_plf);
-                    avg_ma_var = (avg_act_ma - avg_tar_ma);
-                    avg_iga_var = (avg_act_iga - avg_tar_iga);
-                    avg_ega_var = (avg_act_ega - avg_tar_ega);
+                    if (avg_tar_ghi != 0) {
+                        avg_ghi_var = (((avg_act_ghi.toFixed(2) - avg_tar_ghi.toFixed(2)) / avg_tar_ghi.toFixed(2)) * 100);
+                    }
+                    if (avg_tar_poa != 0) {
+                        avg_poa_var = (((avg_act_poa.toFixed(2) - avg_tar_poa.toFixed(2)) / avg_tar_poa.toFixed(2)) * 100);
+                    }
+
+                    avg_pr_var = (avg_act_pr.toFixed(2) - avg_tar_pr.toFixed(2));
+                    avg_gain_var = (avg_act_gain.toFixed(2) - avg_tar_gain.toFixed(2));
+                    avg_plf_var = (avg_act_plf.toFixed(2) - avg_tar_plf.toFixed(2));
+                    avg_ma_var = (avg_act_ma.toFixed(2) - avg_tar_ma.toFixed(2));
+                    avg_iga_var = (avg_act_iga.toFixed(2) - avg_tar_iga.toFixed(2));
+                    avg_ega_var = (avg_act_ega.toFixed(2) - avg_tar_ega.toFixed(2));
 
                     tbl += '<tfoot><tr>';
                     tbl += '<th rowspan="1" colspan="1" style="width: 10%; font-weight: bold;">Grand Total</th>';
@@ -3297,90 +3327,95 @@
                                         if (columnIdx == 1) {
                                             return 'Capacity (MW)';
                                         }
-
                                         else if (columnIdx == 2) {
-                                            return 'Gen nos. (MUs)  Tar';
+                                            return 'Energy (in MU)  Tar';
                                         }
                                         else if (columnIdx == 3) {
-                                            return 'Gen nos. (MUs)  Act JMR';
+                                            return 'Energy (in MU)  Exp';
                                         }
                                         else if (columnIdx == 4) {
-                                            return 'Gen nos. (MUs)  Var (%)';
+                                            return 'Energy (in MU)  Act';
                                         }
                                         else if (columnIdx == 5) {
-                                            return 'Revenue (MINR) ';
+                                            return 'Energy (in MU)  T.Var (%)';
                                         }
                                         else if (columnIdx == 6) {
+                                            return 'Energy (in MU)  E.Var (%)';
+                                        }
+                                        else if (columnIdx == 7) {
+                                            return 'Revenue (MINR) ';
+                                        }
+                                        else if (columnIdx == 8) {
                                             hP
                                             return `GHI (kWh/m^2)  Tar`;
                                         }
-                                        else if (columnIdx == 7) {
+                                        else if (columnIdx == 9) {
                                             return 'GHI (kWh/m^2)  Act';
                                         }
-                                        else if (columnIdx == 8) {
+                                        else if (columnIdx == 10) {
                                             return 'GHI (kWh/m^2)  Var (%) ';
                                         }
-                                        else if (columnIdx == 9) {
+                                        else if (columnIdx == 11) {
                                             return 'POA (kWh/m^2)  Tar';
                                         }
-                                        else if (columnIdx == 10) {
+                                        else if (columnIdx == 12) {
                                             return 'POA (kWh/m^2)  Act ';
                                         }
-                                        else if (columnIdx == 11) {
+                                        else if (columnIdx == 13) {
                                             return 'POA (kWh/m^2) Var (%) ';
                                         }
-                                        else if (columnIdx == 12) {
+                                        else if (columnIdx == 14) {
                                             return 'GHI VS POA Gain (%)  Tar';
                                         }
-                                        else if (columnIdx == 13) {
+                                        else if (columnIdx == 15) {
                                             return 'GHI VS POA Gain (%)  Act ';
                                         }
-                                        else if (columnIdx == 14) {
+                                        else if (columnIdx == 16) {
                                             return 'GHI VS POA Gain(%)  Var (%) ';
                                         }
-                                        else if (columnIdx == 15) {
+                                        else if (columnIdx == 17) {
                                             return 'PLF (%)  Tar';
                                         }
-                                        else if (columnIdx == 16) {
+                                        else if (columnIdx == 18) {
                                             return 'PLF (%)  Act ';
                                         }
-                                        else if (columnIdx == 17) {
+                                        else if (columnIdx == 19) {
                                             return 'PLF (%)  Var (%) ';
                                         }
-                                        else if (columnIdx == 18) {
+                                        else if (columnIdx == 20) {
                                             return 'PR (%)  Tar';
                                         }
-                                        else if (columnIdx == 19) {
+                                        else if (columnIdx == 21) {
                                             return 'PR (%)  Act ';
                                         }
-                                        else if (columnIdx == 20) {
+                                        else if (columnIdx == 22) {
                                             return 'PR (%)  Var (%) ';
                                         }
-                                        else if (columnIdx == 21) {
+                                        else if (columnIdx == 23) {
                                             return 'MA (%)  Tar';
                                         }
-                                        else if (columnIdx == 22) {
+                                        else if (columnIdx == 24) {
                                             return 'MA (%)  Act ';
                                         }
-                                        else if (columnIdx == 23) {
+                                        else if (columnIdx == 25) {
                                             return 'MA (%)  Var (%) ';
                                         }
-                                        else if (columnIdx == 24) {
+                                        else if (columnIdx == 26) {
                                             return 'IGA (%)  Tar';
                                         }
-                                        else if (columnIdx == 25) {
+                                        else if (columnIdx == 27) {
                                             return 'IGA (%)  Act ';
                                         }
-                                        else if (columnIdx == 26) {
+                                        else if (columnIdx == 28) {
                                             return 'IGA (%)  Var (%) ';
                                         }
-                                        else if (columnIdx == 27) {
+                                        else if (columnIdx == 29) {
                                             return 'EGA (%)  Tar';
                                         }
-                                        else if (columnIdx == 28) {
+                                        else if (columnIdx == 30) {
                                             return 'EGA (%)  Act ';
                                         }
-                                        else if (columnIdx == 29) {
+                                        else if (columnIdx == 31) {
                                             return 'EGA (%)  Var (%) ';
                                         }
                                         else {
@@ -3406,89 +3441,94 @@
                                         if (columnIdx == 1) {
                                             return 'Capacity (MW)';
                                         }
-
                                         else if (columnIdx == 2) {
-                                            return 'Gen nos. (MUs)  Tar';
+                                            return 'Energy (in MU)  Tar';
                                         }
                                         else if (columnIdx == 3) {
-                                            return 'Gen nos. (MUs)  Act JMR';
+                                            return 'Energy (in MU)  Exp';
                                         }
                                         else if (columnIdx == 4) {
-                                            return 'Gen nos. (MUs)  Var (%)';
+                                            return 'Energy (in MU)  Act';
                                         }
                                         else if (columnIdx == 5) {
-                                            return 'Revenue (MINR) ';
+                                            return 'Energy (in MU)  T.Var (%)';
                                         }
                                         else if (columnIdx == 6) {
-                                            return 'GHI (kWh/m^2)  Tar';
+                                            return 'Energy (in MU)  E.Var (%)';
                                         }
                                         else if (columnIdx == 7) {
-                                            return 'GHI (kWh/m^2)  Act';
+                                            return 'Revenue (MINR) ';
                                         }
                                         else if (columnIdx == 8) {
-                                            return 'GHI (kWh/m^2)  Var (%) ';
+                                            return 'GHI (kWh/m^2)  Tar';
                                         }
                                         else if (columnIdx == 9) {
-                                            return 'POA (kWh/m^2)  Tar';
+                                            return 'GHI (kWh/m^2)  Act';
                                         }
                                         else if (columnIdx == 10) {
-                                            return 'POA (kWh/m^2)  Act ';
+                                            return 'GHI (kWh/m^2)  Var (%) ';
                                         }
                                         else if (columnIdx == 11) {
-                                            return 'POA (kWh/m^2) Var (%) ';
+                                            return 'POA (kWh/m^2)  Tar';
                                         }
                                         else if (columnIdx == 12) {
-                                            return 'GHI VS POA Gain (%)  Tar';
+                                            return 'POA (kWh/m^2)  Act ';
                                         }
                                         else if (columnIdx == 13) {
-                                            return 'GHI VS POA Gain (%)  Act ';
+                                            return 'POA (kWh/m^2) Var (%) ';
                                         }
                                         else if (columnIdx == 14) {
-                                            return 'GHI VS POA Gain(%)  Var (%) ';
+                                            return 'GHI VS POA Gain (%)  Tar';
                                         }
                                         else if (columnIdx == 15) {
-                                            return 'PLF (%)  Tar';
+                                            return 'GHI VS POA Gain (%)  Act ';
                                         }
                                         else if (columnIdx == 16) {
-                                            return 'PLF (%)  Act ';
+                                            return 'GHI VS POA Gain(%)  Var (%) ';
                                         }
                                         else if (columnIdx == 17) {
-                                            return 'PLF (%)  Var (%) ';
+                                            return 'PLF (%)  Tar';
                                         }
                                         else if (columnIdx == 18) {
-                                            return 'PR (%)  Tar';
+                                            return 'PLF (%)  Act ';
                                         }
                                         else if (columnIdx == 19) {
-                                            return 'PR (%)  Act ';
+                                            return 'PLF (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 20) {
-                                            return 'PR (%)  Var (%) ';
+                                            return 'PR (%)  Tar';
                                         }
                                         else if (columnIdx == 21) {
-                                            return 'MA (%)  Tar';
+                                            return 'PR (%)  Act ';
                                         }
                                         else if (columnIdx == 22) {
-                                            return 'MA (%)  Act ';
+                                            return 'PR (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 23) {
-                                            return 'MA (%)  Var (%) ';
+                                            return 'MA (%)  Tar';
                                         }
                                         else if (columnIdx == 24) {
-                                            return 'IGA (%)  Tar';
+                                            return 'MA (%)  Act ';
                                         }
                                         else if (columnIdx == 25) {
-                                            return 'IGA (%)  Act ';
+                                            return 'MA (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 26) {
-                                            return 'IGA (%)  Var (%) ';
+                                            return 'IGA (%)  Tar';
                                         }
                                         else if (columnIdx == 27) {
-                                            return 'EGA (%)  Tar';
+                                            return 'IGA (%)  Act ';
                                         }
                                         else if (columnIdx == 28) {
-                                            return 'EGA (%)  Act ';
+                                            return 'IGA (%)  Var (%) ';
                                         }
                                         else if (columnIdx == 29) {
+                                            return 'EGA (%)  Tar';
+                                        }
+                                        else if (columnIdx == 30) {
+                                            return 'EGA (%)  Act ';
+                                        }
+                                        else if (columnIdx == 31) {
                                             return 'EGA (%)  Var (%) ';
                                         }
                                         else {
