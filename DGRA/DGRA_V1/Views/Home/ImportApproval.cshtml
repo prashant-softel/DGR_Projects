@@ -200,7 +200,7 @@
                 {
                    
             <div class="row" id="approvebtn" style="display:none">
-                <div class="col-md-2"><button type="button" class="btn btn-block btn-success" onclick="DataApproved(1)">Approved</button></div>
+                <div class="col-md-2"><button type="button" id="btndsable" class="btn btn-block btn-success" onclick="DataApproved(1)">Approved</button></div>
                 <div class="col-md-2"><button type="button" class="btn btn-block btn-danger" onclick="DataApproved(2)">Reject</button></div>
                 <!--<div class="col-md-2"><button type="button" class="btn btn-block btn-info" onclick="ExportToExcel()">Export Selected Data</button></div>-->
                 <div class="col-md-2"></div>
@@ -806,7 +806,8 @@
             uri= '@Url.Action("DataReject", "SolarView")' + '?data=' + values + '&rejectedBy=' + approved_by + '&rejectByName=' + approved_by_name + '&status=' + Rejectstatus + '&actionType=' + actionType
 
         }
-
+        $(".btn-success").attr("disabled", true);
+        $(".btn-danger").attr("disabled", true);
         $.ajax({
             type: "POST",
             url: uri,
@@ -825,6 +826,8 @@
                 else {
                     alert("Faild Please try again !");
                 }
+                $(".btn-success").attr("disabled", false);
+                $(".btn-danger").attr("disabled", false);
             }
         });
     }

@@ -391,7 +391,7 @@
 
                     tar_poa_wk += result[i].tar_poa * result[i].capacity;
                     act_poa_wk += result[i].act_poa * result[i].capacity;
-
+                    console.log();
                     tar_plf_wk += result[i].tar_plf * result[i].capacity;
                     act_plf_wk += result[i].act_plf * result[i].capacity;
                     //total_capTarPr += result[i].tar_pr * result[i].capacity;
@@ -435,25 +435,33 @@
                 let avg_act_iga = 0;
                 let avg_act_ega = 0;
                 if (total_capacity != 0) {
-                    avg_tar_ghi = tar_ghi_wk / total_capacity;
-                    avg_act_ghi = act_ghi_wk / total_capacity;
-
-                    avg_tar_plf = tar_plf_wk / total_capacity;
-                    avg_act_plf = act_plf_wk / total_capacity;
-
-                    avg_tar_poa = tar_poa_wk / total_capacity;
-                    avg_act_poa = act_poa_wk / total_capacity;
-
+                    if (tar_ghi_wk != 0 || act_ghi_wk != 0) {
+                        avg_tar_ghi = tar_ghi_wk / total_capacity;
+                        avg_act_ghi = act_ghi_wk / total_capacity;
+                    }
+                   
+                    if (tar_plf_wk != 0 || act_plf_wk != 0) {
+                        avg_tar_plf = tar_plf_wk / total_capacity;
+                        avg_act_plf = act_plf_wk / total_capacity;
+                    }
+                    if (tar_poa_wk != 0 || tar_poa_wk != 0) {
+                        avg_tar_poa = tar_poa_wk / total_capacity;
+                        avg_act_poa = act_poa_wk / total_capacity;
+                    }
                     //avg_tar_gain = total_capTarGain / total_capacity;
                     //avg_tar_pr = total_capTarPr / total_capacity;
-                    avg_tar_ma = tar_ma_wk / total_capacity;
-                    avg_act_ma = act_ma_wk / total_capacity;
-
-                    avg_tar_iga = tar_iga_wk / total_capacity;
-                    avg_act_iga = act_iga_wk / total_capacity;
-
-                    avg_tar_ega = tar_ega_wk / total_capacity;
-                    avg_act_ega = act_ega_wk / total_capacity;
+                    if (tar_ma_wk != 0 || act_ma_wk != 0) {
+                        avg_tar_ma = tar_ma_wk / total_capacity;
+                        avg_act_ma = act_ma_wk / total_capacity;
+                    }
+                    if (tar_iga_wk != 0 || act_iga_wk != 0) {
+                        avg_tar_iga = tar_iga_wk / total_capacity;
+                        avg_act_iga = act_iga_wk / total_capacity;
+                    }
+                    if (tar_ega_wk != 0 || act_ega_wk != 0) {
+                        avg_tar_ega = tar_ega_wk / total_capacity;
+                        avg_act_ega = act_ega_wk / total_capacity;
+                    }
                    //avg_act_gain = total_capActGain / total_capacity;
                     //avg_act_pr = total_capActPr / total_capacity;
                 }
@@ -639,7 +647,7 @@
 
 
                 for (var i = 0; i < result.length; i++) {
-                    total_capacity_mn += result[i].capacity.toFixed(2);
+                    total_capacity_mn += result[i].capacity;
                     tar_energy_mn += result[i].tar_kwh;
                     //total_expected_kwh += result[i].expected_kwh;
                     act_energy_mn += result[i].act_kwh;
@@ -667,6 +675,8 @@
                     //act_ma_wk += act_prval * result[i].capacity;
                     //total_capActGain += gain_act * result[i].capacity;
                 }
+                console.log("Target POA: " + tar_poa_mn);
+                console.log("Act POA: " + act_poa_mn);
                 let avg_t_var = 0;
                 //let avg_e_var = (((avg_act_kwh - avg_expected_kwh) / avg_expected_kwh) * 100);
                 let avg_tar_ghi = 0;
@@ -694,25 +704,37 @@
                 let avg_act_iga = 0;
                 let avg_act_ega = 0;
                 if (total_capacity_mn != 0) {
-                    avg_tar_ghi = tar_ghi_mn / total_capacity_mn;
-                    avg_act_ghi = act_ghi_mn / total_capacity_mn;
+                    if (tar_ghi_mn != 0 || act_ghi_mn != 0) {
+                        avg_tar_ghi = tar_ghi_mn / total_capacity_mn;
+                        avg_act_ghi = act_ghi_mn / total_capacity_mn;
+                    }
+                   
+                    if (tar_plf_mn != 0 || act_plf_mn != 0) {
+                        avg_tar_plf = tar_plf_mn / total_capacity_mn;
+                        avg_act_plf = act_plf_mn / total_capacity_mn;
+                    }
+                    if (tar_poa_mn != 0 || act_poa_mn != 0) {
 
-                    avg_tar_plf = tar_plf_mn / total_capacity_mn;
-                    avg_act_plf = act_plf_mn / total_capacity_mn;
-
-                    avg_tar_poa = tar_poa_mn / total_capacity_mn;
-                    avg_act_poa = act_poa_mn / total_capacity_mn;
-
+                        avg_tar_poa = tar_poa_mn / total_capacity_mn;
+                        avg_act_poa = act_poa_mn / total_capacity_mn;
+                        console.log("avg_tar_poa " + avg_tar_poa);
+                        console.log("avg_act_poa " + avg_act_poa);
+                        console.log("total_capacity_mn " + total_capacity_mn);
+                    }
                     //avg_tar_gain = total_capTarGain / total_capacity;
                     //avg_tar_pr = total_capTarPr / total_capacity;
-                    avg_tar_ma = tar_ma_mn / total_capacity_mn;
-                    avg_act_ma = act_ma_mn / total_capacity_mn;
-
-                    avg_tar_iga = tar_iga_mn / total_capacity_mn;
-                    avg_act_iga = act_iga_mn / total_capacity_mn;
-
-                    avg_tar_ega = tar_ega_mn / total_capacity_mn;
-                    avg_act_ega = act_ega_mn / total_capacity_mn;
+                    if (tar_ma_mn != 0 || act_ma_mn != 0) {
+                        avg_tar_ma = tar_ma_mn / total_capacity_mn;
+                        avg_act_ma = act_ma_mn / total_capacity_mn;
+                    }
+                    if (tar_iga_mn != 0 || act_iga_mn != 0) {
+                        avg_tar_iga = tar_iga_mn / total_capacity_mn;
+                        avg_act_iga = act_iga_mn / total_capacity_mn;
+                    }
+                    if (tar_ega_mn != 0 || act_ega_mn != 0) {
+                        avg_tar_ega = tar_ega_mn / total_capacity_mn;
+                        avg_act_ega = act_ega_mn / total_capacity_mn;
+                    }
                     //avg_act_gain = total_capActGain / total_capacity;
                     //avg_act_pr = total_capActPr / total_capacity;
                 }
@@ -953,25 +975,33 @@
                 let avg_act_iga = 0;
                 let avg_act_ega = 0;
                 if (total_capacity_yr != 0) {
-                    avg_tar_ghi = tar_ghi_yr / total_capacity_yr;
-                    avg_act_ghi = act_ghi_yr / total_capacity_yr;
-
-                    avg_tar_plf = tar_plf_yr / total_capacity_yr;
-                    avg_act_plf = act_plf_yr / total_capacity_yr;
-
-                    avg_tar_poa = tar_poa_yr / total_capacity_yr;
-                    avg_act_poa = act_poa_yr / total_capacity_yr;
-
+                    if (tar_ghi_yr != 0 || act_ghi_yr != 0) {
+                        avg_tar_ghi = tar_ghi_yr / total_capacity_yr;
+                        avg_act_ghi = act_ghi_yr / total_capacity_yr;
+                    }
+                   
+                    if (tar_plf_yr != 0 || act_plf_yr != 0) {
+                        avg_tar_plf = tar_plf_yr / total_capacity_yr;
+                        avg_act_plf = act_plf_yr / total_capacity_yr;
+                    }
+                    if (tar_poa_yr != 0 || act_poa_yr != 0) {
+                        avg_tar_poa = tar_poa_yr / total_capacity_yr;
+                        avg_act_poa = act_poa_yr / total_capacity_yr;
+                    }
                     //avg_tar_gain = total_capTarGain / total_capacity;
                     //avg_tar_pr = total_capTarPr / total_capacity;
-                    avg_tar_ma = tar_ma_yr / total_capacity_yr;
-                    avg_act_ma = act_ma_yr / total_capacity_yr;
-
-                    avg_tar_iga = tar_iga_yr / total_capacity_yr;
-                    avg_act_iga = act_iga_yr / total_capacity_yr;
-
-                    avg_tar_ega = tar_ega_yr / total_capacity_yr;
-                    avg_act_ega = act_ega_yr / total_capacity_yr;
+                    if (tar_ma_yr != 0 || act_ma_yr != 0) {
+                        avg_tar_ma = tar_ma_yr / total_capacity_yr;
+                        avg_act_ma = act_ma_yr / total_capacity_yr;
+                    }
+                    if (tar_iga_yr != 0 || act_iga_yr != 0) {
+                        avg_tar_iga = tar_iga_yr / total_capacity_yr;
+                        avg_act_iga = act_iga_yr / total_capacity_yr;
+                    }
+                    if (tar_ega_yr != 0 || act_ega_yr != 0) {
+                        avg_tar_ega = tar_ega_yr / total_capacity_yr;
+                        avg_act_ega = act_ega_yr / total_capacity_yr;
+                    }
                     //avg_act_gain = total_capActGain / total_capacity;
                     //avg_act_pr = total_capActPr / total_capacity;
                 }
@@ -1101,7 +1131,35 @@
                 var_ega_pos.push(ega_positive);
                 var_ega_neg.push(ega_negative);
                 // Call Cahrd Functions
+                //console.log("Actual MU" + actual_mu);
+                //console.log("target_mu" + target_mu);
+                //console.log("var_mu_pos" + var_mu_pos);
+                //console.log("var_mu_neg" + var_mu_neg);
 
+                //console.log("actual_poa" + actual_poa);
+                //console.log("target_poa" + target_poa);
+                //console.log("var_poa_pos" + var_poa_pos);
+                //console.log("var_poa_neg" + var_poa_neg);
+
+                //console.log("actual_plf" + actual_plf);
+                //console.log("target_plf" + target_plf);
+                //console.log("var_plf_pos" + var_plf_pos);
+                //console.log("var_plf_neg" + var_plf_neg);
+
+                //console.log("actual_ma" + actual_ma);
+                //console.log("target_ma" + target_ma);
+                //console.log("var_ma_pos" + var_ma_pos);
+                //console.log("var_ma_neg" + var_ma_neg);
+
+                //console.log("actual_iga" + actual_iga);
+                //console.log("target_iga" + target_iga);
+                //console.log("var_iga_pos" + var_iga_pos);
+                //console.log("var_iga_neg" + var_iga_neg);
+
+                //console.log("actual_ega" + actual_ega);
+                //console.log("target_ega" + target_ega);
+                //console.log("var_ega_pos" + var_ega_pos);
+                //console.log("var_ega_neg" + var_ega_neg);
                 chartEnergyMU(actual_mu, target_mu, var_mu_pos, var_mu_neg);
                 chartIR(actual_poa, target_poa, var_poa_pos, var_poa_neg);
                 PLF_chart(actual_plf, target_plf, var_plf_pos, var_plf_neg);
@@ -1893,6 +1951,20 @@
             success: function (result, status, xhr) {
                 //console.log(result);
                 var tbl = '<table id="example2"  class="table table-bordered table-striped" >';
+                var totalstop = 0;
+                var ICR_count = 0;
+                var errorDesc = "";
+
+                var hours = 0;
+                var minutes = 0;
+                var seconds = 0;
+                var bdType = "";
+                var date1 = "";
+                var site = "";
+                var errorDesc = "";
+
+                var isGreaterThanThirty = false;
+
                 tbl += '<thead class="tbl-head"><tr>';
                 tbl += '<th>Date</th>';
                 tbl += '<th>Site</th>';
@@ -1902,25 +1974,108 @@
                 tbl += '<th>Reason of Breakdown</th>';
                 tbl += '</tr></thead>';
                 if (result.length > 0) {
+                    //var total_time = "";
                     for (var i = 0; i < result.length; i++) {
                        // console.log(result[i].from_bd.totalSeconds);
                         var start_time = toHoursAndMinutes(result[i].from_bd.totalSeconds);
                         var stop_time = toHoursAndMinutes(result[i].to_bd.totalSeconds);
                         var total_time = toHoursAndMinutes(result[i].total_bd.totalSeconds);
-                        if (total_time.split(":")[1] >= 30) {
+                        //console.log("Total Time using tohoursandminutes function :", total_time, "Type of :-", typeof (total_time));
+                        //console.log(result[i].bd_type, "type of ", typeof (result[i].bd_type));
+
+                        if (total_time.split(":")[1] >= 30 || total_time.split(":")[0] > 0) {
+                            isGreaterThanThirty = true;
+                        }
+
+                        if (result[i].bd_type_id == 1 || result[i].bd_type_id == 2) {
+                            //console.log("Hello BD type is ", result[i].bd_type);
+                            if (total_time.split(":")[1] >= 30 || total_time.split(":")[0] > 0) {
+                                tbl += '<tr>';
+                                tbl += '<td class="text-left">' + result[i].date + '</td>';
+                                tbl += '<td class="text-left">' + result[i].site + '</td>';
+                                location_name = "Plant Shutdown";
+                                //if (result[i].icr) {
+                                //location_name = result[i].icr + "/" + result[i].inv;
+                                //}
+
+                                //tbl += '<td class="text-left">' + result[i].inv_cnt + ' Icr/Inv </td>';
+                                tbl += '<td class="text-left">' + result[i].icr + '/' + result[i].inv+'</td>';
+                                tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
+                                //tbl += '<td class="text-left">' + start_time + ' to ' + stop_time + ' = ' + total_time + '</td>';
+                                tbl += '<td class="text-left">' + total_time + '</td>';
+                                tbl += '<td class="text-left">' + result[i].bd_remarks + '</td>';
+                            }
+                            else {
+                                //console.log(result[i].total_stop.split(":")[1], "Is less than 30");
+                                var tem = i - 1;
+                                //console.log(tem, result[tem]);
+                            }
+                        }
+                        else {
+
+                            if (total_time.split(":")[1] >= 30 || total_time.split(":")[0] > 0) {
+                                date1 = result[i].date;
+                                site = result[i].site;
+                                errorDesc = result[i].bd_remarks;
+                                bdType = result[i].bd_type;
+                                var totalstop = toHoursAndMinutes(result[i].total_bd.totalSeconds);
+                                var date = "";
+                                var stopfrom = "";
+                                var stopto = "";
+                                var sumDone = false;
+                                var count = 0;
+                                if (i == 0  &&  i < result.length) {
+                                    count = i + 1;
+                                } else {
+                                    count = i;
+                                }
+                                if (result[i].site_id == result[count].site_id) {
+                                    if (i > 0) {
+                                        date = result[i - 1].date;
+                                        stopfrom = result[i - 1].from_bd;
+                                        stopto = result[i - 1].to_bd;
+                                       
+                                    }
+                                    if (i >= 0) {
+                                        if (isGreaterThanThirty && date == result[i].date && stopfrom == result[i].from_bd && stopto == result[i].to_bd) {
+                                            ICR_count += 1;
+                                            hours += Number((total_time.split(":")[0]).toString());
+                                            minutes += Number((total_time.split(":")[1]).toString());
+                                            seconds += Number((total_time.split(":")[2]).toString);
+                                            //var start_time = toHoursAndMinutes(result[i].from_bd.totalSeconds);
+                                            // var stop_time = toHoursAndMinutes(result[i].to_bd.totalSeconds);
+
+                                            //console.log("Hello here", "Type Of :", typeof (total_time.split(":")[1]), "number ", parseInt(total_time.split(":")[0]), parseInt(total_time.split(":")[1]));
+                                            //console.log("Hours", hours, "Minutes", minutes, "Seconds: ", seconds);
+                                            totalstop += totalstop;
+                                            if (result[i].stop_from != result[i + 1].stop_to || result[i].stop_to != result[i + 1].stop_to) {
+                                                sumDone = true;
+                                            }
+                                        }
+                                        else {
+                                            totalstop = toHoursAndMinutes(result[i].total_bd.totalSeconds);
+                                        }
+                                    }
+                                    }
+                                    
+                            }
+                            //console.log("Date : " + date1 + "totalstop :" + totalstop);
                             tbl += '<tr>';
-                            tbl += '<td class="text-left">' + result[i].date + '</td>';
-                            tbl += '<td class="text-left">' + result[i].site + '</td>';
+                            tbl += '<td class="text-left">' + date1 + '</td>';
+                            tbl += '<td class="text-left">' + site + '</td>';
                             location_name = "Plant Shutdown";
                             //if (result[i].icr) {
-                                //location_name = result[i].icr + "/" + result[i].inv;
+                            //location_name = result[i].icr + "/" + result[i].inv;
                             //}
 
-                            tbl += '<td class="text-left">' + result[i].inv_cnt + ' Icr/Inv </td>';
-                            tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
+                            tbl += '<td class="text-left">' + ICR_count + ' ICR/INV </td>';
+                            tbl += '<td class="text-left">' + bdType + '</td>';
                             //tbl += '<td class="text-left">' + start_time + ' to ' + stop_time + ' = ' + total_time + '</td>';
-                            tbl += '<td class="text-left">' + total_time + '</td>';
-                            tbl += '<td class="text-left">' + result[i].bd_remarks + '</td>';
+                            tbl += '<td class="text-left">' + totalstop + '</td>';
+                            tbl += '<td class="text-left">' + errorDesc + '</td>';
+                        }
+                        if (total_time.split(":")[1] >= 30 ) {
+                            
                         }
                         //var formattedDate = moment(result[i].date, 'YYYY/MM/DD').format('DD-MM-YYYY');
                         
@@ -2057,7 +2212,7 @@
 
 
                 if (result.length > 0) {
-                    console.log("Datatable");
+                    //console.log("Datatable");
                     let total_capacity = 0;
                     let total_tar_kwh = 0;
                     let total_act_kwh = 0;
@@ -2372,7 +2527,7 @@
                     tbl += '</tr></tfoot>';
                 }
                 else {
-                    console.log("Data not available");
+                    //console.log("Data not available");
 
                 }
                 tbl += '</table>';
@@ -2959,7 +3114,7 @@
                     //let actual_wind = [];
                     //let pas_wind_var = [];
                     //let neg_wind_var = [];
-                    console.log("Datatable");
+                    //console.log("Datatable");
                     let total_capacity = 0;
                     let total_tar_kwh = 0;
                     let total_act_kwh = 0;
@@ -3291,7 +3446,7 @@
                     tbl += '</tr></tfoot>';
                 }
                 else {
-                    console.log("Data not available");
+                    //console.log("Data not available");
 
                 }
                 tbl += '</table>';

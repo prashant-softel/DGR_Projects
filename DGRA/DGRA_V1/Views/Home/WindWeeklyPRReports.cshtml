@@ -3214,7 +3214,16 @@ function GetWindMajorBreakdown() {
         var toDate = `${dateArr[2]}-${dateArr[1]}-${dateArr[0]}`;
         var site_ids = "@Html.Raw(windSiteList.TrimEnd(','))";
         var leble = [];
-        var revenue_arr = [];
+    var revenue_arr = [];
+    var WTG_count = 0;
+    var totalstop;
+    var hours = 0;
+    var minutes = 0;
+    var seconds = 0;
+    var site;
+    var date1;
+    var errorDesc;
+    var bdType;
 
         $.ajax({
             type: "GET",
@@ -3244,31 +3253,74 @@ function GetWindMajorBreakdown() {
                         //let bd_type = "";
                         //let total_time = "";
                         let total_time = toHoursAndMinutes(result[i].total_stop.totalSeconds);
-                       // console.log("Total Time", total_time);
-                        if ((result[i].bd_type_id == 1 || result[i].bd_type_id == 2) && +total_time.split(":")[0] >= 4) {
-                       tbl += '<tr>';
-                            tbl += '<td class="text-left">' + result[i].date + '</td>';
-                            tbl += '<td class="text-left">' + result[i].site_name + '</td>';
-                            tbl += '<td class="text-left">' + result[i].wtg_cnt + ' WTGs</td>';
-                            tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
-                            tbl += '<td class="text-left">' + total_time + '</td>';
-                            //tbl += '<td class="text-left">' + result[i].stop_from + ' - ' + result[i].stop_to + ' = ' + result[i].total_stop + '</td>';
-                            tbl += '<td class="text-left">' + result[i].error_description +'</td>';
-                            tbl += '</tr>';
-                       }
-                        if ((result[i].bd_type_id != 1 && result[i].bd_type_id != 2) && +total_time.split(":")[0] >= 1) {
-                       tbl += '<tr>';
-                            tbl += '<td class="text-left">' + result[i].date + '</td>';
-                            tbl += '<td class="text-left">' + result[i].site_name + '</td>';
-                            tbl += '<td class="text-left">' + result[i].wtg_cnt + ' WTGs</td>';
-                            tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
-                            tbl += '<td class="text-left">' + total_time + '</td>';
-                            //tbl += '<td class="text-left">' + result[i].stop_from + ' - ' + result[i].stop_to+' = '+ result[i].total_stop + '</td>';
-                            tbl += '<td class="text-left">' + result[i].error_description +'</td>';
-                            tbl += '</tr>';
-                       }
+                       // console.log("Total Time", total_time);                        
+                        if (result[i].bd_type_id == 1 || result[i].bd_type_id == 2) {
+                            if (result[i].total_stop.split(":")[0] > 4) {
+                                tbl += '<tr>';
+                                tbl += '<td class="text-left">' + result[i].date + '</td>';
+                                tbl += '<td class="text-left">' + result[i].site_name + '</td>';
+                                tbl += '<td class="text-left">' + result[i].wtg + '</td>';
+                                tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
+                                //tbl += '<td class="text-left">' + total_time + '</td>';
+                                tbl += '<td class="text-left">' + result[i].total_stop + '</td>';
+                                //tbl += '<td class="text-left">' + result[i].stop_from + ' - ' + result[i].stop_to + ' = ' + result[i].total_stop + '</td>';
+                                tbl += '<td class="text-left">' + result[i].error_description + '</td>';
+                                tbl += '</tr>';
+                                console.log(result[i].total_stop.split(":")[0]);
+                            } else {
+                                console.log(result[i].total_stop.split(":")[1], "Is less than 4");
+                                var tem = i - 1;
+                                console.log(tem, result[tem]);
+                            }
+                        }
+                        else {
+                            date1 = result[i].date;
+                            site = result[i].site_name;
+                            errorDesc = result[i].error_description;
+                            bdType = result[i].bd_type;
 
+                            var date = "";
+                            var stopfrom = "";
+                            var stopto = "";
+                            var sumDone = false;
+                            var count = 0;
+                            if (i == 0 && i < result.length) {
+                                count = i + 1;
+                            } else {
+                                count = i;
+                            }
+                            if (result[i].site_id == result[count].site_id) {
+                                if (i > 0) {
+                                    date = result[i - 1].date;
+                                    stopfrom = result[i - 1].stop_from;
+                                    stopto = result[i - 1].stop_to;
+                                }
+                                if (result[i].total_stop.split(":")[0] > 1 && date == result[i].date && stopfrom == result[i].stop_from && stopto == result[i].stop_to) {
+                                    WTG_count += 1;
+                                    hours += Number((result[i].total_stop.split(":")[0]).toString());
+                                    minutes += Number((result[i].total_stop.split(":")[1]).toString());
+                                    seconds += Number((result[i].total_stop.split(":")[2]).toString);
+
+                                    console.log("Hello here", "Type Of :", typeof (result[i].total_stop.split(":")[1]), "number ", parseInt(result[i].total_stop.split(":")[0]), parseInt(result[i].total_stop.split(":")[1]));
+                                    console.log("Hours", hours, "Minutes", minutes, "Seconds: ", seconds);
+                                    totalstop += result[i].total_stop;
+                                    if (result[i].stop_from != result[i + 1].stop_to || result[i].stop_to != result[i + 1].stop_to) {
+                                        sumDone = true;
+                                    }
+                                }
+                            }
+                        }
                     }
+                    tbl += '<tr>';
+                    tbl += '<td class="text-left">' + date1 + '</td>';
+                    tbl += '<td class="text-left">' + site + '</td>';
+                    tbl += '<td class="text-left">' + WTG_count + ' WTGs</td>';
+                    tbl += '<td class="text-left">' + bdType + '</td>';
+                    //tbl += '<td class="text-left">' + total_time + '</td>';
+                    tbl += '<td class="text-left">' + hours + ':'+ minutes + '</td>';
+                    //tbl += '<td class="text-left">' + result[i].stop_from + ' - ' + result[i].stop_to + ' = ' + result[i].total_stop + '</td>';
+                    tbl += '<td class="text-left">' + errorDesc + '</td>';
+                    tbl += '</tr>';
                 }
                 else {
                     console.log("Data not available");
