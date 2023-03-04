@@ -875,7 +875,58 @@
             $("#submitNotification").click();
         }
 
+         function updateLoginDetails() {
+            var UserID = getCookie('userid')
+            $.ajax({
 
+                type: "POST",
+                url: '@Url.Action("UpdateLoginStatus", "Home")' + '?userID=' + UserID,
+
+                // url:"/Home/Login?username=" + username + "&pass=" + password,
+                contentType: "application/json; charset=utf-8",
+                //data: '{"username":"' + username + '","pass":"' + password + '"}',
+                dataType: "html",
+                success: function (result, status, xhr) {
+                    console.log(result);
+                    // var data = JSON.parse(result);
+                    //console.log(data[0]['status']);
+                    if (result == 'Success') {
+                        //return RedirectToAction("Dashbord", "Home");
+
+
+                    }
+                    else {
+
+                    }
+
+                },
+                error: function (xhr, status, error) {
+                    //$("#dataDiv").html("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+                }
+
+            });
+        }
+        setInterval(function () {
+            updateLoginDetails();
+        }, 1000 * 60 * 4);
+
+
+
+        function getCookie(cname) {
+            let name = cname + "=";
+            let decodedCookie = decodeURIComponent(document.cookie);
+            let ca = decodedCookie.split(';');
+            for (let i = 0; i < ca.length; i++) {
+                let c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
 
     </script>
     @RenderSection("scripts", required: false)

@@ -23,12 +23,12 @@ namespace Login.Controllers
         [Route("UserLogin")]
         [HttpGet]
        // public async Task<IActionResult> UserLogin(string username, string password)
-        public async Task<IActionResult> UserLogin(string username, string password)
+        public async Task<IActionResult> UserLogin(string username, string password,bool isSSO)
         {
            try
             {
               
-                var data =await _loginBs.GetUserLogin(username, password);
+                var data =await _loginBs.GetUserLogin(username, password, isSSO);
                 return Ok(data);
             }
             catch (Exception ex)
@@ -37,6 +37,42 @@ namespace Login.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [Route("UpdateLoginStatus")]
+        [HttpGet]
+        // public async Task<IActionResult> UserLogin(string username, string password)
+        public async Task<IActionResult> UpdateLoginStatus(int userID)
+        {
+            try
+            {
+
+                var data = await _loginBs.UpdateLoginStatus(userID);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("DirectLogOut")]
+        [HttpGet]
+        // public async Task<IActionResult> UserLogin(string username, string password)
+        public async Task<IActionResult> DirectLogOut(int userID)
+        {
+            try
+            {
+
+                var data = await _loginBs.DirectLogOut(userID);
+                return Ok(data);
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+
         [Route("WindUserRegistration")]
         [HttpGet]
         // public async Task<IActionResult> UserLogin(string username, string password)

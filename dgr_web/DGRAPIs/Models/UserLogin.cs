@@ -16,7 +16,7 @@ namespace DGRAPIs.Models
         public string auth_session { get; set; }
         public DateTime last_accessed { get; set; }
         public int active_user { get; set; }
-
+        public bool islogin { get; set; }
     }
     public class UserInfomation
     {

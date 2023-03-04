@@ -21,7 +21,8 @@ using Microsoft.AspNetCore.Authorization;
 namespace DGRA_V1.Controllers
 {
 
-   // [Authorize]
+    // [Authorize]
+    [AllowAnonymous]
     public class WindReportController : Controller
     {
         private IDapperRepository _idapperRepo;

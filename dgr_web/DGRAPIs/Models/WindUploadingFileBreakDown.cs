@@ -21,6 +21,7 @@ namespace DGRAPIs.Models
         public string error_description { get; set; }
         public string action_taken { get; set; }
         public Int64 wtg_cnt { get; set; }
+
     }
     public class WindUploadingFileBreakDown1
     {

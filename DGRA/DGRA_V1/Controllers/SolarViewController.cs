@@ -8,10 +8,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DGRA_V1.Controllers
 {
     //[Authorize]
+    [AllowAnonymous]
     public class SolarViewController : Controller
     {
         private IDapperRepository _idapperRepo;

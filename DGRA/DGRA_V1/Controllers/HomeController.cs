@@ -24,8 +24,9 @@ using DGRA_V1.Filters;
 
 namespace DGRA_V1.Controllers
 {
-    
-   //  [Authorize]
+
+    //  [Authorize]
+    [AllowAnonymous]
     public class HomeController : Controller
     {
         
@@ -38,11 +39,11 @@ namespace DGRA_V1.Controllers
 
 
         public HomeController(ILogger<HomeController> logger,
-                         //GraphServiceClient graphServiceClient,
+                         GraphServiceClient graphServiceClient,
                          IDapperRepository idapperRepo)
         {
             _logger = logger;
-            //_graphServiceClient = graphServiceClient;
+           _graphServiceClient = graphServiceClient;
             _idapperRepo = idapperRepo;
         }
 
@@ -99,46 +100,75 @@ namespace DGRA_V1.Controllers
         public async Task<IActionResult> SSOLogin ()
         {
 
-            //var user = await _graphServiceClient.Me.Request().GetAsync();
-           // user.DisplayName = "";
-           
-
-          // HttpContext.Session.SetString("DisplayName", user.DisplayName);
-           
-           // String Name = HttpContext.Session.GetString("DisplayName");
-           
-               /*if (!string.IsNullOrEmpty(Name))
+          var user = await _graphServiceClient.Me.Request().GetAsync();
+            string line = "";
+           //bool IsSSO = true;
+            string pass = "";
+            TempData["username"] = user.UserPrincipalName;
+            try
+            {
+                //user.DisplayName
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/UserLogin?username=" + user.UserPrincipalName + "&password="+ pass+ "&isSSO=true";
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
                 {
-               
-                if (user.DisplayName == "Sujit")
-                    if (Name == "Sujit")
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
                     {
-                    TempData["name"] = "Sujit Kumar";
-                    TempData["role"] = "Admin";
-                    TempData["userid"] = "1";
-                    HttpContext.Session.SetString("name", "Sujit Kumar");
-                    HttpContext.Session.SetString("role", "User");
-                    HttpContext.Session.SetString("userid", "1");
+                        line = readStream.ReadToEnd().Trim();
+                        if (string.IsNullOrEmpty(line))
+                        {
+
+                            
+                            return RedirectToAction("Error");
+                        }
+                        else
+                        {
+                           
+                            LoginModel model = JsonConvert.DeserializeObject<LoginModel>(line);
+                            HttpContext.Session.SetString("DisplayName", model.username);
+                            HttpContext.Session.SetString("role", model.user_role);
+                            HttpContext.Session.SetString("userid", model.login_id.ToString());
+
+                            int loginid = model.login_id;
+                            string role = model.user_role;
+                            var actionResult = await GetUserAccess(loginid, role, true);
+
+                            HttpContext.Response.Cookies.Append("userid", model.login_id.ToString());
+                            return RedirectToAction("Dashbord");
+
+
+
+
+
+                        }
+
+                    }
+
                 }
-                if (Name == "prashant")
-                {
-                    
-                    HttpContext.Session.SetString("name", "Prashant Shetye");
-                    HttpContext.Session.SetString("role", "Admin");
-                    HttpContext.Session.SetString("userid", "2");
-                    TempData["name"] = "Prashant Shetye";
-                    TempData["role"] = "User";
-                    TempData["userid"] = "2";
-                }*/
-                return RedirectToAction("Dashbord");
+            }
+            catch (Exception ex)
+            {
+                //TempData["notification"] = "Username and password invalid Please try again !";
+                string message = ex.Message;
+                return RedirectToAction("Error");
+            }
+
+            //}
+            // return Ok(model);
+            //return RedirectToAction("Dashbord", "Home");
+           // return Content(line, "application/json");
+
+         
            // }
             //return RedirectToAction("Index");
         }
-
+        [AllowAnonymous]
         public async Task<IActionResult> Login(string username, string pass)
         {
             string status = "";
             string line = "";
+            bool IsSSO = false;
             string[] userList = username.Split("@");
             string last = userList[1];
             //if (last.Equals("herofutureenergies.com")) {
@@ -151,7 +181,7 @@ namespace DGRA_V1.Controllers
                 System.Collections.Generic.Dictionary<string, object>[] map = new System.Collections.Generic.Dictionary<string, object>[1];
                 try
                 {
-                    var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/UserLogin?username=" + username + "&password=" + pass + "";
+                     var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/UserLogin?username=" + username + "&password=" + pass + "&isSSO=false";
                     WebRequest request = WebRequest.Create(url);
                     using (WebResponse response = (HttpWebResponse)request.GetResponse()){
                         Stream receiveStream = response.GetResponseStream();
@@ -160,21 +190,32 @@ namespace DGRA_V1.Controllers
                         if (string.IsNullOrEmpty(line)){
                                 
                                 login_status = false;
-                               
+                            return Content("Creadintial are Incorrect", "application/json");
                         }
                         else{
                                 login_status = true;
                                 model = JsonConvert.DeserializeObject<LoginModel>(line);
+                            line = "Success";
+
+                            if (model.islogin)
+                            {
+                                login_status = false;
+                                return Content("User Already Login", "application/json");
+                            }
+                            else
+                            {
+
                                 HttpContext.Session.SetString("DisplayName", model.username);
                                 HttpContext.Session.SetString("role", model.user_role);
-                                HttpContext.Session.SetString("userid",model.login_id.ToString());
-                             
+                                HttpContext.Session.SetString("userid", model.login_id.ToString());
+
                                 int loginid = model.login_id;
                                 string role = model.user_role;
-                                 var actionResult = await GetUserAccess(loginid, role, true);
-                                
-                                
-                                
+                                HttpContext.Response.Cookies.Append("userid", model.login_id.ToString());
+                                var actionResult = await GetUserAccess(loginid, role, true);
+
+                                return Content(line, "application/json");
+                            }
                                 
                               
 
@@ -196,13 +237,41 @@ namespace DGRA_V1.Controllers
             return Content(line, "application/json");
         }
 
+        public IActionResult UpdateLoginStatus(int userID)
+        {
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/UpdateLoginStatus?userID=" + userID;
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+
+
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                //TempData["notification"] = "Username and password invalid Please try again !";
+                string message = ex.Message;
+            }
+
+
+            return Content("success", "application/json");
+        }
 
 
         [AllowAnonymous]
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier});
         }
         // Added Code on Redirection Remote 
        /* [ActionName("signin-oidc")]
@@ -752,7 +821,34 @@ namespace DGRA_V1.Controllers
         public async Task<ActionResult> Logout(string username, string pass)
         {
             TempData["notification"] = "";
-            //Response.Redirect("somepage.aspx");
+            int userID = 0;
+            userID = Convert.ToInt32(HttpContext.Session.GetString("userid"));
+            // UpdateLoginStatus(userID);
+            string line = "";
+            try
+            {
+                var url = _idapperRepo.GetAppSettingValue("API_URL") + "/api/Login/DirectLogOut?userID=" + userID;
+                WebRequest request = WebRequest.Create(url);
+                using (WebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    using (StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8))
+                    {
+                        line = readStream.ReadToEnd().Trim();
+
+
+                    }
+
+                }
+            }
+            catch (Exception ex)
+            {
+                //TempData["notification"] = "Username and password invalid Please try again !";
+                string message = ex.Message;
+            }
+
+
+          
             return RedirectToAction("Index", "Home");
             // return View();
         }

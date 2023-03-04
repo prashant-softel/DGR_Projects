@@ -1,5 +1,7 @@
 using DGRAPIs.BS;
 using DGRAPIs.Helper;
+using DGRAPIs.Models;
+using MailKit;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -8,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ServiceWorkerCronJobDemo.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,8 +42,16 @@ namespace DGRAPIs
             services.AddScoped<DatabaseProvider>();
             services.AddScoped<IDGRBS, DGRBS>();
             services.AddScoped<iLoginBS, LoginBS>();
+            services.Configure<MailSettings>(Configuration.GetSection("MailSettings"));
 
-
+            //CRON JOB
+            services.AddCronJob<MyCronJob1>(c =>
+            {
+                c.TimeZoneInfo = TimeZoneInfo.Local;
+                c.CronExpression = @"0 0 * * MON";  // every monday 
+                //c.CronExpression = @"* * * * *";
+            });
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

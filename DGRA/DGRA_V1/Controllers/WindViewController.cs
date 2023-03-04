@@ -22,6 +22,7 @@ namespace DGRA_V1.Controllers
 {
 
     //[Authorize]
+    [AllowAnonymous]
     public class WindViewController : Controller
     {
         private IDapperRepository _idapperRepo;

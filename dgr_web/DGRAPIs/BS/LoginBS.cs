@@ -12,7 +12,9 @@ namespace DGRAPIs.BS
     {
         Task<int> eQry(string qry);
         //Task<List<UserLogin>> GetUserLogin(string username, string password);
-        Task<UserLogin> GetUserLogin(string username, string password);
+        Task<UserLogin> GetUserLogin(string username, string password,bool isSSO);
+        Task<int> UpdateLoginStatus(int UserID);
+        Task<int> DirectLogOut(int UserID);
         Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass);
         Task<int> UpdatePassword(int loginid, string updatepass);
         Task<int> DeactivateUser(int loginid);
@@ -41,6 +43,36 @@ namespace DGRAPIs.BS
             databaseProvider = dbProvider;
         }
 
+        public async Task<int> UpdateLoginStatus(int UserID)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.UpdateLoginStatus(UserID);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        public async Task<int> DirectLogOut(int UserID)
+        {
+            try
+            {
+                using (var repos = new LoginRepository(getDB))
+                {
+                    return await repos.DirectLogOut(UserID);
+
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
         public async Task<int> UpdatePassword(int loginid, string updatepass)
         {
             try
@@ -105,13 +137,13 @@ namespace DGRAPIs.BS
             }
         }
         //public async Task<List<UserLogin>> GetUserLogin(string username, string password)
-        public async Task<UserLogin> GetUserLogin(string username, string password)
+        public async Task<UserLogin> GetUserLogin(string username, string password, bool isSSO)
         {
             try
             {
                 using (var repos = new LoginRepository(getDB))
                 {
-                    return await repos.GetUserLogin(username, password);
+                    return await repos.GetUserLogin(username, password, isSSO);
 
                 }
             }
@@ -120,6 +152,7 @@ namespace DGRAPIs.BS
                 throw;
             }
         }
+
         public async Task<int> SubmitUserAccess(int login_id, string siteList, string pageList, string reportList, string site_type,int importapproval)
         {
             try

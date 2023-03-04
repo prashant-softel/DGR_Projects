@@ -11,6 +11,18 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using System.Data;
+using System.Security.Policy;
+using System.Collections;
+using System.Diagnostics;
+using static System.Net.WebRequestMethods;
+using Microsoft.Extensions.Configuration;
+using DGRAPIs.BS;
+using System.IO;
+using System.Reflection.Metadata;
+
+using System.Text;
+using MimeKit;
+using Microsoft.AspNetCore.Http;
 namespace DGRAPIs.Repositories
 {
 
@@ -2929,7 +2941,145 @@ bd_remarks, action_taken
             return await Context.GetData<SolarDailyBreakdownReport>(qry).ConfigureAwait(false);
 
         }
+        internal async Task<int> MailSend(string fname)
+        {
+            //MAILING FUNCTIONALITY
+            MailSettings _settings = new MailSettings();
+            var MyConfig = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            _settings.Mail = MyConfig.GetValue<string>("MailSettings:Mail");
+            //_settings.Mail = "kasrsanket@gmail.com";
+            //_settings.DisplayName = "Sanket Kar";
+            _settings.DisplayName = MyConfig.GetValue<string>("MailSettings:DisplayName");
+            //_settings.Password = "lozirdytywjlvcxd";
+            _settings.Password = MyConfig.GetValue<string>("MailSettings:Password");
+            //_settings.Host = "smtp.gmail.com";
+            _settings.Host = MyConfig.GetValue<string>("MailSettings:Host");
+            //_settings.Port = 587;
+            _settings.Port = MyConfig.GetValue<int>("MailSettings:Port");
 
+
+            string Msg = "Weekly PR Report Generated";
+            // private MailServiceBS mailService;
+            List<string> AddTo = new List<string>();
+            List<string> AddCc = new List<string>();
+            MailRequest request = new MailRequest();
+
+
+            string qry = "";
+            if (fname.Contains("Solar"))
+            {
+                qry = "select useremail from login where To_Weekly_Solar = 1;";
+                List<UserLogin> data2 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+                foreach (var item in data2)
+                {
+                    AddTo.Add(item.useremail);
+                }
+                qry = "select useremail from login where Cc_Weekly_Solar = 1;";
+                List<UserLogin> data3 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+                foreach (var item in data3)
+                {
+                    AddCc.Add(item.useremail);
+                }
+            }
+            else
+            {
+                qry = "select useremail from login where To_Weekly_Wind = 1;";
+                List<UserLogin> data2 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+                foreach (var item in data2)
+                {
+                    AddTo.Add(item.useremail);
+                }
+                qry = "select useremail from login where Cc_Weekly_Wind = 1;";
+                List<UserLogin> data3 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+                foreach (var item in data3)
+                {
+                    AddCc.Add(item.useremail);
+                }
+            }
+
+
+
+            AddTo.Add("sujitkumar0304@gmail.com");
+            AddTo.Add("prashant@softeltech.in");
+            request.Subject = "Wind Weekly Reports";
+            request.Body = Msg;
+
+            //var file = "/Users/sanketkar/Downloads/WeeklyReport_2023-01-04.pptx";
+            //var file = "C:\\Users\\sujit\\Downloads\\" + fname+".pptx";
+            var file = "C:\\Users\\DGR\\Downloads\\" + fname+".pptx";
+            using var stream = new MemoryStream(System.IO.File.ReadAllBytes(file).ToArray());
+            var formFile = new FormFile(stream, 0, stream.Length, "streamFile", file.Split(@"/").Last());
+            List<IFormFile> list = new List<IFormFile>();
+            //formFile.ContentType = "application/octet-stream";
+            list.Add(formFile);
+            request.Attachments = list;
+            /*using (var stream = System.IO.File.OpenRead(@"/Users/sanketkar/file.txt"))
+            {
+                await request.Attachments.CopyToAsync(stream);
+            }*/
+            try
+            {
+                var res = await MailService.SendEmailAsync(request, _settings);
+            }
+            catch (Exception e)
+            {
+                string msg = e.Message;
+                //Pending: error log failed mail
+            }
+            return 1;
+        }
+        
+        internal async Task<int> PPTCreate(string fy, string startDate, string endDate, string type)
+        {
+            //string AppSetting_Key;
+
+            var psi = new ProcessStartInfo
+            {
+                //FileName = "https://localhost:5001/Home/"+type+"WeeklyPRReports?28/12/2022",
+                FileName = "https://localhost:44378/Home/WindWeeklyPRReports?" + endDate,
+               
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+            //var psi1 = new ProcessStartInfo
+            //{
+            //    FileName = "https://localhost:5001/Home/SolarWeeklyPRReports?28/06/2022",
+            //    //FileName = "https://localhost:5001/Home/SolarWeeklyPRReports?"+endDate,
+            //    UseShellExecute = true
+            //};
+            //Process.Start(psi1);
+
+            string msg = "WindWeeklyReport_" + DateTime.Now.ToString("yyyy-MM-dd");
+            MailSend(msg);
+
+            return 1;
+        }
+
+        internal async Task<int> PPTCreate_Solar(string fy, string startDate, string endDate, string type)
+        {
+            //string AppSetting_Key;
+
+            var psi = new ProcessStartInfo
+            {
+                //FileName = "https://localhost:5001/Home/"+type+"WeeklyPRReports?28/12/2022",
+                FileName = "https://localhost:44378/Home/SolarWeeklyPRReports?" + endDate,
+
+                UseShellExecute = true
+            };
+            Process.Start(psi);
+            //var psi1 = new ProcessStartInfo
+            //{
+            //    FileName = "https://localhost:5001/Home/SolarWeeklyPRReports?28/06/2022",
+            //    //FileName = "https://localhost:5001/Home/SolarWeeklyPRReports?"+endDate,
+            //    UseShellExecute = true
+            //};
+            //Process.Start(psi1);
+
+            string msg = "SolarWeeklyReport_" + DateTime.Now.ToString("yyyy-MM-dd");
+            MailSend(msg);
+
+            return 1;
+        }
         internal async Task<int> InsertDailyTargetKPI(List<WindDailyTargetKPI> set)
         {
             //pending : add activity log
@@ -6278,6 +6428,7 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
             }
             filter += " date >= '" + fromDate + "' and date <= '" + toDate + "'"; /*group by site_id,bd_type*/
             
+
             return await Context.GetData<WindUploadingFileBreakDown>(qry + filter).ConfigureAwait(false);
         }
         //#region KPI Calculations
@@ -7961,7 +8112,962 @@ daily_target_kpi_solar_id desc limit 1) as tarIR from daily_gen_summary_solar t1
                 return true;
             return false;
         }
+      public async Task<string> EmailWindReport(string fy, string fromDate, string site)
+        {
+            //add column called kwh_afterlineloss and plf_afterlineloss in dailygensummary and uploadgentable
 
+            string title = "Wind Daily Report";
+            //string month = (fromDate);
+            DateTime dt = DateTime.Parse(fromDate);
+            string month = dt.ToString("yyyy-MM");
+            string years = dt.ToString("yyyy");
+            var startDate = new DateTime(dt.Year, dt.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            string mfromDate = startDate.ToString("yyyy-MM-dd");
+            string mtodate = endDate.ToString("yyyy-MM-dd");
+            string yfromDate = years + "-01-01";
+            string ytodate = years + "-12-31";
+            DateTime ltodate = dt.AddDays(-1);
+            string lastDay = ltodate.ToString("yyyy-MM-dd");
+            string info = "Wind Daily Reports";
+
+
+
+            string tb = "<h3 style='text-align: center;'><b>" + info + "<b/></h3>";
+            tb += "<br>";
+            //tb += "<table id='emailTable'  class='table table-bordered table-striped' style='width: 100%; background-color:#f7f5f0'>";
+            tb += "<table id = 'emailTable' class='table table-bordered table-striped' style='width: 100%; background-color: #f7f5f0; margin-left: auto; margin-right: auto;' border='1' cellspacing='0' cellpadding='0'>";
+            tb += "<thead class='tb-head'><tr>";
+            tb += "<th rowspan='2'  style='width:8%; background-color:#31576D;' >Site</th><th  rowspan='2'  style='width: 5%; background-color:#31576D'>Capacity (MW)</th><th rowspan='2' style='width: 5%; background-color:#31576D' >Total Target</th>";
+            tb += "<th colspan='10' class='text-center' style='background-color:#86C466'>YTD</th>";
+
+            tb += "<th colspan='10' class='text-center' style='background-color:#77CAE7'>MTD</th>";
+
+            tb += "<th colspan='10' class='text-center' style='background-color:#FFCA5A'>Last Day (" + (ltodate.ToString("dd-MMM-yyyy")) + ")</th>";
+
+            tb += "<tr><th  style='background-color:#86C466'>Tar Gen</th>";
+            tb += "<th style='background-color:#86C466'>Act Gen</th>";
+            tb += "<th  style='background-color:#86C466'>Var (%)</th>";
+            tb += "<th  style='background-color:#86C466'>Tar Wind</th>";
+            tb += "<th  style='background-color:#86C466'>Act Wind</th>";
+            tb += "<th  style='background-color:#86C466'>Var (%)</th>";
+            tb += "<th  style='background-color:#86C466'>PLF</th>";
+            tb += "<th  style='background-color:#86C466'>MA</th>";
+            tb += "<th  style='background-color:#86C466'>IGA</th>";
+            tb += "<th  style='background-color:#86C466'>EGA</th>";
+
+            tb += "<th  style='background-color:#77CAE7'>Tar Gen</th>";
+            tb += "<th style='background-color:#77CAE7'>Act Gen</th>";
+            tb += "<th  style='background-color:#77CAE7'>Var (%)</th>";
+            tb += "<th style='background-color:#77CAE7'>Tar Wind</th>";
+            tb += "<th style='background-color:#77CAE7'>Act Wind</th>";
+            tb += "<th style='background-color:#77CAE7'>Var (%)</th>";
+            tb += "<th style='background-color:#77CAE7'>PLF</th>";
+            tb += "<th style='background-color:#77CAE7'>MA</th>";
+            tb += "<th style='background-color:#77CAE7'>IGA</th>";
+            tb += "<th style='background-color:#77CAE7'>EGA</th>";
+
+            tb += "<th style='background-color:#FFCA5A'>Tar Gen</th>";
+            tb += "<th style='background-color:#FFCA5A'>Act Gen</th>";
+            tb += "<th style='background-color:#FFCA5A'>Var (%)</th>";
+            tb += "<th style='background-color:#FFCA5A'>Tar Wind</th>";
+            tb += "<th style='background-color:#FFCA5A'>Act Wind</th>";
+            tb += "<th style='background-color:#FFCA5A'>Var (%)</th>";
+            tb += "<th style='background-color:#FFCA5A'>PLF</th>";
+            tb += "<th style='background-color:#FFCA5A'>MA</th>";
+            tb += "<th style='background-color:#FFCA5A'>IGA</th>";
+            tb += "<th style='background-color:#FFCA5A'>EGA</th>";
+            tb += "</tr></thead><tbody>";
+
+
+
+
+
+            double jmr_var_yr = 0;
+            double tar_mu_yr = 0;
+            double wind_var_yr = 0;
+            double jmr_var_mn = 0;
+            double tar_mu_mn = 0;
+            double wind_var_mn = 0;
+            double jmr_var_lastday = 0;
+            double tar_mu_lastday = 0;
+            double wind_var_lastday = 0;
+
+            double total_capacity_yr = 0;
+            double total_tar_mu_yr = 0;
+            double total_act_jmr_kwh_mu_yr = 0;
+            double avg_jmr_var_yr = 0;
+            double avg_wind_var_yr = 0;
+            double total_capTarWind_yr = 0;
+            double total_capActWind_yr = 0;
+            double total_capActPlf_yr = 0;
+            double total_capActMa_yr = 0;
+            double total_capActIga_yr = 0;
+            double total_capActEga_yr = 0;
+            double avg_tar_wind_yr = 0;
+            double avg_act_wind_yr = 0;
+            double avg_act_plf_yr = 0;
+            double avg_act_ma_yr = 0;
+            double avg_act_iga_yr = 0;
+            double avg_act_ega_yr = 0;
+            //Monthly
+            double total_capacity_mn = 0;
+            double total_tar_mu_mn = 0;
+            double total_act_jmr_kwh_mu_mn = 0;
+            double avg_jmr_var_mn = 0;
+            double avg_wind_var_mn = 0;
+            double total_capTarWind_mn = 0;
+            double total_capActWind_mn = 0;
+            double total_capActPlf_mn = 0;
+            double total_capActMa_mn = 0;
+            double total_capActIga_mn = 0;
+            double total_capActEga_mn = 0;
+            double avg_tar_wind_mn = 0;
+            double avg_act_wind_mn = 0;
+            double avg_act_plf_mn = 0;
+            double avg_act_ma_mn = 0;
+            double avg_act_iga_mn = 0;
+            double avg_act_ega_mn = 0;
+            //lastday
+            //Monthly
+            double total_capacity_ld = 0;
+            double total_tar_mu_ld = 0;
+            double total_act_jmr_kwh_mu_ld = 0;
+            double avg_jmr_var_ld = 0;
+            double avg_wind_var_ld = 0;
+            double total_capTarWind_ld = 0;
+            double total_capActWind_ld = 0;
+            double total_capActPlf_ld = 0;
+            double total_capActMa_ld = 0;
+            double total_capActIga_ld = 0;
+            double total_capActEga_ld = 0;
+            double avg_tar_wind_ld = 0;
+            double avg_act_wind_ld = 0;
+            double avg_act_plf_ld = 0;
+            double avg_act_ma_ld = 0;
+            double avg_act_iga_ld = 0;
+            double avg_act_ega_ld = 0;
+
+
+
+
+            List<WindPerformanceReports> yearlypr,monthlypr,lastdaypr = new List<WindPerformanceReports>();
+            yearlypr = await GetWindPerformanceReportSiteWise(fy, yfromDate, ytodate, site);
+            // List<WindPerformanceReports> data1 = new List<WindPerformanceReports>();
+            monthlypr = await GetWindPerformanceReportSiteWise(fy, mfromDate, mtodate, site);
+            lastdaypr = await GetWindPerformanceReportSiteWise(fy, lastDay, lastDay, site);
+
+            //var j = 0;
+           // var k = 0;
+            for (int i = 0; i < yearlypr.Count; i++)
+            {
+                tar_mu_yr = (yearlypr[i].tar_kwh_mu / 1000000);
+                // Calculation of footer yearly 
+                total_capacity_yr += yearlypr[i].total_mw;
+                total_tar_mu_yr += tar_mu_yr;
+                total_act_jmr_kwh_mu_yr += yearlypr[i].act_jmr_kwh_mu;
+                total_capTarWind_yr += yearlypr[i].tar_wind * yearlypr[i].total_mw;
+                total_capActWind_yr += yearlypr[i].act_Wind * yearlypr[i].total_mw;
+                total_capActPlf_yr += yearlypr[i].act_plf * yearlypr[i].total_mw;
+                total_capActMa_yr += yearlypr[i].act_ma * yearlypr[i].total_mw;
+                total_capActIga_yr += yearlypr[i].act_iga * yearlypr[i].total_mw;
+                total_capActEga_yr += yearlypr[i].act_ega * yearlypr[i].total_mw;
+
+               
+
+
+                tb += "<tr>";
+               
+
+                if (yearlypr[i].act_jmr_kwh_mu != 0 || yearlypr[i].tar_kwh_mu != 0)
+                {
+                    jmr_var_yr = ((yearlypr[i].act_jmr_kwh_mu - tar_mu_yr) / tar_mu_yr) * 100;
+                }
+                if (yearlypr[i].act_Wind != 0 || yearlypr[i].tar_wind != 0)
+                {
+                    wind_var_yr = ((yearlypr[i].act_Wind - yearlypr[i].tar_wind) / yearlypr[i].tar_wind) * 100;
+                }
+
+              
+                tb += "<td class='text-left'>" + yearlypr[i].site + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].total_mw, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].tar_kwh, 2) + "</td>";
+                
+                tb += "<td class='text-right'>" + Math.Round(tar_mu_yr, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].act_jmr_kwh_mu, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(jmr_var_yr, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].tar_wind, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].act_Wind, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(wind_var_yr, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].act_plf, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].act_ma, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].act_iga, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].act_ega, 2) + "</td>";
+                bool monthlyRecordFound = false;
+               for(var j=0; j< monthlypr.Count; j++)
+                {
+                    if (yearlypr[i].site == monthlypr[j].site)
+                    {
+                        tar_mu_mn = (monthlypr[j].tar_kwh_mu / 1000000);
+                        // Monthly calculation 
+                        total_capacity_mn += monthlypr[j].total_mw;
+                        total_tar_mu_mn += tar_mu_mn;
+                        total_act_jmr_kwh_mu_mn += monthlypr[j].act_jmr_kwh_mu;
+                        total_capTarWind_mn += monthlypr[j].tar_wind * monthlypr[j].total_mw;
+                        total_capActWind_mn += monthlypr[j].act_Wind * monthlypr[j].total_mw;
+                        total_capActPlf_mn += monthlypr[j].act_plf * monthlypr[j].total_mw;
+                        total_capActMa_mn += monthlypr[j].act_ma * monthlypr[j].total_mw;
+                        total_capActIga_mn += monthlypr[j].act_iga * monthlypr[j].total_mw;
+                        total_capActEga_mn += monthlypr[j].act_ega * monthlypr[j].total_mw;
+
+                        if (monthlypr[j].act_jmr_kwh_mu != 0 || monthlypr[j].tar_kwh_mu != 0)
+                        {
+                            jmr_var_mn = ((monthlypr[j].act_jmr_kwh_mu - tar_mu_mn) / tar_mu_mn) * 100;
+                        }
+                        if (monthlypr[j].act_Wind != 0 || monthlypr[j].tar_wind != 0)
+                        {
+                            wind_var_mn = ((monthlypr[j].act_Wind - monthlypr[j].tar_wind) / monthlypr[j].tar_wind) * 100;
+                        }
+                        monthlyRecordFound = true;
+                        //tb += "<td class='text-right'>" + Math.Round(monthlypr[j].tar_kwh, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(tar_mu_mn, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(monthlypr[j].act_jmr_kwh_mu, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(jmr_var_mn, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(monthlypr[j].tar_wind, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(monthlypr[j].act_Wind, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(wind_var_mn, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(monthlypr[j].act_plf, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(monthlypr[j].act_ma, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(monthlypr[j].act_iga, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(monthlypr[j].act_ega, 2) + "</td>";
+                    }
+
+                }
+               if(monthlyRecordFound == false)
+                {
+                    
+                   
+                    //tb += "<td class='text-right'>0.0</td>";
+                   // tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+
+                }
+                bool dailyRecordFound = false;
+                for (var k = 0; k < lastdaypr.Count; k++)
+                {
+                    if (yearlypr[i].site == lastdaypr[k].site)
+                    {
+                        dailyRecordFound = true;
+
+                        tar_mu_lastday = (lastdaypr[k].tar_kwh_mu / 1000000);
+                        // Last Day calculation 
+                        total_capacity_ld += lastdaypr[k].total_mw;
+                        total_tar_mu_ld += tar_mu_lastday;
+                        total_act_jmr_kwh_mu_ld += lastdaypr[k].act_jmr_kwh_mu;
+                        total_capTarWind_ld += lastdaypr[k].tar_wind * lastdaypr[k].total_mw;
+                        total_capActWind_ld += lastdaypr[k].act_Wind * lastdaypr[k].total_mw;
+                        total_capActPlf_ld += lastdaypr[k].act_plf * lastdaypr[k].total_mw;
+                        total_capActMa_ld += lastdaypr[k].act_ma * lastdaypr[k].total_mw;
+                        total_capActIga_ld += lastdaypr[k].act_iga * lastdaypr[k].total_mw;
+                        total_capActEga_ld += lastdaypr[k].act_ega * lastdaypr[k].total_mw;
+
+                        if (lastdaypr[k].act_jmr_kwh_mu != 0 || lastdaypr[k].tar_kwh_mu != 0)
+                        {
+                            jmr_var_lastday = ((lastdaypr[k].act_jmr_kwh_mu - tar_mu_lastday) / tar_mu_lastday) * 100;
+                        }
+                        if (lastdaypr[k].act_Wind != 0 || lastdaypr[k].tar_wind != 0)
+                        {
+                            wind_var_lastday = ((lastdaypr[k].act_Wind - lastdaypr[k].tar_wind) / lastdaypr[k].tar_wind) * 100;
+                        }
+                        //tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].tar_kwh, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(tar_mu_lastday, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].act_jmr_kwh_mu, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(jmr_var_lastday, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].tar_wind, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].act_Wind, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(wind_var_lastday, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].act_plf, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].act_ma, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].act_iga, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].act_ega, 2) + "</td>";
+                    }
+                }
+                if(dailyRecordFound == false)
+                {
+                   // tb += "<td class='text-right'>0.0</td>";
+                    //tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                }
+                tb += "</tr>";
+            }
+            // Yearly Footer Calculation
+            if (total_capacity_yr != 0)
+            {
+                avg_tar_wind_yr = total_capTarWind_yr / total_capacity_yr;
+                avg_act_wind_yr = total_capActWind_yr / total_capacity_yr;
+                avg_act_plf_yr = total_capActPlf_yr / total_capacity_yr;
+                avg_act_ma_yr = total_capActMa_yr / total_capacity_yr;
+                avg_act_iga_yr = total_capActIga_yr / total_capacity_yr;
+                avg_act_ega_yr = total_capActEga_yr / total_capacity_yr;
+            }
+            if (total_tar_mu_yr != 0)
+            {
+                avg_jmr_var_yr = (((total_act_jmr_kwh_mu_yr - total_tar_mu_yr) / total_tar_mu_yr) * 100);
+            }
+            if (avg_tar_wind_yr != 0)
+            {
+                avg_wind_var_yr = ((avg_act_wind_yr - avg_tar_wind_yr) / avg_tar_wind_yr) * 100;
+            }
+            // Monthl Footer Calculation
+            if (total_capacity_mn != 0)
+            {
+                avg_tar_wind_mn = total_capTarWind_mn / total_capacity_mn;
+                avg_act_wind_mn = total_capActWind_mn / total_capacity_mn;
+                avg_act_plf_mn = total_capActPlf_mn / total_capacity_mn;
+                avg_act_ma_mn = total_capActMa_mn / total_capacity_mn;
+                avg_act_iga_mn = total_capActIga_mn / total_capacity_mn;
+                avg_act_ega_mn = total_capActEga_mn / total_capacity_mn;
+            }
+            if (total_tar_mu_mn != 0)
+            {
+                avg_jmr_var_mn = (((total_act_jmr_kwh_mu_mn - total_tar_mu_mn) / total_tar_mu_mn) * 100);
+            }
+            if (avg_tar_wind_mn != 0)
+            {
+                avg_wind_var_mn = ((avg_act_wind_mn - avg_tar_wind_mn) / avg_tar_wind_mn) * 100;
+            }
+            // lastday Footer Calculation
+            if (total_capacity_ld != 0)
+            {
+                avg_tar_wind_ld = total_capTarWind_ld / total_capacity_ld;
+                avg_act_wind_ld = total_capActWind_ld / total_capacity_ld;
+                avg_act_plf_ld = total_capActPlf_ld / total_capacity_ld;
+                avg_act_ma_ld = total_capActMa_ld / total_capacity_ld;
+                avg_act_iga_ld = total_capActIga_ld / total_capacity_ld;
+                avg_act_ega_ld = total_capActEga_ld / total_capacity_ld;
+            }
+            if (total_tar_mu_ld != 0)
+            {
+                avg_jmr_var_ld = (((total_act_jmr_kwh_mu_ld - total_tar_mu_ld) / total_tar_mu_ld) * 100);
+            }
+            if (avg_tar_wind_ld != 0)
+            {
+                avg_wind_var_mn = ((avg_act_wind_ld - avg_tar_wind_ld) / avg_tar_wind_ld) * 100;
+            }
+            //}
+            tb += "</tbody><tfoot><tr>";
+            tb += "<td class='text-left'><b>Grand Total</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_capacity_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(0.00, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_tar_mu_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_act_jmr_kwh_mu_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_jmr_var_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_tar_wind_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_wind_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_wind_var_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_plf_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_ma_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_iga_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_ega_yr, 2) + "</b></td>";
+
+            tb += "<td class='text-right'><b>" + Math.Round(total_tar_mu_mn, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_act_jmr_kwh_mu_mn, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_jmr_var_mn, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_tar_wind_mn, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_wind_mn, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_wind_var_mn, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_plf_mn, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_ma_mn, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_iga_mn, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_ega_mn, 2) + "</b></td>";
+
+            tb += "<td class='text-right'><b>" + Math.Round(total_tar_mu_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_act_jmr_kwh_mu_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_jmr_var_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_tar_wind_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_wind_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_wind_var_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_plf_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_ma_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_iga_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_ega_ld, 2) + "</b></td></tr>";
+            
+            tb += "</tfoot></table>";
+           //return tb;
+            List<WindUploadingFileBreakDown> data2 = new List<WindUploadingFileBreakDown>();
+
+                data2 = await GetWindMajorBreakdown(lastDay, lastDay, site);
+                TimeSpan Get_Time;
+                double total_time = 0;
+                DateTime result;
+               tb += "<br>";
+                tb += "<h3><b><u>Major Breakdown dated " + ltodate.ToString("dd-MMM-yyyy") + "</u></b></h3>";
+                tb += "<br>";
+                tb += "<table id='emailTable2'  class='table table-bordered table-striped' style='width: 80%;'  border='1' cellspacing='0' cellpadding='0'>";
+                tb += "<thead class='tbl-head' style=' background-color:#31576D' rowspan='2'><tr>";
+                tb += "<th>Date</th>";
+                tb += "<th>Site</th>";
+                tb += "<th>Location</th>";
+                tb += "<th>BD Type</th>";
+                tb += "<th>TAT</th>";
+                tb += "<th>Error Details</th>";
+                tb += "<th>Action Taken</th></tr></thead>";
+
+
+                if (data2.Count > 0)
+                {
+                
+                for (var i = 0; i < data2.Count; i++)
+                    {
+                    var totalTime = data2[i].total_stop;
+                    result = Convert.ToDateTime(totalTime.ToString());
+                    Get_Time = result.TimeOfDay;
+                    //Get_Time = Final_USMH_Time * 24;
+                  
+                        total_time = Get_Time.TotalDays * 24;
+
+                        if ((data2[i].bd_type_id == 1 || data2[i].bd_type_id == 2) && +total_time >= 4.0)
+                        {
+                            tb += "<tr>";
+                            tb += "<td class='text-left'>" + data2[i].date + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].site_name + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].wtg + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].bd_type + "</td>";
+                            tb += "<td class='text-left'>" + Math.Round(total_time, 2) + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].error_description + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].action_taken + "</td>";
+                            tb += "</tr>";
+                        }
+                        if ((data2[i].bd_type_id != 1 && data2[i].bd_type_id != 2) && +total_time >= 1.0)
+                        {
+                            tb += "<tr>";
+                            tb += "<td class='text-left'>" + data2[i].date + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].site_name + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].wtg + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].bd_type + "</td>";
+                            tb += "<td class='text-left'>" + Math.Round(total_time, 2) + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].error_description + "</td>";
+                            tb += "<td class='text-left'>" + data2[i].action_taken + "</td>";
+                            tb += "</tr>";
+                        }
+
+                    }
+                }
+                else
+                {
+                    tb += "<tr style='text-align: center; ><b>Data Not Present<b></tr>";
+
+                }
+                tb += "</tbody></table>";
+
+            
+            await MailDailySend(tb, title);
+            return tb;
+        }
+
+        public async Task<string> EmailSolarReport(string fy, string fromDate, string site)
+        {
+            //add column called kwh_afterlineloss and plf_afterlineloss in dailygensummary and uploadgentable
+
+            string title = "Solar Daily Report";
+            //string month = (fromDate);
+            DateTime dt = DateTime.Parse("2022-12-04");
+            string month = dt.ToString("yyyy-MM");
+            string years = dt.ToString("yyyy");
+            var startDate = new DateTime(dt.Year, dt.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            string mfromDate = startDate.ToString("yyyy-MM-dd");
+            string mtodate = endDate.ToString("yyyy-MM-dd");
+            string yfromDate = years + "-01-01";
+            string ytodate = years + "-12-31";
+            DateTime ltodate = dt.AddDays(-1);
+            string lastDay = ltodate.ToString("yyyy-MM-dd");
+            string info = "Solar Daily Reports";
+
+
+
+            string tb = "<h2 style='text - align: center;'><b>"+ info + "<b/></h2>";
+            tb += "<table id='emailTable'  class='table table-bordered table-striped' style='width: 100%; '  border='1' cellspacing='0' cellpadding='0'>";
+            tb += "<thead class='tb-head'><tr>";
+            tb += "<th rowspan='2'  style='width: 10%; background-color:#31576D' >Site</th><th  rowspan='2'  style='width: 8%; background-color:#31576D'>Capacity (MW)</th><th rowspan='2' style='width: 8%; background-color:#31576D' >Total Target</th>";
+            tb += "<th colspan='3' class='text-center' style='background-color:#86C466'>YTD</th>";
+            tb += "<th colspan='3' class='text-center' style='background-color:#77CAE7'>MTD</th>";
+            tb += "<th colspan='13' class='text-center' style='background-color:#FFCA5A'>Last Day (" + (ltodate.ToString("dd-MMM-yyyy")) + ")</th>";
+            tb += "<tr><th  style='background-color:#86C466' >Target Gen</th>";
+            tb += "<th style='background-color:#86C466'>Actual Gen</th>";
+            tb += "<th  style='background-color:#86C466'>Var (%)</th>";
+            tb += "<th  style='background-color:#77CAE7'>Target Gen</th>";
+            tb += "<th style='background-color:#77CAE7'>Actual Gen</th>";
+            tb += "<th  style='background-color:#77CAE7'>Var (%)</th>";
+            tb += "<th  style='background-color:#FFCA5A'>Target Gen (MU)</th>";
+            tb += "<th style='background-color:#FFCA5A'>Actual Gen (MU)</th>";
+            tb += "<th  style='background-color:#FFCA5A'>Var (%)</th>";
+            tb += "<th  style='background-color:#FFCA5A'>Target IR</th>";
+            tb += "<th  style='background-color:#FFCA5A'>Actual IR</th>";
+            tb += "<th  style='background-color:#FFCA5A'>Var (%)</th>";
+            tb += "<th  style='background-color:#FFCA5A'>PA (%)</th>";          
+            tb += "<th style='background-color:#FFCA5A'>IGA (%)</th>";
+            tb += "<th style='background-color:#FFCA5A'>EGA (%)</th>";
+            tb += "<th style='background-color:#FFCA5A'>CUF_AC (%)</th>";
+            tb += "<th style='background-color:#FFCA5A'>Target PR (%)</th>";
+            tb += "<th style='background-color:#FFCA5A'>Plant PR (%)</th>";
+            tb += "<th style='background-color:#FFCA5A'>Var (%)</th>";
+            tb += "</tr></thead><tbody><tr>";
+
+
+
+
+
+            double t_var_yr = 0;
+            double tar_mu_yr = 0;
+            double poa_var_yr = 0;
+            double pr_var_yr = 0;
+            double act_prval_yr = 0;
+
+
+
+            double t_var_mn = 0;
+            double tar_mu_mn = 0;
+            double poa_var_mn = 0;
+            double pr_var_mn = 0;
+            double act_prval_mn = 0;
+
+            double t_var_ld = 0;
+            double tar_mu_ld = 0;
+            double poa_var_ld = 0;
+            double pr_var_ld = 0;
+            double act_prval_ld = 0;
+
+
+            double total_capacity_yr = 0;
+            double total_tar_kwh_yr = 0;
+            double total_act_kwh_yr = 0;
+            double avg_solar_var_yr  = 0;
+
+            double total_capacity_mn = 0;
+            double total_tar_kwh_mn = 0;
+            double total_act_kwh_mn = 0;
+            double avg_solar_var_mn = 0;
+
+            double total_capacity_ld = 0;
+            double total_tar_kwh_ld = 0;
+            double total_act_kwh_ld = 0;
+            double avg_solar_var_ld = 0;
+
+            double avg_IR_var_ld = 0;
+            double avg_pr_var_ld = 0;
+            double total_capTarIR_ld = 0;
+            double total_capActIR_ld = 0;
+            double total_capActIga_ld = 0;
+            double total_capActEga_ld = 0;
+            double total_capActPr_ld = 0;
+            double total_capTarPr_ld = 0;
+            double total_capActPlf_ld = 0;
+            double total_capActMa_ld = 0;
+            double avg_tar_IR_ld = 0;
+            double avg_act_IR_ld = 0;
+            double avg_tar_pr_ld = 0;
+            double avg_act_pr_ld = 0;
+            double avg_act_iga_ld = 0;
+            double avg_act_ega_ld = 0;
+            double avg_act_ma_ld = 0;
+            double avg_act_plf_ld = 0;
+
+            List<SolarPerformanceReports1> yearlypr, monthlypr, lastdaypr = new List<SolarPerformanceReports1>();
+            yearlypr = await GetSolarPerformanceReportBySiteWise(fy, yfromDate, ytodate, site);
+            monthlypr = await GetSolarPerformanceReportBySiteWise(fy, mfromDate, mtodate, site);
+            lastdaypr = await GetSolarPerformanceReportBySiteWise(fy, lastDay, fromDate, site);
+           
+
+            for (int i = 0; i < yearlypr.Count; i++)
+            {
+                tb += "<tr>";
+                if (yearlypr[i].expected_kwh == 0 || yearlypr[i].act_kwh == 0)
+                {
+                    act_prval_yr = 0;
+                }
+                else
+                {
+                    act_prval_yr = (yearlypr[i].act_kwh / yearlypr[i].expected_kwh) * 100;
+                }
+                tar_mu_yr = (yearlypr[i].tar_kwh / 1000000);
+                
+                if (yearlypr[i].act_kwh != 0 || yearlypr[i].tar_kwh != 0)
+                {
+                    t_var_yr = ((yearlypr[i].act_kwh - yearlypr[i].tar_kwh) / yearlypr[i].tar_kwh) * 100;
+                }
+                if (yearlypr[i].act_poa != 0 || yearlypr[i].tar_poa != 0)
+                {
+                    poa_var_yr = ((yearlypr[i].act_poa - yearlypr[i].tar_poa) / yearlypr[i].tar_poa) * 100;
+                }
+                pr_var_yr = (act_prval_yr - yearlypr[i].tar_pr);
+
+                total_capacity_yr += yearlypr[i].capacity;
+                total_tar_kwh_yr += yearlypr[i].tar_kwh;
+                total_act_kwh_yr += yearlypr[i].act_kwh;
+
+                tb += "<td class='text-left'>" + yearlypr[i].site + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].capacity, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].expected_kwh, 2) + "</td>";
+                  
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].tar_kwh, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(yearlypr[i].act_kwh, 2) + "</td>";
+                tb += "<td class='text-right'>" + Math.Round(t_var_yr, 2) + "</td>";
+                bool monthlyRecordFound = false;
+                for (var j = 0; j < monthlypr.Count; j++)
+                {
+                    if (yearlypr[i].site == monthlypr[j].site)
+                    {
+                        if (monthlypr[j].expected_kwh == 0 || monthlypr[j].act_kwh == 0)
+                        {
+                            act_prval_mn = 0;
+                        }
+                        else
+                        {
+                            act_prval_mn = (monthlypr[j].act_kwh / monthlypr[j].expected_kwh) * 100;
+                        }
+                        tar_mu_mn = (monthlypr[i].tar_kwh / 1000000);
+
+                        if (monthlypr[j].act_kwh != 0 || monthlypr[j].tar_kwh != 0)
+                        {
+                            t_var_mn = ((monthlypr[j].act_kwh - monthlypr[j].tar_kwh) / monthlypr[j].tar_kwh) * 100;
+                        }
+                        if (monthlypr[j].act_poa != 0 || monthlypr[j].tar_poa != 0)
+                        {
+                            poa_var_mn = ((monthlypr[j].act_poa - monthlypr[j].tar_poa) / monthlypr[j].tar_poa) * 100;
+                        }
+                        pr_var_mn = (act_prval_mn - monthlypr[j].tar_pr);
+
+                        total_capacity_mn += monthlypr[j].capacity;
+                        total_tar_kwh_mn += monthlypr[j].tar_kwh;
+                        total_act_kwh_mn += monthlypr[j].act_kwh;
+
+
+
+                        monthlyRecordFound = true;
+                        tb += "<td class='text-right'>" + Math.Round(monthlypr[j].tar_kwh, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(monthlypr[j].act_kwh, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(t_var_mn, 2) + "</td>";
+                    }
+                }
+                if (monthlyRecordFound == false)
+                {
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                }
+                bool dailyRecordFound = false;
+                for (var k = 0; k < lastdaypr.Count; k++)
+                {
+                    if (yearlypr[i].site == lastdaypr[k].site)
+                    {
+                        dailyRecordFound = true;
+                        if (lastdaypr[k].expected_kwh == 0 || lastdaypr[k].act_kwh == 0)
+                        {
+                            act_prval_ld = 0;
+                        }
+                        else
+                        {
+                            act_prval_ld = (lastdaypr[k].act_kwh / lastdaypr[k].expected_kwh) * 100;
+                        }
+                        tar_mu_ld = (lastdaypr[k].tar_kwh / 1000000);
+
+                        if (lastdaypr[k].act_kwh != 0 || lastdaypr[k].tar_kwh != 0)
+                        {
+                            t_var_ld = ((lastdaypr[k].act_kwh - lastdaypr[k].tar_kwh) / lastdaypr[k].tar_kwh) * 100;
+                        }
+                        if (lastdaypr[k].act_poa != 0 || lastdaypr[k].tar_poa != 0)
+                        {
+                            poa_var_ld = ((lastdaypr[k].act_poa - lastdaypr[k].tar_poa) / lastdaypr[k].tar_poa) * 100;
+                        }
+                        pr_var_ld = (act_prval_ld - lastdaypr[k].tar_pr);
+
+                        total_capacity_ld += lastdaypr[k].capacity;
+                        total_tar_kwh_ld += lastdaypr[k].tar_kwh;
+                        total_act_kwh_ld += lastdaypr[k].act_kwh;
+                        total_capTarIR_ld += lastdaypr[k].tar_poa * lastdaypr[k].capacity;
+                        total_capActIR_ld += lastdaypr[k].act_poa * lastdaypr[k].capacity;
+                        total_capActIga_ld += lastdaypr[k].act_iga * lastdaypr[k].capacity;
+                        total_capActMa_ld += lastdaypr[k].act_ma * lastdaypr[k].capacity;
+                        total_capActPlf_ld += lastdaypr[k].act_plf * lastdaypr[k].capacity;
+                        total_capActEga_ld += lastdaypr[k].act_ega * lastdaypr[k].capacity;
+                        total_capTarPr_ld += lastdaypr[k].tar_pr * lastdaypr[k].capacity;
+                        total_capActPr_ld += lastdaypr[k].act_pr * lastdaypr[k].capacity;
+
+
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].tar_kwh, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].act_kwh, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(t_var_yr, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].tar_poa, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[k].act_poa, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(poa_var_ld, 2) + "</td>";
+
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[1].act_ma, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[i].act_iga, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[i].act_ega, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[i].act_plf, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(lastdaypr[i].tar_pr, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(act_prval_ld, 2) + "</td>";
+                        tb += "<td class='text-right'>" + Math.Round(pr_var_ld, 2) + "</td>";
+
+                    }
+                }
+                if (dailyRecordFound == false)
+                {
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                    tb += "<td class='text-right'>0.0</td>";
+                }
+
+
+
+                tb += "</tr>";
+            }
+
+            if (total_tar_kwh_yr != 0)
+            {
+                avg_solar_var_yr = (((total_act_kwh_yr - total_tar_kwh_yr) / total_tar_kwh_yr) * 100);
+            }
+            if (total_tar_kwh_mn != 0)
+            {
+                avg_solar_var_mn = (((total_act_kwh_mn - total_tar_kwh_mn) / total_tar_kwh_mn) * 100);
+            }
+
+            if (total_capacity_ld != 0)
+            {
+                avg_tar_IR_ld = total_capTarIR_ld / total_capacity_ld;
+                avg_act_IR_ld = total_capActIR_ld / total_capacity_ld;
+                avg_act_iga_ld = total_capActIga_ld / total_capacity_ld;
+                avg_act_ega_ld = total_capActEga_ld / total_capacity_ld;
+                avg_tar_pr_ld = total_capTarPr_ld / total_capacity_ld;
+                avg_act_pr_ld = total_capActPr_ld / total_capacity_ld;
+                avg_act_plf_ld = total_capActPlf_ld / total_capacity_ld;
+                avg_act_ma_ld = total_capActMa_ld / total_capacity_ld;
+            }
+            if (total_tar_kwh_ld != 0)
+            {
+                avg_solar_var_ld = (((total_act_kwh_ld - total_tar_kwh_ld) / total_tar_kwh_ld) * 100);
+            }
+
+
+            //return tb;
+             tb += "</tbody>";
+            tb += "<tfoot><tr><td class='text-left'><b>Grand Total</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_capacity_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(0.00, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_tar_kwh_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_act_kwh_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_solar_var_yr, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_tar_kwh_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_act_kwh_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_solar_var_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_tar_kwh_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(total_act_kwh_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_solar_var_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_tar_IR_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_IR_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_IR_var_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_ma_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_iga_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_ega_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_plf_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_tar_pr_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_act_pr_ld, 2) + "</b></td>";
+            tb += "<td class='text-right'><b>" + Math.Round(avg_pr_var_ld, 2) + "</b></td></tr>";
+
+           
+            tb += "</tfoot></table>";
+            //return tb;
+            List<SolarUploadingFileBreakDown> data2 = new List<SolarUploadingFileBreakDown>();
+
+            data2 = await GetSolarMajorBreakdownData(lastDay, fromDate, site);
+            TimeSpan Get_Time;
+            double total_time_s = 0;
+
+            tb += "<br>";
+            tb += "<h2><b>Major Breakdown dated " + lastDay + "</b></h2>";
+            tb += "<br>";
+            tb += "<table id='emailTable2' rowspan='2' class='table table-bordered table-striped' style='width: 80%; '  border='1' cellspacing='0' cellpadding='0'>";
+            tb += "<thead class='tbl-head' style='background-color:#31576D'><tr>";
+            tb += "<th>Date</th>";
+            tb += "<th>Site</th>";
+            tb += "<th>ICRs</th>";
+            tb += "<th>INVs</th>";
+            tb += "<th>BD Type</th>";
+            tb += "<th>TAT</th>";
+            tb += "<th>Error Details</th>";
+            tb += "<th>Action Taken</th></tr></thead>";
+
+
+            if (data2.Count > 0)
+            {
+
+                for (var i = 0; i < data2.Count; i++)
+                {
+                    
+                    Get_Time = data2[i].total_bd * 24;
+                    total_time_s = Get_Time.TotalDays;
+
+                    if (total_time_s >= 0.50)
+                    {
+                        tb += "<tr>";
+                        tb += "<td class='text-left'>" + data2[i].date + "</td>";
+                        tb += "<td class='text-left'>" + data2[i].site + "</td>";
+                        tb += "<td class='text-left'>" + data2[i].icr + "</td>";
+                        tb += "<td class='text-left'>" + data2[i].inv + "</td>";
+                        tb += "<td class='text-left'>" + data2[i].bd_type + "</td>";
+                        tb += "<td class='text-left'>" + Math.Round(total_time_s,2) + "</td>";
+                        tb += "<td class='text-left'>" + data2[i].bd_remarks + "</td>";
+                        tb += "<td class='text-left'>" + data2[i].action_taken + "</td>";
+                        tb += "</tr>";
+                        //}
+                        //if ((data2[i].bd_type_id != 1 && data2[i].bd_type_id != 2) && +total_time.split(":")[0] >= 4)
+                        //{
+                        //    tb += "<tr>";
+                        //    tb += "<td class='text-left'>" + data2[i].site_name + "</td>";
+                        //    tb += "<td class='text-left'>" + data2[i].wtg + "</td>";
+                        //    tb += "<td class='text-left'>" + total_time + "</td>";
+                        //    tb += "<td class='text-left'>" + data2[i].error_description + "</td>";
+                        //    tb += "<td class='text-left'>" + data2[i].action_taken + "</td>";
+                        //    tb += "</tr>";
+                    }
+
+                }
+            }
+            tb += "</tbody></table>";
+
+           await MailDailySend(tb,title);
+           // return res;
+            return tb;
+        }
+
+
+        internal async Task<int> MailDailySend(string data ,string reportTitle)
+        {
+            //MAILING FUNCTIONALITY
+            MailSettings _settings = new MailSettings();
+            var MyConfig = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
+            _settings.Mail = MyConfig.GetValue<string>("MailSettings:Mail");
+            //_settings.Mail = "kasrsanket@gmail.com";
+            //_settings.DisplayName = "Sanket Kar";
+            _settings.DisplayName = MyConfig.GetValue<string>("MailSettings:DisplayName");
+            //_settings.Password = "lozirdytywjlvcxd";
+            _settings.Password = MyConfig.GetValue<string>("MailSettings:Password");
+            //_settings.Host = "smtp.gmail.com";
+            _settings.Host = MyConfig.GetValue<string>("MailSettings:Host");
+            //_settings.Port = 587;
+            _settings.Port = MyConfig.GetValue<int>("MailSettings:Port");
+
+            
+
+           // string qry = "select useremail from login where Email_To = 1";
+           //List<UserLogin> data2 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+           
+            string Msg = "Weekly PR Report Generated";
+            List<string> AddTo = new List<string>();
+            List<string> AddCc = new List<string>();
+
+            // string qry = "select useremail from login where Email_To = 1";
+            //List<UserLogin> data2 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+
+            string qry = "";
+            if (reportTitle.Contains("Solar"))
+            {
+                qry = "select useremail from login where To_Daily_Solar = 1;";
+                List<UserLogin> data2 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+                foreach (var item in data2)
+                {
+                    AddTo.Add(item.useremail);
+                }
+                qry = "select useremail from login where Cc_Daily_Solar = 1;";
+                List<UserLogin> data3 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+                foreach (var item in data3)
+                {
+                    AddCc.Add(item.useremail);
+                }
+            }
+            else
+            {
+                qry = "select useremail from login where to_daily_wind = 1;";
+                List<UserLogin> data2 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+                foreach (var item in data2)
+                {
+                    AddTo.Add(item.useremail);
+                }
+                qry = "select useremail from login where Cc_Daily_Wind = 1;";
+                List<UserLogin> data3 = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
+                foreach (var item in data3)
+                {
+                    AddCc.Add(item.useremail);
+                }
+            }
+
+
+
+            // private MailServiceBS mailService;
+            MailRequest request = new MailRequest();
+           
+            //AddTo.Add("sujitkumar0304@gmail.com");
+            //AddTo.Add("prashant@softetech.in");
+
+            // emails.Add("tanviik28@gmail.com");
+            request.ToEmail = AddTo;
+            request.CcEmail = AddCc;
+            request.Subject = reportTitle;
+            request.Body = data;
+           
+
+            //var file = "/Users/sanketkar/Downloads/WeeklyReport_2023-01-04.pptx";
+            // var file = "C:\\Users\\sujit\\Downloads\\" + fname+".pptx";
+            //using var stream = new MemoryStream(System.IO.File.ReadAllBytes(file).ToArray());
+            //var formFile = new FormFile(stream, 0, stream.Length, "streamFile", file.Split(@"/").Last());
+            //List<IFormFile> list = new List<IFormFile>();
+            //formFile.ContentType = "application/octet-stream";
+            //list.Add(formFile);
+            //request.Attachments = list;
+            /*using (var stream = System.IO.File.OpenRead(@"/Users/sanketkar/file.txt"))
+            {
+                await request.Attachments.CopyToAsync(stream);
+            }*/
+            try
+            {
+                var res = await MailService.SendEmailAsync(request, _settings);
+            }
+            catch (Exception e)
+            {
+                string msg = e.Message;
+                //Pending: error log failed mail
+            }
+            return 1;
+        }
         private void API_ErrorLog(string Message)
         {
             //Read variable from appsetting to enable disable log

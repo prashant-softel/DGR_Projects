@@ -25,7 +25,8 @@ using System.Threading.Tasks;
 namespace DGRA_V1.Controllers
 {
 
-   // [Authorize]
+    // [Authorize]
+    [AllowAnonymous]
     public class Dashboard : Controller
     {
         private IDapperRepository _idapperRepo;

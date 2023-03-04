@@ -691,7 +691,39 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
-		[Route("InsertWindLocationMaster")]
+        [Route("EmailWindReport")]
+        [HttpGet]
+        public async Task<IActionResult> EmailWindReport(string fy, string fromDate , string site)
+        {
+            try
+            {
+                var data = await _dgrBs.EmailWindReport(fy, fromDate, site);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("EmailSolarReport")]
+        [HttpGet]
+        public async Task<IActionResult> EmailSolarReport(string fy, string fromDate, string site)
+        {
+            try
+            {
+                var data = await _dgrBs.EmailSolarReport(fy, fromDate, site);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+        [Route("InsertWindLocationMaster")]
         [HttpPost]
         public async Task<IActionResult> InsertWindLocationMaster(List<WindLocationMaster> set)
         {
@@ -2219,6 +2251,23 @@ namespace DGRAPIs.Controllers
                 return BadRequest(ex.Message);
             }
         }
+        [Route("MailSend")]
+        [HttpGet]
+        public async Task<IActionResult> MailSend(string fname)
+        {
+            try
+            {
+                var data = await _dgrBs.MailSend(fname);
+                return Ok(data);
+
+            }
+            catch (Exception ex)
+            {
+
+                return BadRequest(ex.Message);
+            }
+        }
+        
         [Route("eQry/{qry}")]
         [HttpGet]
         public async Task<IActionResult> eQry(string qry)

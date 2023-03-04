@@ -20,9 +20,13 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using DGRA_V1.Filters;
+using Microsoft.AspNetCore.Authorization;
+using System.Text.RegularExpressions;
+
 namespace DGRA_V1.Areas.admin.Controllers
 {
     [Area("admin")]
+    [AllowAnonymous]
     [ServiceFilter(typeof(SessionValidation))]
     [TypeFilter(typeof(SessionValidation))]
     public class FileUploadController : Controller
@@ -62,6 +66,7 @@ namespace DGRA_V1.Areas.admin.Controllers
         ErrorLog m_ErrorLog;
 
         Hashtable equipmentId = new Hashtable();
+        Hashtable maxkWhMap_wind = new Hashtable();
         Hashtable breakdownType = new Hashtable();//(B)Gets bdTypeID from bdTypeName: BDType table
         Hashtable siteNameId = new Hashtable(); //(C)Gets siteId from siteName
         Hashtable siteName = new Hashtable(); //(D)Gets siteName from siteId
@@ -180,8 +185,8 @@ namespace DGRA_V1.Areas.admin.Controllers
                             }
                             DataTable dt = null;
 
-                            //string _filePath = @"C:\TempFile\docupload.xlsx";
-                            string _filePath = @"G:\TempFile\docupload.xlsx";
+                            string _filePath = @"C:\TempFile\docupload.xlsx";
+                            //string _filePath = @"G:\TempFile\docupload.xlsx";
                             //string _filePath = env.ContentRootPath + @"\TempFile\docupload.xlsx";
                             dataSetMain = GetDataTableFromExcel(_filePath, true, ref fileSheets);
                             if (dataSetMain == null)
@@ -864,10 +869,14 @@ namespace DGRA_V1.Areas.admin.Controllers
 
                         // addUnit.inv_act = string.IsNullOrEmpty((string)dr["Inv_Act(KWh)"]) ? 0 : Convert.ToDouble(dr["Inv_Act(KWh)"]);
                         // addUnit.plant_act = string.IsNullOrEmpty((string)dr["Plant_Act(kWh)"]) ? 0 : Convert.ToDouble(dr["Plant_Act(kWh)"]);
-                       
-                        addUnit.inv_act = string.IsNullOrEmpty((string)dr["Inv_Act(KWh)"]) ? 0 : Convert.ToDouble(dr["Inv_Act(KWh)"]);
+
+                        double importValue = 0.00;
+                        int logErrorFlag = 0; //log as information
+//                        addUnit.inv_act = string.IsNullOrEmpty((string)dr["Inv_Act(KWh)"]) ? 0 : Convert.ToDouble(dr["Inv_Act(KWh)"]);
+                        addUnit.inv_act = validateNumeric(((string)dr["Inv_Act(KWh)"]), "Inv_Act(KWh)", rowNumber, dr["Inv_Act(KWh)"] is DBNull, logErrorFlag, out importValue) ? 0 : importValue;
                         errorFlag.Add(negativeNullValidation(addUnit.inv_act, "Inv_Act(KWh)", rowNumber));
-                        addUnit.plant_act = string.IsNullOrEmpty((string)dr["Plant_Act(kWh)"]) ? 0 : Convert.ToDouble(dr["Plant_Act(kWh)"]);
+                        //addUnit.plant_act = string.IsNullOrEmpty((string)dr["Plant_Act(kWh)"]) ? 0 : Convert.ToDouble(dr["Plant_Act(kWh)"]);
+                        addUnit.plant_act = validateNumeric(((string)dr["Plant_Act(KWh)"]), "Plant_Act(KWh)", rowNumber, dr["Plant_Act(KWh)"] is DBNull, logErrorFlag, out importValue) ? 0 : importValue;
                         errorFlag.Add(negativeNullValidation(addUnit.plant_act, "Inv_Act(KWh)", rowNumber));
 
                         addUnit.pi = commonValidation.stringToPercentage(rowNumber, Convert.ToString(dr["PI(%)"]), "PI(%)");
@@ -955,6 +964,7 @@ namespace DGRA_V1.Areas.admin.Controllers
                 }
 
                 generationDate = "";
+                double max_kWh = 0;
                 List<WindUploadingFileGeneration> addSet = new List<WindUploadingFileGeneration>();
                 foreach (DataRow dr in ds.Tables[0].Rows)
                 {
@@ -1003,6 +1013,18 @@ namespace DGRA_V1.Areas.admin.Controllers
                         addUnit.wtg = dr["WTG"] is DBNull || string.IsNullOrEmpty((string)dr["WTG"]) ? "Nil" : Convert.ToString(dr["WTG"]);
                         addUnit.wtg_id = equipmentId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(equipmentId[addUnit.wtg]) : 0;
                         errorFlag.Add(wtgValidation(addUnit.wtg, addUnit.wtg_id, rowNumber));
+                        if (rowNumber == 2)
+                        {
+                            if (maxkWhMap_wind.ContainsKey(addUnit.wtg_id))
+                            {
+                                max_kWh = Convert.ToDouble(maxkWhMap_wind[addUnit.wtg_id]);
+                            }
+                            else
+                            {
+                                errorFlag.Add(true);
+                                m_ErrorLog.SetError(",WTG <" + addUnit.wtg + "> WTG_id<" + addUnit.wtg_id + "> does not have max kWh set in location master");
+                            }
+                        }
 
                         addUnit.site_id = eqSiteId.ContainsKey(addUnit.wtg) ? Convert.ToInt32(eqSiteId[addUnit.wtg]) : 0;
                         addUnit.site_name = siteName.ContainsKey(addUnit.site_id) ? (string)(siteName[addUnit.site_id]) : "Nil";
@@ -1021,15 +1043,20 @@ namespace DGRA_V1.Areas.admin.Controllers
                             errorFlag.Add(importDateValidation(1, addUnit.site_id, dateValidate));
                         }
 
+                        int logErrorFlag = 0;   //log as information
+                        double importValue = 0;
 
-                        addUnit.wind_speed = string.IsNullOrEmpty((string)dr["Wind_Speed"]) ? 0 : Convert.ToDouble(dr["Wind_Speed"]);
+                        //addUnit.wind_speed = string.IsNullOrEmpty((string)dr["Wind_Speed"]) ? 0 : Convert.ToDouble(dr["Wind_Speed"]);
+                        addUnit.wind_speed = validateNumeric(((string)dr["Wind_Speed"]), "Wind_Speed", rowNumber, dr["Wind_Speed"] is DBNull, logErrorFlag, out importValue) ? 0 : importValue;
                         errorFlag.Add(numericNullValidation(addUnit.wind_speed, "Wind_Speed", rowNumber));
                        
-                        addUnit.operating_hrs = dr["Gen_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Gen_Hrs"]) ? 0 : Convert.ToDouble(dr["Gen_Hrs"]);
+                        //addUnit.operating_hrs = dr["Gen_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Gen_Hrs"]) ? 0 : Convert.ToDouble(dr["Gen_Hrs"]);
+                        addUnit.operating_hrs = validateNumeric(((string)dr["Gen_Hrs"]), "Gen_Hrs", rowNumber, dr["Gen_Hrs"] is DBNull, logErrorFlag, out importValue) ? 0 : importValue;
                         //errorFlag.Add(numericNullValidation(addUnit.operating_hrs, "Gen_Hrs", rowNumber));
 
-                        addUnit.kwh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
-                        errorFlag.Add(kwhValidation(addUnit.kwh, addUnit.operating_hrs, "kWh", rowNumber));
+                        //addUnit.kwh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
+                        addUnit.kwh = validateNumeric(((string)dr["kWh"]), "kWh", rowNumber, dr["kWh"] is DBNull, logErrorFlag, out importValue) ? 0 : importValue;
+                        errorFlag.Add(kwhValidation(addUnit.kwh, addUnit.operating_hrs, "kWh", rowNumber, max_kWh));
 
                        // addUnit.kwh = string.IsNullOrEmpty((string)dr["kWh"]) ? 0 : Convert.ToDouble(dr["kWh"]);
                        // errorFlag.Add(numericNullValidation(addUnit.kwh, "kWh", rowNumber));
@@ -1045,9 +1072,10 @@ namespace DGRA_V1.Areas.admin.Controllers
                             skipRow = true;
                             continue;
                         }
-
-                        addUnit.lull_hrs = dr["Lull_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Lull_Hrs"]) ? 0 : Convert.ToDouble(dr["Lull_Hrs"]);
-                        addUnit.grid_hrs = dr["Grid_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Grid_Hrs"]) ? 0 : Convert.ToDouble(dr["Grid_Hrs"]);
+                        //addUnit.lull_hrs = dr["Lull_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Lull_Hrs"]) ? 0 : Convert.ToDouble(dr["Lull_Hrs"]);
+                        addUnit.lull_hrs = validateNumeric(((string)dr["Lull_Hrs"]), "Lull_Hrs", rowNumber, dr["Lull_Hrs"] is DBNull, logErrorFlag, out importValue) ? 0 : importValue;
+                        //addUnit.grid_hrs = dr["Grid_Hrs"] is DBNull || string.IsNullOrEmpty((string)dr["Grid_Hrs"]) ? 0 : Convert.ToDouble(dr["Grid_Hrs"]);
+                        addUnit.grid_hrs = validateNumeric(((string)dr["Grid_Hrs"]), "Grid_Hrs", rowNumber, dr["Grid_Hrs"] is DBNull, logErrorFlag, out importValue) ? 0 : importValue;
                         nextDate = Convert.ToDateTime(dr["Date"]);
                         fromDate = ((nextDate < fromDate) ? (nextDate) : (fromDate));
                         toDate = (nextDate > toDate) ? (nextDate) : (toDate);
@@ -1393,19 +1421,34 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(siteValidation(site, addUnit.site_id, rowNumber));
                         objImportBatch.importSiteId = addUnit.site_id;
 
-                        addUnit.ghi_1 = Convert.ToDouble((dr["GHI-1"] is DBNull) || string.IsNullOrEmpty((string)dr["GHI-1"]) || ((string)dr["GHI-1"] == "") ? 0 : dr["GHI-1"]);
-                        addUnit.ghi_2 = Convert.ToDouble((dr["GHI-2"] is DBNull) || string.IsNullOrEmpty((string)dr["GHI-2"]) || ((string)dr["GHI-2"] == "") ? 0 : dr["GHI-2"]);
-                        addUnit.poa_1 = Convert.ToDouble((dr["POA-1"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-1"]) || ((string)dr["POA-1"] == "") ? 0 : dr["POA-1"]);
-                        addUnit.poa_2 = Convert.ToDouble((dr["POA-2"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-2"]) || ((string)dr["POA-2"] == "") ? 0 : dr["POA-2"]);
-                        addUnit.poa_3 = Convert.ToDouble((dr["POA-3"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-3"]) || ((string)dr["POA-3"] == "") ? 0 : dr["POA-3"]);
-                        addUnit.poa_4 = Convert.ToDouble((dr["POA-4"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-4"]) || ((string)dr["POA-4"] == "") ? 0 : dr["POA-4"]);
-                        addUnit.poa_5 = Convert.ToDouble((dr["POA-5"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-5"]) || ((string)dr["POA-5"] == "") ? 0 : dr["POA-5"]);
-                        addUnit.poa_6 = Convert.ToDouble((dr["POA-6"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-6"]) || ((string)dr["POA-6"] == "") ? 0 : dr["POA-6"]);
-                        addUnit.poa_7 = Convert.ToDouble((dr["POA-7"] is DBNull) || string.IsNullOrEmpty((string)dr["POA-7"]) || ((string)dr["POA-7"] == "") ? 0 : dr["POA-7"]);
-                        addUnit.avg_ghi = Convert.ToDouble((dr["Average GHI (w/m²)"] is DBNull) || string.IsNullOrEmpty((string)dr["Average GHI (w/m²)"]) || ((string)dr["Average GHI (w/m²)"] == "") ? 0 : dr["Average GHI (w/m²)"]);
-                        addUnit.avg_poa = Convert.ToDouble((dr["Average POA (w/m²)"] is DBNull) || string.IsNullOrEmpty((string)dr["Average POA (w/m²)"]) || ((string)dr["Average POA (w/m²)"] == "") ? 0 : dr["Average POA (w/m²)"]);
-                        addUnit.amb_temp = Convert.ToDouble((dr["Ambient Temp"] is DBNull) || string.IsNullOrEmpty((string)dr["Ambient Temp"]) || ((string)dr["Ambient Temp"] == "") ? 0 : dr["Ambient Temp"]);
-                        addUnit.mod_temp = Convert.ToDouble((dr["Module Temp"] is DBNull) || string.IsNullOrEmpty((string)dr["Module Temp"]) || ((string)dr["Module Temp"] == "") ? 0 : dr["Module Temp"]);
+                        int logErrorFlag = 1;
+                        double importValue = 0.00;
+                        errorFlag.Add(validateNumeric(((string)dr["GHI-1"]), "GHI-1", rowNumber, dr["GHI-1"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.ghi_1 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["GHI-2"]), "GHI-2", rowNumber, dr["GHI-2"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.ghi_2 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["POA-1"]), "POA-1", rowNumber, dr["POA-1"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_1 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["POA-3"]), "POA-2", rowNumber, dr["POA-2"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_2 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["POA-3"]), "POA-3", rowNumber, dr["POA-3"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_3 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["POA-4"]), "POA-4", rowNumber, dr["POA-4"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_4 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["POA-5"]), "POA-5", rowNumber, dr["POA-5"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_5 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["POA-6"]), "POA-6", rowNumber, dr["POA-6"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_6 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["POA-7"]), "POA-7", rowNumber, dr["POA-7"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_7 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["Average GHI (w/m²)"]), "Average GHI (w/m²)", rowNumber, dr["Average GHI (w/m²)"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.avg_ghi = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["Average POA (w/m²)"]), "Average POA (w/m²)", rowNumber, dr["Average POA (w/m²)"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.avg_poa = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["Ambient Temp"]), "Ambient Temp", rowNumber, dr["Ambient Temp"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.amb_temp = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["Module Temp"]), "Module Temp", rowNumber, dr["Module Temp"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.mod_temp = importValue;
                         foreach (bool item in errorFlag)
                         {
                             if (item)
@@ -1490,19 +1533,34 @@ namespace DGRA_V1.Areas.admin.Controllers
                         errorFlag.Add(siteValidation(site, addUnit.site_id, rowNumber));
                         objImportBatch.importSiteId = addUnit.site_id;
 
-                        addUnit.ghi_1 = Convert.ToDouble((dr["GHI-1"] is DBNull || string.IsNullOrEmpty((string)dr["GHI-1"])) ? 0 : dr["GHI-1"]);
-                        addUnit.ghi_2 = Convert.ToDouble((dr["GHI-2"] is DBNull || string.IsNullOrEmpty((string)dr["GHI-2"])) ? 0 : dr["GHI-2"]);
-                        addUnit.poa_1 = Convert.ToDouble((dr["POA-1"] is DBNull || string.IsNullOrEmpty((string)dr["POA-1"])) ? 0 : dr["POA-1"]);
-                        addUnit.poa_2 = Convert.ToDouble((dr["POA-2"] is DBNull || string.IsNullOrEmpty((string)dr["POA-2"])) ? 0 : dr["POA-2"]);
-                        addUnit.poa_3 = Convert.ToDouble((dr["POA-3"] is DBNull || string.IsNullOrEmpty((string)dr["POA-3"])) ? 0 : dr["POA-3"]);
-                        addUnit.poa_4 = Convert.ToDouble((dr["POA-4"] is DBNull || string.IsNullOrEmpty((string)dr["POA-4"])) ? 0 : dr["POA-4"]);
-                        addUnit.poa_5 = Convert.ToDouble((dr["POA-5"] is DBNull || string.IsNullOrEmpty((string)dr["POA-5"])) ? 0 : dr["POA-5"]);
-                        addUnit.poa_6 = Convert.ToDouble((dr["POA-6"] is DBNull || string.IsNullOrEmpty((string)dr["POA-6"])) ? 0 : dr["POA-6"]);
-                        addUnit.poa_7 = Convert.ToDouble((dr["POA-7"] is DBNull || string.IsNullOrEmpty((string)dr["POA-7"])) ? 0 : dr["POA-7"]);
-                        addUnit.avg_ghi = Convert.ToDouble((dr["Average GHI (w/m²)"] is DBNull || string.IsNullOrEmpty((string)dr["Average GHI (w/m²)"])) ? 0 : dr["Average GHI (w/m²)"]);
-                        addUnit.avg_poa = Convert.ToDouble((dr["Average POA (w/m²)"] is DBNull || string.IsNullOrEmpty((string)dr["Average POA (w/m²)"])) ? 0 : dr["Average POA (w/m²)"]);
-                        addUnit.amb_temp = Convert.ToDouble((dr["Ambient Temp"] is DBNull || string.IsNullOrEmpty((string)dr["Ambient Temp"])) ? 0 : dr["Ambient Temp"]);
-                        addUnit.mod_temp = Convert.ToDouble((dr["Module Temp"] is DBNull || string.IsNullOrEmpty((string)dr["Module Temp"])) ? 0 : dr["Module Temp"]);
+                        int logErrorFlag = 1;
+                        double importValue = 0.00;
+                        errorFlag.Add(validateNumeric(((string)dr["GHI-1"]), "GHI-1", rowNumber, dr["GHI-1"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.ghi_1 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["GHI-2"]), "GHI-2", rowNumber, dr["GHI-2"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.ghi_2 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["POA-1"]), "POA-1", rowNumber, dr["POA-1"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_1 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["POA-3"]), "POA-2", rowNumber, dr["POA-2"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_2 = importValue; 
+                        errorFlag.Add(validateNumeric(((string)dr["POA-3"]), "POA-3", rowNumber, dr["POA-3"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_3 = importValue; 
+                        errorFlag.Add(validateNumeric(((string)dr["POA-4"]), "POA-4", rowNumber, dr["POA-4"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_4 = importValue; 
+                        errorFlag.Add(validateNumeric(((string)dr["POA-5"]), "POA-5", rowNumber, dr["POA-5"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_5 = importValue; 
+                        errorFlag.Add(validateNumeric(((string)dr["POA-6"]), "POA-6", rowNumber, dr["POA-6"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_6 = importValue; 
+                        errorFlag.Add(validateNumeric(((string)dr["POA-7"]), "POA-7", rowNumber, dr["POA-7"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.poa_7 = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["Average GHI (w/m²)"]), "Average GHI (w/m²)", rowNumber, dr["Average GHI (w/m²)"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.avg_ghi = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["Average POA (w/m²)"]), "Average POA (w/m²)", rowNumber, dr["Average POA (w/m²)"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.avg_poa = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["Ambient Temp"]), "Ambient Temp", rowNumber, dr["Ambient Temp"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.amb_temp = importValue;
+                        errorFlag.Add(validateNumeric(((string)dr["Module Temp"]), "Module Temp", rowNumber, dr["Module Temp"] is DBNull, logErrorFlag, out importValue));
+                        addUnit.mod_temp = importValue;
                         foreach (bool item in errorFlag)
                         {
                             if (item)
@@ -3223,6 +3281,8 @@ namespace DGRA_V1.Areas.admin.Controllers
             {
                 int wtgId = (int)Convert.ToInt64(dr["location_master_id"]);//D
                 equipmentId.Add((string)dr["wtg"], wtgId);
+                double max_kWh = Convert.ToDouble(dr["max_kwh_day"]);
+                maxkWhMap_wind.Add(wtgId, max_kWh);
             }
         }
         public void masterHashtable_BDNameToBDId()
@@ -4028,20 +4088,113 @@ namespace DGRA_V1.Areas.admin.Controllers
             }
             return retVal;
         }
-        public bool kwhValidation(double kwhValue, double prodHrsValue, string columnName, long rowNo)
+		
+        bool validateNumeric(string val, string columnName, long rowNo, bool dbNullError, int logErrorFlag, out double importValue)
+        {
+            bool retValue = false;
+            importValue = 0;
+
+//            if (val is DBNull)
+            if (dbNullError)
+            {
+                //dont log error but set value to 0
+                //retValue = true;
+                //if (logErrorFlag == 0)
+                //{
+                //    m_ErrorLog.SetWarning(",Row <" + rowNo + "> column <" + columnName + "> : value cannot be DBNull,");
+                //}
+                //else if (logErrorFlag == 1)
+                //{
+                //    m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : value cannot be DBNull,");
+                //}
+            }
+            if (string.IsNullOrEmpty(val))
+            {
+                //dont log error but set value to 0
+                //retValue = true;
+                //if (logErrorFlag == 0)
+                //{
+                //    m_ErrorLog.SetWarning(",Row <" + rowNo + "> column <" + columnName + "> : value cannot be null or empty,");
+                //}
+                //else if (logErrorFlag == 1)
+                //{
+                //    m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : value cannot be null or empty,");
+
+                //}
+            }
+            else
+            {
+                if (!Regex.IsMatch(val, @"^-?([0-9]*|\d*\.\d{1}?\d*)$"))
+                {
+                    //log error for non numeric values
+                    retValue = true;
+                    if (logErrorFlag == 0)
+                    {
+                        m_ErrorLog.SetWarning(",Row <" + rowNo + "> column <" + columnName + "> : value  <" + val + "> cannot be non numeric,");
+                    }
+                    else if (logErrorFlag == 1)
+                    {
+                        m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : value  <" + val + "> cannot be non numeric,");
+                    }
+                }
+                else
+                {
+                    //all good, convert value to double
+                    importValue = Convert.ToDouble(val);
+                }
+            }
+            return retValue;
+        }
+
+        bool validateNumeric(string val, out double importValue)
+        {
+            bool retValue = false;
+            importValue = 0;
+
+            if (val is DBNull)
+            {
+                retValue = true;
+            }
+            if (string.IsNullOrEmpty(val))
+            {
+                retValue = true;
+            }
+            else
+            {
+                if (!Regex.IsMatch(val, @"^([0-9]*|\d*\.\d{1}?\d*)$"))
+                {
+                    retValue = true;
+                }
+                else
+                {
+                    importValue = Convert.ToDouble(val);
+                }
+            }
+            return retValue;
+        }
+
+        public bool kwhValidation(double kwhValue, double prodHrsValue, string columnName, long rowNo, double kwhMax)
         {
             bool retVal = false;
             if (kwhValue == 0 && prodHrsValue != 0)
             {
-                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : kWh value cannot be zero, because production hours is not zero,");
+                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : kWh value cannot be zero, because production hours  <" + prodHrsValue + "> is not zero,");
                 retVal = true;
             }
             string value = Convert.ToString(kwhValue);
             if (kwhValue < 0 )
             {
-                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : kWh value cannot be negative or null,");
+                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : kWh value cannot be negative or null or 0,");
                 retVal = true;
             }
+
+            //get max kWh from location master and validate.
+            if (kwhValue > kwhMax)
+            {
+                m_ErrorLog.SetError(",Row <" + rowNo + "> column <" + columnName + "> : kWh value cannot be more than <" + kwhMax + "> as set in location master,");
+                retVal = true;
+            }
+
             return retVal;
         }
         public bool negativeNullValidation(double value, string columnName, long rowNo)

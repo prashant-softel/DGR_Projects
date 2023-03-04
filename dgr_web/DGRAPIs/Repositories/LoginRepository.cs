@@ -20,7 +20,7 @@ namespace DGRAPIs.Repositories
         //Login 
 
         //internal async Task<List<UserLogin>> GetUserLogin(string username, string password)
-        internal async Task<UserLogin> GetUserLogin(string username, string password)
+        internal async Task<UserLogin> GetUserLogin(string username, string password, bool isSSO)
         {
             string qry = "";
             /*//qry = "SELECT * FROM `login` where `username`='" + username + "' and `password` ='" + password + "' and `active_user` = 1 ;";
@@ -34,14 +34,33 @@ namespace DGRAPIs.Repositories
             }
             return _UserLogin;
            */
-            qry = "SELECT login_id,username,useremail,user_role FROM `login` where `useremail`='" + username + "' and `password` = md5('" + password + "') and `active_user` = 1 ;";
+            if (isSSO)
+            {
+                qry = "SELECT login_id,username,useremail,user_role,islogin as islogin FROM `login` where `useremail`='" + username + "'  and `active_user` = 1 ;";
+               
+            }
+            else {
+                qry = "SELECT login_id,username,useremail,user_role,islogin as islogin FROM `login` where `useremail`='" + username + "' and `password` = md5('" + password + "') and `active_user` = 1 ;";
+            }
             var _UserLogin = await Context.GetData<UserLogin>(qry).ConfigureAwait(false);
             if (_UserLogin.Count > 0)
             {
-                string qry1 = "update login set last_accessed=NOW() where login_id=" + _UserLogin[0].login_id + ";";
+                string qry1 = "update login set last_accessed=NOW(),islogin=1 where login_id=" + _UserLogin[0].login_id + ";";
                 await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
             }
             return _UserLogin.FirstOrDefault();
+
+        }
+        internal async Task<int> UpdateLoginStatus(int UserID)
+        {
+            string qry1 = "Update login set islogin=0 where last_accessed<  date_add(now(),interval -10 minute); update login set last_accessed=NOW(),islogin=1 where login_id=" + UserID + ";";
+            return await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
+
+        }
+        internal async Task<int> DirectLogOut(int UserID)
+        {
+            string qry1 = "Update login set islogin=0 where  login_id=" + UserID + ";";
+            return await Context.ExecuteNonQry<int>(qry1).ConfigureAwait(false);
 
         }
         internal async Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass)

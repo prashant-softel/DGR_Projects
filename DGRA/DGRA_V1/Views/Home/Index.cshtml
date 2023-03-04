@@ -9,7 +9,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Hero Future Energies</title>
-    
+
     <link rel="icon" type="image/x-icon" href="~/Content/img/CMMS_Logo.png">
     <!-- Google Font: Source Sans Pro -->
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
@@ -68,7 +68,7 @@
                         <img src="~/Content/img/logo.jpeg" style=" width: 60%;" />
                         <p> &nbsp</p>
                         <p class="login-box-msg"> Sign in</p>
-                        <form action="@Url.Action("SSOLOgin","Home")" method="post">
+                        
                             <div class="input-group mb-3">
          <input type="email" name="username" id="username" class="form-control" onkeypress="UserEnter(event);" placeholder="Username" autofocus>
          <div class="input-group-append">
@@ -92,19 +92,21 @@
                                     </div>
                                 </div>
                             </div>
-     <div class="row">
-         <!--<div class="col-8" style="font-size: 14px;">
-        <label style="color: red; font-weight: unset;display:none" id="msg"></label>
-        <a href="@Url.Action("SSOLOgin","Home")" class="btn btn-primary btn-block">SSO Login</a>
-    </div>-->
-         <!-- /.col -->
-         <div class="col-8" style="font-size: 14px;">
-        <label style="color: red; font-weight: unset;display:none" id="msg"></label>
-        <button type="button" class="btn btn-primary btn-block" onclick="Login();"> Login</button>
-    </div>
-         <!-- /.col -->
-     </div>
-                        </form>
+                            <div class="row">
+                                <a href="@Url.Action("SSOLOgin","Home")" style="display:none" id="aSSOLogin"></a>
+                                @*  <div class="col-8" style="font-size: 14px;">
+                                <label style="color: red; font-weight: unset;display:none" id="msg"></label>
+                                <a href="@Url.Action("SSOLOgin","Home")" class="btn btn-primary btn-block">SSO Login</a>
+                                </div>*@
+                                <!-- /.col -->
+                                <div class="col-8" style="font-size: 14px;">
+                                    <label style="color: red; font-weight: unset;display:none" id="msg"></label>
+                                    <button type="button" class="btn btn-primary btn-block" onclick="Login();"> Login</button>
+
+                                </div>
+                                <!-- /.col -->
+                            </div>
+                        
                     </div>
                 </div>
 
@@ -170,41 +172,89 @@
                 return false;
 
             }
+            //if (username.includes('@@herofutureenergies.com')) {
+            if (username.includes('@@kamaleshs48gmail.onmicrosoft.com')) {
+                $("#aSSOLogin")[0].click();
+            }
+            else {
+                $.ajax({
+
+                    type: "POST",
+                    url: '@Url.Action("Login", "Home")' + '?username=' + username + '&pass=' + password,
+
+                    // url:"/Home/Login?username=" + username + "&pass=" + password,
+                    contentType: "application/json; charset=utf-8",
+                    //data: '{"username":"' + username + '","pass":"' + password + '"}',
+                    dataType: "html",
+                    success: function (result, status, xhr) {
+                        console.log(result);
+                        // var data = JSON.parse(result);
+                        //console.log(data[0]['status']);
+                        if (result == 'Success') {
+                            //return RedirectToAction("Dashbord", "Home");
+
+                            window.location.href = "@Url.Action("Dashbord", "Home")";//d"/DGRA_Web/Home/Dashbord"; //Remote server
+                            //window.location.href = "/Home/Dashbord"; //Local
+                        }
+                        else {
+                            document.getElementById("msg").style.display = 'block';
+                            document.getElementById("msg").innerHTML =result;// 'Creadintial are Incorrect';
+                            timerA = setInterval(function () {
+                                document.getElementById("msg").style.display = 'none';
+                                clearInterval(timerA);
+                            }, 5000);
+                        }
+
+                    },
+                    error: function (xhr, status, error) {
+                        //$("#dataDiv").html("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
+                    }
+
+                });
+            }
+        }
+        $(document).ready(function () {
+            setInterval(function () {
+                updateLoginDetails();
+            }, 1000 * 60 * 2);
+        });
+
+
+        // updateLoginDetails();
+        function updateLoginDetails() {
             $.ajax({
 
                 type: "POST",
-                url: '@Url.Action("Login", "Home")' + '?username=' + username + '&pass=' + password,
-                
-               // url:"/Home/Login?username=" + username + "&pass=" + password,
+                url: '@Url.Action("UpdateLoginStatus", "Home")' + '?userID=' + 0,
+
+                // url:"/Home/Login?username=" + username + "&pass=" + password,
                 contentType: "application/json; charset=utf-8",
                 //data: '{"username":"' + username + '","pass":"' + password + '"}',
                 dataType: "html",
                 success: function (result, status, xhr) {
-                    console.log(result);
-                   // var data = JSON.parse(result);
+                    console.log(new Date());
+                    // var data = JSON.parse(result);
                     //console.log(data[0]['status']);
-                    if (result.length > 0) {
+                    if (result == 'Success') {
                         //return RedirectToAction("Dashbord", "Home");
 
-                        window.location.href = "@Url.Action("Dashbord", "Home")";//d"/DGRA_Web/Home/Dashbord"; //Remote server
-                        //window.location.href = "/Home/Dashbord"; //Local  
+
                     }
                     else {
-                        document.getElementById("msg").style.display = 'block';
-                        document.getElementById("msg").innerHTML = 'Creadintial are Incorrect';
-                        timerA = setInterval(function () {
-                            document.getElementById("msg").style.display = 'none';
-                            clearInterval(timerA);
-                        }, 5000);
+
                     }
 
                 },
                 error: function (xhr, status, error) {
+                    console.log(error);
                     //$("#dataDiv").html("Result: " + status + " " + error + " " + xhr.status + " " + xhr.statusText)
                 }
 
             });
         }
+
+
+
     </script>
 </body>
 </html >
