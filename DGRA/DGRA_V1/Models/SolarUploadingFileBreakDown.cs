@@ -8,7 +8,7 @@ namespace DGRA_V1.Models
     public class SolarUploadingFileBreakDown
     {
         public int uploading_file_breakdown_solar_id { get; set; }
-        public string date { get; set; }
+        public dynamic date { get; set; }
         public string site { get; set; }
         public int site_id { get; set; }
         public string ext_int_bd { get; set; }

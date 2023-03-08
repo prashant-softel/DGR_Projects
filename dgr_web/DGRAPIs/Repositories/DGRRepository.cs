@@ -3817,12 +3817,12 @@ bd_remarks, action_taken
         {
             string delqry = "delete from uploading_file_breakdown where date = '" + set[0].date + "' and site_id='" + set[0].site_id + "';";
             await Context.ExecuteNonQry<int>(delqry).ConfigureAwait(false);
-            string qry = " insert into uploading_file_breakdown(date, site_name, site_id, wtg, wtg_id, bd_type, bd_type_id, stop_from, stop_to, total_stop, error_description, action_taken, import_batch_id) values";
+            string qry = " insert into uploading_file_breakdown(date, site_name, site_id, wtg, wtg_id, bd_type, bd_type_id, stop_from,stop_from_num, stop_to,stop_to_num, total_stop,total_stop_num, error_description, action_taken, import_batch_id) values";
             string values = "";
 
             foreach (var unit in set)
             {
-                values += "('" + unit.date + "','" + unit.site_name + "','" + unit.site_id + "','" + unit.wtg + "','" + unit.wtg_id + "','" + unit.bd_type + "','" + unit.bd_type_id + "','" + unit.stop_from + "','" + unit.stop_to + "','" + unit.total_stop + "','" + unit.error_description + "', '" + unit.action_taken + "', '" + batchId + "'),";
+                values += "('" + unit.date + "','" + unit.site_name + "','" + unit.site_id + "','" + unit.wtg + "','" + unit.wtg_id + "','" + unit.bd_type + "','" + unit.bd_type_id + "','" + unit.stop_from + "','" + unit.stop_from_num + "','" + unit.stop_to + "','" + unit.stop_to_num + "','" + unit.total_stop + "','" + unit.total_stop_num + "','" + unit.error_description + "', '" + unit.action_taken + "', '" + batchId + "'),";
             }
             qry += values;
 

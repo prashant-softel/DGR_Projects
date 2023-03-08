@@ -33,7 +33,7 @@ namespace DGRAPIs.Models
  
             public double plant_plf_dc { get; set; }
  
-            public string pi { get; set; }
+            public double pi { get; set; }
   
             public double prod_hrs { get; set; }
    

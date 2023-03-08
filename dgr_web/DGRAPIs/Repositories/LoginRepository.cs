@@ -65,9 +65,19 @@ namespace DGRAPIs.Repositories
         }
         internal async Task<int> WindUserRegistration(string fname, string useremail, string role, string userpass)
         {
-            string qry = "insert into login (`username`,`useremail`,`user_role`,`password`) VALUES('" + fname + "','" + useremail + "','"+ role + "', MD5('"+userpass+"'))";
-            //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
-            return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
+            string qry1 = "SELECT useremail FROM login WHERE useremail = '"+useremail+"'";
+            List<UserLogin> email = new List<UserLogin>();
+            email = await Context.GetData<UserLogin>(qry1).ConfigureAwait(false);
+            if (email.Capacity > 0)
+            {
+                return -1;
+            }
+            else
+            {
+                string qry = "insert into login (`username`,`useremail`,`user_role`,`password`) VALUES('" + fname + "','" + useremail + "','" + role + "', MD5('" + userpass + "'))";
+                //return await Context.ExecuteNonQry<int>(qry.Substring(0, (qry.Length - 1)) + ";").ConfigureAwait(false);
+                return await Context.ExecuteNonQry<int>(qry).ConfigureAwait(false);
+            }
             
         }
 

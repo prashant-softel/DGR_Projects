@@ -8,7 +8,7 @@ namespace DGRAPIs.Models
     public class WindDashboardData
     {
         
-        public DateTime Date { get; set; }
+        public dynamic Date { get; set; }
         public int month { get; set; }
         public int year { get; set; }
         public string Site { get; set; }
@@ -24,7 +24,7 @@ namespace DGRAPIs.Models
     public class WindDashboardData1
     {
 
-        public DateTime Date { get; set; }
+        public dynamic Date { get; set; }
         public int month { get; set; }
         public int year { get; set; }
         public string Site { get; set; }

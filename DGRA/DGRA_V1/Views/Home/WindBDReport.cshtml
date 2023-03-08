@@ -436,9 +436,9 @@
                         tbl += '<td class="text-left">' + result[i].site + '</td>';
                         tbl += '<td class="text-left">' + result[i].wtg + '</td>';
                         tbl += '<td class="text-left">' + result[i].bd_type + '</td>';
-                        tbl += '<td class="text-right">' + result[i].stop_from + '</td>';
-                        tbl += '<td class="text-right">' + result[i].stop_to + '</td>';
-                        tbl += '<td class="text-right">' + result[i].total_stop + '</td>';
+                        tbl += '<td class="text-right">' + result[i].stop_from['totalHours'].toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].stop_to['totalHours'].toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_stop['totalHours'].toFixed(2) + '</td>';
                         tbl += '<td class="text-left">' + result[i].error_description + '</td>';
                         tbl += '<td class="text-left">' + result[i].action_taken + '</td>';
                         tbl += '</tr>';

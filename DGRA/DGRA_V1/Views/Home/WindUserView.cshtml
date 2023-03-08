@@ -252,10 +252,10 @@
                   
                     var tbl = '<table class="table table-bordered table-striped importApproval-page">';
                     var tbl1 = '<table class="table table-bordered table-striped views-page">';
-                    tbl1 += '<tr><th>&nbsp;&nbsp;</th>';
+                    tbl1 += '<th><input type="checkbox" disabled="disabled" class="checkAllP" id="checkAllP" onclick="selectAllP()" style="margin-left:10px"></th>';
                     tbl1 += '<th>Pages</th></tr>';
                     var tbl2 = '<table class="table table-bordered table-striped reports-page">';
-                    tbl2 += '<tr><th>&nbsp;&nbsp;</th>';
+                    tbl2 += '<th><input type="checkbox" disabled="disabled" class="checkAllR" id="checkAllR" onclick="selectAllR()" style="margin-left:10px"></th>';
                     tbl2 += '<th>Reports</th></tr>';
                    
                     for (var i = 0; i < result.length; i++) {
@@ -265,12 +265,12 @@
                             tbl += '</tr > ';
                         }
                         if (result[i].page_type == 1) {
-                            tbl1 += '<tr><td><input type="checkbox"  disabled="disabled" class="form-check-input view-pages" id="pages" name="pages" data-pageid =' + result[i].id + ' style="margin-left: 15px; margin-top: -6px;"></td>';
+                            tbl1 += '<tr><td><input type="checkbox"  disabled="disabled" class="form-check-input view-pages" id="pages" name="chkP" data-pageid =' + result[i].id + ' style="margin-left: 15px; margin-top: -6px;"></td>';
                             tbl1 += '<td>' + result[i].display_name + '</td>';
                             tbl1 += '</tr > ';
                         }
                         if (result[i].page_type == 2) {
-                            tbl2 += '<tr><td><input type="checkbox"  disabled="disabled" class="form-check-input report-pages" id="pages" name="pages" data-pageid =' + result[i].id + ' style="margin-left: 15px; margin-top: -6px;"></td>';
+                            tbl2 += '<tr><td><input type="checkbox"  disabled="disabled" class="form-check-input report-pages" id="pages" name="chkR" data-pageid =' + result[i].id + ' style="margin-left: 15px; margin-top: -6px;"></td>';
                             tbl2 += '<td>' + result[i].display_name + '</td>';
                             tbl2 += '</tr > ';
                         }
@@ -284,8 +284,46 @@
                 }
             }
         });
+       
         GetUserAccess(id);
+       
 
+    }
+
+    function selectAllP() {
+        var ele = document.getElementsByName('chkP');
+        var a = document.getElementById('checkAllP');
+        if (a.checked == true) {
+            for (var i = 0; i < ele.length; i++) {
+                if (ele[i].type == 'checkbox' )
+                    ele[i].checked = true;
+            }
+        }
+        else {
+            for (var i = 0; i < ele.length; i++) {
+                if (ele[i].type == 'checkbox')
+                    ele[i].checked = false;
+            }
+        }
+    }    
+
+    function selectAllR() {
+        var ele = document.getElementsByName('chkR');
+        var a = document.getElementById('checkAllR');      
+        console.log(a.checked);
+        if (a.checked == true) {
+            for (var i = 0; i < ele.length; i++) {
+                if (ele[i].type == 'checkbox' )
+                    ele[i].checked = true;
+            }
+        }
+        else
+        {
+            for (var i = 0; i < ele.length; i++) {
+                if (ele[i].type == 'checkbox')
+                    ele[i].checked = false;
+            }
+        }
     }
 
     function CheckEmpty() {
@@ -339,7 +377,48 @@
                         $("input.upload_access").attr("disabled", true);
                         $("input.delete_btn").attr("disabled", true);
 
+
                     }
+                    $("input[type='checkbox'].view-pages").each(function () {
+                        var a = $("input[type='checkbox'].view-pages");
+                        console.log(a.length);
+                        if (a.length == a.filter(":checked").length) {
+                            $(".checkAllP").attr('checked', true);
+                          //  alert('all checked');
+                        }
+                    });
+                    $("input[type='checkbox'].report-pages").each(function () {
+                        var a = $("input[type='checkbox'].report-pages");
+                        console.log(a.length);
+                        if (a.length == a.filter(":checked").length) {
+                            $(".checkAllR").attr('checked', true);
+                          //  alert('all checked');
+                        }
+                    });
+                    $("input[type='checkbox'].view-pages").change(function () {
+                        var a = $("input[type='checkbox'].view-pages");
+                        console.log(a.length);
+                        if (a.length == a.filter(":checked").length) {
+                            $(".checkAllP").attr('checked', true);
+                        }
+                        else
+                        {
+                            $(".checkAllP").attr('checked', false);
+
+                        }
+                    });
+                    $("input[type='checkbox'].report-pages").change(function () {
+                        var a = $("input[type='checkbox'].report-pages");
+                        console.log(a.length);
+                        if (a.length == a.filter(":checked").length) {
+                            $(".checkAllR").attr('checked', true);
+                        }
+                        else
+                        {
+                            $(".checkAllR").attr('checked', false);
+                        }
+                    });
+                  
                     //$("input.view-pages").attr("disabled", true);
                     //$("input.report-pages").attr("disabled", true);
                     //$('.site').prop('disabled', true);
@@ -350,6 +429,7 @@
             }
         });
     }
+   
     function Edit() {
         var a = document.getElementById("Edit").innerHTML;
         if (a == "Update") {
@@ -367,6 +447,8 @@
         $("input.import-pages").attr("disabled", false);
         $("input.view-pages").attr("disabled", false);
         $("input.report-pages").attr("disabled", false);
+        $("input.checkAllP").attr("disabled", false);
+        $("input.checkAllR").attr("disabled", false);
         $('.site').prop('disabled', false);
         $("input.upload_access").attr("disabled", false);
         $("input.delete_btn").attr("disabled", false);
@@ -380,6 +462,8 @@
         $("input.import-pages").attr("disabled", true);
         $("input.view-pages").attr("disabled", true);
         $("input.report-pages").attr("disabled", true);
+        $("input.checkAllP").attr("disabled", true);
+        $("input.checkAllR").attr("disabled", true);
         $('.site').prop('disabled', true);
         $("input.upload_access").attr("disabled", true);
         $("input.delete_btn").attr("disabled", true);

@@ -199,7 +199,11 @@
             // data: '{"state":"' + val + '"}',
             datatype: "html",
             success: function (result, status, xhr) {
-                if (result > 0) {
+                if (result == -1) {
+                    alert("Email Address already exists!");
+                }
+                else if (result > 0)
+                {
                     alert("User register successfully!");
                     location.href = "/Home/SiteUserMaster";
 

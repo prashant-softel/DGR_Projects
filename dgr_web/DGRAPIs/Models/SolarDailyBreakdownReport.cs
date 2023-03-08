@@ -7,7 +7,7 @@ namespace DGRAPIs.Models
 {
     public class SolarDailyBreakdownReport
     {
-        public string date { get; set; }
+        public dynamic date { get; set; }
         public string country { get; set; }
         public string state { get; set; }
         public string spv { get; set; }
@@ -27,7 +27,7 @@ namespace DGRAPIs.Models
     public class SolarFileBreakdown
     {
         public int daily_bd_loss_solar_id { get; set; }
-        public string date { get; set; }
+        public dynamic date { get; set; }
         public string country { get; set; }
         public string state { get; set; }
         public string spv { get; set; }
@@ -54,7 +54,7 @@ namespace DGRAPIs.Models
     public class SolarFileBreakdownCalcMatrix
     {
         public int daily_bd_loss_solar_id { get; set; }
-        public string date { get; set; }
+        public dynamic date { get; set; }
         public string country { get; set; }
         public string state { get; set; }
         public string spv { get; set; }

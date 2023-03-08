@@ -191,9 +191,9 @@
                         tbl += '<tr>';
                         tbl += '<td class="text-left">' + result[i].site + '</td>';
                         tbl += '<td class="text-left">' + formattedDate + '</td>';
-                        tbl += '<td class="text-right">' + result[i].start_Time + '</td>';
-                        tbl += '<td class="text-right">' + result[i].end_Time + '</td>';
-                        tbl += '<td class="text-right">' + result[i].total_Time + '</td>';
+                        tbl += '<td class="text-right">' + result[i].start_Time['totalHours'].toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].end_Time['totalHours'].toFixed(2) + '</td>';
+                        tbl += '<td class="text-right">' + result[i].total_Time['totalHours'].toFixed(2) + '</td>';
                         tbl += '<td class="text-right">' + result[i].permissible_Load_MW + '</td>';
                         tbl += '<td class="text-right">' + result[i].gen_loss_kWh.toFixed(2) + '</td>';
                         tbl += '</tr>';

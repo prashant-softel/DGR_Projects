@@ -3,25 +3,26 @@
 //
 
 .form-group {
-  &.has-icon {
-    position: relative;
+    &.has-icon {
+        position: relative;
 
-    .form-control {
-      padding-right: 35px;
-    }
+        .form-control {
+            padding-right: 35px;
+            height: 0.9rem !important;
+        }
 
-    .form-icon {
-      background-color: transparent;
-      border: 0;
-      cursor: pointer;
-      font-size: 1rem;
-      // margin-top: -3px;
-      padding: $input-btn-padding-y $input-btn-padding-x;
-      position: absolute;
-      right: 3px;
-      top: 0;
+        .form-icon {
+            background-color: transparent;
+            border: 0;
+            cursor: pointer;
+            font-size: 1rem;
+            // margin-top: -3px;
+            padding: $input-btn-padding-y $input-btn-padding-x;
+            position: absolute;
+            right: 3px;
+            top: 0;
+        }
     }
-  }
 }
 
 // Button groups

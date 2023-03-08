@@ -296,11 +296,25 @@
                         </div>
                     </div>
                 <hr style="margin-top:-0.5rem">
-                    <div class="card-header">
-                        <h3 class="card-title text-center">Generation Trend</h3>
-                    </div>
-                    <br>
-                <div class="row" style="margin-top:-1rem; margin-bottom:-1rem;">
+                <div class="card-header row">
+                    <h3 class="card-title col-sm-4 text-left">Generation Trend</h3>
+                    
+                        <span class="col-sm-4">
+                            <span class="custom-control custom-radio ">
+                                <input class="custom-control-input" type="radio" id="customRadio1" name="customRadio" value="1" onclick="chartSelection(1)" checked>
+                                <label for="customRadio1" class="custom-control-label">Last 10 Days</label>
+                            </span>
+                        </span>
+                        <span class="col-sm-4">
+                            <span class="custom-control custom-radio ">
+                                <input class="custom-control-input" type="radio" id="customRadio2" name="customRadio" value="2" onclick="chartSelection(2)">
+                                <label for="customRadio2" class="custom-control-label">Monthly</label>
+                            </span>
+                        </span>
+                    
+                </div>
+                   
+                @*<div class="row" style="margin-top:-1rem; margin-bottom:-1rem;">
                         <div class="col-sm-4">
                             <div class="form-group row">
                                 <div class="col-sm-6">
@@ -320,7 +334,7 @@
                         <div class="col-sm-8">
                         </div>
                     </div>
-                    <hr>
+                    <hr>*@
                     <div class="row">
                         <div class="col-sm-6">
 

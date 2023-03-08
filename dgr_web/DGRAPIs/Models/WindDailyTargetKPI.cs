@@ -8,7 +8,7 @@ namespace DGRAPIs.Models
     public class WindDailyTargetKPI
     {
         public string FY { get; set; }
-        public string Date { get; set; }
+        public dynamic Date { get; set; }
         public string Site { get; set; }
         public int site_id { get; set; }
         public dynamic WindSpeed { get; set; }

@@ -11,7 +11,7 @@ namespace DGRAPIs.Models
         public int uploading_file_generation_id { get; set; }
         public string site_name { get; set; }
         public int site_id { get; set; }
-        public string date { get; set; }
+        public dynamic date { get; set; }
         public string wtg { get; set; }
         public int wtg_id{ get; set; }
         public dynamic wind_speed { get; set; }
@@ -26,7 +26,7 @@ namespace DGRAPIs.Models
         public int uploading_file_generation_id { get; set; }
         public string site_name { get; set; }
         public int site_id { get; set; }
-        public string date { get; set; }
+        public dynamic date { get; set; }
         public string wtg { get; set; }
         public int wtg_id { get; set; }
         public double wind_speed { get; set; }
@@ -66,7 +66,7 @@ namespace DGRAPIs.Models
         public string state { get; set; }
         public int site_id { get; set; }
         public float feeder { get; set; }
-        public string date { get; set; }
+        public dynamic date { get; set; }
         public string wtg { get; set; }
         public int wtg_id { get; set; }
         public double wind_speed { get; set; }
@@ -107,7 +107,7 @@ namespace DGRAPIs.Models
     {
         //public int uploading_file_generation_id { get; set; }
         public int uploading_file_generation_id { get; set; }
-        public string date { get; set; }
+        public dynamic date { get; set; }
         public string wtg { get; set; }
         public int wtg_id { get; set; }
         public int site_id { get; set; }

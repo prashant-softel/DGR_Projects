@@ -1,9 +1,14 @@
-﻿namespace DGRA_V1.Models
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace DGRA_V1.Models
 {
     public class SolarDailyTargetKPI
     {
         public string FY { get; set; }
-        public string Date { get; set; }
+        public dynamic Date { get; set; }
         public string Sites { get; set; }
         public int site_id { get; set; }
         public dynamic GHI { get; set; }

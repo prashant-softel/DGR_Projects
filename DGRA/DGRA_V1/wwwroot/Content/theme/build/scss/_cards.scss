@@ -213,7 +213,8 @@ html.maximized-card {
 .card-header {
     background-color: #77CAE7; //transparent;
     border-bottom: 1px solid $card-border-color;
-    padding: (($card-spacer-y * .5) * 2) $card-spacer-x;
+    // padding: (($card-spacer-y * .3) * 2) $card-spacer-x;
+    padding: 0.2rem 1.25rem;
     position: relative;
 
     @if $enable-rounded {
