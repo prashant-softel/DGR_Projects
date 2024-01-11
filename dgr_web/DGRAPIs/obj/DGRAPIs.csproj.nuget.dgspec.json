@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {}
+    "C:\\WebSite\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {}
   },
   "projects": {
-    "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {
+    "C:\\WebSite\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
+        "projectUniqueName": "C:\\WebSite\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
         "projectName": "DGRAPIs",
-        "projectPath": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
+        "projectPath": "C:\\WebSite\\DGR_Projects\\dgr_web\\DGRAPIs\\DGRAPIs.csproj",
         "packagesPath": "C:\\Users\\bemladmin\\.nuget\\packages\\",
-        "outputPath": "C:\\Sujit\\DGR_Projects\\dgr_web\\DGRAPIs\\obj\\",
+        "outputPath": "C:\\WebSite\\DGR_Projects\\dgr_web\\DGRAPIs\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
@@ -69,8 +69,20 @@
           "warn": true,
           "downloadDependencies": [
             {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[3.1.10, 3.1.10]"
+            },
+            {
               "name": "Microsoft.NETCore.App.Host.win-x64",
-              "version": "[3.1.29, 3.1.29]"
+              "version": "[3.1.31, 3.1.31]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[3.1.0, 3.1.0]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[3.1.0, 3.1.0]"
             }
           ],
           "frameworkReferences": {
@@ -81,7 +93,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\6.0.401\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

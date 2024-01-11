@@ -41,6 +41,7 @@ namespace DGRA_V1.Controllers
         {
             _logger = logger;
             _idapperRepo = idapperRepo;
+            _graphServiceClient = graphServiceClient;
 
         }
       
